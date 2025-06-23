@@ -1,0 +1,29 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**.json",
+    "components.d.ts",
+    "eslint.config.mjs",
+  ],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "lib": ["ES2021", "dom", "dom.iterable", "scripthost"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client"]
+  }
+}

@@ -1,0 +1,77 @@
+html {
+  /* Main colors */
+  --primary: #defba1;
+  --secondary: #cdc9ff;
+  --light: #f0effc;
+  --lightest: #fff;
+  --dark: #181818;
+  --lila: #d795f1;
+  --white: #fff;
+  --black: #000;
+
+  --danger: #ff4d4d;
+  --warning: #ffad33;
+  --success: #279c27;
+  --info: var(--secondary);
+
+  --telegram: #229ed9;
+
+  --form-background: #fff;
+  --form-text-color: var(--dark);
+
+  /* Background */
+  --light-background-color: var(--light);
+
+  /* Text */
+  --dark-text-color: var(--dark);
+  --text-light: #939393;
+
+  /* other */
+  --border-radius: 8px;
+  --border-radius-button: 18px;
+  --border-color: #cdcdcd;
+  --font-family: 'Montserrat', sans-serif;
+
+  --block-shadow: 0 0 10px rgba(0, 0, 0, 0.09);
+
+  --skeleton-bg: linear-gradient(90deg, #fff 0px, #eee 50px, #fff 100px);
+  --skeleton-animation: skeleton-loading 8.5s infinite forwards linear;
+}
+
+html.dark {
+  --primary: #defba1;
+  --secondary: #9d96ff;
+  --light: #444;
+  --lightest: #222;
+  --dark: #000;
+  --lila: #d795f1;
+
+  --danger: #ff4d4d;
+  --warning: #ffad33;
+  --success: #279c27;
+  --info: var(--secondary);
+
+  --telegram: #229ed9;
+  --light-background-color: #111;
+
+  --form-background: #1e1e1e;
+  --form-text-color: #fff;
+
+  --dark-text-color: #fff;
+  --text-light: #939393;
+
+  --border-color: #616161;
+
+  --skeleton-bg: linear-gradient(90deg, #222 0px, #333 50px, #222 100px);
+}
+
+/* skeleton animation */
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -500px 0;
+  }
+  100% {
+    background-position: 500px 0;
+  }
+}
