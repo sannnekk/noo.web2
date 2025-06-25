@@ -17,6 +17,8 @@
         type="number"
         :placeholder="placeholder"
         :disabled="readonly"
+        :max="max"
+        :min="min"
         @keypress.enter="$emit('enter-press')"
       />
       <div class="noo-number-input__input-after">

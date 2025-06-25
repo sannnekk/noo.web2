@@ -1,12 +1,21 @@
-import type { ApiEntity } from "@/core/api/api.types";
-import type { UserEntity } from "@/modules/users/api/user.types";
+import type { ApiEntity } from '@/core/api/api.types'
+import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
+import type { UserEntity } from '@/modules/users/api/user.types'
 
-export type PollQuestionType = "checkbox" | "single-choice" | "multiple-choice" | "text" | "number" | "date" | "date-time" | "rating" | "files"
+export type PollQuestionType =
+  | 'checkbox'
+  | 'single-choice'
+  | 'multiple-choice'
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'date-time'
+  | 'rating'
+  | 'files'
 
-export type ParticipatingUserType = "authenticated-user" | "telegram-user"
+export type ParticipatingUserType = 'authenticated-user' | 'telegram-user'
 
 export interface PollQuestionConfig {
-  type: PollQuestionType
   minChoices?: number | null
   maxChoices?: number | null
   minTextLength?: number | null
@@ -15,6 +24,7 @@ export interface PollQuestionConfig {
   maxIntValue?: number | null
   minRating?: number | null
   maxRating?: number | null
+  options?: string[]
   /**
    * Maximum file size in bytes
    */
@@ -45,18 +55,27 @@ export interface PollParticipationEntity extends ApiEntity {
   pollId: string
   poll?: PollEntity
   userType: ParticipatingUserType
-  userExternalIdentifier: string | null;
-  userExternalData: Record<string, unknown> | null;
-  userId: string | null;
+  userExternalIdentifier: string | null
+  userExternalData: Record<string, unknown> | null
+  userId: string | null
   user?: UserEntity | null
   answers?: PollAnswerEntity[]
 }
 
 export interface PollAnswerEntity extends ApiEntity {
-  pollQuestionId: string;
+  pollQuestionId: string
   value: {
-    type: PollQuestionType;
-    value: unknown;
+    type: PollQuestionType
+    value: unknown
   }
   pollQuestion?: PollQuestionEntity
+}
+
+export type PossiblyUnsavedQuestion = PossiblyUnsavedEntity<PollQuestionEntity>
+
+export type PossiblyUnsavedPoll = Omit<
+  PossiblyUnsavedEntity<PollEntity>,
+  'questions'
+> & {
+  questions: PossiblyUnsavedQuestion[]
 }

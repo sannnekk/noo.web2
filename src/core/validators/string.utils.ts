@@ -14,10 +14,7 @@ function isStringOfLength(
   return parse(stringSchema, value)
 }
 
-function maxLength(
-  value: unknown,
-  max: number
-): true | ValidationError[] {
+function maxLength(value: unknown, max: number): true | ValidationError[] {
   const stringSchema = z
     .string()
     .max(max, { message: `Длина не может превышать ${String(max)} символов` })
@@ -65,5 +62,19 @@ function isValidPassword(value: unknown): true | ValidationError[] {
   return parse(passwordSchema, value)
 }
 
-export { isStringOfLength, isValidEmail, isValidPassword, isValidUsername, maxLength }
+function max(value: unknown, max: number): true | ValidationError[] {
+  const numberSchema = z.number().max(max, {
+    message: `Число не может быть больше ${String(max)}`
+  })
 
+  return parse(numberSchema, value)
+}
+
+export {
+  isStringOfLength,
+  isValidEmail,
+  isValidPassword,
+  isValidUsername,
+  max,
+  maxLength
+}

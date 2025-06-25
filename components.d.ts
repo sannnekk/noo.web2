@@ -190,6 +190,7 @@ declare module 'vue' {
     NooStudentMentorsBlockModal: typeof import('./src/components/blocks/student-mentor/noo-student-mentors-block-modal.vue')['default']
     NooSubjectBlock: typeof import('./src/components/blocks/noo-subject-block.vue')['default']
     NooSuccessBlock: typeof import('./src/components/blocks/noo-success-block.vue')['default']
+    NooSupportLogo: typeof import('./src/components/images/noo-support-logo.vue')['default']
     NooSureDeleteModal: typeof import('./src/components/modal/noo-sure-delete-modal.vue')['default']
     NooSureModal: typeof import('./src/components/modal/noo-sure-modal.vue')['default']
     NooTable: typeof import('./src/components/noo-table/noo-table.vue')['default']

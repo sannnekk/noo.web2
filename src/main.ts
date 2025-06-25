@@ -10,11 +10,8 @@ import 'animate.css'
 import AssignedWorksModule from '@/modules/assigned-works'
 import AuthModule from '@/modules/auth'
 import CalendarModule from '@/modules/calendar'
-//import CourseStudentsModule from '@/modules/course-students'
 import CoursesModule from '@/modules/courses'
-//import CreateCourseModule from '@/modules/create-course'
-//import CreateWorkModule from '@/modules/create-work'
-//import HelpModule from '@/modules/help'
+import HelpModule from '@/modules/help'
 import NooTubeModule from '@/modules/nootube'
 import PollsModule from '@/modules/polls'
 //import ProfileModule from '@/modules/profile'
@@ -29,11 +26,8 @@ const { router } = registerModules([
   AssignedWorksModule,
   AuthModule,
   CalendarModule,
-  //CourseStudentsModule,
   CoursesModule,
-  //CreateCourseModule,
-  //CreateWorkModule,
-  //HelpModule,
+  HelpModule,
   NooTubeModule,
   PollsModule,
   //ProfileModule,

@@ -6,8 +6,8 @@ import { ApiErrorCodes } from './api-error-codes.data'
 
 export interface ApiResponse<T = void> {
   data: T
-  error?: ApiError
   metadata?: ApiMetadata
+  error: ApiError
 }
 
 export interface ApiError {

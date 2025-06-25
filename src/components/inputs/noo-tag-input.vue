@@ -1,15 +1,15 @@
 <template>
   <label>{{ label }}</label>
-  <div class="tag-input">
-    <div class="tag-input__tags">
+  <div class="noo-tag-input">
+    <div class="noo-tag-input__tags">
       <span
         v-for="(tag, index) in model"
         :key="index"
-        class="tag-input__tag"
+        class="noo-tag-input__tag"
       >
         {{ tag }}
         <b
-          class="tag-input__tag__remove"
+          class="noo-tag-input__tag__remove"
           @click="removeTag(index)"
         >
           +
@@ -21,49 +21,28 @@
       type="text"
       @keydown.enter.prevent="addTag()"
       @keydown.backspace="removeLastTag()"
-    >
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 interface Props {
   label: string
-  modelValue: string[] | string
-  separator?: string | undefined
 }
 
-type Emits = (event: 'update:modelValue', value: string[] | string) => void
+defineProps<Props>()
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const model = computed<string[]>({
-  get: () => {
-    if (props.separator) {
-      if (props.modelValue === '' || !props.modelValue) {
-        return []
-      }
-
-      return (props.modelValue as string).split(props.separator)
-    }
-
-    return props.modelValue as string[]
-  },
-  set: (value: string[]) => {
-    if (props.separator) {
-      emit('update:modelValue', value.join(props.separator))
-    } else {
-      emit('update:modelValue', value)
-    }
-  }
+const model = defineModel<string[]>({
+  default: () => [],
+  required: false
 })
 
 const input = ref('')
 
 function addTag() {
-  if (input.value && input.value.trim()) {
+  if (input.value?.trim()) {
     model.value = [...model.value, input.value.trim()]
     input.value = ''
   }
@@ -85,13 +64,15 @@ label
   font-size: 0.8em
   color: var(--text-light)
 
-.tag-input
+.noo-tag-input
   display: flex
   flex-wrap: wrap
   gap: 0.5rem
   border: 1px solid var(--border-color)
   border-radius: var(--border-radius)
   padding: 0.5rem 0.8rem
+  max-width: 100%
+  overflow: auto
 
   &__tags
     display: flex

@@ -2,8 +2,9 @@
   <div class="noo-help-widget">
     <router-link
       :to="{
-        name: 'auth.login'
+        name: 'help.home'
       }"
+      target="_blank"
       class="noo-help-widget__button"
       title="Помощь и поддержка"
     >
@@ -11,9 +12,7 @@
         name="help"
         class="noo-help-widget__button__icon"
       />
-      <span class="noo-help-widget__button__text">
-        Помощь
-      </span>
+      <span class="noo-help-widget__button__text"> Помощь </span>
     </router-link>
   </div>
 </template>
@@ -55,5 +54,4 @@
       font-size: 14px
       padding-right: 0.4em
       color: inherit
-
 </style>

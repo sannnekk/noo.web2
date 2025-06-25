@@ -5,8 +5,8 @@
       gridColumn: `span ${colspan} / span ${col}`,
       gridRow: `span ${rowspan} / span ${row}`,
       display: 'grid',
-      alignItems: verticalAlign === 'stretch' ? 'stretch' : verticalAlign,
-      justifyItems: horizontalAlign === 'stretch' ? 'stretch' : horizontalAlign,
+      alignItems: verticalAlign,
+      justifyItems: horizontalAlign,
       padding: '0.25em'
     }"
   >

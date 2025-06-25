@@ -1,18 +1,18 @@
 <template>
-  <div class="select-input">
-    <label class="select-input__label">
-      <span class="select-input__label-text">{{ label }}</span>
+  <div class="noo-select-input">
+    <label class="noo-select-input__label">
+      <span class="noo-select-input__label-text">{{ label }}</span>
       <select
         v-model="model"
         :disabled="readonly"
-        class="select-input__select"
+        class="noo-select-input__select"
         :class="{
-          'select-input__select--readonly': readonly
+          'noo-select-input__select--readonly': readonly
         }"
       >
         <option
           v-for="option in options"
-          :key="option.value"
+          :key="option.label"
           :value="option.value"
         >
           {{ option.label }}
@@ -22,32 +22,26 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-
+<script setup lang="ts" generic="T">
 interface Props {
   label: string
   options: {
     label: string
-    value: string | number | undefined
+    value: T
   }[]
-  modelValue: string | number
   readonly?: boolean
 }
 
-type Emits = (e: 'update:modelValue', value: string | number) => void
+defineProps<Props>()
 
-const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
-
-const model = computed({
-  get: () => props.modelValue,
-  set: (value) => { emits('update:modelValue', value); }
+const model = defineModel<T>({
+  default: null,
+  required: true
 })
 </script>
 
 <style scoped lang="sass">
-.select-input
+.noo-select-input
   &__label
     color: var(--text-light)
 

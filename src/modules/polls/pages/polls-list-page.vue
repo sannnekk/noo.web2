@@ -4,17 +4,19 @@
       v-model:page="search.page.value"
       v-model:search="search.search.value"
       :columns="columns"
-      :row-link="(poll) => ({
-        name: 'polls.edit',
-        params: { pollId: poll.id }
-      })"
+      :row-link="
+        (poll) => ({
+          name: 'polls.edit',
+          params: { pollId: poll.id }
+        })
+      "
       :is-loading="search.isLoading.value"
-      :items="/* search.data.value */polls"
+      :items="/* search.data.value */ polls"
       :total-count="search.total.value"
     >
       <template #actions>
         <noo-button
-          :to="{ name: 'polls.edit', params: { pollId: undefined } }"
+          :to="{ name: 'polls.edit' }"
           variant="primary"
         >
           Создать опрос
@@ -29,10 +31,7 @@
         <noo-is-active-tag
           class="polls-list-page__is-active-cell"
           :value="item.isActive"
-          :values="[
-            'Активен',
-            'Неактивен'
-          ]"
+          :values="['Активен', 'Неактивен']"
         />
       </template>
       <template #column-created-at="{ item }">
@@ -45,7 +44,7 @@
             timezones="both"
             include-time
           />
-          <br>
+          <br />
           <noo-date
             :value="item.updatedAt"
             timezones="both"
@@ -58,11 +57,11 @@
 </template>
 
 <script setup lang="ts">
-import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers';
-import { useSearch } from '@/core/composables/useSearch';
-import { PollService } from '../api/poll.service';
-import type { PollEntity } from '../api/poll.types';
-import { polls } from '../mock-data/polls';
+import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
+import { useSearch } from '@/core/composables/useSearch'
+import { PollService } from '../api/poll.service'
+import type { PollEntity } from '../api/poll.types'
+import { polls } from '../mock-data/polls'
 
 const search = useSearch(PollService.get)
 
@@ -77,7 +76,7 @@ const columns: EntityTableColumnType<PollEntity>[] = [
   },
   {
     key: 'created-at',
-    title: 'Дата создания/обновления',
+    title: 'Дата создания/обновления'
   }
 ]
 </script>
