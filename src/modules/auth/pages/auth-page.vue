@@ -22,7 +22,7 @@
           <img
             src="/img/auth-icon-space.svg"
             alt="Auth Icon Space"
-          >
+          />
         </div>
         <div class="auth-page__inner__background__actions">
           <div class="auth-page__inner__background__actions__title">
@@ -57,11 +57,11 @@
               align="center"
             >
               Все права защищены &copy; {{ new Date().getFullYear() }}
-              <br>
+              <br />
               <noo-inline-link :href="AppConstants.privacyLink">
                 Политика конфиденциальности
               </noo-inline-link>
-              <br>
+              <br />
               <noo-inline-link :href="AppConstants.termsLink">
                 Договор публичной оферты
               </noo-inline-link>
@@ -74,9 +74,9 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme } from '@/core/composables/useTheme';
-import { AppConstants } from '@/core/config/constants.config';
-import { useAuthStore } from '@/core/stores/auth.store';
+import { useTheme } from '@/core/composables/useTheme'
+import { AppConstants } from '@/core/config/constants.config'
+import { useAuthStore } from '@/core/stores/auth.store'
 
 interface Props {
   redirect?: string

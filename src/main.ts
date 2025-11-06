@@ -14,9 +14,10 @@ import CoursesModule from '@/modules/courses'
 import HelpModule from '@/modules/help'
 import NooTubeModule from '@/modules/nootube'
 import PollsModule from '@/modules/polls'
-//import ProfileModule from '@/modules/profile'
-//import SettingsModule from '@/modules/settings'
+import ProfileModule from '@/modules/profile'
+import SettingsModule from '@/modules/settings'
 //import TablesModule from '@/modules/tables'
+import TaskCardsModule from '@/modules/task-cards'
 import UsersModule from '@/modules/users'
 import WorksModule from '@/modules/works'
 
@@ -30,8 +31,9 @@ const { router } = registerModules([
   HelpModule,
   NooTubeModule,
   PollsModule,
-  //ProfileModule,
-  //SettingsModule,
+  ProfileModule,
+  SettingsModule,
+  TaskCardsModule,
   //TablesModule,
   UsersModule,
   WorksModule

@@ -58,10 +58,16 @@
           </div>
         </template>
         <template #actions>
-          <noo-button variant="secondary">
+          <noo-button
+            variant="secondary"
+            :to="{ name: 'profile', params: { tabId: 'statistics' } }"
+          >
             Моя статистика
           </noo-button>
-          <noo-button variant="primary">
+          <noo-button
+            variant="primary"
+            :to="{ name: 'task-cards.list' }"
+          >
             Мои карточки с заданиями
           </noo-button>
         </template>
@@ -113,7 +119,7 @@
         <template #column-status="{ item }">
           <div class="assigned-works-list-view__content__status-cell">
             <noo-solve-status-tag :status="item.solveStatus" />
-            <br>
+            <br />
             <noo-check-status-tag :status="item.checkStatus" />
           </div>
         </template>
@@ -124,7 +130,7 @@
               include-time
               :value="item.solveDeadlineAt"
             />
-            <br>
+            <br />
             <noo-date
               timezones="both"
               include-time
@@ -139,7 +145,7 @@
               include-time
               :value="item.checkDeadlineAt"
             />
-            <br>
+            <br />
             <noo-date
               timezones="both"
               include-time
@@ -226,7 +232,7 @@ const columns: EntityTableColumnType<AssignedWorkEntity>[] = [
   {
     title: 'Выбрать',
     key: 'select',
-    disableLink: true,
+    disableLink: true
   }
 ]
 

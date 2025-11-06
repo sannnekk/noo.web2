@@ -1,8 +1,8 @@
 <template>
-  <div class="progress-bar">
-    <div class="progress-bar__bar">
+  <div class="noo-progress-bar">
+    <div class="noo-progress-bar__bar">
       <div
-        class="progress-bar__bar__progress"
+        class="noo-progress-bar__bar__progress"
         :style="{ width: `${value}%` }"
       />
     </div>
@@ -18,7 +18,7 @@ defineProps<Props>()
 </script>
 
 <style scoped lang="sass">
-.progress-bar
+.noo-progress-bar
   width: 100%
   height: 6px
   background-color: var(--light)

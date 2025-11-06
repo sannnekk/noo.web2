@@ -1,26 +1,28 @@
 <template>
-  <div class="user-reactions">
-    <div class="user-reactions__list">
+  <div class="noo-user-reactions">
+    <div class="noo-user-reactions__list">
       <div
         v-for="reaction in reactionsModel"
         :key="reaction.reaction"
         v-auto-animate
-        class="user-reactions__list__item"
+        class="noo-user-reactions__list__item"
         :class="{
-          'user-reactions__list__item--active':
+          'noo-user-reactions__list__item--active':
             reaction.reaction === myReaction,
-          'user-reactions__list__item--readonly': readonly
+          'noo-user-reactions__list__item--readonly': readonly
         }"
         @click="react(reaction.reaction)"
       >
         <inline-emoji :name="reaction.reaction" />
         <span
           v-if="!loading && !hideNumbers"
-          class="user-reactions__list__item__value"
-        >{{ reaction.count }}</span>
+          class="noo-user-reactions__list__item__value"
+        >
+          {{ reaction.count }}
+        </span>
         <span
           v-else-if="loading"
-          class="user-reactions__list__item__value"
+          class="noo-user-reactions__list__item__value"
         >
           <loader-icon contrast />
         </span>
@@ -53,14 +55,16 @@ const reactionsModel = computed(() => {
 })
 
 function react(reaction: string) {
-  if (props.loading) {return}
+  if (props.loading) {
+    return
+  }
 
   emits('react', reaction)
 }
 </script>
 
 <style lang="sass" scoped>
-.user-reactions
+.noo-user-reactions
   &__list
     display: flex
     gap: 1em

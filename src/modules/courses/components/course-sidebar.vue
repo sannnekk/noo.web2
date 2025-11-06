@@ -18,13 +18,36 @@
       >
         {{ course.description }}
       </noo-text-block>
-      <noo-text-block
-        v-if="hasActions"
-        size="small"
-      >
-        <noo-inline-link> Ученики курса </noo-inline-link>
-        <br />
-        <noo-inline-link> Редактировать курс </noo-inline-link>
+    </div>
+    <div class="course-sidebar__actions">
+      <noo-text-block size="small">
+        <noo-inline-link
+          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          class="course-sidebar__actions__action"
+          :to="{
+            name: 'courses.students',
+            params: { courseId: course.id }
+          }"
+        >
+          Ученики курса
+        </noo-inline-link>
+        <noo-inline-link
+          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          class="course-sidebar__actions__action"
+          :to="{
+            name: 'courses.edit',
+            params: { courseId: course.id }
+          }"
+        >
+          Редактировать курс
+        </noo-inline-link>
+        <noo-inline-link
+          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          class="course-sidebar__actions__action"
+          @click="materialSearchModalOpened = true"
+        >
+          Поиск материалов
+        </noo-inline-link>
       </noo-text-block>
     </div>
     <div
@@ -58,14 +81,19 @@
       />
     </div>
   </div>
+  <material-search-modal
+    v-model:is-open="materialSearchModalOpened"
+    :chapters="course?.chapters"
+  />
 </template>
 
 <script setup lang="ts">
 import { usePageUrl } from '@/core/composables/usePageUrl'
 import { useAuthStore } from '@/core/stores/auth.store'
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 import CourseChapterTree from './course-chapter-tree.vue'
+import MaterialSearchModal from './material-search-modal.vue'
 
 interface Props {
   openedMaterialId?: string
@@ -77,16 +105,18 @@ const courseDetailStore = useCourseDetailStore()
 const authStore = useAuthStore()
 
 const course = computed(() => courseDetailStore.course.data)
-const hasActions = computed(() => authStore.roleIsOneOf(['teacher', 'admin']))
+
 const { currentPageUrl } = usePageUrl()
+
+const materialSearchModalOpened = shallowRef<boolean>(false)
 </script>
 
 <style scoped lang="sass">
 .course-sidebar
   &__actions
-    display: flex
-    flex-direction: column
-    gap: 0.5rem
+    &__action
+      display: block
+
   &__authors
     &__title
       margin-bottom: 0

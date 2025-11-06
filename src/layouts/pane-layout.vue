@@ -77,13 +77,13 @@ const allEntries: NavEntry[] = [
     for: 'all',
     title: 'Профиль',
     icon: 'user',
-    route: { name: 'auth.login' }
+    route: { name: 'profile' }
   },
   {
     for: 'all',
     title: 'Настройки',
     icon: 'settings',
-    route: { name: 'auth.login' }
+    route: { name: 'settings' }
   }
 ]
 

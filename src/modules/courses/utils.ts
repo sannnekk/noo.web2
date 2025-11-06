@@ -34,6 +34,28 @@ function findMaterial(
   return null
 }
 
+function searchMaterials(
+  chapters: CourseChapterEntity[] | undefined,
+  search: string,
+  maxResults = 5
+): CourseMaterialEntity[] {
+  const results: CourseMaterialEntity[] = []
+
+  for (const chapter of chapters ?? []) {
+    if (results.length <= maxResults) {
+      results.push(
+        ...(chapter.materials ?? []).filter((material) =>
+          material.title.toLowerCase().includes(search.toLowerCase())
+        )
+      )
+
+      results.push(...searchMaterials(chapter.subChapters, search))
+    }
+  }
+
+  return results
+}
+
 function courseToPossiblyUnsaved(entity: CourseEntity): PossiblyUnsavedCourse {
   return {
     ...entity,
@@ -68,4 +90,4 @@ function materialToPossiblyUnsaved(
   }
 }
 
-export { courseToPossiblyUnsaved, findMaterial }
+export { courseToPossiblyUnsaved, findMaterial, searchMaterials }

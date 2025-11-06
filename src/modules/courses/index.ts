@@ -69,7 +69,7 @@ const module: ApplicationModule = {
         pageTitle: 'Ученики курса',
         tabTitle: 'Ученики курса',
         layout: PaneLayout,
-        roles: ['admin', 'teacher']
+        roles: ['admin', 'teacher', /* TODO: remove */ 'student']
       },
       component: () => import('./pages/course-students-page.vue'),
       beforeEnter: [initCourseStudentsPageGuard],

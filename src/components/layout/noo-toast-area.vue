@@ -26,6 +26,7 @@ const globalUiStore = useGlobalUIStore()
   top: 20px
   right: 20px
   padding: 1em
+  pointer-events: none
 
   &__list
     display: flex

@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="/* { name: 'profile' } */ '/'"
+    :to="{ name: 'profile' }"
     class="profile-widget"
   >
     <div class="profile-widget__avatar">

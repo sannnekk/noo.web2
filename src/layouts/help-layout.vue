@@ -2,12 +2,17 @@
   <div class="help-layout">
     <div class="help-layout__top-bar">
       <div class="help-layout__top-bar__inner container">
-        <noo-text-block>
-          Не нашли ответ на свой вопрос? Напишите нам в
-          <noo-inline-link :href="AppConstants.supportChatLink">
-            {{ AppConstants.supportChatName }}
-          </noo-inline-link>
-        </noo-text-block>
+        <div class="help-layout__top-bar__inner__hint">
+          <noo-text-block>
+            Не нашли ответ на свой вопрос? Напишите нам в
+            <noo-inline-link :href="AppConstants.supportChatLink">
+              {{ AppConstants.supportChatName }}
+            </noo-inline-link>
+          </noo-text-block>
+        </div>
+        <div class="help-layout__top-bar__inner__actions">
+          <noo-theme-toggle-widget />
+        </div>
       </div>
     </div>
     <div class="help-layout__header">
@@ -75,9 +80,15 @@ import { AppConstants } from '@/core/config/constants.config'
 
 <style lang="sass" scoped>
 .help-layout
+  &__top-bar
+    &__inner
+      display: flex
+      justify-content: space-between
+      align-items: center
+
   &__header
     &__inner
-      padding: 2em 0
+      padding: 1em 0 3em 0
       display: flex
       align-items: center
       justify-content: space-between
