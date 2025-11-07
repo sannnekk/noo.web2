@@ -5,26 +5,28 @@
       v-model:search="search.search.value"
       :columns="columns"
       :is-loading="search.isLoading.value"
-      :items="/* search.data.value */users"
+      :items="search.data.value"
       :total-count="search.total.value"
-      :row-link="(item) => ({
-        name: 'users.detail',
-        params: { userId: item.id }
-      })"
+      :row-link="
+        (item) => ({
+          name: 'users.detail',
+          params: { userId: item.id }
+        })
+      "
     >
-      <template #column-avatar="{item}">
+      <template #column-avatar="{ item }">
         <noo-user-avatar
           class="users-list-page__avatar-cell"
           :name="item.name"
           :avatar="item.avatar"
         />
       </template>
-      <template #column-name="{item}">
+      <template #column-name="{ item }">
         <noo-text-block class="users-list-page__name-cell">
           {{ item.name }}
         </noo-text-block>
       </template>
-      <template #column-username="{item}">
+      <template #column-username="{ item }">
         <noo-text-block
           class="users-list-page__username-cell"
           dimmed
@@ -32,7 +34,7 @@
           {{ item.username }}
         </noo-text-block>
       </template>
-      <template #column-email="{item}">
+      <template #column-email="{ item }">
         <noo-text-block
           class="users-list-page__email-cell"
           dimmed
@@ -40,9 +42,7 @@
           {{ item.email }}
         </noo-text-block>
       </template>
-      <template
-        #column-role="{item}"
-      >
+      <template #column-role="{ item }">
         <noo-role-tag
           :role="item.role"
           class="users-list-page__role-cell"
@@ -53,13 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers';
-import { useSearch } from '@/core/composables/useSearch';
-import { UserService } from '../api/user.service';
-import type { UserEntity } from '../api/user.types';
-import { users } from '../mock-data/users';
+import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
+import { useSearch } from '@/core/composables/useSearch'
+import { UserService } from '../api/user.service'
+import type { UserEntity } from '../api/user.types'
 
-const search = useSearch<UserEntity>(UserService.get);
+const search = useSearch<UserEntity>(UserService.get)
 
 const columns: EntityTableColumnType<UserEntity>[] = [
   {
@@ -73,7 +72,7 @@ const columns: EntityTableColumnType<UserEntity>[] = [
   },
   {
     key: 'username',
-    title: 'Никнейм',
+    title: 'Никнейм'
   },
   {
     key: 'email',
@@ -83,7 +82,7 @@ const columns: EntityTableColumnType<UserEntity>[] = [
     key: 'role',
     title: 'Роль'
   }
-];
+]
 </script>
 
 <style scoped lang="sass">

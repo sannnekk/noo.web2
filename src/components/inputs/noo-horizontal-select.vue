@@ -1,10 +1,10 @@
 <template>
-  <div class="horizontal-selection">
+  <div class="noo-horizontal-select">
     <div
       v-for="option in options"
       :key="option"
-      class="horizontal-selection__option"
-      :class="{ 'horizontal-selection__option--selected': model === option }"
+      class="noo-horizontal-select__option"
+      :class="{ 'noo-horizontal-select__option--selected': model === option }"
       @click="model = option"
     >
       {{ option }}
@@ -13,26 +13,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface Props {
   options: string[]
-  modelValue: string
 }
 
-type Emits = (e: 'update:modelValue', value: string) => void
+defineProps<Props>()
 
-const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
-
-const model = computed({
-  get: () => props.modelValue,
-  set: (value: string) => { emits('update:modelValue', value); }
+const model = defineModel<string>('modelValue', {
+  default: ''
 })
 </script>
 
 <style scoped lang="sass">
-.horizontal-selection
+.noo-horizontal-select
 	display: flex
 	border: 1px solid var(--border-color)
 	border-radius: var(--border-radius)

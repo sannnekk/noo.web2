@@ -1,10 +1,10 @@
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
-import { uid } from '@/core/utils/id.utils'
+import { convertToLocal, uid } from '@/core/utils/id.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
 import { defineStore } from 'pinia'
 import { ref, type Ref } from 'vue'
+import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
-import { workApiResponse } from '../mock-data/work-api-response'
 import type {
   PossiblyUnsavedWork,
   PossiblyUnsavedWorkTask,
@@ -102,29 +102,12 @@ const useWorkDetailStore = defineStore(
 
       uiStore.setLoading(true)
 
-      // TODO: Fetch the work by ID from the API or store
+      const response = await WorkService.getById(workId)
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const response = workApiResponse
-
-      if (response.data) {
-        setWork(response.data)
-      }
-
+      work.value = convertToLocal<WorkEntity, PossiblyUnsavedWork>(
+        response.data
+      )
       uiStore.setLoading(false)
-    }
-
-    function setWork(value: WorkEntity): void {
-      work.value = {
-        ...value,
-        _key: uid(),
-        tasks:
-          value.tasks?.map((task) => ({
-            ...task,
-            _key: uid()
-          })) ?? []
-      }
     }
 
     /**
@@ -172,7 +155,7 @@ const useWorkDetailStore = defineStore(
         type,
         checkStrategy: type === 'word' ? 'exact-match-or-zero' : 'manual',
         maxScore: 1,
-        rightAnswer: type === 'word' ? 'Правильный ответ' : null,
+        rightAnswers: type === 'word' ? ['Правильный ответ'] : null,
         explanation: null,
         solveHint: null,
         showAnswerBeforeCheck: false,
@@ -203,10 +186,21 @@ const useWorkDetailStore = defineStore(
      * If in 'edit' mode, it updates the existing work.
      */
     async function save(): Promise<void> {
+      if (!work.value) {
+        return
+      }
+
       if (mode.value === 'create') {
-        // Create a new work
+        const response = await WorkService.create(work.value)
+
+        if (response.error !== null) {
+          uiStore.createApiErrorToast(
+            'Не удалось создать работу',
+            response.error
+          )
+        }
       } else if (mode.value === 'edit') {
-        // Update the existing work
+        // TODO: Update the existing work
       }
     }
 

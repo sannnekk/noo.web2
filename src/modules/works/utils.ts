@@ -1,4 +1,5 @@
 import { getValidationErrors } from '@/core/utils/zod.utils'
+import type { WorkTaskType } from './api/work.types'
 import { PossiblyUnsavedWorkSchema } from './schemas'
 import type { PossiblyUnsavedWork } from './types'
 
@@ -12,4 +13,8 @@ function validateWorkState(work: PossiblyUnsavedWork): string[] {
   return getValidationErrors(PossiblyUnsavedWorkSchema, work)
 }
 
-export { validateWorkState }
+function canBeAutomaticallyChecked(taskType?: WorkTaskType): boolean {
+  return taskType === 'word'
+}
+
+export { canBeAutomaticallyChecked, validateWorkState }

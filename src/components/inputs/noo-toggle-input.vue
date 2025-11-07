@@ -1,37 +1,37 @@
 <template>
-  <div class="form-toggle">
+  <div class="noo-form-toggle">
     <div
-      class="form-toggle__box"
-      :class="{ 'form-toggle__box--active': model }"
+      class="noo-form-toggle__box"
+      :class="{ 'noo-form-toggle__box--active': model }"
       @click="toggle()"
     >
       <div
-        class="form-toggle__circle"
-        :class="{ 'form-toggle__circle--active': model }"
+        class="noo-form-toggle__circle"
+        :class="{ 'noo-form-toggle__circle--active': model }"
       />
     </div>
     <span>{{ text.label }}</span>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { computed, ref } from 'vue'
 
 interface Props {
-  modelValue: any
+  modelValue: T
   values: [
     {
-      value: any
+      value: T
       label: string
     },
     {
-      value: any
+      value: T
       label: string
     }
   ]
 }
 
-type Emits = (e: 'update:modelValue', value: any) => void
+type Emits = (e: 'update:modelValue', value: T) => void
 
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
@@ -46,7 +46,7 @@ function toggle() {
 </script>
 
 <style scoped lang="sass">
-.form-toggle
+.noo-form-toggle
   display: flex
   align-items: center
   cursor: pointer

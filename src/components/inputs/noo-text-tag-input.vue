@@ -1,6 +1,11 @@
 <template>
   <label>{{ label }}</label>
-  <div class="noo-tag-input">
+  <div
+    class="noo-tag-input"
+    :class="{
+      'noo-tag-input--readonly': readonly
+    }"
+  >
     <div class="noo-tag-input__tags">
       <span
         v-for="(tag, index) in model"
@@ -30,11 +35,12 @@ import { ref } from 'vue'
 
 interface Props {
   label: string
+  readonly?: boolean
 }
 
 defineProps<Props>()
 
-const model = defineModel<string[]>({
+const model = defineModel<string[] | null>({
   default: () => [],
   required: false
 })
@@ -43,18 +49,18 @@ const input = ref('')
 
 function addTag() {
   if (input.value?.trim()) {
-    model.value = [...model.value, input.value.trim()]
+    model.value = [...(model.value ?? []), input.value.trim()]
     input.value = ''
   }
 }
 
 function removeTag(index: number) {
-  model.value = model.value.filter((_, i) => i !== index)
+  model.value = (model.value ?? []).filter((_, i) => i !== index)
 }
 
 function removeLastTag() {
-  if (input.value === '' && model.value.length > 0) {
-    removeTag(model.value.length - 1)
+  if (input.value === '' && (model.value ?? []).length > 0) {
+    removeTag((model.value ?? []).length - 1)
   }
 }
 </script>
@@ -73,6 +79,12 @@ label
   padding: 0.5rem 0.8rem
   max-width: 100%
   overflow: auto
+
+  &--readonly
+    background-color: var(--light)
+
+    input
+      pointer-events: none
 
   &__tags
     display: flex

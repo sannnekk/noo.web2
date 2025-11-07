@@ -1,4 +1,4 @@
-import type { ApiResponse } from '@/core/api/api.utils'
+import type { ApiError, ApiResponse } from '@/core/api/api.utils'
 import type { WorkEntity } from '../api/work.types'
 
 const workApiResponse: ApiResponse<WorkEntity> = {
@@ -842,7 +842,8 @@ const workApiResponse: ApiResponse<WorkEntity> = {
     ],
     createdAt: new Date('2025-05-01T10:00:00Z'),
     updatedAt: null
-  }
+  },
+  error: null as unknown as ApiError
 }
 
 export { workApiResponse }

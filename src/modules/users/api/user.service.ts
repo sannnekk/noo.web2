@@ -43,12 +43,7 @@ interface IUserService {
 async function get(
   pagination?: IPagination
 ): Promise<ApiResponse<UserEntity[]>> {
-  await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate a delay for demonstration purposes
-
-  return await Api.get(
-    BASE_PATH,
-    pagination ? pagination.toQuery() : undefined
-  )
+  return await Api.get(BASE_PATH, pagination ? pagination.toQuery() : undefined)
 }
 
 async function getById(id: string): Promise<ApiResponse<UserEntity>> {

@@ -1,52 +1,49 @@
 <template>
-  <label сlass="rating-input">
-    <span class="rating-input__label">{{ label }}</span>
-    <div class="rating-input__input">
+  <label class="noo-rating-input">
+    <span class="noo-rating-input__label">{{ label }}</span>
+    <div class="noo-rating-input__input">
       <input
         v-model="model"
-        class="rating-input__input__field"
+        class="noo-rating-input__input__field"
         type="range"
         :min="minRating"
         :max="maxRating"
         :step="onlyIntegers ? 1 : 0.25"
         :disabled="readonly"
-      >
-      <span class="rating-input__input__value">{{ model }}</span>
+      />
+      <span class="noo-rating-input__input__value">{{ model }}</span>
     </div>
   </label>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import type { StringDecoder } from 'node:string_decoder'
 
 interface Props {
-  label: string
-  modelValue: number | string
+  label: StringDecoder
   readonly?: boolean
   minRating?: number
   maxRating?: number
   onlyIntegers?: boolean
 }
 
-type Emits = (e: 'update:modelValue', value: number) => void
-
 const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
 
-const model = computed({
-  get: () => props.modelValue,
-  set: (value) =>
-    { emits(
-      'update:modelValue',
-      props.onlyIntegers
-        ? parseInt(value as string)
-        : parseFloat(value as string)
-    ); }
+const model = defineModel<number | null>('modelValue', {
+  default: null,
+  get: (value) => value,
+  set: (value) => {
+    if (props.onlyIntegers && value !== null) {
+      return Math.round(value)
+    }
+
+    return value
+  }
 })
 </script>
 
 <style scoped lang="sass">
-.rating-input
+.noo-rating-input
 	&__label
 		font-size: 0.8rem
 		color: var(--text-light)

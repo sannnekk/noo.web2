@@ -3,6 +3,7 @@ import { appConfig } from '../config/app.config'
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
 import { ApiErrorCodes } from './api-error-codes.data'
+import { serialize } from './serialization.utils'
 
 export interface ApiResponse<T = void> {
   data: T
@@ -118,7 +119,7 @@ async function httpPost<TRequest, TResponse>(
   onProgress?: (progressEvent: RequestProgress) => void
 ): Promise<ApiResponse<TResponse>> {
   try {
-    const response = await api.post(path, body, {
+    const response = await api.post(path, serialize(body), {
       headers,
       onUploadProgress: (event) => onProgress?.(event)
     })
@@ -136,7 +137,7 @@ async function httpPatch<T>(
   onProgress?: (progressEvent: RequestProgress) => void
 ): Promise<ApiResponse> {
   try {
-    const response = await api.patch(path, body, {
+    const response = await api.patch(path, serialize(body), {
       headers,
       onDownloadProgress: (event) => onProgress?.(event)
     })

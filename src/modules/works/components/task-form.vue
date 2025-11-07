@@ -39,7 +39,7 @@
       >
         <noo-if-animation>
           <noo-select-input
-            v-if="canBeAutomaticallyChecked"
+            v-if="isAutoCheck"
             v-model="workDetailStore.task.checkStrategy"
             label="Тип проверки"
             :options="taskCheckStrategies"
@@ -54,12 +54,11 @@
         horizontal-align="stretch"
       >
         <noo-if-animation>
-          <noo-text-input
-            v-if="canBeAutomaticallyChecked"
-            v-model="workDetailStore.task.rightAnswer"
-            label="Правильный ответ"
+          <noo-text-tag-input
+            v-if="isAutoCheck"
+            v-model="workDetailStore.task.rightAnswers"
+            label="Правильные ответы"
             :readonly="isReadonlyMode"
-            :validators="[(value) => maxLength(value, 100)]"
           />
         </noo-if-animation>
       </noo-grid-layout-item>
@@ -67,10 +66,11 @@
         :col="3"
         :row="2"
         :colspan="2"
+        vertical-align="center"
       >
         <noo-if-animation>
           <noo-checkbox
-            v-if="canBeAutomaticallyChecked"
+            v-if="isAutoCheck"
             v-model="workDetailStore.task.showAnswerBeforeCheck"
             dimmed
             size="small"
@@ -87,7 +87,7 @@
       >
         <noo-if-animation>
           <noo-checkbox
-            v-if="canBeAutomaticallyChecked"
+            v-if="isAutoCheck"
             v-model="workDetailStore.task.checkOneByOne"
             dimmed
             size="small"
@@ -166,39 +166,16 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength } from '@/core/validators/string.utils'
+import { taskCheckStrategies, taskTypes } from '@/modules/works/constants'
 import { computed } from 'vue'
-import type { WorkTaskCheckStrategy, WorkTaskType } from '../api/work.types'
 import { useWorkDetailStore } from '../stores/work-detail.store'
+import { canBeAutomaticallyChecked } from '../utils'
 
 const workDetailStore = useWorkDetailStore()
 
 const isReadonlyMode = computed(() => workDetailStore.mode === 'view')
 
-const canBeAutomaticallyChecked = computed(
-  () => workDetailStore.task?.type === 'word'
+const isAutoCheck = computed(() =>
+  canBeAutomaticallyChecked(workDetailStore.task?.type)
 )
-
-const taskTypes: { label: string; value: WorkTaskType }[] = [
-  { label: 'В одну строку', value: 'word' },
-  { label: 'Открытый вопрос', value: 'text' },
-  { label: 'Сочинение', value: 'essay' },
-  { label: 'Итоговое сочинение', value: 'final-essay' }
-]
-
-const taskCheckStrategies: {
-  label: string
-  value: WorkTaskCheckStrategy
-}[] = [
-  { label: 'Вручную', value: 'manual' },
-  { label: 'Точно совпадает или ноль', value: 'exact-match-or-zero' },
-  {
-    value: 'exact-match-with-wrong-character',
-    label: 'Неверный символ минус балл'
-  },
-  { value: 'multiple-choice', label: 'Множественный выбор' },
-  { value: 'sequence', label: 'Последовательность' }
-]
 </script>
-
-<style scoped lang="sass"></style>

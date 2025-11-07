@@ -1,5 +1,6 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
+import type { PossiblyUnsavedWork } from '../types'
 import type { UnsavedWork, WorkEntity, WorkStatistics } from './work.types'
 
 const BASE_PATH = '/work'
@@ -25,7 +26,7 @@ interface IWorkService {
    * @param work The work object to create
    * @returns ID of the work created, in a Promise
    */
-  create(work: UnsavedWork): Promise<ApiResponse<string>>
+  create(work: PossiblyUnsavedWork): Promise<ApiResponse<string>>
   /**
    * Update a work using JSONPatchDocument
    *

@@ -40,7 +40,7 @@ const model = defineModel<string | null>('modelValue', {
 
   &__textarea
     width: 100%
-    padding: 1rem 1rem
+    padding: 0.7em 0.8em
     border-radius: var(--border-radius)
     border: 1px solid var(--border-color)
     outline: none

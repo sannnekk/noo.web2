@@ -1,0 +1,6738 @@
+openapi: 3.0.4
+info:
+  title: API v1
+  description: Noo.Api module
+  version: v1
+paths:
+  /assigned-work:
+    get:
+      tags:
+        - AssignedWork
+      summary: Gets the current user's list of assigned works.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Type
+          in: query
+          schema:
+            $ref: "#/components/schemas/WorkType"
+        - name: SolveStatus
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssignedWorkSolveStatus"
+        - name: CheckStatus
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssignedWorkCheckStatus"
+        - name: MentorId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: StudentId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Title
+              - CreatedAt
+              - SolvedAt
+              - CheckedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignedWorkDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}:
+    get:
+      tags:
+        - AssignedWork
+      summary: Gets an assigned work by its ID.
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignedWorkDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - AssignedWork
+      summary: Deletes an assigned work.
+      description: "Only possible if the status of the assigned work is not Solved.\r
+
+        Otherwise, it will return a 409 Conflict status code."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/progress:
+    get:
+      tags:
+        - AssignedWork
+      summary: "Gets the progress of an assigned work by its ID.\r
+
+        Used when loading the whole assigned work is not needed"
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignedWorkProgressDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/remake:
+    post:
+      tags:
+        - AssignedWork
+      summary: "Remakes an assigned work.\r
+
+        Returns the ID of the newly created assigned work."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemakeAssignedWorkOptionsDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/RemakeAssignedWorkOptionsDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/RemakeAssignedWorkOptionsDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/save-answer:
+    post:
+      tags:
+        - AssignedWork
+      summary: "Saves an Answer to an assigned work.\r
+
+        This is used by students to submit their answers to assigned works,\r
+
+        or by mentors to save their comments on the assigned work.\r
+
+        If the answer already exists, it will be updated.\r
+
+        If the answer does not exist, it will be created."
+      description: It will also update the status of the assigned work to "In
+        Progress" if it was not already.
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkAnswerDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkAnswerDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkAnswerDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/comment:
+    post:
+      tags:
+        - AssignedWork
+      summary: "Saves a comment to an assigned work.\r
+
+        This is used by both students and mentors to comment on an assigned
+        work.\r
+
+        If the comment already exists, it will be updated.\r
+
+        If the comment does not exist, it will be created."
+      description: It will also update the status of the assigned work to "In
+        Progress" if it was not already.
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkCommentDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkCommentDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpsertAssignedWorkCommentDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/mark-solved:
+    post:
+      tags:
+        - AssignedWork
+      summary: Marks an assigned work as solved.
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/mark-checked:
+    post:
+      tags:
+        - AssignedWork
+      summary: Marks an assigned work as checked
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/archive:
+    patch:
+      tags:
+        - AssignedWork
+      summary: Archives an assigned work.
+      description: "There is an archived flag in the assigned work for the following
+        roles: student, mentor, and assistant.\r
+
+        Toggling the archived flag for mentors will not affect the archived flag
+        for students and assistants and so on."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/unarchive:
+    patch:
+      tags:
+        - AssignedWork
+      summary: unarchives an assigned work.
+      description: "There is an archived flag in the assigned work for the following
+        roles: student, mentor, and assistant.\r
+
+        Toggling the archived flag for mentors will not affect the archived flag
+        for students and assistants and so on."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/add-helper-mentor:
+    patch:
+      tags:
+        - AssignedWork
+      summary: Adds a helper mentor to the assigned work so that they both can check
+        the assigned work.
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddHelperMentorOptionsDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/AddHelperMentorOptionsDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/AddHelperMentorOptionsDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/replace-main-mentor:
+    patch:
+      tags:
+        - AssignedWork
+      summary: Replace main mentor of the assigned work
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReplaceMainMentorOptionsDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/ReplaceMainMentorOptionsDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/ReplaceMainMentorOptionsDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/shift-deadline:
+    patch:
+      tags:
+        - AssignedWork
+      summary: Shift deadline of the assigned work
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShiftAssignedWorkDeadlineOptionsDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/ShiftAssignedWorkDeadlineOptionsDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/ShiftAssignedWorkDeadlineOptionsDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/return-to-solve:
+    patch:
+      tags:
+        - AssignedWork
+      summary: "Changes the solve status of the assigned work back to in progress.\r
+
+        This is usually used when the assigned work was marked as solved by
+        mistake."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/return-to-check:
+    patch:
+      tags:
+        - AssignedWork
+      summary: "Changes the check status of the assigned work back to in progress.\r
+
+        This is usually used when the assigned work was marked as checked by
+        mistake."
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Logs in a user with the provided credentials.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/LoginDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/LoginDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: "Registers a new user with the provided details.\r
+
+        During registration, an email verification token is sent to the user's
+        email address."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/RegisterDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/username-check/{username}:
+    get:
+      tags:
+        - Auth
+      summary: "Checks if the username is already taken.\r
+
+        Returns true if the username is free, otherwise false"
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BooleanApiResponseDTO"
+  /auth/request-password-change:
+    patch:
+      tags:
+        - Auth
+      summary: Requests a password change by sending a reset token to the user's email
+        address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestPasswordChangeDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/RequestPasswordChangeDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/RequestPasswordChangeDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/confirm-password-change:
+    patch:
+      tags:
+        - Auth
+      summary: Confirms a password change by validating the reset token and setting a
+        new password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPasswordChangeDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPasswordChangeDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPasswordChangeDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/confirm-email-change:
+    patch:
+      tags:
+        - Auth
+      summary: "Confirms an email change by validating the confirmation token.\r
+
+        This endpoint is used to finalize the email change process after the
+        user has requested it."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmEmailChangeDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmEmailChangeDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/ConfirmEmailChangeDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /calendar/{userId}/{year}/{month}:
+    get:
+      tags:
+        - Calendar
+      summary: Gets the current user's calendar events.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEventDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /calendar:
+    post:
+      tags:
+        - Calendar
+      summary: Creates a new calendar event for the current user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCalendarEventDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCalendarEventDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCalendarEventDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /calendar/{id}:
+    delete:
+      tags:
+        - Calendar
+      summary: Deletes a calendar event by its ID.
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/{courseId}:
+    get:
+      tags:
+        - Course
+      summary: Retrieves a course and its chapter/material tree by its unique
+        identifier.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Course
+      summary: Updates a course.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Course
+      summary: Deletes a course.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/{courseId}/content/{contentId}:
+    get:
+      tags:
+        - Course
+      summary: Retrieves a material content by its unique identifier.
+      parameters:
+        - name: contentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course:
+    get:
+      tags:
+        - Course
+      summary: Search courses
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: CreatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: SubjectId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Authors.Search
+          in: query
+          schema:
+            type: string
+        - name: Authors.Role
+          in: query
+          schema:
+            $ref: "#/components/schemas/UserRoles"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Name
+              - CreatedAt
+              - SubjectId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Course
+      summary: Creates a course.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/material-content:
+    post:
+      tags:
+        - Course
+      summary: Creates a course material content.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMaterialContentDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMaterialContentDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMaterialContentDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/material-content/{contentId}:
+    patch:
+      tags:
+        - Course
+      summary: Updates a course material content.
+      parameters:
+        - name: contentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/membership:
+    get:
+      tags:
+        - Course
+      summary: Searches the course memberships.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: CourseId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: AssignerId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: StudentId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: IsActive
+          in: query
+          schema:
+            type: boolean
+        - name: IsArchived
+          in: query
+          schema:
+            type: boolean
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - AssignerId
+              - CreatedAt
+              - CourseId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseMembershipDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Course
+      summary: Creates a course membership for a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMembershipDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMembershipDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseMembershipDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseMembershipDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/membership/{membershipId}:
+    delete:
+      tags:
+        - Course
+      summary: Removes a course membership for a user
+      parameters:
+        - name: membershipId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /google-sheets:
+    get:
+      tags:
+        - GoogleSheetsIntegration
+      summary: Retrieves a list of Google Sheets integrations based on the provided
+        criteria.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Entity
+          in: query
+          schema:
+            type: string
+        - name: LastRunAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Name
+              - CreatedAt
+              - LastRunAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoogleSheetsIntegrationDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - GoogleSheetsIntegration
+      summary: Creates a new Google Sheets integration.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGoogleSheetsIntegrationDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateGoogleSheetsIntegrationDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateGoogleSheetsIntegrationDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /google-sheets/{integrationId}/run:
+    post:
+      tags:
+        - GoogleSheetsIntegration
+      summary: Runs a Google Sheets integration by its ID.
+      parameters:
+        - name: integrationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /google-sheets/{integrationId}:
+    delete:
+      tags:
+        - GoogleSheetsIntegration
+      summary: Deletes a Google Sheets integration by its ID.
+      parameters:
+        - name: integrationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /media/upload-link/public:
+    post:
+      tags:
+        - Media
+      summary: "Request a pre-signed upload URL for a public file (for example: user
+        avatar or course image).\r
+
+        The frontend should use the returned URL to PUT the file directly to
+        S3."
+      parameters:
+        - name: fileName
+          in: query
+          description: File name including extension.
+          schema:
+            type: string
+        - name: contentType
+          in: query
+          description: MIME type of the file.
+          schema:
+            type: string
+        - name: reason
+          in: query
+          description: Reason/type for the file (avatar, course, etc.).
+          schema:
+            $ref: "#/components/schemas/ReasonType"
+        - name: entityId
+          in: query
+          description: Related entity id (user id, course id, etc.).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /media/upload-link/private:
+    post:
+      tags:
+        - Media
+      summary: "Request a pre-signed upload URL for a private file (for example:
+        course material)."
+      description: Private files require server-side access checks for downloads.
+      parameters:
+        - name: fileName
+          in: query
+          schema:
+            type: string
+        - name: contentType
+          in: query
+          schema:
+            type: string
+        - name: reason
+          in: query
+          schema:
+            $ref: "#/components/schemas/ReasonType"
+        - name: entityId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /media/access-link/{mediaId}:
+    get:
+      tags:
+        - Media
+      summary: Request an access link for a private file. Access is validated
+        server-side.
+      parameters:
+        - name: mediaId
+          in: path
+          description: Media id.
+          required: true
+          schema:
+            type: string
+        - name: requestorId
+          in: query
+          description: Id of the user requesting access (server may also determine current
+            user).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /media/upload-complete/{mediaId}:
+    post:
+      tags:
+        - Media
+      summary: "Confirm that an upload completed and update stored metadata (size,
+        optional etag/hash).\r
+
+        Frontend should call this after successfully PUTting the file to S3."
+      parameters:
+        - name: mediaId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: size
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: etag
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /notification:
+    get:
+      tags:
+        - Notification
+      summary: Gets the notifications for the user.
+      parameters:
+        - name: IsRead
+          in: query
+          schema:
+            type: boolean
+        - name: UserId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - IsRead
+              - UserId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Notification
+      summary: Bulk create notiifcations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkCreateNotificationsDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/BulkCreateNotificationsDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/BulkCreateNotificationsDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /notification/{notificationId}/mark-read:
+    patch:
+      tags:
+        - Notification
+      summary: Mark a notification as read
+      parameters:
+        - name: notificationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /notification/{notificationId}:
+    delete:
+      tags:
+        - Notification
+      summary: Deletes a notification
+      parameters:
+        - name: notificationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /platform/version:
+    get:
+      tags:
+        - Platform
+      summary: Gets the current platform version.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /platform/changelog:
+    get:
+      tags:
+        - Platform
+      summary: Gets the changelog
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangeLogDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll:
+    get:
+      tags:
+        - Poll
+      summary: Get a list of polls based on the provided criteria.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: CreatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: UpdatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: IsActive
+          in: query
+          schema:
+            type: boolean
+        - name: IsAuthRequired
+          in: query
+          schema:
+            type: boolean
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Title
+              - Description
+              - CreatedAt
+              - UpdatedAt
+              - IsActive
+              - IsAuthRequired
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Poll
+      summary: Create a new poll.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePollDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreatePollDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreatePollDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/{pollId}:
+    get:
+      tags:
+        - Poll
+      summary: Get a specific poll by its ID.
+      parameters:
+        - name: pollId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollDTOApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Poll
+      summary: Update an existing poll.
+      parameters:
+        - name: pollId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Poll
+      summary: Delete a poll by its ID.
+      parameters:
+        - name: pollId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/{pollId}/participation:
+    get:
+      tags:
+        - Poll
+      summary: Get the results of a specific poll.
+      parameters:
+        - name: pollId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: PollId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: UserType
+          in: query
+          schema:
+            $ref: "#/components/schemas/ParticipatingUserType"
+        - name: CreatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - PollId
+              - UserType
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollParticipationDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/participation/{participationId}:
+    get:
+      tags:
+        - Poll
+      summary: Get poll participation result by participation ID.
+      parameters:
+        - name: participationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollParticipationDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/{pollId}/participate:
+    post:
+      tags:
+        - Poll
+      summary: Create a participation in a poll.
+      parameters:
+        - name: pollId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePollParticipationDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreatePollParticipationDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreatePollParticipationDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/answer/{answerId}:
+    patch:
+      tags:
+        - Poll
+      summary: Update a poll answer
+      parameters:
+        - name: answerId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /session:
+    get:
+      tags:
+        - Session
+      summary: Gets the current user's list of sessions.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Session
+      summary: "Deleted the current user session.\r
+
+        Typically used to log out the user."
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /session/{sessionId}:
+    delete:
+      tags:
+        - Session
+      summary: Deletes a specific session by its ID.
+      parameters:
+        - name: sessionId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /snippet:
+    get:
+      tags:
+        - Snippet
+      summary: Retrieves the snippets for the authenticated user.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnippetDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Snippet
+      summary: Creates a new snippet for the authenticated user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSnippetDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateSnippetDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateSnippetDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /snippet/{snippetId}:
+    patch:
+      tags:
+        - Snippet
+      summary: Updates an existing snippet for the authenticated user.
+      parameters:
+        - name: snippetId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Snippet
+      summary: Deletes an existing snippet for the authenticated user.
+      parameters:
+        - name: snippetId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /statistics/platform:
+    get:
+      tags:
+        - Statistics
+      summary: Retrieves the current statistics of the platform.
+      parameters:
+        - name: workType
+          in: query
+          schema:
+            $ref: "#/components/schemas/WorkType"
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatisticsDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /statistics/user/{userId}:
+    get:
+      tags:
+        - Statistics
+      summary: Retrieves the statistics of a specific student.
+      description: It returns 404 only if the student does not exist or is not a student.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: workType
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/WorkType"
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatisticsDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /subject:
+    get:
+      tags:
+        - Subject
+      summary: Retrieves a list of subjects based on the provided criteria.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Name
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Subject
+      summary: Creates a new subject with the provided details.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectCreationDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/SubjectCreationDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/SubjectCreationDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /subject/{subjectId}:
+    get:
+      tags:
+        - Subject
+      summary: Retrieves a subject by its unique identifier.
+      parameters:
+        - name: subjectId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Subject
+      summary: Updates an existing subject with the provided details.
+      parameters:
+        - name: subjectId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Subject
+      summary: Deletes a subject by its unique identifier.
+      parameters:
+        - name: subjectId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /support:
+    get:
+      tags:
+        - Support
+      summary: Retrieves a tree of support categories.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportCategoryDTOIEnumerableApiResponseDTO"
+  /support/article/{articleId}:
+    get:
+      tags:
+        - Support
+      summary: Retrieves a support article by its ID.
+      parameters:
+        - name: articleId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportArticleDTOApiResponseDTO"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Support
+      summary: Updates a support article by its ID using a JSON Patch document.
+      parameters:
+        - name: articleId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Support
+      summary: Deletes a support article by its ID.
+      parameters:
+        - name: articleId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /support/article:
+    post:
+      tags:
+        - Support
+      summary: Creates a new support article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /support/category:
+    post:
+      tags:
+        - Support
+      summary: Creates a new support category.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportCategoryDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportCategoryDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportCategoryDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /support/category/{categoryId}:
+    patch:
+      tags:
+        - Support
+      summary: Updates a support category by its ID using a JSON Patch document.
+      parameters:
+        - name: categoryId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Support
+      summary: Deletes a support category by its ID.
+      parameters:
+        - name: categoryId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user:
+    get:
+      tags:
+        - User
+      summary: Retrieves a list of users based on the provided search criteria.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Role
+          in: query
+          schema:
+            $ref: "#/components/schemas/UserRoles"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Name
+              - Username
+              - Email
+              - TelegramUsername
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}:
+    get:
+      tags:
+        - User
+      summary: Retrieves a user by their unique username
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - User
+      summary: Patches a user by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - User
+      summary: Deletes a user by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/role:
+    patch:
+      tags:
+        - User
+      summary: "Changes the role of a user by their unique identifier.\r
+
+        Only possible to change role if the user is a student, otherwise it will
+        throw a conflict error."
+      description: After role change, all the user sessions will be invalidated, the
+        user will be logged out.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRoles"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UserRoles"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UserRoles"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/block:
+    patch:
+      tags:
+        - User
+      summary: Blocks a user by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/unblock:
+    patch:
+      tags:
+        - User
+      summary: Unblocks a user by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/verify-manual:
+    patch:
+      tags:
+        - User
+      summary: Verifies a user manually by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{studentId}/mentor-assignment:
+    get:
+      tags:
+        - User
+      summary: Retrieves a student's mentor assignments by their unique identifier.
+      parameters:
+        - name: studentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: SubjectId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: MentorId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: StudentId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - SubjectId
+              - MentorId
+              - StudentId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorAssignmentDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{mentorId}/student-assignment:
+    get:
+      tags:
+        - User
+      summary: Retrieves a mentor's assignments by their unique identifier.
+      parameters:
+        - name: mentorId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: SubjectId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: MentorId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: StudentId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - SubjectId
+              - MentorId
+              - StudentId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorAssignmentDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{studentId}/assign-mentor:
+    patch:
+      tags:
+        - User
+      summary: Assigns a mentor to a student for a specific subject.
+      description: If a user already has a mentor assigned for the subject, it will be
+        unassigned and a new one will be assigned.
+      parameters:
+        - name: studentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMentorAssignmentDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateMentorAssignmentDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateMentorAssignmentDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{studentId}/unassign-mentor:
+    patch:
+      tags:
+        - User
+      summary: Unassigns a mentor from a student.
+      parameters:
+        - name: studentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user-settings:
+    get:
+      tags:
+        - UserSettings
+      summary: "Get the current user settings.\r
+
+        This includes theme, font size, and other user preferences."
+      description: "This endpoint always returns settings and never null or
+        NotFound.\r
+
+        If the user has not set any settings, default values will be returned."
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettingsDTOApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - UserSettings
+      summary: Update the current user settings.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSettingsUpdateDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UserSettingsUpdateDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UserSettingsUpdateDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /work:
+    get:
+      tags:
+        - Work
+      summary: Searches for works based on the provided criteria.
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Type
+          in: query
+          schema:
+            $ref: "#/components/schemas/WorkType"
+        - name: SubjectId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Title
+              - Type
+              - SubjectId
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Work
+      summary: Creates a new work.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /work/{id}:
+    get:
+      tags:
+        - Work
+      summary: "Retrieves a specific work by its ID.\r
+
+        It will also include the work's associated tasks"
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Work
+      summary: Updates an existing work.
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Work
+      summary: Deletes a work by its ID.
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+components:
+  schemas:
+    AddHelperMentorOptionsDTO:
+      required:
+        - mentorId
+      type: object
+      properties:
+        mentorId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    AssignedWorkAnswerStatus:
+      enum:
+        - not-submitted
+        - submitted
+        - checked
+      type: string
+    AssignedWorkCheckStatus:
+      enum:
+        - not-checked
+        - in-progress
+        - checked
+      type: string
+    AssignedWorkDTO:
+      type: object
+      additionalProperties: false
+    AssignedWorkDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/AssignedWorkDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    AssignedWorkDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignedWorkDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    AssignedWorkProgressDTO:
+      type: object
+      properties:
+        assignedWorkId:
+          $ref: "#/components/schemas/Ulid"
+        solveStatus:
+          $ref: "#/components/schemas/AssignedWorkSolveStatus"
+        solvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        checkStatus:
+          $ref: "#/components/schemas/AssignedWorkCheckStatus"
+        checkedAt:
+          type: string
+          format: date-time
+          nullable: true
+        score:
+          type: integer
+          format: int32
+          nullable: true
+        maxScore:
+          type: integer
+          format: int32
+          nullable: true
+        attempt:
+          type: integer
+          format: int32
+      additionalProperties: false
+    AssignedWorkProgressDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/AssignedWorkProgressDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    AssignedWorkSolveStatus:
+      enum:
+        - not-solved
+        - in-progress
+        - solved
+      type: string
+    BooleanApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: boolean
+        meta:
+          nullable: true
+      additionalProperties: false
+    BulkCreateNotificationsDTO:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ulid"
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        isBanner:
+          type: boolean
+        link:
+          type: string
+          nullable: true
+        linkText:
+          type: string
+          nullable: true
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationChannelType"
+          nullable: true
+      additionalProperties: false
+    CalendarEventDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        assignedWorkId:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          $ref: "#/components/schemas/CalendarEventType"
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    CalendarEventDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarEventDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    CalendarEventType:
+      enum:
+        - custom
+        - assigned-work-check-deadline
+        - assigned-work-solve-deadline
+        - assigned-work-cheked
+        - assigned-work-solved
+      type: string
+    ChangeLogDTO:
+      type: object
+      properties:
+        version:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlatformChange"
+          nullable: true
+      additionalProperties: false
+    ChangeLogDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChangeLogDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    ChangeType:
+      enum:
+        - feature
+        - bug-fix
+        - optimization
+        - refactor
+      type: string
+    CombineType:
+      enum:
+        - and
+        - or
+      type: string
+    ConfirmEmailChangeDTO:
+      required:
+        - token
+      type: object
+      properties:
+        token:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    ConfirmPasswordChangeDTO:
+      required:
+        - newPassword
+        - token
+      type: object
+      properties:
+        token:
+          maxLength: 200
+          minLength: 1
+          type: string
+        newPassword:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    CourseDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        description:
+          type: string
+          nullable: true
+        thumbnailId:
+          $ref: "#/components/schemas/Ulid"
+        thumbnail:
+          $ref: "#/components/schemas/MediaDTO"
+        memberCount:
+          type: integer
+          format: int32
+          nullable: true
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+        subject:
+          $ref: "#/components/schemas/SubjectDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    CourseDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CourseDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    CourseDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    CourseMembershipDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          $ref: "#/components/schemas/CourseMembershipType"
+        courseId:
+          $ref: "#/components/schemas/Ulid"
+        course:
+          $ref: "#/components/schemas/CourseDTO"
+        isActive:
+          type: boolean
+        isArchived:
+          type: boolean
+        studentId:
+          $ref: "#/components/schemas/Ulid"
+        student:
+          $ref: "#/components/schemas/UserDTO"
+        assignerId:
+          $ref: "#/components/schemas/Ulid"
+        assigner:
+          $ref: "#/components/schemas/UserDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    CourseMembershipDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CourseMembershipDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    CourseMembershipDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseMembershipDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    CourseMembershipType:
+      enum:
+        - manual-assigned
+        - external-assigned
+        - subscription
+      type: string
+    CreateCalendarEventDTO:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        type:
+          $ref: "#/components/schemas/CalendarEventType"
+        startDateTime:
+          type: string
+          format: date-time
+        endDateTime:
+          type: string
+          format: date-time
+          nullable: true
+        assignedWorkId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreateCourseDTO:
+      required:
+        - name
+        - subjectId
+      type: object
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+        description:
+          maxLength: 500
+          type: string
+          nullable: true
+        thumbnailId:
+          $ref: "#/components/schemas/Ulid"
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreateCourseMaterialContentDTO:
+      required:
+        - content
+        - isWorkAvailable
+      type: object
+      properties:
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        workId:
+          $ref: "#/components/schemas/Ulid"
+        isWorkAvailable:
+          type: boolean
+        workSolveDeadlineAt:
+          type: string
+          format: date-time
+          nullable: true
+        workCheckDeadlineAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    CreateCourseMembershipDTO:
+      required:
+        - courseId
+        - studentId
+      type: object
+      properties:
+        studentId:
+          $ref: "#/components/schemas/Ulid"
+        courseId:
+          $ref: "#/components/schemas/Ulid"
+        notifyStudent:
+          type: boolean
+      additionalProperties: false
+    CreateGoogleSheetsIntegrationDTO:
+      required:
+        - cronPattern
+        - name
+      type: object
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+        type:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationType"
+        selectorValue:
+          type: string
+          nullable: true
+        spreadsheetId:
+          type: string
+          nullable: true
+        cronPattern:
+          minLength: 1
+          type: string
+        googleAuthData:
+          type: string
+          nullable: true
+        googleCredentials:
+          $ref: "#/components/schemas/GoogleOAuthCredentialsDTO"
+        googleOAthToken:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateMentorAssignmentDTO:
+      required:
+        - mentorId
+        - studentId
+        - subjectId
+      type: object
+      properties:
+        studentId:
+          $ref: "#/components/schemas/Ulid"
+        mentorId:
+          $ref: "#/components/schemas/Ulid"
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreatePollAnswerDTO:
+      required:
+        - pollQuestionId
+      type: object
+      properties:
+        pollQuestionId:
+          $ref: "#/components/schemas/Ulid"
+        value:
+          $ref: "#/components/schemas/PollAnswerValue"
+      additionalProperties: false
+    CreatePollDTO:
+      required:
+        - isActive
+        - isAuthRequired
+        - questions
+        - title
+      type: object
+      properties:
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        description:
+          maxLength: 512
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        isAuthRequired:
+          type: boolean
+        questions:
+          maxItems: 100
+          minItems: 1
+          type: array
+          items:
+            $ref: "#/components/schemas/CreatePollQuestionDTO"
+      additionalProperties: false
+    CreatePollParticipationDTO:
+      required:
+        - answers
+      type: object
+      properties:
+        userType:
+          $ref: "#/components/schemas/ParticipatingUserType"
+        userExternalIdentifier:
+          type: string
+          nullable: true
+        userExternalData:
+          nullable: true
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreatePollAnswerDTO"
+      additionalProperties: false
+    CreatePollQuestionDTO:
+      required:
+        - title
+        - type
+      type: object
+      properties:
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        description:
+          maxLength: 512
+          type: string
+          nullable: true
+        isRequired:
+          type: boolean
+        type:
+          $ref: "#/components/schemas/PollQuestionType"
+        config:
+          $ref: "#/components/schemas/PollQuestionConfig"
+      additionalProperties: false
+    CreateSnippetDTO:
+      type: object
+      properties:
+        name:
+          maxLength: 63
+          type: string
+          nullable: true
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+      additionalProperties: false
+    CreateSupportArticleDTO:
+      required:
+        - order
+        - title
+      type: object
+      properties:
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        order:
+          maximum: 255
+          minimum: 0
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        isActive:
+          type: boolean
+        categoryId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreateSupportCategoryDTO:
+      required:
+        - name
+        - order
+      type: object
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+        order:
+          maximum: 255
+          minimum: 0
+          type: integer
+          format: int32
+        isPinned:
+          type: boolean
+        isActive:
+          type: boolean
+        parentId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreateWorkDTO:
+      required:
+        - subjectId
+        - tasks
+        - title
+        - type
+      type: object
+      properties:
+        title:
+          maxLength: 200
+          minLength: 1
+          type: string
+        type:
+          $ref: "#/components/schemas/WorkType"
+        description:
+          maxLength: 255
+          type: string
+          nullable: true
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+        tasks:
+          maxItems: 300
+          minItems: 1
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateWorkTaskDTO"
+      additionalProperties: false
+    CreateWorkTaskDTO:
+      required:
+        - content
+        - maxScore
+        - order
+        - type
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/WorkTaskType"
+        order:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          format: int32
+        maxScore:
+          maximum: 2147483647
+          minimum: 1
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        rightAnswers:
+          type: array
+          items:
+            type: string
+          nullable: true
+        solveHint:
+          $ref: "#/components/schemas/IRichTextType"
+        explanation:
+          $ref: "#/components/schemas/IRichTextType"
+        checkStrategy:
+          $ref: "#/components/schemas/WorkTaskCheckStrategy"
+        showAnswerBeforeCheck:
+          type: boolean
+        checkOneByOne:
+          type: boolean
+      additionalProperties: false
+    DeviceType:
+      enum:
+        - unknown
+        - desktop
+        - mobile
+        - tablet
+      type: string
+    FontSize:
+      enum:
+        - small
+        - normal
+        - large
+      type: string
+    GoogleOAuthCredentialsDTO:
+      type: object
+      properties:
+        authuser:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        prompt:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    GoogleSheetsIntegrationDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        type:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationType"
+        selectorValue:
+          type: string
+          nullable: true
+        lastRunAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationStatus"
+        lastErrorText:
+          type: string
+          nullable: true
+        cronPattern:
+          type: string
+          nullable: true
+        googleAccount:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    GoogleSheetsIntegrationDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GoogleSheetsIntegrationDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    GoogleSheetsIntegrationStatus:
+      enum:
+        - active
+        - inactive
+        - error
+      type: string
+    GoogleSheetsIntegrationType:
+      enum:
+        - user-course
+        - user-work
+        - user-role
+        - poll-results
+      type: string
+    IRichTextType:
+      type: object
+      additionalProperties: false
+    IdResponseDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    IdResponseDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/IdResponseDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    LoginDTO:
+      required:
+        - password
+        - usernameOrEmail
+      type: object
+      properties:
+        usernameOrEmail:
+          maxLength: 200
+          minLength: 1
+          type: string
+        password:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    LoginResponseDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          nullable: true
+        expiresAt:
+          type: string
+          format: date-time
+        userInfo:
+          $ref: "#/components/schemas/UserInfoDTO"
+      additionalProperties: false
+    LoginResponseDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/LoginResponseDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    MediaDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        hash:
+          type: string
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        actualName:
+          type: string
+          nullable: true
+        extension:
+          type: string
+          nullable: true
+        size:
+          type: integer
+          format: int64
+        order:
+          type: integer
+          format: int32
+        reason:
+          type: string
+          nullable: true
+        entityId:
+          $ref: "#/components/schemas/Ulid"
+        ownerId:
+          $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    MentorAssignmentDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        studentId:
+          $ref: "#/components/schemas/Ulid"
+        student:
+          $ref: "#/components/schemas/UserDTO"
+        mentorId:
+          $ref: "#/components/schemas/Ulid"
+        mentor:
+          $ref: "#/components/schemas/UserDTO"
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+        subject:
+          $ref: "#/components/schemas/SubjectDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    MentorAssignmentDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MentorAssignmentDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    NotificationChannelType:
+      enum:
+        - http
+        - telegram
+      type: string
+    NotificationDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        is_read:
+          type: boolean
+        is_banner:
+          type: boolean
+        link:
+          type: string
+          nullable: true
+        link_text:
+          type: string
+          nullable: true
+      additionalProperties: false
+    NotificationDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    ObjectApiResponseDTO:
+      type: object
+      properties:
+        data:
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    ParticipatingUserType:
+      enum:
+        - authenticated-user
+        - telegram-user
+      type: string
+    PlatformChange:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/ChangeType"
+        author:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PollAnswerDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        pollQuestionId:
+          $ref: "#/components/schemas/Ulid"
+        value:
+          $ref: "#/components/schemas/PollAnswerValue"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    PollAnswerValue:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PollQuestionType"
+        value:
+          nullable: true
+      additionalProperties: false
+    PollDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        isAuthRequired:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PollQuestionDTO"
+          nullable: true
+      additionalProperties: false
+    PollDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/PollDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    PollDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PollDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    PollParticipationDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        pollId:
+          $ref: "#/components/schemas/Ulid"
+        poll:
+          $ref: "#/components/schemas/PollDTO"
+        userId:
+          $ref: "#/components/schemas/Ulid"
+        userType:
+          $ref: "#/components/schemas/ParticipatingUserType"
+        userExternalIdentifier:
+          type: string
+          nullable: true
+        userExternalData:
+          nullable: true
+        user:
+          $ref: "#/components/schemas/UserDTO"
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/PollAnswerDTO"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    PollParticipationDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/PollParticipationDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    PollParticipationDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PollParticipationDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    PollQuestionConfig:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PollQuestionType"
+        minChoices:
+          type: integer
+          format: int32
+          nullable: true
+        maxChoices:
+          type: integer
+          format: int32
+          nullable: true
+        minTextLength:
+          type: integer
+          format: int32
+          nullable: true
+        maxTextLength:
+          type: integer
+          format: int32
+          nullable: true
+        minIntValue:
+          type: integer
+          format: int32
+          nullable: true
+        maxIntValue:
+          type: integer
+          format: int32
+          nullable: true
+        minRating:
+          type: integer
+          format: int32
+          nullable: true
+        maxRating:
+          type: integer
+          format: int32
+          nullable: true
+        maxFileSize:
+          maximum: 157286400
+          minimum: 1
+          type: integer
+          description: Maximum file size in bytes
+          format: int32
+          nullable: true
+        allowedFileTypes:
+          maxItems: 5
+          type: array
+          items:
+            type: string
+          description: Allowed file types (MIME types)
+          nullable: true
+        maxFileCount:
+          maximum: 10
+          minimum: 1
+          type: integer
+          format: int32
+          nullable: true
+      additionalProperties: false
+    PollQuestionDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        isRequired:
+          type: boolean
+        type:
+          $ref: "#/components/schemas/PollQuestionType"
+        config:
+          $ref: "#/components/schemas/PollQuestionConfig"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    PollQuestionType:
+      enum:
+        - checkbox
+        - single-choice
+        - multiple-choice
+        - text
+        - number
+        - date
+        - date-time
+        - rating
+        - files
+      type: string
+    ReasonType:
+      enum:
+        - avatar
+        - course
+        - course-thumbnail
+        - video-thumbnail
+        - help
+        - work
+        - assigned-work-answer
+        - assigned-work-comment
+        - poll-answer
+      type: string
+    RegisterDTO:
+      required:
+        - email
+        - name
+        - password
+        - username
+      type: object
+      properties:
+        name:
+          maxLength: 200
+          minLength: 1
+          type: string
+        username:
+          maxLength: 100
+          minLength: 3
+          type: string
+        password:
+          minLength: 1
+          type: string
+        email:
+          minLength: 1
+          type: string
+          format: email
+      additionalProperties: false
+    RemakeAssignedWorkOptionsDTO:
+      type: object
+      properties:
+        includeOnlyWrongTasks:
+          type: boolean
+      additionalProperties: false
+    ReplaceMainMentorOptionsDTO:
+      required:
+        - mentorId
+      type: object
+      properties:
+        mentorId:
+          $ref: "#/components/schemas/Ulid"
+        notifyMentor:
+          type: boolean
+        notifyStudent:
+          type: boolean
+      additionalProperties: false
+    RequestPasswordChangeDTO:
+      required:
+        - email
+      type: object
+      properties:
+        email:
+          minLength: 1
+          type: string
+          format: email
+      additionalProperties: false
+    SerializedNooException:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        logId:
+          type: string
+          nullable: true
+        statusCode:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        payload:
+          nullable: true
+      additionalProperties: false
+    SessionDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        lastRequestAt:
+          type: string
+          format: date-time
+        device:
+          type: string
+          nullable: true
+        os:
+          type: string
+          nullable: true
+        browser:
+          type: string
+          nullable: true
+        deviceType:
+          $ref: "#/components/schemas/DeviceType"
+      additionalProperties: false
+    SessionDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SessionDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    ShiftAssignedWorkDeadlineOptionsDTO:
+      required:
+        - newDeadline
+      type: object
+      properties:
+        newDeadline:
+          type: string
+          format: date-time
+        notifyOthers:
+          type: boolean
+      additionalProperties: false
+    SnippetDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          type: string
+          nullable: true
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    SnippetDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SnippetDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    Sorting:
+      enum:
+        - ascending
+        - descending
+      type: string
+    StatisticsBlockDTO:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        graph:
+          $ref: "#/components/schemas/StatisticsGraphDTO"
+        numberBlocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatisticsNumberBlockDTO"
+          nullable: true
+      additionalProperties: false
+    StatisticsDTO:
+      type: object
+      properties:
+        blocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatisticsBlockDTO"
+          nullable: true
+      additionalProperties: false
+    StatisticsDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/StatisticsDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    StatisticsGraphDTO:
+      type: object
+      properties:
+        label:
+          type: string
+          nullable: true
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatisticsGraphLineDTO"
+          nullable: true
+      additionalProperties: false
+    StatisticsGraphLineDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        values:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+            nullable: true
+          nullable: true
+      additionalProperties: false
+    StatisticsNumberBlockDTO:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        value:
+          type: number
+          format: double
+          nullable: true
+        units:
+          type: string
+          nullable: true
+        subValues:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+            nullable: true
+          nullable: true
+      additionalProperties: false
+    StringApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: string
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    SubjectCreationDTO:
+      required:
+        - color
+        - name
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        color:
+          minLength: 1
+          pattern: ^#[0-9A-Fa-f]{6}$
+          type: string
+      additionalProperties: false
+    SubjectDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    SubjectDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/SubjectDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    SubjectDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    SubjectUpdateDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectUpdateDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    SubjectUpdateDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    SupportArticleDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        title:
+          type: string
+          nullable: true
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        isActive:
+          type: boolean
+        categoryId:
+          $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    SupportArticleDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/SupportArticleDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    SupportCategoryDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          type: string
+          nullable: true
+        isPinned:
+          type: boolean
+        isActive:
+          type: boolean
+        parentId:
+          $ref: "#/components/schemas/Ulid"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportCategoryDTO"
+          nullable: true
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportArticleDTO"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    SupportCategoryDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SupportCategoryDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    Ulid:
+      pattern: ^[0-7][0-9A-HJKMNP-TV-Z]{25}$
+      type: string
+      properties:
+        random:
+          type: string
+          format: byte
+          nullable: true
+          readOnly: true
+        time:
+          type: string
+          format: date-time
+          readOnly: true
+      additionalProperties: false
+      description: Universally Unique Lexicographically Sortable Identifier (ULID).
+      format: ulid
+      externalDocs:
+        description: ULID Specification
+        url: https://github.com/ulid/spec
+      example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
+    UpdateCourseDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateCourseDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateCourseDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateCourseMaterialContentDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateCourseMaterialContentDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateCourseMaterialContentDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdatePollAnswerDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdatePollAnswerDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdatePollAnswerDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdatePollDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdatePollDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdatePollDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateSnippetDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateSnippetDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateSnippetDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateSupportArticleDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateSupportArticleDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateSupportArticleDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateSupportCategoryDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateSupportCategoryDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateSupportCategoryDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateUserDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateUserDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateUserDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateWorkDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateWorkDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateWorkDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpsertAssignedWorkAnswerDTO:
+      required:
+        - status
+        - taskId
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        richTextContent:
+          $ref: "#/components/schemas/IRichTextType"
+        wordContent:
+          maxLength: 63
+          type: string
+          nullable: true
+        mentorComment:
+          $ref: "#/components/schemas/IRichTextType"
+        score:
+          maximum: 500
+          minimum: 0
+          type: integer
+          format: int32
+          nullable: true
+        maxScore:
+          maximum: 500
+          minimum: 0
+          type: integer
+          format: int32
+        detailedScore:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          nullable: true
+        status:
+          $ref: "#/components/schemas/AssignedWorkAnswerStatus"
+        taskId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    UpsertAssignedWorkCommentDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+      additionalProperties: false
+    UserDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        username:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        telegramId:
+          type: string
+          nullable: true
+        telegramUsername:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/UserRoles"
+        isBlocked:
+          type: boolean
+        isVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    UserDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/UserDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    UserDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    UserInfoDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          type: string
+          nullable: true
+        username:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/UserRoles"
+      additionalProperties: false
+    UserRoles:
+      enum:
+        - admin
+        - teacher
+        - mentor
+        - assistant
+        - student
+      type: string
+    UserSettingsDTO:
+      type: object
+      properties:
+        theme:
+          $ref: "#/components/schemas/UserTheme"
+        fontSize:
+          $ref: "#/components/schemas/FontSize"
+      additionalProperties: false
+    UserSettingsDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/UserSettingsDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    UserSettingsUpdateDTO:
+      type: object
+      properties:
+        theme:
+          $ref: "#/components/schemas/UserTheme"
+        fontSize:
+          $ref: "#/components/schemas/FontSize"
+      additionalProperties: false
+    UserTheme:
+      enum:
+        - light
+        - dark
+        - system-default
+      type: string
+    WorkDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        title:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+        subject:
+          $ref: "#/components/schemas/SubjectDTO"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkTaskDTO"
+          nullable: true
+      additionalProperties: false
+    WorkDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/WorkDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    WorkDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    WorkTaskCheckStrategy:
+      enum:
+        - manual
+        - exact-match-or-zero
+        - exact-match-with-wrong-character
+        - multiple-choice
+        - sequence
+      type: string
+    WorkTaskDTO:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          $ref: "#/components/schemas/WorkTaskType"
+        order:
+          type: integer
+          format: int32
+        maxScore:
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        rightAnswer:
+          type: array
+          items:
+            type: string
+          nullable: true
+        solveHint:
+          $ref: "#/components/schemas/IRichTextType"
+        explanation:
+          $ref: "#/components/schemas/IRichTextType"
+        checkStrategy:
+          $ref: "#/components/schemas/WorkTaskCheckStrategy"
+        showAnswerBeforeCheck:
+          type: boolean
+        checkOneByOne:
+          type: boolean
+      additionalProperties: false
+    WorkTaskType:
+      enum:
+        - word
+        - text
+        - essay
+        - final-essay
+      type: string
+    WorkType:
+      enum:
+        - test
+        - mini-test
+        - phrase
+        - trial-work
+        - second-part
+      type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      description: JWT Authorization header using the Bearer scheme
+      scheme: Bearer

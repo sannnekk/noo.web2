@@ -11,12 +11,13 @@
             'task-grid__grid__item--word': task.type === 'word',
             'task-grid__grid__item--text': task.type === 'text',
             'task-grid__grid__item--essay': task.type === 'essay',
-            'task-grid__grid__item--final-essay': task.type === 'final-essay'
+            'task-grid__grid__item--final-essay': task.type === 'final-essay',
+            'task-grid__grid__item--dictation': task.type === 'dictation'
           }"
           @click="$emit('task-clicked', task)"
         >
           <noo-new-tag
-            v-if="!task.id"
+            v-if="!task.id && showNewLabel"
             class="task-grid__grid__item__new-label"
           />
           <span class="task-grid__grid__item__number">{{ task.order }}</span>
@@ -25,7 +26,7 @@
     </noo-scrollable-block>
     <div class="task-grid__legend">
       <div
-        v-for="item in legend.filter((i) => i.if)"
+        v-for="item in legend"
         :key="item.color"
         class="task-grid__legend__item"
       >
@@ -34,7 +35,7 @@
           dimmed
           size="small"
         >
-          {{ item.text }}
+          {{ item.label }}
         </noo-text-block>
       </div>
     </div>
@@ -43,47 +44,40 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { taskTypes } from '../constants'
 import type { PossiblyUnsavedWorkTask } from '../types'
 
 interface LegendItem {
   color: string
-  text: string
-  if: boolean
+  label: string
 }
 
 interface Props {
   tasks: PossiblyUnsavedWorkTask[]
   activeTaskKey?: string
+  showNewLabel?: boolean
 }
 
-type Emits = (e: 'task-clicked', task: PossiblyUnsavedWorkTask) => void
+type Emits = (event: 'task-clicked', task: PossiblyUnsavedWorkTask) => void
 
 const props = defineProps<Props>()
 
 defineEmits<Emits>()
 
-const legend = computed<LegendItem[]>(() => [
-  {
-    color: 'var(--danger)',
-    text: 'В одну строку',
-    if: props.tasks.some((task) => task.type === 'word')
+const legend = computed<LegendItem[]>(() => {
+  return taskTypes.filter((type) =>
+    props.tasks.some((task) => task.type === type.value)
+  )
+})
+
+const taskTypeColors = taskTypes.reduce(
+  (acc, type) => {
+    acc[type.value] = type.color
+
+    return acc
   },
-  {
-    color: 'var(--lila)',
-    text: 'Открытый вопрос',
-    if: props.tasks.some((task) => task.type === 'text')
-  },
-  {
-    color: 'var(--success)',
-    text: 'Сочинение',
-    if: props.tasks.some((task) => task.type === 'essay')
-  },
-  {
-    color: 'var(--warning)',
-    text: 'Итоговое сочинение',
-    if: props.tasks.some((task) => task.type === 'final-essay')
-  }
-])
+  {} as Record<string, string>
+)
 </script>
 
 <style scoped lang="sass">
@@ -92,7 +86,7 @@ const legend = computed<LegendItem[]>(() => [
     display: grid
     grid-template-columns: repeat(6, 1fr)
     gap: 0.75em
-    padding: 0.5em 0
+    padding: 0.5em 0.3em 0.5em 0
 
     &__item
       display: flex
@@ -119,16 +113,19 @@ const legend = computed<LegendItem[]>(() => [
         color: var(--black)
 
       &--word
-        border-color: var(--danger)
+        border-color: v-bind('taskTypeColors["word"]')
 
       &--text
-        border-color: var(--lila)
+        border-color: v-bind('taskTypeColors["text"]')
 
       &--essay
-        border-color: var(--success)
+        border-color: v-bind('taskTypeColors["essay"]')
 
       &--final-essay
-        border-color: var(--warning)
+        border-color: v-bind('taskTypeColors["final-essay"]')
+
+      &--dictation
+        border-color: v-bind('taskTypeColors["dictation"]')
 
       &__new-label
         position: absolute

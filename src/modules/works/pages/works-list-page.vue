@@ -5,12 +5,14 @@
       v-model:search="search.search.value"
       :columns="columns"
       :is-loading="search.isLoading.value"
-      :items="/* search.data.value */works"
+      :items="search.data.value"
       :total-count="search.total.value"
-      :row-link="(item) => ({
-        name: 'works.edit',
-        params: { workId: item.id }
-      })"
+      :row-link="
+        (item) => ({
+          name: 'works.edit',
+          params: { workId: item.id }
+        })
+      "
     >
       <template #actions>
         <noo-button
@@ -20,18 +22,18 @@
           Создать работу
         </noo-button>
       </template>
-      <template #column-title="{item}">
+      <template #column-title="{ item }">
         <noo-text-block class="works-list-page__name">
           {{ item.title }}
         </noo-text-block>
       </template>
-      <template #column-type="{item}">
+      <template #column-type="{ item }">
         <noo-work-type-tag :type="item.type" />
       </template>
-      <template #column-subject="{item}">
+      <template #column-subject="{ item }">
         <noo-subject-block :subject="item.subject" />
       </template>
-      <template #column-createdAt="{item}">
+      <template #column-createdAt="{ item }">
         <noo-text-block
           dimmed
           class="works-list-page__created-at"
@@ -41,7 +43,7 @@
             timezones="both"
             include-time
           />
-          <br>
+          <br />
           <noo-date
             :value="item.updatedAt"
             timezones="both"
@@ -54,11 +56,10 @@
 </template>
 
 <script setup lang="ts">
-import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers';
-import { useSearch } from '@/core/composables/useSearch';
-import { WorkService } from '../api/work.service';
-import type { WorkEntity } from '../api/work.types';
-import { works } from '../mock-data/works';
+import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
+import { useSearch } from '@/core/composables/useSearch'
+import { WorkService } from '../api/work.service'
+import type { WorkEntity } from '../api/work.types'
 
 const search = useSearch<WorkEntity>(WorkService.get)
 
@@ -69,7 +70,7 @@ const columns: EntityTableColumnType<WorkEntity>[] = [
   },
   {
     key: 'type',
-    title: 'Тип',
+    title: 'Тип'
   },
   {
     key: 'subject',
@@ -82,7 +83,7 @@ const columns: EntityTableColumnType<WorkEntity>[] = [
   {
     key: 'actions',
     title: '',
-    disableLink: true,
+    disableLink: true
   }
 ]
 </script>

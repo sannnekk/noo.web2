@@ -65,4 +65,31 @@ function emptyRichText(type: RichTextType = 'delta'): IRichText {
   }
 }
 
-export { emptyRichText, richTextIsEmpty, richTextsAreEqual, RichTextSchema }
+/**
+ * Makes type discriminating property come first for serialization purposes
+ */
+function richtextJsonTransformer(richText: IRichText): IRichText {
+  const { $type, ...rest } = richText
+
+  return {
+    $type,
+    ...rest
+  }
+}
+
+function isRichtext(value: unknown): value is IRichText {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  return '$type' in value && value.$type === 'delta'
+}
+
+export {
+  emptyRichText,
+  isRichtext,
+  richTextIsEmpty,
+  richtextJsonTransformer,
+  richTextsAreEqual,
+  RichTextSchema
+}

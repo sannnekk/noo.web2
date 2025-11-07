@@ -18,7 +18,7 @@
         :placeholder="placeholder"
         :disabled="readonly"
         @keypress.enter="$emit('enter-press')"
-      >
+      />
       <div
         v-if="copyButton"
         class="noo-text-input__copy-button"
@@ -98,7 +98,7 @@ function validateInput(value: string | undefined | null) {
 const copyIcon = ref<IconName>('copy')
 
 function onCopy() {
-  //copyText(String(model.value || ''))
+  // TODO: copy to clipboard
   copyIcon.value = 'check-green'
 
   setTimeout(() => {

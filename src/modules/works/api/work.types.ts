@@ -10,7 +10,12 @@ export type WorkType =
   | 'phrase'
   | 'second-part'
 
-export type WorkTaskType = 'word' | 'text' | 'essay' | 'final-essay'
+export type WorkTaskType =
+  | 'word'
+  | 'text'
+  | 'essay'
+  | 'final-essay'
+  | 'dictation'
 
 export type WorkTaskCheckStrategy =
   | 'manual'
@@ -38,7 +43,7 @@ export interface WorkTaskEntity extends ApiEntity {
   order: number
   maxScore: number
   content: IRichText
-  rightAnswer: string | null
+  rightAnswers: string[] | null
   solveHint: IRichText | null
   explanation: IRichText | null
   checkStrategy: WorkTaskCheckStrategy
