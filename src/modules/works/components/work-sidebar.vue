@@ -97,22 +97,26 @@
         v-if="canSaveWork"
         variant="primary"
         size="large"
-        @click="workDetailStore.save()"
+        @click="saveChangesModalOpen = true"
       >
         Сохранить
       </noo-button>
     </div>
   </div>
+  <save-work-changes-modal v-model:is-open="saveChangesModalOpen" />
 </template>
 
 <script setup lang="ts">
 import { maxLength } from '@/core/validators/string.utils'
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { workConfig } from '../config'
 import { workTypes } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
 import type { WorkViewMode } from '../types'
+import saveWorkChangesModal from './save-work-changes-modal.vue'
 import taskGrid from './task-grid.vue'
+
+const saveChangesModalOpen = shallowRef(false)
 
 const workDetailStore = useWorkDetailStore()
 

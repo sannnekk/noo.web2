@@ -4,6 +4,7 @@ import type { SubjectEntity } from './api/subject.types'
 
 const SubjectSchema = z.object({
   id: z.string().ulid(),
+  _entityName: z.literal('Subject'),
   name: z
     .string()
     .min(1, {

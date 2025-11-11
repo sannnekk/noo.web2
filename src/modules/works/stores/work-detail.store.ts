@@ -1,8 +1,12 @@
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
+import {
+  JsonPatchUtils,
+  type PatchGenerator
+} from '@/core/utils/jsonpatch.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
 import { defineStore } from 'pinia'
-import { ref, type Ref } from 'vue'
+import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
 import type {
@@ -14,6 +18,7 @@ import { validateWorkState } from '../utils'
 
 interface WorkDetailStore {
   work: Ref<PossiblyUnsavedWork | null>
+  workPatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedWork> | null>
   task: Ref<PossiblyUnsavedWorkTask | null>
   mode: Ref<WorkViewMode>
   workValidationState: Ref<{
@@ -40,6 +45,11 @@ const useWorkDetailStore = defineStore(
      * If `null`, no work is being viewed or edited.
      */
     const work = ref<PossiblyUnsavedWork | null>(null)
+    /**
+     * Function to generate JSON Patch document for updating the work.
+     */
+    const workPatchGenerator =
+      shallowRef<PatchGenerator<PossiblyUnsavedWork> | null>(null)
     /**
      * Currently viewed or edited task within the work.
      * If `null`, no task is being viewed or edited.
@@ -87,6 +97,7 @@ const useWorkDetailStore = defineStore(
       if (typeof workId === 'undefined') {
         mode.value = 'create'
         work.value = {
+          _entityName: 'Work',
           _key: uid(),
           title: '',
           type: 'test',
@@ -104,9 +115,13 @@ const useWorkDetailStore = defineStore(
 
       const response = await WorkService.getById(workId)
 
-      work.value = convertToLocal<WorkEntity, PossiblyUnsavedWork>(
+      const loadedWork = convertToLocal<WorkEntity, PossiblyUnsavedWork>(
         response.data
       )
+
+      work.value = loadedWork
+      workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)
+
       uiStore.setLoading(false)
     }
 
@@ -149,6 +164,7 @@ const useWorkDetailStore = defineStore(
       }
 
       work.value.tasks.push({
+        _entityName: 'WorkTask',
         _key: uid(),
         order: work.value.tasks.length + 1,
         content: emptyRichText(),
@@ -199,8 +215,22 @@ const useWorkDetailStore = defineStore(
             response.error
           )
         }
+
+        // TODO: redirect to the edit mode using the returned ID
       } else if (mode.value === 'edit') {
-        // TODO: Update the existing work
+        const response = await WorkService.update(
+          work.value.id!,
+          workPatchGenerator.value!.generate()
+        )
+
+        if (response.error !== null) {
+          uiStore.createApiErrorToast(
+            'Не удалось обновить работу',
+            response.error
+          )
+        }
+
+        // TODO: refetch the work
       }
     }
 
@@ -214,6 +244,7 @@ const useWorkDetailStore = defineStore(
       workValidationState,
       validateWork,
       work,
+      workPatchGenerator,
       task,
       mode,
       init,

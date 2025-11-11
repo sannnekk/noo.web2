@@ -12,18 +12,18 @@ function assertSchema<
   return s
 }
 
-export function getValidationErrors<T>(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: ZodType<T, any, any>,
-  value: unknown
-): string[] {
-  const result = schema.safeParse(value)
+function getValidationErrors<T>(schema: ZodType<T>, data: unknown): string[] {
+  const result = schema.safeParse(data)
 
   if (result.success) {
     return []
   }
 
-  return result.error.errors.map((e) => e.message)
+  return result.error.errors.map((err) => {
+    const path = err.path.length > 0 ? `Path "${err.path.join('.')}"` : 'Root'
+
+    return `${path}: ${err.message}`
+  })
 }
 
-export { assertSchema }
+export { assertSchema, getValidationErrors }

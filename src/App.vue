@@ -23,24 +23,3 @@ const route = useRoute()
 const layout = computed(() => route?.meta?.layout ?? noLayout)
 const uiStore = useGlobalUIStore()
 </script>
-
-<style lang="sass">
-.app
-  ::-webkit-scrollbar
-    width: 8px
-    height: 8px
-
-  ::-webkit-scrollbar-thumb
-    background-color: var(--border-color)
-    border-radius: 4px
-    cursor: pointer
-
-    &:hover
-      background-color: var(--light-background-color)
-
-  ::-webkit-scrollbar-track
-    background-color: transparent
-
-  ::-webkit-scrollbar-corner
-    background-color: transparent
-</style>

@@ -1,4 +1,9 @@
-import type { WorkTaskCheckStrategy, WorkTaskType } from './api/work.types'
+import type { PathLabelMap } from '@/components/utils/noo-patch-list.types'
+import type {
+  WorkEntity,
+  WorkTaskCheckStrategy,
+  WorkTaskType
+} from './api/work.types'
 
 const workTypes: { label: string; value: string }[] = [
   { label: 'Тест', value: 'test' },
@@ -38,4 +43,27 @@ const taskCheckStrategies: {
   { value: 'sequence', label: 'Последовательность' }
 ]
 
-export { taskCheckStrategies, taskTypes, workTypes }
+const workPathLabels: PathLabelMap<WorkEntity> = {
+  title: 'Название',
+  type: 'Тип работы',
+  description: 'Описание',
+  subjectId: 'Предмет',
+  tasks: {
+    label: 'Задания',
+    '*': {
+      label: 'Задание',
+      type: 'Тип задания',
+      order: 'Порядок',
+      maxScore: 'Максимальный балл',
+      content: 'Текст задания',
+      rightAnswers: 'Правильные ответы',
+      solveHint: 'Подсказка',
+      explanation: 'Пояснение',
+      checkStrategy: 'Способ проверки',
+      showAnswerBeforeCheck: 'Показывать ответ до сдачи',
+      checkOneByOne: 'Проверка по одному'
+    }
+  }
+}
+
+export { taskCheckStrategies, taskTypes, workPathLabels, workTypes }

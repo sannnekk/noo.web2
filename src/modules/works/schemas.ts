@@ -25,6 +25,7 @@ const CheckStrategySchema = z.enum([
 
 const PossiblyUnsavedWorkTaskSchema = z.object({
   id: z.string().ulid().optional(),
+  _entityName: z.literal('WorkTask'),
   _key: z.string(),
   content: RichTextSchema,
   order: z.number().int().nonnegative(),
@@ -39,7 +40,7 @@ const PossiblyUnsavedWorkTaskSchema = z.object({
     .positive({
       message: 'Максимальный балл должен быть положительным'
     }),
-  rightAnswer: z.string().nullable(),
+  rightAnswers: z.array(z.string()).nullable(),
   explanation: RichTextSchema.nullable(),
   solveHint: RichTextSchema.nullable(),
   showAnswerBeforeCheck: z.boolean().default(false),
@@ -50,6 +51,7 @@ const PossiblyUnsavedWorkTaskSchema = z.object({
 
 const PossiblyUnsavedWorkSchema = z.object({
   id: z.string().ulid().optional(),
+  _entityName: z.literal('Work'),
   _key: z.string(),
   title: z
     .string()

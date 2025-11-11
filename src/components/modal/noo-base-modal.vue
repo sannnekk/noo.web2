@@ -3,12 +3,12 @@
     <div
       class="noo-base-modal"
       :class="{ 'noo-base-modal--visible': openedModel }"
+      @keydown.esc="closeOnEsc && close()"
     >
       <div
         v-if="openedModel"
         class="noo-base-modal__inner"
-        @click.self="closeOnOutsideClick && (openedModel = false)"
-        @keydown.esc="closeOnEsc && (openedModel = false)"
+        @click.self="closeOnOutsideClick && close()"
       >
         <div
           class="noo-base-modal__container"
@@ -41,7 +41,11 @@ interface Props {
   fullWidth?: boolean
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  closeOnEsc: true,
+  closeOnOutsideClick: true,
+  fullWidth: false
+})
 
 const openedModel = defineModel<boolean>('isOpen', {
   default: false
@@ -102,4 +106,5 @@ function close() {
       display: flex
       justify-content: flex-end
       gap: 0.5em
+      margin-top: 0.5em
 </style>
