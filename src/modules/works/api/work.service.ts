@@ -27,7 +27,7 @@ interface IWorkService {
    * @param work The work object to create
    * @returns ID of the work created, in a Promise
    */
-  create(work: PossiblyUnsavedWork): Promise<ApiResponse<string>>
+  create(work: PossiblyUnsavedWork): Promise<ApiResponse<{ id: string }>>
   /**
    * Update a work using JSONPatchDocument
    *
@@ -66,7 +66,7 @@ async function getStatisticsById(
   return await Api.get(`${BASE_PATH}/${id}/statistics`)
 }
 
-async function create(work: UnsavedWork): Promise<ApiResponse<string>> {
+async function create(work: UnsavedWork): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(BASE_PATH, work)
 }
 

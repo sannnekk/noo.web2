@@ -78,7 +78,7 @@ const columns: EntityTableColumnType<WorkEntity>[] = [
   },
   {
     key: 'createdAt',
-    title: 'Дата создания'
+    title: 'Дата создания / изменения'
   },
   {
     key: 'actions',

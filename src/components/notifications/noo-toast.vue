@@ -43,6 +43,7 @@ import type { Toast } from '@/core/stores/global-ui.store'
 import { computed } from 'vue'
 import type { IconName } from '../icons/noo-icon.vue'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Props extends Toast {}
 
 type Emits = (e: 'close') => void
@@ -77,9 +78,11 @@ const toastIcon = computed<IconName>(() => {
   border-left: 10px solid var(--lightest)
   border-radius: var(--border-radius)
   box-shadow: var(--block-shadow)
-  padding: 1em
+  padding: 1em 0.7em
   display: flex
+  flex-direction: row
   gap: 0.5em
+  pointer-events: all
 
   &--success
     border-color: var(--success)
@@ -94,22 +97,29 @@ const toastIcon = computed<IconName>(() => {
     border-color: var(--info)
 
   &__icon
-    width: 100px
     font-size: 2em
-    margin-right: 0.3em
 
   &__content
+    flex: 1
+
     &__head
       display: flex
+      flex-wrap: nowrap
+      align-items: center
       gap: 0.5em
 
       &__title
         flex: 1
         margin: 0
         padding: 0
+        overflow: hidden
+        text-overflow: ellipsis
+        line-height: 1.3em
+        margin-bottom: 0.3em
 
       &__close
         font-size: 1.4em
+        line-height: 0.8em
         cursor: pointer
 
         &:hover
@@ -117,5 +127,5 @@ const toastIcon = computed<IconName>(() => {
 
     &__text
       margin: 0
-      margin-top: 0.2em
+      padding-top: 0
 </style>

@@ -72,7 +72,9 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
       ...toasts.value
     ]
 
-    setTimeout(() => { removeToast(id); }, 4000)
+    setTimeout(() => {
+      removeToast(id)
+    }, 4000)
   }
 
   function createWarningToast(title: string, text?: string) {
@@ -88,7 +90,9 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
       ...toasts.value
     ]
 
-    setTimeout(() => { removeToast(id); }, 4000)
+    setTimeout(() => {
+      removeToast(id)
+    }, 4000)
   }
 
   function createApiErrorToast(title: string, error?: ApiError) {
@@ -104,7 +108,9 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
       ...toasts.value
     ]
 
-    setTimeout(() => { removeToast(id); }, 4000)
+    setTimeout(() => {
+      removeToast(id)
+    }, 4000)
   }
 
   function createSuccessToast(title: string, text?: string) {
@@ -120,7 +126,9 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
       ...toasts.value
     ]
 
-    setTimeout(() => { removeToast(id); }, 4000)
+    setTimeout(() => {
+      removeToast(id)
+    }, 4000)
   }
 
   function removeToast(id: string) {

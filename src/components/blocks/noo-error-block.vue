@@ -13,7 +13,7 @@
       <img
         src="@/assets/error.svg"
         alt="Error"
-      >
+      />
     </div>
     <div class="noo-error-block__content">
       <div
@@ -34,6 +34,7 @@
       >
         Попробовать еще раз
       </noo-button>
+      <slot name="actions" />
     </div>
   </div>
 </template>
@@ -41,7 +42,7 @@
 <script lang="ts" setup>
 interface Props {
   withImage?: boolean
-  tryAgain?: () => any
+  tryAgain?: () => unknown
   centered?: boolean
 }
 
@@ -84,4 +85,10 @@ defineProps<Props>()
 
   &__text
     padding-left: 1em
+
+  &__actions
+    display: flex
+    flex-wrap: wrap
+    flex-direction: row
+    gap: 0.5em
 </style>

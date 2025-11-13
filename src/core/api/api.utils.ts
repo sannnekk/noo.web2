@@ -5,11 +5,17 @@ import { CookieStorage } from '../utils/cookies.utils'
 import { ApiErrorCodes } from './api-error-codes.data'
 import { serialize } from './serialization.utils'
 
-export interface ApiResponse<T = void> {
-  data: T
-  metadata?: ApiMetadata
-  error: ApiError
-}
+export type ApiResponse<T = void> =
+  | {
+      data: T
+      metadata?: ApiMetadata
+      error: null | undefined
+    }
+  | {
+      data: null
+      metadata: undefined
+      error: ApiError
+    }
 
 export interface ApiError {
   id: string

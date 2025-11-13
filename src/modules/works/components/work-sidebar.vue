@@ -1,6 +1,7 @@
 <template>
+  <noo-sidebar-skeleton v-if="workDetailStore.mode === 'loading'" />
   <div
-    v-if="workDetailStore.work"
+    v-else-if="workDetailStore.work"
     class="work-sidebar"
   >
     <div class="work-sidebar__subject">
@@ -104,6 +105,21 @@
     </div>
   </div>
   <save-work-changes-modal v-model:is-open="saveChangesModalOpen" />
+  <noo-sure-modal
+    v-model:is-open="sureChangeModeModalOpen"
+    @confirm="onConfirmChangeModeToView()"
+  >
+    <template #title>
+      <noo-title :size="3"> Вернуться в режим просмотра </noo-title>
+    </template>
+    <template #content>
+      <noo-text-block dimmed>
+        У вас есть несохранённые изменения. Если вы вернётесь в режим просмотра,
+        все несохранённые изменения будут потеряны.
+      </noo-text-block>
+    </template>
+    <template #confirm-action-text> В режим просмотра </template>
+  </noo-sure-modal>
 </template>
 
 <script setup lang="ts">
@@ -117,6 +133,7 @@ import saveWorkChangesModal from './save-work-changes-modal.vue'
 import taskGrid from './task-grid.vue'
 
 const saveChangesModalOpen = shallowRef(false)
+const sureChangeModeModalOpen = shallowRef(false)
 
 const workDetailStore = useWorkDetailStore()
 
@@ -135,9 +152,27 @@ const canSaveWork = computed(() => {
   )
 })
 
-function changeMode(mode: WorkViewMode) {
-  // TODO: reset unsaved changes when switching to 'view' mode, warn user about it
-  workDetailStore.mode = mode
+/**
+ * Change the current mode of the work view.
+ */
+function changeMode(newMode: WorkViewMode): void {
+  if (
+    workDetailStore.mode !== 'view' &&
+    newMode === 'view' &&
+    workDetailStore.workPatchGenerator &&
+    workDetailStore.workPatchGenerator.countChanges() > 0
+  ) {
+    sureChangeModeModalOpen.value = true
+
+    return
+  }
+
+  workDetailStore.mode = newMode
+}
+
+function onConfirmChangeModeToView() {
+  workDetailStore.work = workDetailStore.workPatchGenerator!.getOriginal()
+  workDetailStore.mode = 'view'
 }
 </script>
 

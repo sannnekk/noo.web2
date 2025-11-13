@@ -34,8 +34,9 @@
         <span
           class="noo-subject-select__error__retry"
           @click="loadSubjects"
-          >Повторить</span
         >
+          Повторить
+        </span>
       </p>
     </div>
   </div>
@@ -95,7 +96,7 @@ async function loadSubjects() {
   if (response.data?.length) {
     subjects.value = response.data
     state.value = 'loaded'
-  } else if (response.error !== null) {
+  } else if (response.error) {
     state.value = 'error'
   } else {
     state.value = 'empty'

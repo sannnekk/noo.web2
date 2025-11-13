@@ -1,6 +1,12 @@
 <template>
   <div
-    v-if="workDetailStore.task"
+    v-if="workDetailStore.mode === 'loading'"
+    class="task-form__loading"
+  >
+    <noo-form-skeleton />
+  </div>
+  <div
+    v-else-if="workDetailStore.task"
     :key="isReadonlyMode ? 'readonly' : 'editable'"
     class="task-form"
   >

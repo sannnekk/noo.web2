@@ -38,7 +38,8 @@ interface PatchGenerator<T extends object> {
  *
  */
 function observe<T extends object>(obj: T): PatchGenerator<T> {
-  const original = normalizeJsonPatchTarget(_.cloneDeep(obj)) as T
+  const original = _.cloneDeep(obj) as T
+  const normalizedOriginal = normalizeJsonPatchTarget(original) as T
 
   // Filter out the following keys from the JSON Patch document:
   // - _key (local only property)
@@ -48,7 +49,7 @@ function observe<T extends object>(obj: T): PatchGenerator<T> {
 
   function generate(): JsonPatchDocument<T> {
     return jsonpatch
-      .compare(original, normalizeJsonPatchTarget(obj) as T)
+      .compare(normalizedOriginal, normalizeJsonPatchTarget(obj) as T)
       .filter(
         (operation) =>
           !excludedPaths.some((path) => operation.path.endsWith(path))
@@ -57,7 +58,7 @@ function observe<T extends object>(obj: T): PatchGenerator<T> {
 
   return {
     generate,
-    getOriginal: () => original,
+    getOriginal: () => _.cloneDeep(original),
     countChanges: () => generate().length
   }
 }

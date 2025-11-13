@@ -16,7 +16,7 @@
     height: 12px
     background: var(--skeleton-bg)
     animation: var(--skeleton-animation)
-    border-radius: 4px
+    border-radius: var(--border-radius)
 
   &__input
     width: 100%

@@ -11,23 +11,33 @@
     </template>
     <template #content>
       <div class="save-work-changes-modal__content">
-        <noo-text-block dimmed>
+        <noo-text-block
+          v-if="changesCount > 0"
+          dimmed
+        >
           {{
             workDetailStore.mode === 'create'
               ? 'Вы уверены, что хотите сохранить работу?'
               : 'Вы хотите сохранить внесённые изменения в работу?'
           }}
         </noo-text-block>
+        <noo-text-block
+          v-else
+          dimmed
+        >
+          Нет внесённых изменений.
+        </noo-text-block>
         <noo-collapsable-block
           v-if="
             workDetailStore.mode === 'edit' &&
-            workDetailStore.workPatchGenerator
+            workDetailStore.workPatchGenerator &&
+            changesCount > 0
           "
         >
           <template #collapsed>
             <noo-text-block>
               Внесённых изменений:
-              {{ workDetailStore.workPatchGenerator!.countChanges() }}
+              {{ changesCount }}
             </noo-text-block>
           </template>
           <template #visible>
@@ -50,6 +60,7 @@
         Отмена
       </noo-button>
       <noo-button
+        v-if="changesCount > 0"
         variant="primary"
         @click="onSave()"
       >
@@ -60,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { workPathLabels } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
 
@@ -68,6 +80,12 @@ const isOpenModel = defineModel<boolean>('isOpen', {
 })
 
 const workDetailStore = useWorkDetailStore()
+
+const changesCount = ref(0)
+
+watch(isOpenModel, () => {
+  changesCount.value = workDetailStore.workPatchGenerator?.countChanges() ?? 0
+})
 
 function onSave(): void {
   isOpenModel.value = false

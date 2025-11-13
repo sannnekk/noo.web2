@@ -7,6 +7,7 @@ import {
 import { emptyRichText } from '@/core/utils/richtext.utils'
 import { defineStore } from 'pinia'
 import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
 import type {
@@ -39,6 +40,7 @@ const useWorkDetailStore = defineStore(
   'works:work-detail',
   (): WorkDetailStore => {
     const uiStore = useGlobalUIStore()
+    const router = useRouter()
 
     /**
      * Currently viewed or edited work.
@@ -109,11 +111,20 @@ const useWorkDetailStore = defineStore(
         return
       }
 
-      mode.value = 'view'
-
-      uiStore.setLoading(true)
+      mode.value = 'loading'
 
       const response = await WorkService.getById(workId)
+
+      if (response.error) {
+        uiStore.createApiErrorToast(
+          'Не удалось загрузить работу',
+          response.error
+        )
+
+        mode.value = 'error'
+
+        return
+      }
 
       const loadedWork = convertToLocal<WorkEntity, PossiblyUnsavedWork>(
         response.data
@@ -121,8 +132,7 @@ const useWorkDetailStore = defineStore(
 
       work.value = loadedWork
       workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)
-
-      uiStore.setLoading(false)
+      mode.value = 'view'
     }
 
     /**
@@ -207,30 +217,38 @@ const useWorkDetailStore = defineStore(
       }
 
       if (mode.value === 'create') {
+        mode.value = 'loading'
         const response = await WorkService.create(work.value)
 
-        if (response.error !== null) {
+        if (response.error) {
           uiStore.createApiErrorToast(
             'Не удалось создать работу',
             response.error
           )
-        }
+        } else {
+          router.replace({
+            name: 'works.edit',
+            params: { workId: response.data.id }
+          })
 
-        // TODO: redirect to the edit mode using the returned ID
+          uiStore.createSuccessToast('Работа успешно создана')
+        }
       } else if (mode.value === 'edit') {
+        mode.value = 'loading'
         const response = await WorkService.update(
           work.value.id!,
           workPatchGenerator.value!.generate()
         )
 
-        if (response.error !== null) {
+        if (response.error) {
           uiStore.createApiErrorToast(
             'Не удалось обновить работу',
             response.error
           )
+        } else {
+          uiStore.createSuccessToast('Работа успешно обновлена')
+          await init(work.value.id)
         }
-
-        // TODO: refetch the work
       }
     }
 
