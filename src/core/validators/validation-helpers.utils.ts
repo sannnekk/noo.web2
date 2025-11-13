@@ -5,6 +5,8 @@ interface ValidationError {
   message: string
 }
 
+type InputValidator<T> = (value: T) => true | ValidationError[]
+
 function parse(schema: ZodSchema, value: unknown): true | ValidationError[] {
   const result = schema.safeParse(value)
 
@@ -18,4 +20,4 @@ function parse(schema: ZodSchema, value: unknown): true | ValidationError[] {
   }
 }
 
-export { parse, type ValidationError }
+export { parse, type InputValidator, type ValidationError }

@@ -49,13 +49,7 @@
         </noo-text-block>
       </span>
     </label>
-    <span
-      v-for="(error, index) in errors"
-      :key="index"
-      class="noo-checkbox__error"
-    >
-      {{ error.message }}
-    </span>
+    <noo-input-error-list :errors="errors" />
   </div>
 </template>
 
@@ -65,18 +59,18 @@ import { shallowRef, watch } from 'vue'
 import type { ButtonSize } from '../buttons/noo-button.vue'
 
 interface Props {
-  isValid?: true | ValidationError[]
   readonly?: boolean
   validators?: ((value: boolean) => true | ValidationError[])[]
   size?: ButtonSize
   dimmed?: boolean
 }
 
-type Emits = (event: 'update:is-valid', value: true | ValidationError[]) => void
-
 const props = defineProps<Props>()
 
-const emits = defineEmits<Emits>()
+const isValidModel = defineModel<true | ValidationError[]>('is-valid', {
+  default: true,
+  required: false
+})
 
 const model = defineModel<boolean | undefined>('modelValue', {
   default: undefined
@@ -100,7 +94,7 @@ function validateInput(value: boolean | undefined) {
     }
   }
 
-  emits('update:is-valid', errors.value.length === 0 ? true : errors.value)
+  isValidModel.value = errors.value.length === 0 ? true : errors.value
 }
 </script>
 

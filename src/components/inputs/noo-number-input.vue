@@ -11,7 +11,7 @@
         v-model="model"
         class="noo-number-input__input"
         :class="{
-          'noo-number-input__input--error': errors.length,
+          'noo-number-input__input--error': allErrors.length,
           'noo-number-input__input--readonly': readonly
         }"
         type="number"
@@ -25,64 +25,67 @@
         <slot name="after" />
       </div>
     </div>
-    <span
-      v-for="(error, index) in errors"
-      :key="index"
-      class="noo-number-input__error"
-    >
-      {{ error.message }}
-    </span>
+    <noo-input-error-list :errors="allErrors" />
   </label>
 </template>
 
 <script setup lang="ts">
-import type { ValidationError } from '@/core/validators/validation-helpers.utils'
-import { ref, watch } from 'vue'
-
-type InputValidator = (value: number) => true | ValidationError[]
+import type {
+  InputValidator,
+  ValidationError
+} from '@/core/validators/validation-helpers.utils'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
   label: string
   max?: number
   min?: number
   placeholder?: string
-  isValid?: true | ValidationError[]
   readonly?: boolean
-  validators?: InputValidator[]
+  validators?: InputValidator<number>[]
+  errors?: ValidationError[]
 }
 
-interface Emits {
-  (e: 'update:is-valid', value: true | ValidationError[]): void
-  (e: 'enter-press'): void
-}
+type Emits = (e: 'enter-press') => void
 
 const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
 
-const errors = ref<ValidationError[]>([])
+defineEmits<Emits>()
+
+const validationErrors = ref<ValidationError[]>([])
+const allErrors = computed(() => [
+  ...(props.errors ?? []),
+  ...validationErrors.value
+])
 
 const model = defineModel<number | undefined | null>({
   default: null,
   required: false
 })
 
+const isValidModel = defineModel<true | ValidationError[]>('isValid', {
+  default: true,
+  required: false
+})
+
 watch(() => model.value, validateInput)
 
 function validateInput(value: number | undefined | null) {
-  errors.value = []
+  validationErrors.value = []
 
   if (props.validators) {
     for (const validator of props.validators) {
       const result = validator(value ?? 0)
 
       if (result !== true) {
-        errors.value.push(...result)
+        validationErrors.value.push(...result)
         break
       }
     }
   }
 
-  emits('update:is-valid', errors.value.length === 0 ? true : errors.value)
+  isValidModel.value =
+    validationErrors.value.length === 0 ? true : validationErrors.value
 }
 </script>
 
@@ -129,11 +132,4 @@ function validateInput(value: number | undefined | null) {
     &--readonly
       background: var(--light)
       opacity: 0.7
-
-  &__error
-    font-size: 0.8rem
-    color: var(--danger)
-    margin-top: 0.2em
-    line-height: 0.95em
-    display: block
 </style>

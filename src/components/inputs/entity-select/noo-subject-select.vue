@@ -8,6 +8,7 @@
         v-model="idModel"
         :label="label"
         :options="subjectOptions"
+        :errors="errors"
       />
     </div>
     <div
@@ -43,12 +44,14 @@
 </template>
 
 <script setup lang="ts">
+import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { SubjectService } from '@/modules/subjects/api/subject.service'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 import { computed, onMounted, shallowRef, watchEffect } from 'vue'
 
 interface Props {
   label?: string
+  errors?: ValidationError[]
 }
 
 withDefaults(defineProps<Props>(), {

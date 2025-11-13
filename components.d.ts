@@ -130,6 +130,7 @@ declare module 'vue' {
     NooInlineUserBlock: typeof import('./src/components/cards/noo-inline-user-card.vue')['default']
     NooInlineUserCard: typeof import('./src/components/cards/noo-inline-user-card.vue')['default']
     NooInlineUserCardList: typeof import('./src/components/cards/noo-inline-user-card-list.vue')['default']
+    NooInputErrorList: typeof import('./src/components/inputs/utils/noo-input-error-list.vue')['default']
     NooInputSkeleton: typeof import('./src/components/inputs/utils/noo-input-skeleton.vue')['default']
     NooIsActiveTag: typeof import('./src/components/tags/noo-is-active-tag.vue')['default']
     NooLayoutChangeTransition: typeof import('./src/components/router/noo-layout-change-transition.vue')['default']

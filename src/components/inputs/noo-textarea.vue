@@ -16,20 +16,60 @@
       :readonly="readonly"
     />
   </div>
+  <noo-input-error-list :errors="allErrors" />
 </template>
 
 <script setup lang="ts">
+import type {
+  InputValidator,
+  ValidationError
+} from '@/core/validators/validation-helpers.utils'
+import { computed, ref, watch } from 'vue'
+
 interface Props {
   label?: string
   placeholder?: string
   readonly?: boolean
+  validators?: InputValidator<string>[]
+  errors?: ValidationError[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const model = defineModel<string | null>('modelValue', {
   default: null
 })
+
+const isValidModel = defineModel<true | ValidationError[]>('isValid', {
+  default: true,
+  required: false
+})
+
+const validationErrors = ref<ValidationError[]>([])
+const allErrors = computed(() => [
+  ...(props.errors ?? []),
+  ...validationErrors.value
+])
+
+watch(() => model.value, validateInput)
+
+function validateInput(value: string | undefined | null) {
+  validationErrors.value = []
+
+  if (props.validators) {
+    for (const validator of props.validators) {
+      const result = validator(value ?? '')
+
+      if (result !== true) {
+        validationErrors.value.push(...result)
+        break
+      }
+    }
+  }
+
+  isValidModel.value =
+    validationErrors.value.length === 0 ? true : validationErrors.value
+}
 </script>
 
 <style scoped lang="sass">

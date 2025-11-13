@@ -7,7 +7,8 @@
         :disabled="readonly"
         class="noo-select-input__select"
         :class="{
-          'noo-select-input__select--readonly': readonly
+          'noo-select-input__select--readonly': readonly,
+          'noo-select-input__select--error': errors?.length
         }"
       >
         <option
@@ -19,10 +20,13 @@
         </option>
       </select>
     </label>
+    <noo-input-error-list :errors="errors" />
   </div>
 </template>
 
 <script setup lang="ts" generic="T">
+import type { ValidationError } from '@/core/validators/validation-helpers.utils'
+
 interface Props {
   label: string
   options: {
@@ -30,6 +34,7 @@ interface Props {
     value: T
   }[]
   readonly?: boolean
+  errors?: ValidationError[]
 }
 
 defineProps<Props>()
@@ -62,6 +67,9 @@ const model = defineModel<T>({
     background: var(--form-background)
     color: var(--form-text-color)
     line-height: 1
+
+    &--error
+      border-color: var(--danger) !important
 
     &:focus
       border-color: var(--primary)

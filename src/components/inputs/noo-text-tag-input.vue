@@ -3,7 +3,8 @@
   <div
     class="noo-tag-input"
     :class="{
-      'noo-tag-input--readonly': readonly
+      'noo-tag-input--readonly': readonly,
+      'noo-tag-input--error': errors?.length
     }"
   >
     <div class="noo-tag-input__tags">
@@ -28,14 +29,17 @@
       @keydown.backspace="removeLastTag()"
     />
   </div>
+  <noo-input-error-list :errors="errors" />
 </template>
 
 <script setup lang="ts">
+import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { ref } from 'vue'
 
 interface Props {
   label: string
   readonly?: boolean
+  errors?: ValidationError[]
 }
 
 defineProps<Props>()
@@ -79,6 +83,9 @@ label
   padding: 0.5rem 0.8rem
   max-width: 100%
   overflow: auto
+
+  &--error
+    border-color: var(--danger) !important
 
   &--readonly
     background-color: var(--light)

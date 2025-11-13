@@ -12,12 +12,15 @@
       v-model="model"
       :placeholder="placeholder"
       :readonly="readonly"
+      :class="{ 'noo-richtext-editor__has-error': errors?.length }"
     />
+    <noo-input-error-list :errors="errors" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { richTextIsEmpty, type IRichText } from '@/core/utils/richtext.utils'
+import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { Delta } from 'quill/core'
 import { computed } from 'vue'
 
@@ -26,6 +29,7 @@ interface Props {
   placeholder?: string
   readonly?: boolean
   label?: string
+  errors?: ValidationError[]
 }
 
 type Emits = (event: 'update:modelValue', value: IRichText | null) => void
@@ -62,4 +66,13 @@ function toDelta(richText: IRichText | undefined | null): Delta {
 
   &__label
     margin-bottom: 0.3em
+
+  &__error
+    font-size: 0.8rem
+    color: var(--danger)
+
+  &__has-error
+    &:deep()
+      .ql-container
+        border-color: var(--danger)
 </style>
