@@ -1,6 +1,6 @@
 <template>
   <calendar-view
-    class="calendar-view"
+    class="noo-calendar-view"
     locale="ru-RU"
     :enable-date-selection="props.readonly"
     :starting-day-of-week="1"
@@ -8,26 +8,26 @@
     :show-date="currentDate"
   >
     <template #header="{ headerProps }">
-      <div class="calendar-view__header">
-        <div class="calendar-view__header__title-slot">
+      <div class="noo-calendar-view__header">
+        <div class="noo-calendar-view__header__title-slot">
           <slot name="header-title" />
         </div>
-        <div class="calendar-view__header__month-title">
+        <div class="noo-calendar-view__header__month-title">
           <noo-title :size="3">
             {{ headerProps.periodLabel }}
           </noo-title>
         </div>
-        <div class="calendar-view__header__actions">
+        <div class="noo-calendar-view__header__actions">
           <noo-button
             variant="secondary"
-            class="calendar-view__header__actions calendar-view__header__actions--prev"
+            class="noo-calendar-view__header__actions calendar-view__header__actions--prev"
             @click="changePeriod(headerProps.previousPeriod)"
           >
             <noo-icon name="arrow-left" />
           </noo-button>
           <noo-button
             variant="secondary"
-            class="calendar-view__header__actions calendar-view__header__actions--next"
+            class="noo-calendar-view__header__actions calendar-view__header__actions--next"
             @click="changePeriod(headerProps.nextPeriod)"
           >
             <noo-icon name="arrow-right" />
@@ -45,7 +45,7 @@
       />
     </template>
   </calendar-view>
-  <div class="calendar-view__legend">
+  <div class="noo-calendar-view__legend">
     <slot name="legend">
       <noo-calendar-view-default-legend />
     </slot>
@@ -86,11 +86,13 @@ const itemModal = reactive<{
   isOpen: false
 })
 
-const items = shallowRef<(CalendarEventEntity & { classes?: string[] })[]>(props.events)
+const items = shallowRef<(CalendarEventEntity & { classes?: string[] })[]>(
+  props.events
+)
 
 watch(
   () => props.events,
-  (newEvents) => items.value = newEvents,
+  (newEvents) => (items.value = newEvents),
   { immediate: true }
 )
 
@@ -103,7 +105,6 @@ const calendarItems = computed<ICalendarItem[]>(() => {
 })
 
 function changePeriod(period: Date | null): void {
-  console.log('changePeriod', period)
   if (period) {
     currentDate.value = period
     emits('change-period', period)
@@ -146,7 +147,7 @@ function getEventById(id: string): CalendarEventEntity | undefined {
 </script>
 
 <style scoped lang="sass">
-.calendar-view
+.noo-calendar-view
   min-height: 800px
 
   &__header

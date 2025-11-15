@@ -1,12 +1,12 @@
 <template>
   <div
-    class="warning-block"
+    class="noo-warning-block"
     :class="{ 'warning-block--small': small }"
   >
-    <div class="warning-block__icon">
+    <div class="noo-warning-block__icon">
       <noo-icon name="attention-yellow" />
     </div>
-    <div class="warning-block__text">
+    <div class="noo-warning-block__text">
       <slot />
     </div>
   </div>
@@ -21,7 +21,7 @@ defineProps<Props>()
 </script>
 
 <style scoped lang="sass">
-.warning-block
+.noo-warning-block
   display: flex
   align-items: center
   padding: 0.2em 0

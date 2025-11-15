@@ -1,26 +1,26 @@
 <template>
   <router-link
     :to="{ name: 'profile' }"
-    class="profile-widget"
+    class="noo-profile-widget"
   >
-    <div class="profile-widget__avatar">
+    <div class="noo-profile-widget__avatar">
       <noo-user-avatar :name="authStore.userInfo?.name" />
       <!-- TODO: add avatar -->
     </div>
-    <div class="profile-widget__credentials">
+    <div class="noo-profile-widget__credentials">
       <noo-title
         :size="3"
-        class="profile-widget__credentials__name"
+        class="noo-profile-widget__credentials__name"
       >
         {{ authStore.userInfo?.name }}
       </noo-title>
-      <div class="profile-widget__credentials__actions">
-        <span class="profile-widget__credentials__actions__username">
+      <div class="noo-profile-widget__credentials__actions">
+        <span class="noo-profile-widget__credentials__actions__username">
           {{ authStore.userInfo?.username }}
         </span>
-        <div class="profile-widget__credentials__actions__separator" />
+        <div class="noo-profile-widget__credentials__actions__separator" />
         <noo-logout-button
-          class="profile-widget__credentials__actions__logout-button"
+          class="noo-profile-widget__credentials__actions__logout-button"
         />
       </div>
     </div>
@@ -34,7 +34,7 @@ const authStore = useAuthStore()
 </script>
 
 <style scoped lang="sass">
-.profile-widget
+.noo-profile-widget
   display: flex
   align-items: center
   text-decoration: none

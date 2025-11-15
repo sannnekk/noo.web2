@@ -1,13 +1,13 @@
 <template>
-  <div class="notifications-widget">
+  <div class="noo-notifications-widget">
     <button
-      class="notifications-widget__button"
+      class="noo-notifications-widget__button"
       title="Уведомления"
       @click="notificationStore.isPaneOpen = true"
     >
       <span
         v-if="notificationStore.unreadCount > 0"
-        class="notifications-widget__button__unread-count"
+        class="noo-notifications-widget__button__unread-count"
       >
         {{ notificationStore.unreadCountText }}
       </span>
@@ -17,13 +17,13 @@
 </template>
 
 <script setup lang="ts">
-import { useNotificationsStore } from '@/core/stores/notifications.store';
+import { useNotificationsStore } from '@/core/stores/notifications.store'
 
 const notificationStore = useNotificationsStore()
 </script>
 
 <style scoped lang="sass">
-.notifications-widget
+.noo-notifications-widget
   position: relative
 
   &__button

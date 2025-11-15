@@ -12,6 +12,9 @@
         v-for="(tag, index) in model"
         :key="index"
         class="noo-tag-input__tag"
+        :class="{
+          'noo-tag-input__tag--readonly': readonly
+        }"
       >
         {{ tag }}
         <b
@@ -91,7 +94,7 @@ label
     background-color: var(--light)
 
     input
-      pointer-events: none
+      display: none
 
   &__tags
     display: flex
@@ -109,6 +112,15 @@ label
     cursor: pointer
     position: relative
     font-size: 0.8em
+
+    &--readonly
+      pointer-events: none
+      background-color: var(--lightest)
+      color: var(--dark-text-color)
+      padding-right: 0.5em
+
+      .noo-tag-input__tag__remove
+        display: none
 
     &__remove
       margin-left: 0.5rem

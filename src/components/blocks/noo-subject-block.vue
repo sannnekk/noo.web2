@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SubjectEntity } from '@/modules/settings/api/subject.types'
+import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 
 interface Props {
   subject: SubjectEntity | null

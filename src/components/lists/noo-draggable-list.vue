@@ -11,25 +11,18 @@
   </draggable>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import draggable from 'vuedraggable'
-import { computed } from 'vue'
 
 interface Props {
-  modelValue: ({
-    id: string
-  } & any)[]
   handle?: string
   group?: string
 }
 
-type Emits = (event: 'update:modelValue', value: any[]) => void
+defineProps<Props>()
 
-const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
-
-const model = computed({
-  get: () => props.modelValue,
-  set: (value) => { emits('update:modelValue', value); }
+const model = defineModel<T[]>('modelValue', {
+  type: Array as () => T[],
+  required: true
 })
 </script>

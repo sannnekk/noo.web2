@@ -23,8 +23,8 @@
   </div>
 </template>
 
-type PathLabelRecord = {
 <script setup lang="ts" generic="T extends object">
+// TODO: refactor
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { PossiblyUnsavedWorkTask } from '@/modules/works/types'
 import type { PathLabelMap } from './noo-patch-list.types'

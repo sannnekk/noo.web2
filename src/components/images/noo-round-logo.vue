@@ -1,19 +1,19 @@
 <template>
-  <div class="round-logo">
-    <div class="round-logo__circle">
-      <div class="round-logo__circle--bordered">
+  <div class="noo-round-logo">
+    <div class="noo-round-logo__circle">
+      <div class="noo-round-logo__circle--bordered">
         <img
           src="/img/logo-circled.svg"
           alt="Логотип НОО"
-          class="round-logo__circle__img"
-        >
+          class="noo-round-logo__circle__img"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <style lang="sass" scoped>
-.round-logo
+.noo-round-logo
   position: relative
 
   &__circle

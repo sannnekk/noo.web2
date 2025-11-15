@@ -1,10 +1,10 @@
-import js from '@eslint/js';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import vuePlugin from 'eslint-plugin-vue';
-import { defineConfig } from "eslint/config";
-import globals from 'globals';
-import vueParser from 'vue-eslint-parser';
+import js from '@eslint/js'
+import tsPlugin from '@typescript-eslint/eslint-plugin'
+import tsParser from '@typescript-eslint/parser'
+import vuePlugin from 'eslint-plugin-vue'
+import { defineConfig } from 'eslint/config'
+import globals from 'globals'
+import vueParser from 'vue-eslint-parser'
 
 export default defineConfig([
   // Ignore patterns
@@ -17,7 +17,7 @@ export default defineConfig([
       '**/*.spec.ts',
       '**/.output/**',
       '**/.cache/**',
-      './*.*',
+      './*.*'
     ]
   },
 
@@ -72,13 +72,12 @@ export default defineConfig([
     rules: {
       ...tsPlugin.configs['recommended'].rules,
       ...tsPlugin.configs['stylistic-type-checked'].rules,
-      "@typescript-eslint/no-unused-vars": [
-        "error",
+      '@typescript-eslint/no-unused-vars': [
+        'error',
         { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' }
       ]
     }
   },
-
 
   // Vue rules
   ...vuePlugin.configs['flat/base'],
@@ -95,9 +94,12 @@ export default defineConfig([
       }
     },
     rules: {
-      'vue/block-order': ['error', {
-        order: ['template', 'script', 'style']
-      }],
+      'vue/block-order': [
+        'error',
+        {
+          order: ['template', 'script', 'style']
+        }
+      ],
       'vue/component-api-style': ['error', ['script-setup']],
       'vue/define-macros-order': 'error'
     }
@@ -105,7 +107,7 @@ export default defineConfig([
 
   // Custom strict rules
   {
-    name : 'custom-rules',
+    name: 'custom-rules',
     files: ['**/*.ts', '**/*.vue'],
     rules: {
       'no-console': 'error',
@@ -115,6 +117,8 @@ export default defineConfig([
       'vue/require-default-prop': 'off',
       'vue/require-explicit-emits': 'error',
       'vue/prefer-import-from-vue': 'error',
+      'vue/singleline-html-element-content-newline': 'off',
+      'vue/html-self-closing': 'off',
       '@typescript-eslint/no-misused-promises': [
         'error',
         { checksVoidReturn: false }
@@ -124,8 +128,12 @@ export default defineConfig([
         'error',
         { blankLine: 'always', prev: '*', next: 'return' },
         { blankLine: 'always', prev: ['const', 'let', 'var'], next: '*' },
-        { blankLine: 'any', prev: ['const', 'let', 'var'], next: ['const', 'let', 'var'] }
+        {
+          blankLine: 'any',
+          prev: ['const', 'let', 'var'],
+          next: ['const', 'let', 'var']
+        }
       ]
     }
   }
-]);
+])

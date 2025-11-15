@@ -1,8 +1,6 @@
 <template>
-  <div class="logo">
-    <h1 :class="{ dark }">
-      НОО.<span class="thin">Платформа</span>
-    </h1>
+  <div class="noo-logo">
+    <h1 :class="{ dark }">НОО.<span class="noo-logo__thin">Платформа</span></h1>
   </div>
 </template>
 
@@ -15,11 +13,12 @@ defineProps<Props>()
 </script>
 
 <style lang="sass" scoped>
-.thin
-  font-weight: 200
-.logo
+.noo-logo
   color: var(--form-text-color)
 
   &.dark
     color: var(--form-text-color)
+
+  &__thin
+    font-weight: 200
 </style>

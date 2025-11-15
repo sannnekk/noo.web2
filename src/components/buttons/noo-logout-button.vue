@@ -1,7 +1,7 @@
 <template>
-  <button class="logout-button">
+  <button class="noo-logout-button">
     <span
-      class="logout-button__text"
+      class="noo-logout-button__text"
       @click.prevent="authStore.logout.execute()"
     >
       Выйти
@@ -16,7 +16,7 @@ const authStore = useAuthStore()
 </script>
 
 <style scoped lang="sass">
-.logout-button
+.noo-logout-button
   border: none
   background: none
   color: var(--danger)

@@ -1,13 +1,13 @@
 <template>
-  <div class="user-avatar">
+  <div class="noo-user-avatar">
     <noo-uploaded-image
       v-if="src"
-      class="user-avatar__image"
+      class="noo-user-avatar__image"
       :src="src"
     />
     <span
       v-else
-      class="user-avatar__initials"
+      class="noo-user-avatar__initials"
       :style="{
         backgroundColor: bgColor
       }"
@@ -16,7 +16,7 @@
     </span>
     <div
       v-if="isOnline"
-      class="user-avatar__is-online"
+      class="noo-user-avatar__is-online"
     />
   </div>
 </template>
@@ -32,8 +32,31 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const colors = [
+  '#f44336',
+  '#e91e63',
+  '#9c27b0',
+  '#673ab7',
+  '#3f51b5',
+  '#2196f3',
+  '#03a9f4',
+  '#00bcd4',
+  '#009688',
+  '#4caf50',
+  '#8bc34a',
+  '#cddc39',
+  '#ffeb3b',
+  '#ffc107',
+  '#ff9800',
+  '#ff5722',
+  '#795548',
+  '#607d8b'
+]
+
 const initials = computed(() => {
-  if (!props.name) {return ''}
+  if (!props.name) {
+    return ''
+  }
   const [firstName, lastName] = props.name.trim().split(' ')
 
   return `${(firstName || '-')[0]}${(lastName || ' ')[0]}`
@@ -54,26 +77,6 @@ const src = computed(() => {
 })
 
 const bgColor = computed(() => {
-  const colors = [
-    '#f44336',
-    '#e91e63',
-    '#9c27b0',
-    '#673ab7',
-    '#3f51b5',
-    '#2196f3',
-    '#03a9f4',
-    '#00bcd4',
-    '#009688',
-    '#4caf50',
-    '#8bc34a',
-    '#cddc39',
-    '#ffeb3b',
-    '#ffc107',
-    '#ff9800',
-    '#ff5722',
-    '#795548',
-    '#607d8b'
-  ]
   const seed = initials.value
     .split('')
     .reduce((acc, char) => acc * char.charCodeAt(0), 1)
@@ -83,7 +86,7 @@ const bgColor = computed(() => {
 </script>
 
 <style scoped lang="sass">
-.user-avatar
+.noo-user-avatar
   width: 1em
   height: 1em
   aspect-ratio: 1 / 1

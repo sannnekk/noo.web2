@@ -225,6 +225,8 @@ const useWorkDetailStore = defineStore(
             'Не удалось создать работу',
             response.error
           )
+
+          mode.value = 'create'
         } else {
           router.replace({
             name: 'works.edit',
@@ -245,6 +247,8 @@ const useWorkDetailStore = defineStore(
             'Не удалось обновить работу',
             response.error
           )
+
+          mode.value = 'edit'
         } else {
           uiStore.createSuccessToast('Работа успешно обновлена')
           await init(work.value.id)

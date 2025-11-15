@@ -7,9 +7,6 @@
       >
         <noo-uploaded-image :media="course.thumbnail" />
       </router-link>
-      <div class="noo-course-card__img__more-widget">
-        <!-- <more-widget :items="actions" /> -->
-      </div>
     </div>
     <div
       v-if="course.subject"
@@ -76,12 +73,6 @@ const to = computed(() => {
         height: 100%
         object-fit: cover
         object-position: center
-
-    &__more-widget
-      position: absolute
-      top: 10px
-      right: 10px
-      z-index: 1
 
   &__title
     font-size: 1.2rem

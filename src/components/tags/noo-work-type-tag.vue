@@ -1,17 +1,18 @@
 <template>
   <div
-    class="noo-assigned-work-solve-status"
+    class="noo-work-type-tag"
     :style="{ color }"
   >
-    <span class="assigned-work-solve-solve-status__text">
+    <span class="noo-work-type-tag__text">
       {{ statusText }}
     </span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { WorkType } from '@/modules/works/api/work.types';
-import { computed } from 'vue';
+import type { WorkType } from '@/modules/works/api/work.types'
+import { workTypes } from '@/modules/works/constants'
+import { computed } from 'vue'
 
 interface Props {
   type: WorkType
@@ -19,22 +20,10 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const statusText = computed(() => {
-  switch (props.type) {
-    case 'mini-test':
-      return 'Мини-зачет'
-    case 'test':
-      return 'Тест'
-    case 'phrase':
-      return 'Фраза'
-    case 'second-part':
-      return 'Вторая часть'
-    case 'trial-work':
-      return 'Пробник'
-    default:
-      return 'Неизвестный тип работы'
-  }
-})
+const statusText = computed(
+  () =>
+    workTypes.find((t) => t.value === props.type)?.label ?? 'Неизвестный тип'
+)
 
 const color = computed(() => {
   switch (props.type) {
@@ -55,7 +44,7 @@ const color = computed(() => {
 </script>
 
 <style lang="sass" scoped>
-.noo-assigned-work-solve-status
+.noo-work-type-tag
   display: inline-block
   font-weight: normal
 
