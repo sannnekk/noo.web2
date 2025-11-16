@@ -38,21 +38,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 interface Props {
-  modelValue?: string
   isLoading?: boolean
 }
 
-type Emits = (e: 'update:modelValue', value?: string) => void
+defineProps<Props>()
 
-const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
-
-const model = computed({
-  get: () => props.modelValue || '',
-  set: (value) => { emits('update:modelValue', value); }
+const model = defineModel<string | undefined>('model', {
+  default: ''
 })
 
 const isOnHover = ref(false)

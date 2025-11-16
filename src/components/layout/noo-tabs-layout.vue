@@ -50,15 +50,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { watch } from 'vue'
-import { computed } from 'vue'
+// TODO: refactor the component
+import { computed, onMounted, watch, type VNode } from 'vue'
 import { useRoute } from 'vue-router'
 
 interface Slots {
-  actions: () => any
-  [key: `tab-${string}`]: (props: { isActive: boolean }) => any
-  [key: `tab-title-${string}`]: (props: { isActive: boolean }) => any
+  actions: () => VNode | VNode[] | null
+  [key: `tab-${string}`]: (props: {
+    isActive: boolean
+  }) => VNode | VNode[] | null
+  [key: `tab-title-${string}`]: (props: {
+    isActive: boolean
+  }) => VNode | VNode[] | null
 }
 
 interface Props {

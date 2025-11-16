@@ -30,7 +30,8 @@
                   :animation="isOnHover[index]"
                 />
                 <span class="pane__nav__entry__title">
-                  {{ navEntry.title }}</span>
+                  {{ navEntry.title }}
+                </span>
               </router-link>
             </li>
           </ul>
@@ -99,13 +100,19 @@ watch(
         isOnHover.value[index] = false
         isOpening.value[index] = false
 
-        setTimeout(() => {
-          isOnHover.value[index] = true
-          isOpening.value[index] = true
-        }, animationDelay + index * animationStep)
-        setTimeout(() => {
-          isOnHover.value[index] = false
-        }, animationDelay + index * animationStep + animationDuration)
+        setTimeout(
+          () => {
+            isOnHover.value[index] = true
+            isOpening.value[index] = true
+          },
+          animationDelay + index * animationStep
+        )
+        setTimeout(
+          () => {
+            isOnHover.value[index] = false
+          },
+          animationDelay + index * animationStep + animationDuration
+        )
       }
     } else {
       isOpening.value = props.navEntries.map(() => false)

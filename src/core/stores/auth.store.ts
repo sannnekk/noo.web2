@@ -50,7 +50,9 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
 
   // getters
   function roleIsOneOf(roles: UserRole[]): boolean {
-    if (!userInfo.value) {return false}
+    if (!userInfo.value) {
+      return false
+    }
 
     return roles.includes(userInfo.value.role)
   }
@@ -59,12 +61,14 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   const login = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      userInfo.value = response.data.userInfo
+      // TODO: Resolve why ts fails to see that data is not null or undefined here
+      userInfo.value = response.data!.userInfo
 
       CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)
       CookieStorage.set(
         CookieStorage.StorageAliases.apiToken,
-        response.data.accessToken
+        // TODO: Resolve why ts fails to see that data is not null or undefined here
+        response.data!.accessToken
       )
 
       if (redirect.value) {
@@ -73,13 +77,16 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
         router.push({ name: 'root' })
       }
     },
-    (error) => { globalUiStore.createApiErrorToast('Не удалось войти', error); }
+    (error) => {
+      globalUiStore.createApiErrorToast('Не удалось войти', error)
+    }
   )
 
   const retryLogin = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      userInfo.value = response.data.userInfo
+      // TODO: Resolve why ts fails to see that data is not null or undefined here
+      userInfo.value = response.data!.userInfo
       isRetryLoginModalVisible.value = false
 
       CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)

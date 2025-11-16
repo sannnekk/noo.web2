@@ -53,6 +53,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     if (!pollId) {
       mode.value = 'create'
       poll.value = {
+        _entityName: 'Poll',
         _key: uid(),
         title: 'Новый опрос',
         description: null,
@@ -122,14 +123,13 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     poll.value.questions = [
       ...(poll.value?.questions ?? []),
       {
+        _entityName: 'PollQuestion',
         _key: uid(),
         title: 'Новый вопрос',
         description: null,
         type: 'text',
         isRequired: false,
-        config: {
-          type: 'text'
-        }
+        config: {}
       }
     ]
   }

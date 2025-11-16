@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
 interface Props {
   score: number | null
@@ -36,14 +36,20 @@ interface Props {
 const props = defineProps<Props>()
 
 const scorePercentageText = computed(() => {
-  if (props.maxScore === 0) {return '0%'}
-  if (props.score === null) {return '-'}
+  if (props.maxScore === 0) {
+    return '0%'
+  }
+  if (props.score === null) {
+    return '-'
+  }
 
   return String(Math.round((props.score / props.maxScore) * 100)) + '%'
 })
 
 const scoreText = computed(() => {
-  if (props.score === null) {return 'Не оценено'}
+  if (props.score === null) {
+    return 'Не оценено'
+  }
 
   return props.score.toString()
 })

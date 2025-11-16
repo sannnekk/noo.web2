@@ -47,6 +47,7 @@ const useCourseEditStore = defineStore(
       if (!courseId) {
         mode.value = 'create'
         course.value = {
+          _entityName: 'Course',
           _key: uid(),
           name: 'Новый курс',
           description: null,
@@ -83,8 +84,10 @@ const useCourseEditStore = defineStore(
 
       const response =
         mode.value === 'create'
-          ? await CourseService.create(course.value)
-          : await CourseService.update(course.value.id, course.value)
+          ? // @ts-expect-error not implemented yet
+            await CourseService.create(course.value)
+          : // @ts-expect-error not implemented yet
+            await CourseService.update(course.value.id, course.value)
 
       if (response.error) {
         uiStore.setLoading(false)

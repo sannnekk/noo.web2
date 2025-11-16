@@ -19,69 +19,11 @@
           <template #tab-title-unread>
             <span>Непрочитанные</span>
           </template>
-          <template #tab-unread>
-            <div class="noo-notifications-pane__list">
-              <div
-                v-for="item in unreadNotificationsDatedList"
-                :key="item.id"
-                class="noo-notifications-pane__list__item"
-              >
-                <app-notification
-                  v-if="item._type !== 'date'"
-                  :notification="item"
-                />
-                <span
-                  v-else
-                  class="noo-notifications-pane__list__date-item"
-                >
-                  <noo-date
-                    timezones="local"
-                    :value="item._date"
-                  />
-                </span>
-              </div>
-              <noo-text-block
-                v-if="unreadNotifications.length === 0"
-                class="noo-notifications-pane__list__empty"
-                dimmed
-              >
-                Пока нет уведомлений
-              </noo-text-block>
-            </div>
-          </template>
+          <template #tab-unread> Read... </template>
           <template #tab-title-read>
             <span>Прочитанные</span>
           </template>
-          <template #tab-read>
-            <div class="noo-notifications-pane__list">
-              <div
-                v-for="item in readNotificationsDatedList"
-                :key="item.id"
-                class="noo-notifications-pane__list__item"
-              >
-                <app-notification
-                  v-if="item._type === 'date'"
-                  :notification="item"
-                />
-                <span
-                  v-else
-                  class="noo-notifications-pane__list__date-item"
-                >
-                  <noo-date
-                    timezones="local"
-                    :value="item._date"
-                  />
-                </span>
-              </div>
-              <noo-text-block
-                v-if="readNotifications.length === 0"
-                class="noo-notifications-pane__list__empty"
-                dimmed
-              >
-                Пока нет уведомлений
-              </noo-text-block>
-            </div>
-          </template>
+          <template #tab-read> Unread... </template>
         </noo-tabs-layout>
       </div>
     </div>
@@ -96,31 +38,31 @@
 </template>
 
 <script setup lang="ts">
-import type { NotificationEntity } from '@/core/api/endpoints/notification.types'
-import { useDatedList } from '@/core/composables/useDatedList'
 import { useNotificationsStore } from '@/core/stores/notifications.store'
-import { computed, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 
-export type NotificationsPaneTab = "unread" | "read"
+export type NotificationsPaneTab = 'unread' | 'read'
 
-const currentTab = shallowRef<NotificationsPaneTab>("unread")
+const currentTab = shallowRef<NotificationsPaneTab>('unread')
 
 const notificationStore = useNotificationsStore()
 
-const readNotifications = computed<NotificationEntity[]>(() => notificationStore.readNotifications.data ?? [])
-const unreadNotifications = computed<NotificationEntity[]>(() => notificationStore.unreadNotifications.data ?? [])
+/* const readNotifications = computed<NotificationEntity[]>(
+  () => notificationStore.readNotifications.data ?? []
+)
+const unreadNotifications = computed<NotificationEntity[]>(
+  () => notificationStore.unreadNotifications.data ?? []
+)
 
 const readNotificationsDatedList = useDatedList<NotificationEntity>({
   list: readNotifications,
-    getDate: (item) => item.createdAt
-  }
-)
+  getDate: (item) => item.createdAt
+})
 
 const unreadNotificationsDatedList = useDatedList<NotificationEntity>({
   list: unreadNotifications,
-    getDate: (item) => item.createdAt
-  }
-)
+  getDate: (item) => item.createdAt
+}) */
 </script>
 
 <style scoped lang="sass">

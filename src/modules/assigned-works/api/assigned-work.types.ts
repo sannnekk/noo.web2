@@ -64,7 +64,7 @@ export interface AddHelperMentorOptions {
   notifyStudent?: boolean
 }
 
-export type AssignedWorkAnswerStatus = 'not-submitted' | 'submitted'
+export type AssignedWorkAnswerStatus = 'not-submitted' | 'submitted' | 'checked'
 
 export type AssignedWorkStatusHistoryType =
   | 'created'

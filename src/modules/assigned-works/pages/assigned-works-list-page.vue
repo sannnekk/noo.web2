@@ -81,7 +81,9 @@ const assignedWorksListStore = useAssignedWorkListStore()
 
 watch(
   () => props.userId,
-  () => { assignedWorksListStore.setUserId(props.userId); },
+  () => {
+    assignedWorksListStore.setUserId(props.userId)
+  },
   { immediate: true }
 )
 </script>

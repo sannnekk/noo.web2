@@ -39,4 +39,3 @@ function registerModules(modules: ApplicationModule[]): {
 }
 
 export { registerModules }
-

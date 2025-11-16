@@ -1,7 +1,8 @@
-import type { AssignedWorkStatusHistoryEntity } from "../api/assigned-work.types";
+import type { AssignedWorkStatusHistoryEntity } from '../api/assigned-work.types'
 
 export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
   {
+    _entityName: 'AssignedWorkStatusHistory',
     id: 'history-1',
     assignedWorkId: '1',
     status: 'created',
@@ -9,12 +10,13 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
       courseId: 'course-1',
       courseTitle: 'Course 1',
       materialId: 'material-1',
-      materialTitle: 'Material 1',
+      materialTitle: 'Material 1'
     },
     createdAt: new Date('2025-06-23T10:00:00Z'),
     updatedAt: null,
     changedById: 'user-1',
     changedBy: {
+      _entityName: 'User',
       id: 'user-1',
       name: 'User One',
       email: 'user.one@example.com',
@@ -25,10 +27,11 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
       telegramId: null,
       telegramUsername: null,
       isBlocked: false,
-      isVerified: true,
+      isVerified: true
     }
   },
   {
+    _entityName: 'AssignedWorkStatusHistory',
     id: 'history-2',
     assignedWorkId: '1',
     status: 'started-solving',
@@ -37,6 +40,7 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
     updatedAt: null,
     changedById: 'user-2',
     changedBy: {
+      _entityName: 'User',
       id: 'user-1',
       name: 'User One',
       email: 'user.one@example.com',
@@ -47,10 +51,11 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
       telegramId: null,
       telegramUsername: null,
       isBlocked: false,
-      isVerified: true,
+      isVerified: true
     }
   },
   {
+    _entityName: 'AssignedWorkStatusHistory',
     id: 'history-3',
     assignedWorkId: '1',
     status: 'solve-deadline-shifted',
@@ -58,12 +63,13 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
       courseId: 'course-1',
       courseTitle: 'Course 1',
       materialId: 'material-1',
-      materialTitle: 'Material 1',
+      materialTitle: 'Material 1'
     },
     createdAt: new Date('2023-01-02T10:00:00Z'),
     updatedAt: new Date('2023-01-02T10:00:00Z'),
     changedById: 'user-2',
     changedBy: {
+      _entityName: 'User',
       id: 'user-1',
       name: 'User One',
       email: 'user.one@example.com',
@@ -74,7 +80,7 @@ export const assignedWorkHistory: AssignedWorkStatusHistoryEntity[] = [
       telegramId: null,
       telegramUsername: null,
       isBlocked: false,
-      isVerified: true,
+      isVerified: true
     }
   }
 ]

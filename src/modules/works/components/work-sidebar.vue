@@ -7,7 +7,7 @@
     <div class="work-sidebar__subject">
       <noo-subject-block
         v-if="workDetailStore.mode === 'view'"
-        :subject="workDetailStore.work.subject"
+        :subject="workDetailStore.work.subject ?? null"
       />
       <noo-subject-select
         v-else

@@ -1,6 +1,9 @@
 <template>
   <div
-    v-if="courseDetailStore.materialContent.data && courseDetailStore.currentMaterial"
+    v-if="
+      courseDetailStore.materialContent.data &&
+      courseDetailStore.currentMaterial
+    "
     class="course-material-content-view"
   >
     <noo-title
@@ -10,15 +13,15 @@
       {{ courseDetailStore.currentMaterial.title }}
     </noo-title>
     <div class="course-material-content-view__content">
-      <noo-richtext-block :value="courseDetailStore.materialContent.data.content" />
+      <noo-richtext-block
+        :value="courseDetailStore.materialContent.data.content"
+      />
     </div>
     <div
       v-if="courseDetailStore.materialContent.data.files?.length"
       class="course-material-content-view__files"
     >
-      <noo-title :size="3">
-        Прикрепленные файлы
-      </noo-title>
+      <noo-title :size="3"> Прикрепленные файлы </noo-title>
       <noo-file-list :files="courseDetailStore.materialContent.data.files" />
     </div>
   </div>
@@ -41,16 +44,14 @@
     v-else
     class="course-material-content-view__not-found"
   >
-    <noo-text-block>
-      Материал не найден
-    </noo-text-block>
+    <noo-text-block> Материал не найден </noo-text-block>
   </div>
 </template>
 
 <script setup lang="ts">
-import { debounce } from 'lodash';
-import { watch } from 'vue';
-import { useCourseDetailStore } from '../stores/course-detail.store';
+import { debounce } from 'lodash'
+import { watch } from 'vue'
+import { useCourseDetailStore } from '../stores/course-detail.store'
 
 export interface CourseMaterialViewProps {
   materialId: string
@@ -62,7 +63,7 @@ const courseDetailStore = useCourseDetailStore()
 
 watch(
   () => props.materialId,
-  debounce((newMaterialId) =>{
+  debounce((newMaterialId) => {
     courseDetailStore.setCurrentMaterial(newMaterialId)
     courseDetailStore.materialContent.execute()
   }, 250),

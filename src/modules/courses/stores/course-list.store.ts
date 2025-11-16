@@ -10,10 +10,16 @@ interface CourseListStore {
 export const useCourseListStore = defineStore(
   'courses:course-list',
   (): CourseListStore => {
-    const allSearch = useSearch(() => {
-      return Promise.resolve({ data: courses, meta: { total: courses.length } })
-      /* return CourseService.get() */
-    }, { immediate: false })
+    const allSearch = useSearch(
+      () => {
+        return Promise.resolve({
+          data: courses,
+          meta: { total: courses.length }
+        })
+        /* return CourseService.get() */
+      },
+      { immediate: false }
+    )
 
     return {
       allSearch

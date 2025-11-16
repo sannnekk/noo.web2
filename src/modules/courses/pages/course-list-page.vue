@@ -17,16 +17,16 @@
         <span>Мои курсы</span>
       </template>
       <template #tab-own>
-        For a teacher: course list view <br>
-        For a student: course asssignemnt list view <br>
+        For a teacher: course list view <br />
+        For a student: course asssignemnt list view <br />
         For others: hidden
       </template>
       <template #tab-title-archived>
         <span>Архив</span>
       </template>
       <template #tab-archived>
-        For a teacher: course list view <br>
-        For a student: course asssignemnt list view <br>
+        For a teacher: course list view <br />
+        For a student: course asssignemnt list view <br />
         For others: hidden
       </template>
     </noo-tabs-layout>
@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
-import { useCourseListStore } from '../stores/course-list.store';
-import type { CourseListTab } from '../types';
-import courseListView from '../views/course-list-view.vue';
+import { watch } from 'vue'
+import { useCourseListStore } from '../stores/course-list.store'
+import type { CourseListTab } from '../types'
+import courseListView from '../views/course-list-view.vue'
 
 export interface CourseListPageProps {
   tabId: CourseListTab
@@ -53,17 +53,17 @@ watch(
     switch (newTabId) {
       case 'all':
         courseListStore.allSearch.reload()
-        break;
+        break
       case 'own':
         // TODO: other searches
         //courseListStore..reload()
-        break;
+        break
       case 'archived':
         // TODO: other searches
         //courseListStore.archivedSearch.reload()
-        break;
+        break
       default:
-        break;
+        break
     }
   },
   { immediate: true }

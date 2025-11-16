@@ -1,8 +1,8 @@
-import type { UserEntity } from "../api/user.types";
-
+import type { UserEntity } from '../api/user.types'
 
 const users: UserEntity[] = [
   {
+    _entityName: 'User',
     id: '1',
     createdAt: new Date('2025-05-01T10:00:00Z'),
     updatedAt: null,
@@ -13,9 +13,10 @@ const users: UserEntity[] = [
     telegramUsername: 'johndoe',
     role: 'admin',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '2',
     createdAt: new Date('2025-05-02T11:30:00Z'),
     updatedAt: new Date('2025-06-01T08:00:00Z'),
@@ -26,9 +27,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'teacher',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '3',
     createdAt: new Date('2025-05-03T09:45:00Z'),
     updatedAt: null,
@@ -39,9 +41,10 @@ const users: UserEntity[] = [
     telegramUsername: 'bwong123',
     role: 'student',
     isBlocked: false,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '4',
     createdAt: new Date('2025-05-04T14:22:00Z'),
     updatedAt: null,
@@ -52,9 +55,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'mentor',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '5',
     createdAt: new Date('2025-05-05T16:00:00Z'),
     updatedAt: new Date('2025-06-01T10:00:00Z'),
@@ -65,9 +69,10 @@ const users: UserEntity[] = [
     telegramUsername: 'danlee',
     role: 'assistant',
     isBlocked: false,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '6',
     createdAt: new Date('2025-05-06T13:10:00Z'),
     updatedAt: null,
@@ -78,9 +83,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'student',
     isBlocked: true,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '7',
     createdAt: new Date('2025-05-07T08:00:00Z'),
     updatedAt: null,
@@ -91,9 +97,10 @@ const users: UserEntity[] = [
     telegramUsername: 'kiran_p',
     role: 'mentor',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '8',
     createdAt: new Date('2025-05-08T15:15:00Z'),
     updatedAt: null,
@@ -104,9 +111,10 @@ const users: UserEntity[] = [
     telegramUsername: 'tinas',
     role: 'assistant',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '9',
     createdAt: new Date('2025-05-09T12:25:00Z'),
     updatedAt: null,
@@ -117,9 +125,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'teacher',
     isBlocked: false,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '10',
     createdAt: new Date('2025-05-10T09:00:00Z'),
     updatedAt: new Date('2025-06-10T07:30:00Z'),
@@ -130,9 +139,10 @@ const users: UserEntity[] = [
     telegramUsername: 'jenny_k',
     role: 'student',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '11',
     createdAt: new Date('2025-05-11T07:50:00Z'),
     updatedAt: null,
@@ -143,9 +153,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'mentor',
     isBlocked: false,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '12',
     createdAt: new Date('2025-05-12T10:10:00Z'),
     updatedAt: null,
@@ -156,9 +167,10 @@ const users: UserEntity[] = [
     telegramUsername: 'rosac',
     role: 'admin',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '13',
     createdAt: new Date('2025-05-13T12:00:00Z'),
     updatedAt: null,
@@ -169,9 +181,10 @@ const users: UserEntity[] = [
     telegramUsername: null,
     role: 'assistant',
     isBlocked: true,
-    isVerified: false,
+    isVerified: false
   },
   {
+    _entityName: 'User',
     id: '14',
     createdAt: new Date('2025-05-14T17:45:00Z'),
     updatedAt: new Date('2025-06-01T11:15:00Z'),
@@ -182,9 +195,10 @@ const users: UserEntity[] = [
     telegramUsername: 'briant',
     role: 'student',
     isBlocked: false,
-    isVerified: true,
+    isVerified: true
   },
   {
+    _entityName: 'User',
     id: '15',
     createdAt: new Date('2025-05-15T06:30:00Z'),
     updatedAt: null,
@@ -195,9 +209,8 @@ const users: UserEntity[] = [
     telegramUsername: 'elena_g',
     role: 'teacher',
     isBlocked: false,
-    isVerified: true,
-  },
+    isVerified: true
+  }
 ]
 
-export { users };
-
+export { users }

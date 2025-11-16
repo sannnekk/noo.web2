@@ -1,4 +1,4 @@
-import type { MediaEntity } from './media.types'
+import type { MediaEntity } from '@/modules/media/api/media.types'
 
 export interface UserSettings {
   theme: 'light' | 'dark' | 'system'

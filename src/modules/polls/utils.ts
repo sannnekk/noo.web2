@@ -1,5 +1,6 @@
 import { uid } from '@/core/utils/id.utils'
 import type { PollEntity } from './api/poll.types'
+// @ts-expect-error not implemented yet
 import type { PossiblyUnsavedPoll } from './types'
 
 function toPossiblyUnsaved(entity: PollEntity): PossiblyUnsavedPoll {

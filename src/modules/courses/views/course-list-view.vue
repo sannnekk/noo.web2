@@ -32,7 +32,6 @@
 
 <script setup lang="ts">
 import { AppConstants } from '@/core/config/constants.config'
-import { useAuthStore } from '@/core/stores/auth.store'
 import type { CourseEntity } from '../api/course.types'
 
 interface Props {
@@ -50,8 +49,6 @@ const searchModel = defineModel<string>('search', {
 const pageModel = defineModel<number>('page', {
   default: 1
 })
-
-const authStore = useAuthStore()
 </script>
 
 <style scoped lang="sass"></style>

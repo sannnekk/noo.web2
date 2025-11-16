@@ -354,7 +354,7 @@ export interface PollsEditPageProps {
   pollId?: string
 }
 
-const props = defineProps<PollsEditPageProps>()
+defineProps<PollsEditPageProps>()
 
 const pollEditStore = usePollEditStore()
 

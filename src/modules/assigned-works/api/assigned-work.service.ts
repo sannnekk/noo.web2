@@ -143,7 +143,9 @@ interface IAssignedWorkService {
    * @param assignedWorkId The ID of the assigned work to get history for.
    * @returns A promise that resolves to an ApiResponse containing an array of AssignedWorkEntity objects representing the history.
    */
-  getHistory(assignedWorkId: string): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>>
+  getHistory(
+    assignedWorkId: string
+  ): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>>
   /** Delete an assigned work.
    *
    * @param id The ID of the assigned work to be deleted.
@@ -241,7 +243,9 @@ async function markUnchecked(id: string): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/${id}/mark-unchecked`)
 }
 
-async function getHistory(assignedWorkId: string): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>> {
+async function getHistory(
+  assignedWorkId: string
+): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>> {
   return await Api.get(`${BASE_PATH}/${assignedWorkId}/history`)
 }
 

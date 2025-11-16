@@ -8,7 +8,7 @@
               <img
                 src="/img/logo-circled.svg"
                 alt="НОО логотип"
-              >
+              />
               <a href="https://noo-school.ru"> <b>НОО.</b>Платформа </a>
             </h1>
           </div>
@@ -48,7 +48,7 @@
       </div>
     </div>
   </footer>
-  <br>
+  <br />
 </template>
 
 <style scoped lang="sass">

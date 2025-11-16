@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from 'vitest'
+import { Api } from '@/core/api/api.utils'
+import { describe, expect, it, vi } from 'vitest'
 import { MediaService } from './media.service'
-import { Api } from '../../../core/api/api.utils'
 
-vi.mock('../api.utils', () => ({
+vi.mock('@/core/api/api.utils', () => ({
   Api: {
     fileUpload: vi.fn(),
     delete: vi.fn()

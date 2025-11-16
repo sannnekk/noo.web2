@@ -4,9 +4,7 @@
     class="assigned-works-task-view"
   >
     <div class="assigned-works-task-view__task">
-      <noo-title :size="3">
-        Задание {{ task.order }}
-      </noo-title>
+      <noo-title :size="3"> Задание {{ task.order }} </noo-title>
       <noo-richtext-block :value="task.content" />
     </div>
     <div class="assigned-works-task-view__answer">
@@ -16,7 +14,9 @@
       >
         <noo-richtext-editor
           v-model="richTextAnswerModel"
-          :placeholder="isAnswerReadonly ? 'Нет ответа' : 'Введите ваш ответ здесь...'"
+          :placeholder="
+            isAnswerReadonly ? 'Нет ответа' : 'Введите ваш ответ здесь...'
+          "
           :readonly="isAnswerReadonly"
         />
       </div>
@@ -34,7 +34,8 @@
           dimmed
           size="small"
         >
-          Это задание в формате нескольких символов. Здесь не требуется длинный ответ или загрузка файла. Регистр и пробелы не влияют на проверку.
+          Это задание в формате нескольких символов. Здесь не требуется длинный
+          ответ или загрузка файла. Регистр и пробелы не влияют на проверку.
         </noo-text-block>
       </div>
     </div>
@@ -68,7 +69,11 @@
       </noo-title>
       <noo-richtext-editor
         v-model="mentorCommentModel"
-        :placeholder="isCommentReadonly ? 'Комментарий отсутствует' : 'Введите комментарий куратора здесь...'"
+        :placeholder="
+          isCommentReadonly
+            ? 'Комментарий отсутствует'
+            : 'Введите комментарий куратора здесь...'
+        "
         :readonly="isCommentReadonly"
       />
     </div>
@@ -90,17 +95,15 @@
     v-else
     class="assigned-works-task-view__not-found"
   >
-    <noo-text-block dimmed>
-      Задание не найдено
-    </noo-text-block>
+    <noo-text-block dimmed> Задание не найдено </noo-text-block>
   </div>
 </template>
 
 <script setup lang="ts">
-import { maxLength } from '@/core/validators/string.utils';
-import { computed } from 'vue';
-import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store';
-import type { AssignedWorkViewMode } from '../types';
+import { maxLength } from '@/core/validators/string.utils'
+import { computed } from 'vue'
+import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
+import type { AssignedWorkViewMode } from '../types'
 
 export interface AssignedWorksTaskViewProps {
   taskId: string
@@ -115,17 +118,20 @@ const task = computed(() => assignedWorkDetailStore.getTask(props.taskId))
 
 const richTextAnswerModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].richTextContent,
-  set: (value) => (assignedWorkDetailStore.answers[props.taskId].richTextContent = value)
+  set: (value) =>
+    (assignedWorkDetailStore.answers[props.taskId].richTextContent = value)
 })
 
 const wordAnswerModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].wordContent,
-  set: (value) => (assignedWorkDetailStore.answers[props.taskId].wordContent = value)
+  set: (value) =>
+    (assignedWorkDetailStore.answers[props.taskId].wordContent = value)
 })
 
 const mentorCommentModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].mentorComment,
-  set: (value) => (assignedWorkDetailStore.answers[props.taskId].mentorComment = value)
+  set: (value) =>
+    (assignedWorkDetailStore.answers[props.taskId].mentorComment = value)
 })
 
 const answerScoreModel = computed({
@@ -133,10 +139,11 @@ const answerScoreModel = computed({
   set: (value) => (assignedWorkDetailStore.answers[props.taskId].score = value)
 })
 
-const isRichText = computed(() =>
-  task.value?.type === 'text' ||
-  task.value?.type === 'essay' ||
-  task.value?.type === 'final-essay'
+const isRichText = computed(
+  () =>
+    task.value?.type === 'text' ||
+    task.value?.type === 'essay' ||
+    task.value?.type === 'final-essay'
 )
 
 const isWord = computed(() => task.value?.type === 'word')

@@ -37,7 +37,9 @@ async function getEvents(
   month: number,
   userId: string
 ): Promise<ApiResponse<CalendarEventEntity[]>> {
-  return await Api.get(`${BASE_PATH}/${userId}/${String(year)}/${String(month)}`)
+  return await Api.get(
+    `${BASE_PATH}/${userId}/${String(year)}/${String(month)}`
+  )
 }
 
 async function createEvent(

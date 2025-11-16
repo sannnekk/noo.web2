@@ -1,11 +1,9 @@
 <template>
-  <div class="users-list-page">
-    users detail page
-  </div>
+  <div class="users-list-page">users detail page</div>
 </template>
 
 <script setup lang="ts">
-import type { UserDetailTab } from '../types';
+import type { UserDetailTab } from '../types'
 
 export interface UsersDetailPageProps {
   tabId: UserDetailTab
@@ -15,6 +13,4 @@ export interface UsersDetailPageProps {
 defineProps<UsersDetailPageProps>()
 </script>
 
-<style scoped lang="sass">
-
-</style>
+<style scoped lang="sass"></style>

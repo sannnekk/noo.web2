@@ -3,7 +3,6 @@ import type { ApplicationModule } from '@/types/ApplicationModule'
 
 const module: ApplicationModule = {
   name: 'auth',
-  diDefinitions: {},
   routes: [
     {
       name: 'auth',

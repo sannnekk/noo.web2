@@ -1,6 +1,6 @@
-import { useColorMode } from "@vueuse/core"
-import type { Ref } from "vue"
-import { CookieStorage } from "../utils/cookies.utils"
+import { useColorMode } from '@vueuse/core'
+import type { Ref } from 'vue'
+import { CookieStorage } from '../utils/cookies.utils'
 
 export type Theme = 'light' | 'dark'
 

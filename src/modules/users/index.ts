@@ -14,7 +14,13 @@ const module: ApplicationModule = {
         pageTitle: 'Пользователи',
         tabTitle: 'Пользователи',
         layout: PaneLayout,
-        roles: ['admin', 'teacher', 'assistant', 'mentor', /* TODO: remove */'student']
+        roles: [
+          'admin',
+          'teacher',
+          'assistant',
+          'mentor',
+          /* TODO: remove */ 'student'
+        ]
       },
       component: () => import('./pages/users-list-page.vue')
     },
@@ -26,7 +32,13 @@ const module: ApplicationModule = {
         tabTitle: 'Пользователь',
         warnOnLeave: true,
         layout: PaneLayout,
-        roles: ['admin', 'teacher', 'assistant', 'mentor', /* TODO: remove */'student']
+        roles: [
+          'admin',
+          'teacher',
+          'assistant',
+          'mentor',
+          /* TODO: remove */ 'student'
+        ]
       },
       component: () => import('./pages/users-detail-page.vue'),
       beforeEnter: loadUserGuard,

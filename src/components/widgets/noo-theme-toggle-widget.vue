@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="noo-theme-toggle-widget"
-  >
+  <div class="noo-theme-toggle-widget">
     <button
       class="noo-theme-toggle-widget__button"
       title="Сменить тему"
@@ -20,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme } from '@/core/composables/useTheme';
+import { useTheme } from '@/core/composables/useTheme'
 
 const { mode, toggle } = useTheme()
 </script>

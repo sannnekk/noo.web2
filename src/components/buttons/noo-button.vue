@@ -69,7 +69,7 @@ const component = computed(() =>
     : 'button'
 )
 
-const {mode} = useTheme()
+const { mode } = useTheme()
 </script>
 
 <style scoped lang="sass">

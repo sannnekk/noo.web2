@@ -29,7 +29,9 @@ function useElementScrollbar(
       el.scrollTop + el.clientHeight < el.scrollHeight - offset
   }
 
-  watch(elementRef, () => { update(); })
+  watch(elementRef, () => {
+    update()
+  })
 
   useEventListener(elementRef, 'scroll', update)
   useResizeObserver(elementRef, update)

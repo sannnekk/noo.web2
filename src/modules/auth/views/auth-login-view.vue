@@ -55,7 +55,7 @@
           <noo-inline-link :to="{ name: 'auth.register' }">
             Зарегистрироваться
           </noo-inline-link>
-          . <br>
+          . <br />
           Забыли пароль?
           <noo-inline-link :to="{ name: 'auth.forgot-password' }">
             Восстановить

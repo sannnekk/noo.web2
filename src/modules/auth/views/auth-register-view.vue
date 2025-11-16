@@ -89,7 +89,7 @@
           <noo-inline-link :to="{ name: 'auth.login' }">
             Войти
           </noo-inline-link>
-          . <br>
+          . <br />
           Забыли пароль?
           <noo-inline-link :to="{ name: 'auth.forgot-password' }">
             Восстановить

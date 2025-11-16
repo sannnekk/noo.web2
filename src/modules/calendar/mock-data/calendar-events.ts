@@ -1,7 +1,8 @@
-import type { CalendarEventEntity } from "../api/calendar.types";
+import type { CalendarEventEntity } from '../api/calendar.types'
 
 const calendarEvents: CalendarEventEntity[] = [
   {
+    _entityName: 'CalendarEvent',
     id: 'event-1',
     assignedWorkId: 'work-101',
     type: 'assigned-work-solve-deadline',
@@ -9,10 +10,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Deadline to complete the UI prototype for the dashboard.',
     startDateTime: new Date('2025-05-02T09:00:00Z'),
     endDateTime: new Date('2025-05-02T17:00:00Z'),
-    createdAt:   new Date('2025-04-15T08:30:00Z'),
-    updatedAt:   new Date('2025-04-20T10:00:00Z'),
+    createdAt: new Date('2025-04-15T08:30:00Z'),
+    updatedAt: new Date('2025-04-20T10:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-2',
     assignedWorkId: 'work-102',
     type: 'assigned-work-check-deadline',
@@ -20,10 +22,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: null,
     startDateTime: new Date('2025-05-05T13:00:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-04-20T12:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-04-20T12:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-3',
     assignedWorkId: null,
     type: 'custom',
@@ -31,10 +34,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Daily sync with the engineering team.',
     startDateTime: new Date('2025-05-07T09:30:00Z'),
     endDateTime: new Date('2025-05-07T10:00:00Z'),
-    createdAt:   new Date('2025-05-01T08:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-01T08:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-4',
     assignedWorkId: 'work-103',
     type: 'assigned-work-checked',
@@ -42,10 +46,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'All QA tests passed for feature X.',
     startDateTime: new Date('2025-05-10T15:00:00Z'),
     endDateTime: new Date('2025-05-10T16:00:00Z'),
-    createdAt:   new Date('2025-05-09T11:00:00Z'),
-    updatedAt:   new Date('2025-05-10T12:00:00Z'),
+    createdAt: new Date('2025-05-09T11:00:00Z'),
+    updatedAt: new Date('2025-05-10T12:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-5',
     assignedWorkId: 'work-104',
     type: 'assigned-work-solved',
@@ -53,10 +58,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Deployment of the fix for critical bug #452.',
     startDateTime: new Date('2025-05-12T18:30:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-05-11T09:45:00Z'),
-    updatedAt:   new Date('2025-05-12T10:15:00Z'),
+    createdAt: new Date('2025-05-11T09:45:00Z'),
+    updatedAt: new Date('2025-05-12T10:15:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-6',
     assignedWorkId: null,
     type: 'custom',
@@ -64,10 +70,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Quarterly all‑hands meeting in the main auditorium.',
     startDateTime: new Date('2025-05-15T14:00:00Z'),
     endDateTime: new Date('2025-05-15T15:30:00Z'),
-    createdAt:   new Date('2025-05-01T10:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-01T10:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-7',
     assignedWorkId: 'work-105',
     type: 'assigned-work-solve-deadline',
@@ -75,10 +82,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Cover new modules with unit tests.',
     startDateTime: new Date('2025-05-18T08:00:00Z'),
     endDateTime: new Date('2025-05-18T12:00:00Z'),
-    createdAt:   new Date('2025-05-10T07:30:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-10T07:30:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-8',
     assignedWorkId: 'work-106',
     type: 'assigned-work-check-deadline',
@@ -86,10 +94,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Deadline to review security audit findings.',
     startDateTime: new Date('2025-05-20T13:30:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-05-11T16:00:00Z'),
-    updatedAt:   new Date('2025-05-12T09:00:00Z'),
+    createdAt: new Date('2025-05-11T16:00:00Z'),
+    updatedAt: new Date('2025-05-12T09:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-9',
     assignedWorkId: null,
     type: 'custom',
@@ -97,10 +106,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Interactive workshop on improving user flows.',
     startDateTime: new Date('2025-05-22T10:00:00Z'),
     endDateTime: new Date('2025-05-22T12:00:00Z'),
-    createdAt:   new Date('2025-05-05T14:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-05T14:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-10',
     assignedWorkId: 'work-107',
     type: 'assigned-work-checked',
@@ -108,10 +118,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: null,
     startDateTime: new Date('2025-05-25T11:00:00Z'),
     endDateTime: new Date('2025-05-25T11:30:00Z'),
-    createdAt:   new Date('2025-05-20T09:00:00Z'),
-    updatedAt:   new Date('2025-05-24T17:00:00Z'),
+    createdAt: new Date('2025-05-20T09:00:00Z'),
+    updatedAt: new Date('2025-05-24T17:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-11',
     assignedWorkId: 'work-108',
     type: 'assigned-work-solved',
@@ -119,10 +130,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Performance improvements deployed.',
     startDateTime: new Date('2025-05-28T07:30:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-05-27T08:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-27T08:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-12',
     assignedWorkId: null,
     type: 'custom',
@@ -130,10 +142,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Bi‑weekly marketing and sales alignment.',
     startDateTime: new Date('2025-06-01T09:00:00Z'),
     endDateTime: new Date('2025-06-01T10:00:00Z'),
-    createdAt:   new Date('2025-05-15T10:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-05-15T10:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-13',
     assignedWorkId: 'work-109',
     type: 'assigned-work-solve-deadline',
@@ -141,10 +154,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Deadline to finish OAuth integration.',
     startDateTime: new Date('2025-06-05T14:00:00Z'),
     endDateTime: new Date('2025-06-05T18:00:00Z'),
-    createdAt:   new Date('2025-06-01T11:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-06-01T11:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-14',
     assignedWorkId: 'work-110',
     type: 'assigned-work-check-deadline',
@@ -152,10 +166,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Ensure WCAG compliance on public pages.',
     startDateTime: new Date('2025-06-10T08:00:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-06-02T09:30:00Z'),
-    updatedAt:   new Date('2025-06-04T12:00:00Z'),
+    createdAt: new Date('2025-06-02T09:30:00Z'),
+    updatedAt: new Date('2025-06-04T12:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-15',
     assignedWorkId: null,
     type: 'custom',
@@ -163,10 +178,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Demo new features to client stakeholders.',
     startDateTime: new Date('2025-06-12T16:00:00Z'),
     endDateTime: new Date('2025-06-12T17:00:00Z'),
-    createdAt:   new Date('2025-06-05T13:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-06-05T13:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-16',
     assignedWorkId: 'work-111',
     type: 'assigned-work-checked',
@@ -174,10 +190,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'All PR reviews done.',
     startDateTime: new Date('2025-06-15T12:30:00Z'),
     endDateTime: new Date('2025-06-15T13:00:00Z'),
-    createdAt:   new Date('2025-06-10T10:00:00Z'),
-    updatedAt:   new Date('2025-06-14T14:00:00Z'),
+    createdAt: new Date('2025-06-10T10:00:00Z'),
+    updatedAt: new Date('2025-06-14T14:00:00Z')
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-17',
     assignedWorkId: 'work-112',
     type: 'assigned-work-solved',
@@ -185,10 +202,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: null,
     startDateTime: new Date('2025-06-20T09:00:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-06-18T09:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-06-18T09:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-18',
     assignedWorkId: null,
     type: 'custom',
@@ -196,10 +214,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'National holiday.',
     startDateTime: new Date('2025-07-01T00:00:00Z'),
     endDateTime: new Date('2025-07-01T23:59:59Z'),
-    createdAt:   new Date('2025-06-15T08:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-06-15T08:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-19',
     assignedWorkId: 'work-113',
     type: 'assigned-work-solve-deadline',
@@ -207,10 +226,11 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Add tracking code to production.',
     startDateTime: new Date('2025-07-10T10:00:00Z'),
     endDateTime: new Date('2025-07-10T12:00:00Z'),
-    createdAt:   new Date('2025-07-01T09:00:00Z'),
-    updatedAt:   null,
+    createdAt: new Date('2025-07-01T09:00:00Z'),
+    updatedAt: null
   },
   {
+    _entityName: 'CalendarEvent',
     id: 'event-20',
     assignedWorkId: 'work-114',
     type: 'assigned-work-check-deadline',
@@ -218,9 +238,9 @@ const calendarEvents: CalendarEventEntity[] = [
     description: 'Complete last round of smoke tests.',
     startDateTime: new Date('2025-07-25T14:00:00Z'),
     endDateTime: null,
-    createdAt:   new Date('2025-07-20T11:00:00Z'),
-    updatedAt:   new Date('2025-07-23T15:00:00Z'),
-  },
+    createdAt: new Date('2025-07-20T11:00:00Z'),
+    updatedAt: new Date('2025-07-23T15:00:00Z')
+  }
 ]
 
-export { calendarEvents };
+export { calendarEvents }

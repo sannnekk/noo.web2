@@ -79,16 +79,16 @@ function assignedWorkModeGuard(
   // is mentor
   // make sure the work is not checked yet and already solved, otherwise redirect to read mode
   if (
-      (checkStatus === 'checked' || solveStatus !== 'solved') &&
-      mode !== 'read'
-    ) {
-      return {
-        name: 'assigned-works.detail',
-        params: { assignedWorkId, mode: 'read' }
-      }
+    (checkStatus === 'checked' || solveStatus !== 'solved') &&
+    mode !== 'read'
+  ) {
+    return {
+      name: 'assigned-works.detail',
+      params: { assignedWorkId, mode: 'read' }
     }
+  }
 
-    return true
+  return true
 }
 
 function assignedWorkListTabGuard(
@@ -109,6 +109,7 @@ function assignedWorkListTabGuard(
 }
 
 export {
-  assignedWorkDetailInitGuard, assignedWorkListTabGuard, assignedWorkModeGuard
+  assignedWorkDetailInitGuard,
+  assignedWorkListTabGuard,
+  assignedWorkModeGuard
 }
-

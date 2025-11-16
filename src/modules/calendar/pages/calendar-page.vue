@@ -31,7 +31,7 @@
         >
           {{
             calendarStore.calendar.error?.description ||
-              'Попробуйте обновить страницу или зайти позже.'
+            'Попробуйте обновить страницу или зайти позже.'
           }}
         </noo-text-block>
       </noo-error-block>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCalendarStore } from '../stores/calendar.store';
+import { useCalendarStore } from '../stores/calendar.store'
 
 interface Props {
   userId?: string

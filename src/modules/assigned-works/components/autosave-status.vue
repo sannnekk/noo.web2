@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store';
+import { computed } from 'vue'
+import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 const saveStatus = computed(() => assignedWorkDetailStore.saveStatus)

@@ -2,15 +2,16 @@
   <img
     :src="link"
     @error="onLoadFailed()"
-  >
+  />
 </template>
 
 <script setup lang="ts">
 import { appConfig } from '@/core/config/app.config'
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import { ref, watchEffect } from 'vue'
 
 interface Props {
-  src?: string | File | undefined
+  src?: string | File | MediaEntity | undefined | null
 }
 
 const props = defineProps<Props>()
@@ -38,6 +39,19 @@ watchEffect(() => {
 
   if (props.src instanceof File) {
     link.value = URL.createObjectURL(props.src)
+
+    return
+  }
+
+  // TODO: replace with Utils.isEntity(name) function
+  if (
+    props.src &&
+    '_entityName' in props.src &&
+    props.src._entityName === 'Media'
+  ) {
+    const media = props.src as MediaEntity
+
+    link.value = `${media.path}/${media.name}.${media.extension}`
 
     return
   }

@@ -7,9 +7,7 @@
         class="loader-overlay__progress"
         :value="loadingProgress"
       />
-      <noo-title :size="2">
-        Загрузка...
-      </noo-title>
+      <noo-title :size="2"> Загрузка... </noo-title>
     </div>
   </Teleport>
 </template>

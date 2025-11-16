@@ -44,7 +44,10 @@ async function create(
   return await Api.post(BASE_PATH, snippet)
 }
 
-async function update(snippetId: string, snippet: SnippetEntity): Promise<ApiResponse> {
+async function update(
+  snippetId: string,
+  snippet: SnippetEntity
+): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/${snippetId}`, snippet)
 }
 

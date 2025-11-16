@@ -1,10 +1,10 @@
 // assigned-work.service.test.ts
 import { Api } from '@/core/api/api.utils'
-import { AssignedWorkService } from './assigned-work.service'
-import { vi, describe, test, expect, type Mock, beforeEach } from 'vitest'
 import type { IPagination } from '@/core/utils/pagination.utils'
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
+import { AssignedWorkService } from './assigned-work.service'
 import type {
-  AssignedWorkAddMentorOptions,
+  AddHelperMentorOptions,
   AssignedWorkAnswerEntity,
   AssignedWorkCommentEntity,
   AssignedWorkRemakeOptions
@@ -88,7 +88,7 @@ describe('AssignedWorkService', () => {
     test('should create remake with options', async () => {
       const mockId = '123'
       const mockOptions: AssignedWorkRemakeOptions = {
-        includeOnlyFailedTasks: true
+        includeOnlyWrongTasks: true
       }
 
       ;(Api.post as Mock).mockResolvedValue({ data: 'new-id' })
@@ -109,9 +109,8 @@ describe('AssignedWorkService', () => {
 
       ;(Api.get as Mock).mockResolvedValue({ data: 'work-id' })
 
-      const result = await AssignedWorkService.getOrCreateByMaterialId(
-        mockMaterialId
-      )
+      const result =
+        await AssignedWorkService.getOrCreateByMaterialId(mockMaterialId)
 
       expect(Api.get).toHaveBeenCalledWith(
         `/assigned-work/material/${mockMaterialId}`
@@ -128,8 +127,7 @@ describe('AssignedWorkService', () => {
 
       await AssignedWorkService.markSolved(mockId)
       expect(Api.patch).toHaveBeenCalledWith(
-        `/assigned-work/${mockId}/mark-solved`,
-        undefined
+        `/assigned-work/${mockId}/mark-solved`
       )
     })
   })
@@ -137,8 +135,10 @@ describe('AssignedWorkService', () => {
   describe('saveAnswer', () => {
     test('should post answer to answers endpoint', async () => {
       const mockAnswer: AssignedWorkAnswerEntity = {
+        _entityName: 'AssignedWorkAnswer',
         id: 'a1',
         taskId: 't1',
+        status: 'not-submitted',
         richTextContent: null,
         wordContent: null,
         mentorComment: null,
@@ -153,10 +153,9 @@ describe('AssignedWorkService', () => {
 
       const result = await AssignedWorkService.saveAnswers([mockAnswer])
 
-      expect(Api.post).toHaveBeenCalledWith(
-        '/assigned-work/answers',
+      expect(Api.post).toHaveBeenCalledWith('/assigned-work/answers', [
         mockAnswer
-      )
+      ])
       expect(result.data).toBe('answer-id')
     })
   })
@@ -165,13 +164,16 @@ describe('AssignedWorkService', () => {
     test('should patch mentors endpoint with options', async () => {
       const mockId = '123'
       const mockMentorId = 'm1'
-      const mockOptions: AssignedWorkAddMentorOptions = { notify: true }
+      const mockOptions: AddHelperMentorOptions = {
+        mentorId: mockMentorId,
+        notifyMentor: true
+      }
 
       ;(Api.patch as Mock).mockResolvedValue({})
 
-      await AssignedWorkService.addMentor(mockId, mockMentorId, mockOptions)
+      await AssignedWorkService.addMentor(mockId, mockOptions)
       expect(Api.patch).toHaveBeenCalledWith(
-        `/assigned-work/${mockId}/mentors/${mockMentorId}`,
+        `/assigned-work/${mockId}/add-helper-mentor`,
         mockOptions
       )
     })
@@ -197,8 +199,7 @@ describe('AssignedWorkService', () => {
 
       await AssignedWorkService.markChecked(mockId)
       expect(Api.patch).toHaveBeenCalledWith(
-        `/assigned-work/${mockId}/mark-checked`,
-        undefined
+        `/assigned-work/${mockId}/mark-checked`
       )
     })
   })
@@ -206,9 +207,9 @@ describe('AssignedWorkService', () => {
   describe('saveComment', () => {
     test('should post comment to comments endpoint', async () => {
       const mockComment: AssignedWorkCommentEntity = {
+        _entityName: 'AssignedWorkComment',
         id: 'c1',
         content: null,
-        type: 'mentor',
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -233,8 +234,7 @@ describe('AssignedWorkService', () => {
 
       await AssignedWorkService.shiftDeadline(mockId)
       expect(Api.patch).toHaveBeenCalledWith(
-        `/assigned-work/${mockId}/shift-deadline`,
-        undefined
+        `/assigned-work/${mockId}/shift-deadline`
       )
     })
   })

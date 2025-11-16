@@ -1,16 +1,15 @@
-import { describe, expect, it, vi, afterEach } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Api, type ApiResponse } from '../api.utils'
 import { AuthService } from './auth.service'
 import type {
   LoginPayload,
-  ResetPasswordPayload,
-  RegisterPayload
+  RegisterPayload,
+  ResetPasswordPayload
 } from './auth.types'
 
 // Mock API responses
 const mockSuccessResponse: ApiResponse<any> = { data: {} }
 const mockErrorResponse: ApiResponse = {
-  data: undefined,
   error: {
     id: 'UNKNOWN_ERROR',
     statusCode: 500,
@@ -97,7 +96,8 @@ describe('AuthService', () => {
         username: 'testuser',
         email: 'test@example.com',
         password: 'Password123!',
-        confirmPassword: 'Password123!'
+        confirmPassword: 'Password123!',
+        agreeToTerms: true
       }
 
       const result = await AuthService.register(payload)

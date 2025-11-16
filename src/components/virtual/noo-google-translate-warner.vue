@@ -17,18 +17,18 @@ let observer: MutationObserver | null = null
 async function detectGoogleTranslate(): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     // Check for the global 'google' object and its 'translate' property
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (window.google && (window.google as any).translate) {
-      resolve(true);
+    // @ts-expect-error of course we do not have google types here
+    if (window.google && (window.google as unknown).translate) {
+      resolve(true)
 
- return;
+      return
     }
 
     // Check goog-gt-tt id
     if (document.getElementById('goog-gt-tt')) {
-      resolve(true);
+      resolve(true)
 
- return;
+      return
     }
 
     // Check for specific iframes added by the extension
@@ -36,19 +36,19 @@ async function detectGoogleTranslate(): Promise<boolean> {
       document.querySelector('.goog-te-banner-frame') ||
       document.querySelector('.goog-te-menu-frame')
     ) {
-      resolve(true);
+      resolve(true)
 
- return;
+      return
     }
 
     // Check for elements with classes that start with 'goog-t'
     if (document.querySelector('[class^="goog-t"]')) {
-      resolve(true);
+      resolve(true)
 
- return;
+      return
     }
 
-    resolve(false);
+    resolve(false)
   })
 }
 

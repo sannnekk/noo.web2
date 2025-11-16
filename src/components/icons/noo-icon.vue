@@ -27,7 +27,6 @@ export type IconName =
   | 'question-yellow'
   | 'attention-yellow'
   | 'minus-yellow'
-   
   | 'jpg-file'
   | 'png-file'
   | 'pdf-file'

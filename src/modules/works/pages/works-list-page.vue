@@ -31,7 +31,7 @@
         <noo-work-type-tag :type="item.type" />
       </template>
       <template #column-subject="{ item }">
-        <noo-subject-block :subject="item.subject" />
+        <noo-subject-block :subject="item.subject ?? null" />
       </template>
       <template #column-createdAt="{ item }">
         <noo-text-block

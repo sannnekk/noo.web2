@@ -37,11 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import type { IconName } from '@/components/icons/noo-icon.vue';
-import { computed } from 'vue';
-import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store';
-import type { PossiblyUnsavedAnswer, TaskGrid } from '../types';
-import { answerIsNotEmpty } from '../utils';
+import type { IconName } from '@/components/icons/noo-icon.vue'
+import { computed } from 'vue'
+import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
+import type { PossiblyUnsavedAnswer, TaskGrid } from '../types'
+import { answerIsNotEmpty } from '../utils'
 
 function icon(item: TaskGrid[number]): IconName | undefined {
   if (item.hasAnswer && item.status === 'not-submitted') {

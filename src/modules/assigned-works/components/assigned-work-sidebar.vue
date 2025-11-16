@@ -44,7 +44,7 @@
           size="small"
         >
           <span>Дедлайн сдачи:</span>
-          <br>
+          <br />
           <noo-date
             :value="assignedWorkDetailStore.assignedWork.solveDeadlineAt"
             timezones="both"
@@ -88,7 +88,7 @@
           size="small"
         >
           <span>Дедлайн проверки:</span>
-          <br>
+          <br />
           <noo-date
             :value="assignedWorkDetailStore.assignedWork.checkDeadlineAt"
             timezones="both"

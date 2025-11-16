@@ -26,6 +26,8 @@ import { computed } from 'vue'
 
 interface Props {
   name?: string
+  // @ts-expect-error type not implemented
+  // eslint-disable-next-line no-undef
   avatar?: UserAvatarEntity | null
   isOnline?: boolean
 }

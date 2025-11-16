@@ -18,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { useElementScrollbar } from '@/core/composables/useElementScrollbar';
-import { useTheme } from '@/core/composables/useTheme';
-import { useTemplateRef } from 'vue';
+import { useElementScrollbar } from '@/core/composables/useElementScrollbar'
+import { useTheme } from '@/core/composables/useTheme'
+import { useTemplateRef } from 'vue'
 
 interface Props {
   maxHeight: string

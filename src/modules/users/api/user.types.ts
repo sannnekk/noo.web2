@@ -11,4 +11,3 @@ export interface UserEntity extends ApiEntity {
   isBlocked: boolean
   isVerified: boolean
 }
-

@@ -1,6 +1,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { IRichText } from '@/core/utils/richtext.utils'
 import type { MediaEntity } from '@/modules/media/api/media.types'
+import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 import type { UserEntity } from '@/modules/users/api/user.types'
 import type { WorkEntity } from '@/modules/works/api/work.types'
@@ -14,7 +15,7 @@ export interface CourseEntity extends ApiEntity {
   thumbnail?: MediaEntity
   memberCount?: number
   subjectId: string
-  subject?: SubjectEntity
+  subject?: SubjectEntity | null
   authors?: UserEntity[]
   chapters?: CourseChapterEntity[]
 }

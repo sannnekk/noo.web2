@@ -4,7 +4,7 @@
     class="course-sidebar"
   >
     <div class="course-sidebar__subject">
-      <noo-subject-block :subject="course.subject" />
+      <noo-subject-block :subject="course.subject ?? null" />
     </div>
     <div class="course-sidebar__title">
       <noo-title :size="2">
@@ -89,7 +89,6 @@
 
 <script setup lang="ts">
 import { usePageUrl } from '@/core/composables/usePageUrl'
-import { useAuthStore } from '@/core/stores/auth.store'
 import { computed, shallowRef } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 import CourseChapterTree from './course-chapter-tree.vue'
@@ -102,7 +101,6 @@ interface Props {
 defineProps<Props>()
 
 const courseDetailStore = useCourseDetailStore()
-const authStore = useAuthStore()
 
 const course = computed(() => courseDetailStore.course.data)
 

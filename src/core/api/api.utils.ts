@@ -9,11 +9,11 @@ export type ApiResponse<T = void> =
   | {
       data: T
       metadata?: ApiMetadata
-      error: null | undefined
+      error?: null
     }
   | {
-      data: null
-      metadata: undefined
+      data?: null
+      metadata?: null
       error: ApiError
     }
 

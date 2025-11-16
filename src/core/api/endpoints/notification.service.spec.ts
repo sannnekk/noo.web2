@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
-import { NotificationService } from './notification.service'
+import { describe, expect, it, vi } from 'vitest'
 import { Api, type ApiResponse } from '../api.utils'
+import { NotificationService } from './notification.service'
 import type { NotificationEntity } from './notification.types'
 
 vi.mock('../api.utils', () => ({
@@ -17,6 +17,7 @@ describe('NotificationService', () => {
       const mockResponse: ApiResponse<NotificationEntity[]> = {
         data: [
           {
+            _entityName: 'Notification',
             id: '1',
             message: 'Test notification',
             isRead: false,
@@ -43,6 +44,7 @@ describe('NotificationService', () => {
       const mockResponse: ApiResponse<NotificationEntity[]> = {
         data: [
           {
+            _entityName: 'Notification',
             id: '2',
             message: 'Test read notification',
             isRead: true,

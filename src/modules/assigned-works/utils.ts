@@ -1,6 +1,9 @@
 import { richTextIsEmpty, richTextsAreEqual } from '@/core/utils/richtext.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
-import type { AssignedWorkAnswerEntity, AssignedWorkStatusHistoryType } from './api/assigned-work.types'
+import type {
+  AssignedWorkAnswerEntity,
+  AssignedWorkStatusHistoryType
+} from './api/assigned-work.types'
 import type { PossiblyUnsavedAnswer } from './types'
 
 function answersAreEqual(
@@ -22,7 +25,9 @@ function answerIsNotEmpty(
   task: WorkTaskEntity,
   answer?: AssignedWorkAnswerEntity | PossiblyUnsavedAnswer | null
 ): boolean {
-  if (!answer) {return false}
+  if (!answer) {
+    return false
+  }
 
   if (
     task.type === 'text' ||
@@ -61,4 +66,3 @@ function readableHistoryStatus(status: AssignedWorkStatusHistoryType): string {
 }
 
 export { answerIsNotEmpty, answersAreEqual, readableHistoryStatus }
-

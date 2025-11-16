@@ -67,7 +67,7 @@ function useSearch<T>(
     try {
       const response = await searchFunction(pagination)
 
-      data.value = response.data
+      data.value = response.data ?? []
       error.value = response.error ?? null
       total.value = response.metadata?.total ?? 0
     } finally {
@@ -79,7 +79,9 @@ function useSearch<T>(
     filters: IPagination['filters'] | undefined,
     initialFilters: IPagination['filters'] | undefined
   ): IPagination['filters'] {
-    if (!filters && !initialFilters) {return []}
+    if (!filters && !initialFilters) {
+      return []
+    }
 
     const combinedFilters = [...(filters ?? []), ...(initialFilters ?? [])]
 
@@ -112,4 +114,3 @@ function useSearch<T>(
 }
 
 export { useSearch, type UseSearchOptions, type UseSearchReturn }
-

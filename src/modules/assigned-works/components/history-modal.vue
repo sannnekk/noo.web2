@@ -4,9 +4,7 @@
     full-width
   >
     <template #title>
-      <noo-title :size="2">
-        История изменений
-      </noo-title>
+      <noo-title :size="2"> История изменений </noo-title>
     </template>
     <template #content>
       <div
@@ -16,14 +14,16 @@
         <noo-loader-icon contrast />
       </div>
       <div
-        v-else-if="!history.isLoading.value && !history.error.value && history.data.value"
+        v-else-if="
+          !history.isLoading.value && !history.error.value && history.data.value
+        "
         class="history-modal__content"
       >
         <noo-entity-table
           :data="history.data.value"
           :columns="columns"
         >
-          <template #column-status="{ item}">
+          <template #column-status="{ item }">
             <noo-text-block>
               {{ readableHistoryStatus(item.status) }}
             </noo-text-block>
@@ -47,7 +47,10 @@
         class="history-modal__error"
       >
         <noo-error-block>
-          {{ history.error.value?.description ?? 'Не удалось загрузить историю изменений' }}
+          {{
+            history.error.value?.description ??
+            'Не удалось загрузить историю изменений'
+          }}
         </noo-error-block>
       </div>
     </template>
@@ -63,37 +66,35 @@
 </template>
 
 <script setup lang="ts">
-import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers';
-import { useApiRequest } from '@/core/composables/useApiRequest';
-import { watch } from 'vue';
-import type { AssignedWorkStatusHistoryEntity } from '../api/assigned-work.types';
-import { assignedWorkHistory } from '../mock-data/assigned-work-history';
-import { readableHistoryStatus } from '../utils';
+import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
+import { useApiRequest } from '@/core/composables/useApiRequest'
+import { watch } from 'vue'
+import type { AssignedWorkStatusHistoryEntity } from '../api/assigned-work.types'
+import { assignedWorkHistory } from '../mock-data/assigned-work-history'
+import { readableHistoryStatus } from '../utils'
 
 interface Props {
   assignedWorkId: string
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 const isOpen = defineModel<boolean>('is-open', {
-  default: false,
-});
+  default: false
+})
 
-const history = useApiRequest<void, AssignedWorkStatusHistoryEntity[]>(
-  () => {
-    /* AssignedWorkService.getHistory(props.assignedWorkId) */
-    return Promise.resolve({
-      data: assignedWorkHistory
-    })
-  }
-)
+const history = useApiRequest<void, AssignedWorkStatusHistoryEntity[]>(() => {
+  /* AssignedWorkService.getHistory(props.assignedWorkId) */
+  return Promise.resolve({
+    data: assignedWorkHistory
+  })
+})
 
 watch(
   isOpen,
   () => {
     if (isOpen.value && !history.isLoading.value && shouldLoadHistory()) {
-      history.execute();
+      history.execute()
     }
   },
   { immediate: true }
@@ -104,22 +105,22 @@ function shouldLoadHistory(): boolean {
     history.data.value === null ||
     history.data.value.length === 0 ||
     history.data.value[0].assignedWorkId !== props.assignedWorkId
-  );
+  )
 }
 
 const columns: EntityTableColumnType<AssignedWorkStatusHistoryEntity>[] = [
   {
     key: 'status',
-    title: 'Статус',
+    title: 'Статус'
   },
   {
     key: 'createdAt',
-    title: 'Дата создания',
+    title: 'Дата создания'
   },
   {
     key: 'changedBy',
-    title: 'Изменено пользователем',
-  },
+    title: 'Изменено пользователем'
+  }
 ]
 </script>
 

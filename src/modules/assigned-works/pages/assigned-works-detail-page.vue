@@ -22,9 +22,7 @@
       centered
       :try-again="tryAgainFunc"
     >
-      <noo-title :size="3">
-        Ошибка загрузки работы
-      </noo-title>
+      <noo-title :size="3"> Ошибка загрузки работы </noo-title>
       <noo-text-block
         dimmed
         size="small"

@@ -1,4 +1,5 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type { SubjectEntity, UnsavedSubject } from './subject.types'
 

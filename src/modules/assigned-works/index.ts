@@ -65,7 +65,7 @@ const module: ApplicationModule = {
           props: (route): AssignedWorksTaskViewProps => {
             return {
               taskId: String(route.params.taskId),
-              mode: String(route.params.mode) as AssignedWorkViewMode,
+              mode: String(route.params.mode) as AssignedWorkViewMode
             }
           }
         }

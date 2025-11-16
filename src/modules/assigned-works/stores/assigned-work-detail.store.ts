@@ -5,6 +5,7 @@ import {
 import { useSaveStatus } from '@/core/composables/useSaveStatus'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { DateHelpers } from '@/core/utils/dates'
+import { uid } from '@/core/utils/id.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
 import { defineStore } from 'pinia'
 import {
@@ -25,10 +26,7 @@ import type {
 } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
 import { assignedWorkApiResponse } from '../mock-data/assigned-work-api-response'
-import type {
-  AssignedWorkViewMode,
-  PossiblyUnsavedAnswer
-} from '../types'
+import type { AssignedWorkViewMode, PossiblyUnsavedAnswer } from '../types'
 
 export interface AssignedWorkDetailStore {
   assignedWork: ShallowRef<AssignedWorkEntity | undefined>
@@ -58,6 +56,7 @@ export interface AssignedWorkDetailStore {
 const useAssignedWorkDetailStore = defineStore(
   'assigned-works:assigned-work-detail',
   (): AssignedWorkDetailStore => {
+    const router = useRouter()
     const globalUiStore = useGlobalUIStore()
 
     /**
@@ -178,13 +177,14 @@ const useAssignedWorkDetailStore = defineStore(
       () => AssignedWorkService.markSolved(assignedWork.value!.id),
       () => {
         globalUiStore.createSuccessToast('Работа успешно сдана')
-        useRouter().push({
+        router.push({
           name: 'assigned-works.detail',
           params: { assignedWorkId: assignedWork.value!.id, mode: 'read' }
         })
       },
-      (error) =>
-        { globalUiStore.createApiErrorToast('Не удалось сдать работу', error); }
+      (error) => {
+        globalUiStore.createApiErrorToast('Не удалось сдать работу', error)
+      }
     )
 
     /**
@@ -192,9 +192,12 @@ const useAssignedWorkDetailStore = defineStore(
      */
     const markChecked = useApiRequest(
       () => AssignedWorkService.markChecked(assignedWork.value!.id),
-      () => { globalUiStore.createSuccessToast('Работа успешно проверена'); },
-      (error) =>
-        { globalUiStore.createApiErrorToast('Не удалось проверить работу', error); }
+      () => {
+        globalUiStore.createSuccessToast('Работа успешно проверена')
+      },
+      (error) => {
+        globalUiStore.createApiErrorToast('Не удалось проверить работу', error)
+      }
     )
 
     /**
@@ -202,7 +205,9 @@ const useAssignedWorkDetailStore = defineStore(
      */
     const shiftDeadline = useApiRequest(
       () => AssignedWorkService.shiftDeadline(assignedWork.value!.id),
-      () => { globalUiStore.createSuccessToast('Дедлайн успешно сдвинут'); }
+      () => {
+        globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
+      }
     )
 
     /**
@@ -212,13 +217,19 @@ const useAssignedWorkDetailStore = defineStore(
     const remake = useApiRequest<AssignedWorkRemakeOptions, { id: string }>(
       (options) => AssignedWorkService.remake(assignedWork.value!.id, options),
       (response) => {
-        useRouter().push({
+        // TODO: Resolve why ts fails to see that data is not null or undefined here
+        const newAssignedWorkId = response.data!.id
+
+        globalUiStore.createSuccessToast('Новый экземпляр работы создан')
+
+        router.push({
           name: 'assigned-works.detail',
-          params: { assignedWorkId: response.data.id, mode: 'solve' }
+          params: { assignedWorkId: newAssignedWorkId, mode: 'solve' }
         })
       },
-      (error) =>
-        { globalUiStore.createApiErrorToast('Не удалось переделать работу', error); }
+      (error) => {
+        globalUiStore.createApiErrorToast('Не удалось переделать работу', error)
+      }
     )
 
     /**
@@ -237,8 +248,9 @@ const useAssignedWorkDetailStore = defineStore(
           AssignedWorkConfig.checkDeadlineShiftWhileSolveDeadlineShift
         )
       },
-      (error) =>
-        { globalUiStore.createApiErrorToast('Не удалось сдвинуть дедлайн', error); }
+      (error) => {
+        globalUiStore.createApiErrorToast('Не удалось сдвинуть дедлайн', error)
+      }
     )
 
     /**
@@ -253,11 +265,12 @@ const useAssignedWorkDetailStore = defineStore(
           AssignedWorkConfig.checkDeadlineShift
         )
       },
-      (error) =>
-        { globalUiStore.createApiErrorToast(
+      (error) => {
+        globalUiStore.createApiErrorToast(
           'Не удалось сдвинуть дедлайн проверки',
           error
-        ); }
+        )
+      }
     )
 
     /**
@@ -267,16 +280,17 @@ const useAssignedWorkDetailStore = defineStore(
       () => AssignedWorkService.markUnsolved(assignedWork.value!.id),
       () => {
         globalUiStore.createSuccessToast('Работа вернулась на доработку')
-        useRouter().push({
+        router.push({
           name: 'assigned-works.detail',
           params: { assignedWorkId: assignedWork.value!.id, mode: 'read' }
         })
       },
-      (error) =>
-        { globalUiStore.createApiErrorToast(
+      (error) => {
+        globalUiStore.createApiErrorToast(
           'Не удалось вернуть работу на доработку',
           error
-        ); }
+        )
+      }
     )
 
     /**
@@ -284,12 +298,15 @@ const useAssignedWorkDetailStore = defineStore(
      */
     const markUnchecked = useApiRequest(
       () => AssignedWorkService.markUnchecked(assignedWork.value!.id),
-      () => { globalUiStore.createSuccessToast('Проверка работы отменена'); },
-      (error) =>
-        { globalUiStore.createApiErrorToast(
+      () => {
+        globalUiStore.createSuccessToast('Проверка работы отменена')
+      },
+      (error) => {
+        globalUiStore.createApiErrorToast(
           'Не удалось отменить проверку работы',
           error
-        ); }
+        )
+      }
     )
 
     /**
@@ -298,12 +315,15 @@ const useAssignedWorkDetailStore = defineStore(
     const addHelperMentor = useApiRequest<AddHelperMentorOptions>(
       (options) =>
         AssignedWorkService.addMentor(assignedWork.value!.id, options),
-      () => { globalUiStore.createSuccessToast('Помощник успешно добавлен'); },
-      (error) =>
-        { globalUiStore.createApiErrorToast(
+      () => {
+        globalUiStore.createSuccessToast('Помощник успешно добавлен')
+      },
+      (error) => {
+        globalUiStore.createApiErrorToast(
           'Не удалось добавить помощника',
           error
-        ); }
+        )
+      }
     )
 
     /**
@@ -323,9 +343,7 @@ const useAssignedWorkDetailStore = defineStore(
      * @returns The array of changed answers
      */
     function getChangedAnswers(): PossiblyUnsavedAnswer[] {
-      return Object.values(answers.value).filter(
-        (answer) => !answer.isSaved
-      )
+      return Object.values(answers.value).filter((answer) => !answer.isSaved)
     }
 
     /**
@@ -341,14 +359,18 @@ const useAssignedWorkDetailStore = defineStore(
      * @param newAnswers The array of assigned work answers to set.
      */
     function setSavedAnswers(newAnswers: AssignedWorkAnswerEntity[]): void {
-      answers.value = newAnswers.reduce<Record<string, PossiblyUnsavedAnswer>>((acc, answer) => {
-        acc[answer.taskId] = {
-          ...answer,
-          isSaved: true
-        }
+      answers.value = newAnswers.reduce<Record<string, PossiblyUnsavedAnswer>>(
+        (acc, answer) => {
+          // @ts-expect-error Change to PossiblyUnsavedAnswer
+          acc[answer.taskId] = {
+            ...answer,
+            isSaved: true
+          }
 
-        return acc
-      }, {})
+          return acc
+        },
+        {}
+      )
     }
 
     /**
@@ -359,6 +381,8 @@ const useAssignedWorkDetailStore = defineStore(
       for (const task of assignedWork.value?.work?.tasks ?? []) {
         if (!answers.value[task.id]) {
           answers.value[task.id] = {
+            _entityName: 'AssignedWorkAnswer',
+            _key: uid(),
             taskId: task.id,
             isSaved: false,
             status: 'not-submitted',

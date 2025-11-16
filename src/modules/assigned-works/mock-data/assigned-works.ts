@@ -2,6 +2,7 @@ import type { AssignedWorkEntity } from '../api/assigned-work.types'
 
 export const assignedWorkList: AssignedWorkEntity[] = [
   {
+    _entityName: 'AssignedWork',
     id: '1',
     title: '8 пробник Реанимация математика 19.05 самопроверка',
     type: 'test',
@@ -14,12 +15,14 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     checkedAt: null,
     workId: 'work1',
     work: {
+      _entityName: 'Work',
       id: 'work1',
       title: '8 пробник Реанимация математика 19.05 самопроверка',
       type: 'test',
       description: null,
       subjectId: 'subject1',
       subject: {
+        _entityName: 'Subject',
         id: 'subject1',
         name: 'Профильная математика',
         color: '#FF5733',
@@ -43,6 +46,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     helperMentorCommentId: null,
     studentId: 'student1',
     student: {
+      _entityName: 'User',
       id: 'student1',
       name: 'Иван Иванов',
       username: 'ivanov',
@@ -57,6 +61,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     },
     mainMentorId: 'mentor1',
     mainMentor: {
+      _entityName: 'User',
       id: 'mentor1',
       name: 'Мария Петрова',
       username: 'petrova',
@@ -71,6 +76,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     },
     helperMentorId: 'mentor2',
     helperMentor: {
+      _entityName: 'User',
       id: 'mentor2',
       name: 'Алексей Смирнов',
       username: 'smirnov',
@@ -84,8 +90,8 @@ export const assignedWorkList: AssignedWorkEntity[] = [
       updatedAt: null
     }
   },
-
   {
+    _entityName: 'AssignedWork',
     id: '4',
     title: 'Практическая работа по биологии',
     type: 'test',
@@ -98,12 +104,14 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     checkedAt: null,
     workId: 'work4',
     work: {
+      _entityName: 'Work',
       id: 'work4',
       title: 'Практическая работа по биологии',
       type: 'test',
       description: null,
       subjectId: 'subject4',
       subject: {
+        _entityName: 'Subject',
         id: 'subject4',
         name: 'Биология',
         color: '#FF33A1',
@@ -127,6 +135,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     helperMentorCommentId: null,
     studentId: 'student4',
     student: {
+      _entityName: 'User',
       id: 'student4',
       name: 'Сергей Петров',
       username: 'petrov',
@@ -143,6 +152,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     helperMentorId: null
   },
   {
+    _entityName: 'AssignedWork',
     id: '2',
     title: 'Контрольная работа по физике',
     type: 'test',
@@ -155,12 +165,14 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     checkedAt: null,
     workId: 'work2',
     work: {
+      _entityName: 'Work',
       id: 'work2',
       title: 'Контрольная работа по физике',
       type: 'test',
       description: null,
       subjectId: 'subject2',
       subject: {
+        _entityName: 'Subject',
         id: 'subject2',
         name: 'Физика',
         color: '#33FF57',
@@ -184,6 +196,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     helperMentorCommentId: null,
     studentId: 'student2',
     student: {
+      _entityName: 'User',
       id: 'student2',
       name: 'Анна Сергеева',
       username: 'sergeeva',
@@ -198,6 +211,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     },
     mainMentorId: 'mentor3',
     mainMentor: {
+      _entityName: 'User',
       id: 'mentor3',
       name: 'Светлана Иванова',
       username: 'ivanova',
@@ -212,6 +226,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     },
     helperMentorId: 'mentor4',
     helperMentor: {
+      _entityName: 'User',
       id: 'mentor4',
       name: 'Дмитрий Кузнецов',
       username: 'kuznetsov',
@@ -226,6 +241,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     }
   },
   {
+    _entityName: 'AssignedWork',
     id: '3',
     title: 'Лабораторная работа по химии',
     type: 'test',
@@ -238,12 +254,14 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     checkedAt: new Date('2025-07-12T10:00:00Z'),
     workId: 'work3',
     work: {
+      _entityName: 'Work',
       id: 'work3',
       title: 'Лабораторная работа по химии',
       type: 'test',
       description: null,
       subjectId: 'subject3',
       subject: {
+        _entityName: 'Subject',
         id: 'subject3',
         name: 'Химия',
         color: '#3357FF',
@@ -267,6 +285,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     helperMentorCommentId: null,
     studentId: 'student3',
     student: {
+      _entityName: 'User',
       id: 'student3',
       name: 'Елена Васильева',
       username: 'vasilieva',
@@ -281,6 +300,7 @@ export const assignedWorkList: AssignedWorkEntity[] = [
     },
     mainMentorId: 'mentor5',
     mainMentor: {
+      _entityName: 'User',
       id: 'mentor5',
       name: 'Ольга Смирнова',
       username: 'smirnova',

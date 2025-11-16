@@ -2,8 +2,10 @@
   <div
     class="noo-assigned-work-solve-status"
     :class="{
-      'noo-assigned-work-solve-status--not-checked': props.status === 'not-checked',
-      'noo-assigned-work-solve-status--in-progress': props.status === 'in-progress',
+      'noo-assigned-work-solve-status--not-checked':
+        props.status === 'not-checked',
+      'noo-assigned-work-solve-status--in-progress':
+        props.status === 'in-progress',
       'noo-assigned-work-solve-status--checked': props.status === 'checked'
     }"
   >
@@ -14,8 +16,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { AssignedWorkEntity } from '@/modules/assigned-works/api/assigned-work.types';
-import { computed } from 'vue';
+import type { AssignedWorkEntity } from '@/modules/assigned-works/api/assigned-work.types'
+import { computed } from 'vue'
 
 interface Props {
   status: AssignedWorkEntity['checkStatus']

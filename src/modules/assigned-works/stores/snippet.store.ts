@@ -35,17 +35,19 @@ const useSnippetStore = defineStore(
   (): SnippetStore => {
     const uiStore = useGlobalUIStore()
 
-    const snippets = useApiRequest<void, SnippetEntity[]>(
-      SnippetService.get
-    )
+    const snippets = useApiRequest<void, SnippetEntity[]>(SnippetService.get)
 
-    const addSnippet = useApiRequest<UnsavedEntity<SnippetEntity>, { id: string }>(
+    const addSnippet = useApiRequest<
+      UnsavedEntity<SnippetEntity>,
+      { id: string }
+    >(
       SnippetService.create,
       () => {
         uiStore.createSuccessToast('Сниппет успешно добавлен!')
         snippets.execute()
       },
-      (error) => uiStore.createApiErrorToast('Ошибка при добавлении сниппета', error)
+      (error) =>
+        uiStore.createApiErrorToast('Ошибка при добавлении сниппета', error)
     )
 
     const updateSnippet = useApiRequest<SnippetEntity>(
@@ -56,7 +58,8 @@ const useSnippetStore = defineStore(
         uiStore.createSuccessToast('Сниппет обновлен')
         snippets.execute()
       },
-      (error) => uiStore.createApiErrorToast('Ошибка при обновлении сниппета', error)
+      (error) =>
+        uiStore.createApiErrorToast('Ошибка при обновлении сниппета', error)
     )
 
     const deleteSnippet = useApiRequest(
@@ -65,7 +68,8 @@ const useSnippetStore = defineStore(
         uiStore.createSuccessToast('Сниппет удален')
         snippets.execute()
       },
-      (error) => uiStore.createApiErrorToast('Ошибка при удалении сниппета', error)
+      (error) =>
+        uiStore.createApiErrorToast('Ошибка при удалении сниппета', error)
     )
 
     return {
@@ -78,4 +82,3 @@ const useSnippetStore = defineStore(
 )
 
 export { useSnippetStore, type SnippetStore }
-

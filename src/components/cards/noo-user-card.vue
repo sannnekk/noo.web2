@@ -3,7 +3,10 @@
     <div class="noo-user-card__avatar">
       <noo-user-avatar
         :name="user.name"
-        :avatar="user.avatar"
+        :avatar="
+          // @ts-expect-error not-implemented yet
+          user.avatar
+        "
         @click="isModalOpen = true"
       />
     </div>

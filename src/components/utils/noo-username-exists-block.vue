@@ -2,8 +2,8 @@
   <div
     v-if="
       username?.length &&
-        username.length >= minUsernameLength &&
-        usernameIsFree !== undefined
+      username.length >= minUsernameLength &&
+      usernameIsFree !== undefined
     "
     class="noo-username-exists-block"
   >
@@ -54,8 +54,9 @@ async function checkUsername() {
     try {
       const response = await AuthService.usernameIsFree(props.username)
 
-      usernameIsFree.value = response.data
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      usernameIsFree.value = response.data ?? false
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
       usernameIsFree.value = undefined
     } finally {

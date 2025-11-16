@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import CourseSidebar from '../components/course-sidebar.vue';
+import CourseSidebar from '../components/course-sidebar.vue'
 
 export interface CourseDetailPageProps {
-  courseId?: string;
+  courseId?: string
 }
 
-defineProps<CourseDetailPageProps>();
+defineProps<CourseDetailPageProps>()
 </script>

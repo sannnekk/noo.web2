@@ -44,17 +44,17 @@ interface ICourseService {
 async function get(
   pagination?: IPagination
 ): Promise<ApiResponse<CourseEntity[]>> {
-  return await Api.get(
-    BASE_PATH,
-    pagination ? pagination.toQuery() : undefined
-  )
+  return await Api.get(BASE_PATH, pagination ? pagination.toQuery() : undefined)
 }
 
 async function getById(id: string): Promise<ApiResponse<CourseEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
-async function getMaterialContent(courseId: string, contentId: string): Promise<ApiResponse<CourseMaterialContentEntity>> {
+async function getMaterialContent(
+  courseId: string,
+  contentId: string
+): Promise<ApiResponse<CourseMaterialContentEntity>> {
   return await Api.get(`${BASE_PATH}/${courseId}/material-content/${contentId}`)
 }
 

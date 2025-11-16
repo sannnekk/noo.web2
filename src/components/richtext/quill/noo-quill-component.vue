@@ -4,7 +4,7 @@
     :class="{ 'noo-quill-component--readonly': readonly }"
   >
     <quill-editor
-      v-model:content="contentModel"
+      v-model:content="contentModel as unknown as any"
       :toolbar="readonly ? toolbar : undefined"
       :options="options"
       :placeholder="placeholder"

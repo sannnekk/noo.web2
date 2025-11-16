@@ -6,8 +6,8 @@ import { useAuthStore } from '@/core/stores/auth.store'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { defineStore } from 'pinia'
 import { computed, shallowRef, type ComputedRef } from 'vue'
+import { CalendarService } from '../api/calendar.service'
 import type { CalendarEventEntity } from '../api/calendar.types'
-import { calendarEvents } from '../mock-data/calendar-events'
 
 export interface CalendarStore {
   /**
@@ -64,17 +64,15 @@ export const useCalendarStore = defineStore(
       (payload) => {
         uiStore.setLoading(true)
 
-        return {
-          data: calendarEvents
-        }
-
-        /* return CalendarService.getEvents(
+        return CalendarService.getEvents(
           payload.year,
           payload.month,
           userId.value
-        ) */
+        )
       },
-      () => { uiStore.setLoading(false); },
+      () => {
+        uiStore.setLoading(false)
+      },
       (error) => {
         uiStore.setLoading(false)
         uiStore.createApiErrorToast(

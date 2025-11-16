@@ -3,6 +3,7 @@ import type { AssignedWorkEntity } from '../api/assigned-work.types'
 
 export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
   data: {
+    _entityName: 'AssignedWork',
     id: '1',
     title: '8 пробник Реанимация математика 19.05 самопроверка',
     type: 'test',
@@ -15,12 +16,14 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
     checkedAt: null,
     workId: 'work1',
     work: {
+      _entityName: 'Work',
       id: 'work1',
       title: '8 пробник Реанимация математика 19.05 самопроверка',
       type: 'test',
       description: 'Это пробный тест по математике для подготовки к экзамену.',
       subjectId: 'subject1',
       subject: {
+        _entityName: 'Subject',
         id: 'subject1',
         name: 'Профильная математика',
         color: '#FF5733',
@@ -29,6 +32,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
       },
       tasks: [
         {
+          _entityName: 'WorkTask',
           id: 'task1',
           type: 'word',
           order: 1,
@@ -40,7 +44,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: 'popa',
+          rightAnswers: ['popa'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -50,6 +54,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task2',
           type: 'text',
           order: 2,
@@ -61,7 +66,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -71,6 +76,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task3',
           type: 'essay',
           order: 3,
@@ -85,7 +91,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -95,6 +101,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task4',
           type: 'final-essay',
           order: 4,
@@ -109,7 +116,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -119,6 +126,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task5',
           type: 'final-essay',
           order: 5,
@@ -133,15 +141,21 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: {
             $type: 'delta',
-            ops: [{ insert: 'Подумайте о новых технологиях.' }, { insert: '\n' }]
+            ops: [
+              { insert: 'Подумайте о новых технологиях.' },
+              { insert: '\n' }
+            ]
           },
           explanation: {
             $type: 'delta',
             ops: [
-              { insert: 'Эссе должно содержать размышления о будущем математики.' },
+              {
+                insert:
+                  'Эссе должно содержать размышления о будущем математики.'
+              },
               { insert: '\n' }
             ]
           },
@@ -152,6 +166,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task6',
           type: 'final-essay',
           order: 6,
@@ -166,7 +181,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -176,6 +191,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task7',
           type: 'final-essay',
           order: 7,
@@ -190,7 +206,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -200,6 +216,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task8',
           type: 'word',
           order: 8,
@@ -211,7 +228,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: 'popa2',
+          rightAnswers: ['popa2'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -221,6 +238,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task9',
           type: 'text',
           order: 9,
@@ -232,7 +250,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -242,6 +260,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task10',
           type: 'word',
           order: 10,
@@ -253,7 +272,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '2',
+          rightAnswers: ['2'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -263,6 +282,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task11',
           type: 'essay',
           order: 11,
@@ -276,7 +296,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -286,6 +306,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task12',
           type: 'final-essay',
           order: 12,
@@ -300,7 +321,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -310,6 +331,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task13',
           type: 'word',
           order: 13,
@@ -321,7 +343,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '2x',
+          rightAnswers: ['2x'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -331,6 +353,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task14',
           type: 'text',
           order: 14,
@@ -345,7 +368,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -355,6 +378,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task15',
           type: 'word',
           order: 15,
@@ -366,7 +390,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '3',
+          rightAnswers: ['3'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -376,6 +400,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task16',
           type: 'essay',
           order: 16,
@@ -390,7 +415,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -400,6 +425,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task17',
           type: 'final-essay',
           order: 17,
@@ -414,7 +440,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -424,6 +450,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task18',
           type: 'word',
           order: 18,
@@ -435,7 +462,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '15',
+          rightAnswers: ['15'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -445,6 +472,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task19',
           type: 'text',
           order: 19,
@@ -459,7 +487,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -469,6 +497,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task20',
           type: 'word',
           order: 20,
@@ -482,7 +511,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '-2',
+          rightAnswers: ['-2'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -492,6 +521,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task21',
           type: 'essay',
           order: 21,
@@ -506,7 +536,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -516,6 +546,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task22',
           type: 'final-essay',
           order: 22,
@@ -530,7 +561,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -540,6 +571,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task23',
           type: 'word',
           order: 23,
@@ -548,7 +580,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
             $type: 'delta',
             ops: [{ insert: 'Задача 23: Вычислите 5!' }, { insert: '\n' }]
           },
-          rightAnswer: '120',
+          rightAnswers: ['120'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -558,6 +590,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task24',
           type: 'text',
           order: 24,
@@ -572,7 +605,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -582,6 +615,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task25',
           type: 'word',
           order: 25,
@@ -596,7 +630,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '24',
+          rightAnswers: ['24'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -606,6 +640,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task26',
           type: 'essay',
           order: 26,
@@ -620,7 +655,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -630,6 +665,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task27',
           type: 'final-essay',
           order: 27,
@@ -644,7 +680,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -654,6 +690,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task28',
           type: 'word',
           order: 28,
@@ -665,7 +702,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '0.5',
+          rightAnswers: ['0.5'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -675,6 +712,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task29',
           type: 'text',
           order: 29,
@@ -688,7 +726,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -698,6 +736,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task30',
           type: 'word',
           order: 30,
@@ -709,7 +748,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '25',
+          rightAnswers: ['25'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -719,6 +758,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task31',
           type: 'essay',
           order: 31,
@@ -733,7 +773,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -743,6 +783,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task32',
           type: 'word',
           order: 32,
@@ -754,7 +795,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '6',
+          rightAnswers: ['6'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -764,6 +805,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task33',
           type: 'text',
           order: 33,
@@ -775,7 +817,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -785,6 +827,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task34',
           type: 'word',
           order: 34,
@@ -796,7 +839,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: '180',
+          rightAnswers: ['180'],
           solveHint: null,
           explanation: null,
           checkStrategy: 'exact-match-or-zero',
@@ -806,6 +849,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task35',
           type: 'essay',
           order: 35,
@@ -820,7 +864,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -830,6 +874,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
           updatedAt: null
         },
         {
+          _entityName: 'WorkTask',
           id: 'task36',
           type: 'final-essay',
           order: 36,
@@ -844,7 +889,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
               { insert: '\n' }
             ]
           },
-          rightAnswer: null,
+          rightAnswers: null,
           solveHint: null,
           explanation: null,
           checkStrategy: 'manual',
@@ -859,6 +904,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
     },
     answers: [
       {
+        _entityName: 'AssignedWorkAnswer',
         id: 'answer1',
         richTextContent: null,
         wordContent: 'Ответ на задание 1',
@@ -878,6 +924,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
         updatedAt: new Date('2025-06-01T10:00:00Z')
       },
       {
+        _entityName: 'AssignedWorkAnswer',
         id: 'answer2',
         richTextContent: {
           $type: 'delta',
@@ -904,6 +951,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
         updatedAt: new Date('2025-06-01T10:00:00Z')
       },
       {
+        _entityName: 'AssignedWorkAnswer',
         id: 'answer3',
         richTextContent: {
           $type: 'delta',
@@ -944,6 +992,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
     helperMentorCommentId: null,
     studentId: 'student1',
     student: {
+      _entityName: 'User',
       id: 'student1',
       name: 'Иван Иванов',
       username: 'ivanov',
@@ -958,6 +1007,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
     },
     mainMentorId: 'mentor1',
     mainMentor: {
+      _entityName: 'User',
       id: 'mentor1',
       name: 'Мария Петрова',
       username: 'petrova',
@@ -972,6 +1022,7 @@ export const assignedWorkApiResponse: ApiResponse<AssignedWorkEntity> = {
     },
     helperMentorId: 'mentor2',
     helperMentor: {
+      _entityName: 'User',
       id: 'mentor2',
       name: 'Алексей Смирнов',
       username: 'smirnov',

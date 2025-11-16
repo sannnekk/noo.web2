@@ -1,8 +1,8 @@
-import { computed, type ComputedRef } from "vue";
-import { useRoute } from "vue-router";
+import { computed, type ComputedRef } from 'vue'
+import { useRoute } from 'vue-router'
 
 interface UsePageUrlReturn {
-  currentPageUrl: ComputedRef<string>;
+  currentPageUrl: ComputedRef<string>
 }
 
 function usePageUrl(): UsePageUrlReturn {
@@ -13,9 +13,8 @@ function usePageUrl(): UsePageUrlReturn {
   })
 
   return {
-    currentPageUrl,
+    currentPageUrl
   }
 }
 
-export { usePageUrl };
-
+export { usePageUrl }

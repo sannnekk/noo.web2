@@ -8,7 +8,7 @@
   >
     <div class="noo-video-card__inner">
       <div class="noo-video-card__inner__thumbnail">
-        <noo-uploaded-image :src="video.thumbnail?.url" />
+        <noo-uploaded-image :src="video.thumbnail" />
         <div class="noo-video-card__inner__thumbnail__duration">
           {{ duration }}
         </div>

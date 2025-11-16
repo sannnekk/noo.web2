@@ -22,9 +22,7 @@
     @confirm="assignedWorkDetailStore.markSolved.execute()"
   >
     <template #title>
-      <noo-title :size="2">
-        Вы уверены, что хотите сдать работу?
-      </noo-title>
+      <noo-title :size="2"> Вы уверены, что хотите сдать работу? </noo-title>
       <noo-warning-block v-if="!assignedWorkDetailStore.allTasksAreSolved">
         Вы не ответили на все вопросы в работе.
       </noo-warning-block>
@@ -61,9 +59,7 @@
     "
   >
     <template #title>
-      <noo-title :size="2">
-        Переделать работу
-      </noo-title>
+      <noo-title :size="2"> Переделать работу </noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
@@ -86,9 +82,7 @@
     @confirm="assignedWorkDetailStore.shiftSolveDeadline.execute()"
   >
     <template #title>
-      <noo-title :size="2">
-        Сдвинуть дедлайн
-      </noo-title>
+      <noo-title :size="2"> Сдвинуть дедлайн </noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
@@ -104,9 +98,7 @@
     @confirm="assignedWorkDetailStore.shiftCheckDeadline.execute()"
   >
     <template #title>
-      <noo-title :size="2">
-        Сдвинуть дедлайн проверки
-      </noo-title>
+      <noo-title :size="2"> Сдвинуть дедлайн проверки </noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
@@ -119,12 +111,14 @@
   <!-- Before add helper mentor modal -->
   <noo-sure-modal
     v-model:is-open="modals.beforeAddHelperMentor.isOpen.value"
-    @confirm="assignedWorkDetailStore.addHelperMentor.execute(modals.beforeAddHelperMentor.options.value)"
+    @confirm="
+      assignedWorkDetailStore.addHelperMentor.execute(
+        modals.beforeAddHelperMentor.options.value
+      )
+    "
   >
     <template #title>
-      <noo-title :size="2">
-        Добавить помогающего куратора
-      </noo-title>
+      <noo-title :size="2"> Добавить помогающего куратора </noo-title>
     </template>
     <template #content>
       <!-- TODO: add mentor select -->
@@ -140,9 +134,7 @@
     @confirm="assignedWorkDetailStore.markUnsolved.execute()"
   >
     <template #title>
-      <noo-title :size="2">
-        Отправить на доработку
-      </noo-title>
+      <noo-title :size="2"> Отправить на доработку </noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
@@ -158,9 +150,7 @@
     @confirm="assignedWorkDetailStore.markUnchecked.execute()"
   >
     <template #title>
-      <noo-title :size="2">
-        Отменить проверку
-      </noo-title>
+      <noo-title :size="2"> Отменить проверку </noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
@@ -182,14 +172,14 @@
 import type {
   ButtonSize,
   ButtonType
-} from '@/components/buttons/noo-button.vue';
-import { useAuthStore } from '@/core/stores/auth.store';
-import { computed, ref, shallowRef } from 'vue';
-import type { AddHelperMentorOptions } from '../api/assigned-work.types';
-import { type AssignedWorkRemakeOptions } from '../api/assigned-work.types';
-import { AssignedWorkConfig } from '../config';
-import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store';
-import historyModal from './history-modal.vue';
+} from '@/components/buttons/noo-button.vue'
+import { useAuthStore } from '@/core/stores/auth.store'
+import { computed, ref, shallowRef } from 'vue'
+import type { AddHelperMentorOptions } from '../api/assigned-work.types'
+import { type AssignedWorkRemakeOptions } from '../api/assigned-work.types'
+import { AssignedWorkConfig } from '../config'
+import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
+import historyModal from './history-modal.vue'
 
 interface AssignedWorkAction {
   key: string

@@ -1,6 +1,7 @@
-import type { NavigationGuardReturn, RouteLocationNormalized } from "vue-router";
+import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 
 function loadUserGuard(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
   // TODO: load a user
@@ -8,5 +9,4 @@ function loadUserGuard(
   return true
 }
 
-export { loadUserGuard };
-
+export { loadUserGuard }

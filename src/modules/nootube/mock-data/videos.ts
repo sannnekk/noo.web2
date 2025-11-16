@@ -3,6 +3,7 @@ import type { NooTubeVideoEntity } from '../api/nootube.types'
 
 const mockUsers: Record<string, UserEntity> = {
   user1: {
+    _entityName: 'User',
     id: 'user1',
     createdAt: new Date('2025-01-01T08:00:00Z'),
     updatedAt: null,
@@ -16,6 +17,7 @@ const mockUsers: Record<string, UserEntity> = {
     isVerified: true
   },
   user2: {
+    _entityName: 'User',
     id: 'user2',
     createdAt: new Date('2025-01-02T08:00:00Z'),
     updatedAt: null,
@@ -29,6 +31,7 @@ const mockUsers: Record<string, UserEntity> = {
     isVerified: true
   },
   user3: {
+    _entityName: 'User',
     id: 'user3',
     createdAt: new Date('2025-01-03T08:00:00Z'),
     updatedAt: null,
@@ -42,6 +45,7 @@ const mockUsers: Record<string, UserEntity> = {
     isVerified: true
   },
   user4: {
+    _entityName: 'User',
     id: 'user4',
     createdAt: new Date('2025-01-04T08:00:00Z'),
     updatedAt: null,
@@ -55,6 +59,7 @@ const mockUsers: Record<string, UserEntity> = {
     isVerified: true
   },
   user5: {
+    _entityName: 'User',
     id: 'user5',
     createdAt: new Date('2025-01-05T08:00:00Z'),
     updatedAt: null,
@@ -71,6 +76,7 @@ const mockUsers: Record<string, UserEntity> = {
 
 export const videos: NooTubeVideoEntity[] = [
   {
+    _entityName: 'NooTubeVideo',
     id: 'vid1',
     createdAt: new Date('2025-06-01T10:00:00Z'),
     updatedAt: null,
@@ -88,6 +94,7 @@ export const videos: NooTubeVideoEntity[] = [
     uploadedBy: mockUsers.user1
   },
   {
+    _entityName: 'NooTubeVideo',
     id: 'vid2',
     createdAt: new Date('2025-06-02T09:30:00Z'),
     updatedAt: null,
@@ -105,6 +112,7 @@ export const videos: NooTubeVideoEntity[] = [
     uploadedBy: mockUsers.user2
   },
   {
+    _entityName: 'NooTubeVideo',
     id: 'vid3',
     createdAt: new Date('2025-06-03T12:00:00Z'),
     updatedAt: null,

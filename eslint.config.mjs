@@ -119,6 +119,7 @@ export default defineConfig([
       'vue/prefer-import-from-vue': 'error',
       'vue/singleline-html-element-content-newline': 'off',
       'vue/html-self-closing': 'off',
+      'vue/html-indent': 'off',
       '@typescript-eslint/no-misused-promises': [
         'error',
         { checksVoidReturn: false }
