@@ -38,7 +38,7 @@ async function initEditCoursePageGuard(
 function courseListTabAccessGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
-  const tabId = to.params.tab as string
+  const tabId = to.params.tabId as string
   const authStore = useAuthStore()
 
   // only teachers and students can access own and archived tabs, for others only all
@@ -62,7 +62,7 @@ function courseListTabAccessGuard(
   }
 
   // If the tabId is invalid, redirect to the 'all' tab
-  return { name: 'courses.list', params: { tab: 'all' } }
+  return { name: 'courses.list', params: { tabId: 'all' } }
 }
 
 export {

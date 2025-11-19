@@ -3,6 +3,7 @@
     :is="icon"
     class="icon"
     :class="{ animation }"
+    :hoverable="hoverable"
   />
 </template>
 
@@ -61,10 +62,12 @@ export type IconName =
   | 'statistics'
   | 'table'
   | 'close'
+  | 'drag-handle'
 
 interface Props {
   name: IconName
   animation?: boolean
+  hoverable?: boolean
 }
 
 const props = defineProps<Props>()

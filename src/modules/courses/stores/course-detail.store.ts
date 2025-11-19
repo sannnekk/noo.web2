@@ -15,9 +15,21 @@ import { materialContentResponse } from '../mock-data/material-content-api-respo
 import { findMaterial } from '../utils'
 
 interface CourseDetailStore {
+  /**
+   * The course tree object
+   */
   course: UseApiRequestReturn<string, CourseEntity>
+  /**
+   * The currently selected material
+   */
   currentMaterial: ShallowRef<CourseMaterialEntity | null>
+  /**
+   * Sets the current material by its ID
+   */
   setCurrentMaterial: (materialId: string) => void
+  /**
+   * The content of the currently selected material
+   */
   materialContent: UseApiRequestReturn<void, CourseMaterialContentEntity>
 }
 

@@ -47,7 +47,7 @@ import { computed, ref, watch } from 'vue'
 import type { IconName } from '../icons/noo-icon.vue'
 
 interface Props {
-  label: string
+  label?: string
   placeholder?: string
   readonly?: boolean
   copyButton?: boolean

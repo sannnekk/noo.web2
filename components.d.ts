@@ -31,6 +31,7 @@ declare module 'vue' {
     CrossRedIcon: typeof import('./src/components/icons/noo-icons/cross-red-icon.vue')['default']
     DangerIcon: typeof import('./src/components/icons/noo-icons/danger-icon.vue')['default']
     DeleteIcon: typeof import('./src/components/icons/noo-icons/delete-icon.vue')['default']
+    DragHandleIcon: typeof import('./src/components/icons/noo-icons/drag-handle-icon.vue')['default']
     EditIcon: typeof import('./src/components/icons/noo-icons/edit-icon.vue')['default']
     EyeIcon: typeof import('./src/components/icons/noo-icons/eye-icon.vue')['default']
     GoogleSheetsIcon: typeof import('./src/components/icons/noo-icons/google-sheets-icon.vue')['default']

@@ -1,10 +1,10 @@
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
-import { uid } from '@/core/utils/id.utils'
+import { convertToLocal, uid } from '@/core/utils/id.utils'
 import { defineStore } from 'pinia'
 import { ref, type Ref, type ShallowRef } from 'vue'
 import { CourseService } from '../api/course.service'
+import { type CourseEntity } from '../api/course.types'
 import type { PossiblyUnsavedCourse, PossiblyUnsavedMaterial } from '../types'
-import { courseToPossiblyUnsaved } from '../utils'
 
 interface CourseEditStore {
   /**
@@ -18,7 +18,7 @@ interface CourseEditStore {
   /**
    * Mode to tell editing from creating
    */
-  mode: ShallowRef<'edit' | 'create'>
+  mode: ShallowRef<'view' | 'edit' | 'create' | 'error' | 'loading'>
   /**
    * Inits the store with a course ID.
    * If no course ID is provided, it initializes an empty course.
@@ -38,7 +38,7 @@ const useCourseEditStore = defineStore(
   (): CourseEditStore => {
     const uiStore = useGlobalUIStore()
 
-    const mode = ref<'edit' | 'create'>('create')
+    const mode = ref<'view' | 'edit' | 'create' | 'error' | 'loading'>('create')
 
     const course = ref<PossiblyUnsavedCourse | null>(null)
     const material = ref<PossiblyUnsavedMaterial | null>(null)
@@ -61,18 +61,21 @@ const useCourseEditStore = defineStore(
         return
       }
 
-      uiStore.setLoading(true)
+      mode.value = 'loading'
 
       const response = await CourseService.getById(courseId)
 
       if (response.error) {
-        uiStore.setLoading(false)
+        mode.value = 'error'
         uiStore.createApiErrorToast('Не удалось загрузить курс', response.error)
 
         return
       }
 
-      course.value = courseToPossiblyUnsaved(response.data)
+      course.value = convertToLocal<CourseEntity, PossiblyUnsavedCourse>(
+        response.data
+      )
+      mode.value = 'edit'
     }
 
     async function save(): Promise<void> {
@@ -101,7 +104,9 @@ const useCourseEditStore = defineStore(
         return
       }
 
-      course.value = courseToPossiblyUnsaved(response.data)
+      course.value = convertToLocal<CourseEntity, PossiblyUnsavedCourse>(
+        response.data
+      )
       uiStore.setLoading(false)
       uiStore.createSuccessToast('Курс успешно сохранен')
     }

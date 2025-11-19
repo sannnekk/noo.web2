@@ -3,7 +3,8 @@
     :is="`h${size}`"
     :class="['noo-title', size]"
     :style="{
-      textAlign: align
+      textAlign: align,
+      margin: noMargin ? '0' : undefined
     }"
   >
     <slot />
@@ -14,6 +15,7 @@
 interface Props {
   size: number
   align?: 'left' | 'center' | 'right'
+  noMargin?: boolean
 }
 
 defineProps<Props>()

@@ -31,10 +31,7 @@ const module: ApplicationModule = {
       beforeEnter: loadPollGuard,
       props: (route): PollsEditPageProps => {
         return {
-          pollId:
-            route.params.pollId.length > 0
-              ? String(route.params.pollId)
-              : undefined
+          pollId: route.params.pollId ? String(route.params.pollId) : undefined
         }
       }
     }

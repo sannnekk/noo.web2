@@ -1,5 +1,6 @@
 <template>
   <svg
+    :class="{ hoverable }"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 -50 402.14 475.77"
     style="
@@ -51,3 +52,17 @@
     </g>
   </svg>
 </template>
+
+<script setup lang="ts">
+interface Props {
+  hoverable?: boolean
+}
+
+defineProps<Props>()
+</script>
+
+<style scoped lang="sass">
+svg.hoverable:hover
+  --danger: var(--dark-text-color);
+  cursor: pointer
+</style>

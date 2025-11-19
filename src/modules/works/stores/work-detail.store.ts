@@ -18,21 +18,72 @@ import type {
 import { validateWorkState } from '../utils'
 
 interface WorkDetailStore {
+  /**
+   * Currently viewed or edited work.
+   * If `null`, no work is being viewed or edited.
+   */
   work: Ref<PossiblyUnsavedWork | null>
+  /**
+   * Responsible to generate JSON Patch document for updating the work.
+   */
   workPatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedWork> | null>
+  /**
+   * Currently viewed or edited task within the work.
+   * If `null`, no task is being viewed or edited.
+   */
   task: Ref<PossiblyUnsavedWorkTask | null>
+  /**
+   * Current mode of the work view.
+   */
   mode: Ref<WorkViewMode>
+  /**
+   * Work validation state.
+   */
   workValidationState: Ref<{
     isValid: boolean
     errors: string[]
   }>
+  /**
+   * Validates the current work.
+   * This function should be implemented to check the work's validity.
+   */
   validateWork: () => void
+  /**
+   * Initializes the store with the specified work ID.
+   * If no ID is provided, it creates a new work.
+   *
+   * @param workId The ID of the work to view or edit.
+   */
   init: (workId?: string) => Promise<void>
+  /**
+   * Moves to the next task in the work.
+   */
   nextTask: () => void
+  /**
+   * Moves to the previous task in the work.
+   */
   previousTask: () => void
+  /**
+   * Adds a new task to the work.
+   *
+   * @param type The type of the task to add.
+   */
   addTask: () => void
+  /**
+   * Removes a task from the work by its key.
+   *
+   * @param key The key of the task to remove.
+   */
   removeTask: (key: string) => void
+  /**
+   * Saves the current work.
+   * If in 'create' mode, it creates a new work.
+   * If in 'edit' mode, it updates the existing work.
+   */
   save: () => Promise<void>
+  /**
+   * Resets the store to its initial state.
+   */
   reset: () => void
 }
 
@@ -42,28 +93,11 @@ const useWorkDetailStore = defineStore(
     const uiStore = useGlobalUIStore()
     const router = useRouter()
 
-    /**
-     * Currently viewed or edited work.
-     * If `null`, no work is being viewed or edited.
-     */
     const work = ref<PossiblyUnsavedWork | null>(null)
-    /**
-     * Function to generate JSON Patch document for updating the work.
-     */
     const workPatchGenerator =
       shallowRef<PatchGenerator<PossiblyUnsavedWork> | null>(null)
-    /**
-     * Currently viewed or edited task within the work.
-     * If `null`, no task is being viewed or edited.
-     */
     const task = ref<PossiblyUnsavedWorkTask | null>(null)
-    /**
-     * Current mode of the work view.
-     */
     const mode = ref<WorkViewMode>('view')
-    /**
-     * Work validation state.
-     */
     const workValidationState = ref<{
       isValid: boolean
       errors: string[]
@@ -72,10 +106,6 @@ const useWorkDetailStore = defineStore(
       errors: []
     })
 
-    /**
-     * Validates the current work.
-     * This function should be implemented to check the work's validity.
-     */
     function validateWork(): void {
       if (!work.value) {
         return
@@ -89,12 +119,6 @@ const useWorkDetailStore = defineStore(
       }
     }
 
-    /**
-     * Initializes the store with the specified work ID.
-     * If no ID is provided, it creates a new work.
-     *
-     * @param workId The ID of the work to view or edit.
-     */
     async function init(workId?: string): Promise<void> {
       if (typeof workId === 'undefined') {
         mode.value = 'create'
@@ -135,9 +159,6 @@ const useWorkDetailStore = defineStore(
       mode.value = 'view'
     }
 
-    /**
-     * Moves to the next task in the work.
-     */
     function nextTask(): void {
       if (work.value && task.value) {
         const currentIndex =
@@ -149,9 +170,6 @@ const useWorkDetailStore = defineStore(
       }
     }
 
-    /**
-     * Moves to the previous task in the work.
-     */
     function previousTask(): void {
       if (work.value && task.value) {
         const currentIndex =
@@ -163,11 +181,6 @@ const useWorkDetailStore = defineStore(
       }
     }
 
-    /**
-     * Adds a new task to the work.
-     *
-     * @param type The type of the task to add.
-     */
     function addTask(type: WorkTaskType = 'word'): void {
       if (!work.value?.tasks) {
         return
@@ -189,11 +202,6 @@ const useWorkDetailStore = defineStore(
       })
     }
 
-    /**
-     * Removes a task from the work by its key.
-     *
-     * @param key The key of the task to remove.
-     */
     function removeTask(key: string): void {
       if (!work.value?.tasks) {
         return
@@ -206,11 +214,6 @@ const useWorkDetailStore = defineStore(
       work.value.tasks = work.value.tasks.filter((t) => t._key !== key)
     }
 
-    /**
-     * Saves the current work.
-     * If in 'create' mode, it creates a new work.
-     * If in 'edit' mode, it updates the existing work.
-     */
     async function save(): Promise<void> {
       if (!work.value) {
         return

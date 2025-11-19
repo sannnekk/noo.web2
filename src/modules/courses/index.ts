@@ -18,7 +18,7 @@ const module: ApplicationModule = {
   routes: [
     {
       name: 'courses.list',
-      path: '/courses/:tab?',
+      path: '/courses/:tabId?',
       meta: {
         pageTitle: 'Курсы',
         tabTitle: 'Курсы',
@@ -29,7 +29,7 @@ const module: ApplicationModule = {
       beforeEnter: [courseListTabAccessGuard],
       props: (route): CourseListPageProps => {
         return {
-          tabId: String(route.params.tab) as CourseListTab
+          tabId: String(route.params.tabId) as CourseListTab
         }
       }
     },

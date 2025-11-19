@@ -129,7 +129,6 @@ function isTabActive(tab: string) {
       align-items: center
       justify-content: flex-start
       gap: 0.5em
-      padding: 0.5rem 0.5rem
 
     &__title
       display: block
@@ -143,7 +142,7 @@ function isTabActive(tab: string) {
         font-weight: bold
 
         .noo-tabs-view__titles__title__inner
-          background-color: var(--lila) !important
+          background-color: var(--secondary) !important
 
       &:hover
         .noo-tabs-view__titles__title__inner

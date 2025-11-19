@@ -3,7 +3,10 @@
     <noo-sidebar-layout>
       <template #sidebar> 123 </template>
       <template #content>
-        <noo-tabs-layout v-model:active-tab="activeTab">
+        <noo-tabs-layout
+          use-route-tabs
+          route-param-name="tabId"
+        >
           <template #tab-title-general-info>Общая информация</template>
           <template #tab-general-info>
             <general-info-view />
@@ -35,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRouteTabs } from '@/core/composables/useRouteTabs'
 import type { UserDetailTab } from '../types'
 import assignedWorksView from '../views/assigned-works-view.vue'
 import calendarView from '../views/calendar-view.vue'
@@ -49,9 +51,7 @@ export interface UsersDetailPageProps {
   userId: string
 }
 
-const props = defineProps<UsersDetailPageProps>()
-
-const { activeTab } = useRouteTabs(props.tabId)
+defineProps<UsersDetailPageProps>()
 </script>
 
 <style scoped lang="sass"></style>
