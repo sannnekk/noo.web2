@@ -123,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
 import { maxLength } from '@/core/validators/string.utils'
 import { computed, shallowRef } from 'vue'
 import { workConfig } from '../config'
@@ -171,8 +172,24 @@ function changeMode(newMode: WorkViewMode): void {
 }
 
 function onConfirmChangeModeToView() {
+  const currentTaskId = workDetailStore.task?.id
+
+  workDetailStore.task = null
   workDetailStore.work = workDetailStore.workPatchGenerator!.getOriginal()
+  workDetailStore.workPatchGenerator = JsonPatchUtils.observe(
+    workDetailStore.work
+  )
   workDetailStore.mode = 'view'
+
+  if (currentTaskId) {
+    const originalTask = workDetailStore.work!.tasks?.find(
+      (task) => task.id === currentTaskId
+    )
+
+    if (originalTask) {
+      workDetailStore.task = originalTask
+    }
+  }
 }
 </script>
 

@@ -46,7 +46,7 @@
         </noo-text-block>
       </template>
       <template #column-role="{ item }">
-        <noo-role-tag
+        <noo-user-role-tag
           :role="item.role"
           class="users-list-page__role-cell"
         />

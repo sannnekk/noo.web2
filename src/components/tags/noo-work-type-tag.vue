@@ -47,13 +47,4 @@ const color = computed(() => {
 .noo-work-type-tag
   display: inline-block
   font-weight: normal
-
-  &--not-checked
-    color: var(--text-light)
-
-  &--in-progress
-    color: var(--warning)
-
-  &--checked
-    color: var(--success)
 </style>

@@ -1,1 +1,7 @@
-export type UserDetailTab = 'info' | 'calendar' | 'statistics' | 'polls'
+export type UserDetailTab =
+  | 'general-info'
+  | 'calendar'
+  | 'statistics'
+  | 'assigned-works'
+  | 'polls'
+  | 'history'
