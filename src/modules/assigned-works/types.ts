@@ -6,10 +6,12 @@ import type {
 
 export type AssignedWorkViewMode = 'read' | 'solve' | 'check'
 
-export type PossiblyUnsavedAnswer =
-  PossiblyUnsavedEntity<AssignedWorkAnswerEntity> & {
-    isSaved: boolean
-  }
+export type PossiblyUnsavedAnswer = PossiblyUnsavedEntity<
+  AssignedWorkAnswerEntity,
+  AssignedWorkAnswerEntity['_entityName']
+> & {
+  isSaved: boolean
+}
 
 export type TaskGrid = {
   taskId: string

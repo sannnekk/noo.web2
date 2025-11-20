@@ -6,7 +6,7 @@ import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 import type { UserEntity } from '@/modules/users/api/user.types'
 import type { WorkEntity } from '@/modules/works/api/work.types'
 
-export interface CourseEntity extends ApiEntity {
+export interface CourseEntity extends ApiEntity<'Course'> {
   name: string
   startDate: Date
   endDate: Date
@@ -20,7 +20,7 @@ export interface CourseEntity extends ApiEntity {
   chapters?: CourseChapterEntity[]
 }
 
-export interface CourseChapterEntity extends ApiEntity {
+export interface CourseChapterEntity extends ApiEntity<'CourseChapter'> {
   title: string
   color: string | null
   isActive: boolean
@@ -28,7 +28,7 @@ export interface CourseChapterEntity extends ApiEntity {
   materials?: CourseMaterialEntity[]
 }
 
-export interface CourseMaterialEntity extends ApiEntity {
+export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   title: string
   titleColor: string | null
   isActive: boolean
@@ -36,7 +36,8 @@ export interface CourseMaterialEntity extends ApiEntity {
   contentId: string
 }
 
-export interface CourseMaterialContentEntity extends ApiEntity {
+export interface CourseMaterialContentEntity
+  extends ApiEntity<'CourseMaterialContent'> {
   content: IRichText
   workId?: string | null
   isWorkAvailable: boolean
@@ -45,4 +46,27 @@ export interface CourseMaterialContentEntity extends ApiEntity {
   files?: MediaEntity[]
   videos?: NooTubeVideoEntity[]
   work?: WorkEntity
+}
+
+export type CourseMembershipType =
+  | 'manual-assigned'
+  | 'external-assigned'
+  | 'subscription'
+
+export interface CourseMembershipEntity extends ApiEntity<'CourseMembership'> {
+  type: CourseMembershipType
+  courseId: string
+  course?: CourseEntity
+  isActive: boolean
+  isArchived: boolean
+  studentId: string
+  student?: UserEntity
+  assignerId?: string
+  assigner?: UserEntity
+}
+
+export interface CreateCourseMembershipPayload {
+  studentId: string
+  courseId: string
+  notifyStudent?: boolean
 }

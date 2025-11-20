@@ -3043,7 +3043,7 @@ paths:
     delete:
       tags:
         - Snippet
-      summary: Deletes an existing snippet for the authenticated user.
+      summary: Deletes a snippet for the authenticated user.
       parameters:
         - name: snippetId
           in: path
@@ -3866,6 +3866,8 @@ paths:
       tags:
         - User
       summary: Deletes a user by their unique identifier.
+      description: The user is only soft-deleted, meaning their data is retained but
+        they can no longer log in and do not appear in user searches.
       parameters:
         - name: userId
           in: path
@@ -4375,6 +4377,13 @@ paths:
       tags:
         - UserSettings
       summary: Update the current user settings.
+      description: "This update endpoint, unlike others, uses a full DTO instead of a
+        patch document.\r
+
+        This is because user settings are typically small and it's easier to
+        manage them as a whole. And they are always loaded as a whole\r
+
+        so partial updates are less relevant."
       requestBody:
         content:
           application/json:
@@ -4789,8 +4798,19 @@ components:
           nullable: true
       additionalProperties: false
     CalendarEventDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - startDateTime
+        - title
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         assignedWorkId:
@@ -4798,8 +4818,8 @@ components:
         type:
           $ref: "#/components/schemas/CalendarEventType"
         title:
+          minLength: 1
           type: string
-          nullable: true
         description:
           type: string
           nullable: true
@@ -4898,19 +4918,31 @@ components:
           type: string
       additionalProperties: false
     CourseDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - name
+        - subjectId
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         name:
+          minLength: 1
           type: string
-          nullable: true
         startDate:
           type: string
           format: date-time
+          nullable: true
         endDate:
           type: string
           format: date-time
+          nullable: true
         description:
           type: string
           nullable: true
@@ -4954,8 +4986,21 @@ components:
           nullable: true
       additionalProperties: false
     CourseMembershipDTO:
+      required:
+        - _entityName
+        - courseId
+        - createdAt
+        - id
+        - isActive
+        - isArchived
+        - studentId
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         type:
@@ -5363,19 +5408,32 @@ components:
           nullable: true
       additionalProperties: false
     GoogleSheetsIntegrationDTO:
+      required:
+        - _entityName
+        - createdAt
+        - cronPattern
+        - googleAccount
+        - id
+        - name
+        - selectorValue
+        - status
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           type: string
           format: uuid
         name:
+          minLength: 1
           type: string
-          nullable: true
         type:
           $ref: "#/components/schemas/GoogleSheetsIntegrationType"
         selectorValue:
+          minLength: 1
           type: string
-          nullable: true
         lastRunAt:
           type: string
           format: date-time
@@ -5386,11 +5444,11 @@ components:
           type: string
           nullable: true
         cronPattern:
+          minLength: 1
           type: string
-          nullable: true
         googleAccount:
+          minLength: 1
           type: string
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -5426,6 +5484,7 @@ components:
     IRichTextType:
       type: object
       additionalProperties: false
+      description: Represents a rich text type for use in rich text fields.
     IdResponseDTO:
       type: object
       properties:
@@ -5475,25 +5534,34 @@ components:
           nullable: true
       additionalProperties: false
     MediaDTO:
+      required:
+        - _entityName
+        - actualName
+        - createdAt
+        - extension
+        - id
+        - name
+        - order
+        - path
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           $ref: "#/components/schemas/Ulid"
-        hash:
-          type: string
-          nullable: true
         path:
+          minLength: 1
           type: string
-          nullable: true
         name:
+          minLength: 1
           type: string
-          nullable: true
         actualName:
+          minLength: 1
           type: string
-          nullable: true
         extension:
+          minLength: 1
           type: string
-          nullable: true
         size:
           type: integer
           format: int64
@@ -5516,6 +5584,12 @@ components:
           nullable: true
       additionalProperties: false
     MentorAssignmentDTO:
+      required:
+        - createdAt
+        - id
+        - mentorId
+        - studentId
+        - subjectId
       type: object
       properties:
         id:
@@ -5557,27 +5631,38 @@ components:
         - telegram
       type: string
     NotificationDTO:
+      required:
+        - _entityName
+        - id
+        - isBanner
+        - isRead
+        - title
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         type:
+          minLength: 1
           type: string
-          nullable: true
         title:
+          minLength: 1
           type: string
-          nullable: true
         message:
           type: string
           nullable: true
-        is_read:
+        isRead:
           type: boolean
-        is_banner:
+        isBanner:
           type: boolean
         link:
           type: string
           nullable: true
-        link_text:
+        linkText:
           type: string
           nullable: true
       additionalProperties: false
@@ -5618,8 +5703,16 @@ components:
           nullable: true
       additionalProperties: false
     PollAnswerDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - pollQuestionId
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           $ref: "#/components/schemas/Ulid"
         pollQuestionId:
@@ -5642,13 +5735,24 @@ components:
           nullable: true
       additionalProperties: false
     PollDTO:
+      required:
+        - _entityName
+        - createdAt
+        - expiresAt
+        - id
+        - isActive
+        - isAuthRequired
+        - title
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           $ref: "#/components/schemas/Ulid"
         title:
+          minLength: 1
           type: string
-          nullable: true
         description:
           type: string
           nullable: true
@@ -5691,8 +5795,17 @@ components:
           nullable: true
       additionalProperties: false
     PollParticipationDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - pollId
+        - userType
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           $ref: "#/components/schemas/Ulid"
         pollId:
@@ -5802,13 +5915,23 @@ components:
           nullable: true
       additionalProperties: false
     PollQuestionDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - isRequired
+        - title
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
         id:
           $ref: "#/components/schemas/Ulid"
         title:
+          minLength: 1
           type: string
-          nullable: true
         description:
           type: string
           nullable: true
@@ -5920,8 +6043,17 @@ components:
           nullable: true
       additionalProperties: false
     SessionDTO:
+      required:
+        - _entityName
+        - deviceType
+        - id
+        - lastRequestAt
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         lastRequestAt:
@@ -5962,13 +6094,22 @@ components:
           type: boolean
       additionalProperties: false
     SnippetDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - name
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         name:
+          minLength: 1
           type: string
-          nullable: true
         content:
           $ref: "#/components/schemas/IRichTextType"
         createdAt:
@@ -5995,11 +6136,14 @@ components:
         - descending
       type: string
     StatisticsBlockDTO:
+      required:
+        - numberBlocks
+        - title
       type: object
       properties:
         title:
+          minLength: 1
           type: string
-          nullable: true
         description:
           type: string
           nullable: true
@@ -6009,16 +6153,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StatisticsNumberBlockDTO"
-          nullable: true
       additionalProperties: false
     StatisticsDTO:
+      required:
+        - blocks
       type: object
       properties:
         blocks:
           type: array
           items:
             $ref: "#/components/schemas/StatisticsBlockDTO"
-          nullable: true
       additionalProperties: false
     StatisticsDTOApiResponseDTO:
       type: object
@@ -6029,37 +6173,43 @@ components:
           nullable: true
       additionalProperties: false
     StatisticsGraphDTO:
+      required:
+        - label
+        - lines
       type: object
       properties:
         label:
+          minLength: 1
           type: string
-          nullable: true
         lines:
           type: array
           items:
             $ref: "#/components/schemas/StatisticsGraphLineDTO"
-          nullable: true
       additionalProperties: false
     StatisticsGraphLineDTO:
+      required:
+        - name
+        - values
       type: object
       properties:
         name:
+          minLength: 1
           type: string
-          nullable: true
         values:
           type: object
           additionalProperties:
             type: number
             format: double
             nullable: true
-          nullable: true
       additionalProperties: false
     StatisticsNumberBlockDTO:
+      required:
+        - title
       type: object
       properties:
         title:
+          minLength: 1
           type: string
-          nullable: true
         description:
           type: string
           nullable: true
@@ -6103,16 +6253,26 @@ components:
           type: string
       additionalProperties: false
     SubjectDTO:
+      required:
+        - _entityName
+        - color
+        - createdAt
+        - id
+        - name
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         name:
+          minLength: 1
           type: string
-          nullable: true
         color:
+          minLength: 1
           type: string
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -6165,13 +6325,25 @@ components:
           nullable: true
       additionalProperties: false
     SupportArticleDTO:
+      required:
+        - _entityName
+        - categoryId
+        - content
+        - createdAt
+        - id
+        - isActive
+        - title
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         title:
+          minLength: 1
           type: string
-          nullable: true
         content:
           $ref: "#/components/schemas/IRichTextType"
         isActive:
@@ -6194,13 +6366,26 @@ components:
           nullable: true
       additionalProperties: false
     SupportCategoryDTO:
+      required:
+        - _entityName
+        - articles
+        - children
+        - createdAt
+        - id
+        - isActive
+        - isPinned
+        - name
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         name:
+          minLength: 1
           type: string
-          nullable: true
         isPinned:
           type: boolean
         isActive:
@@ -6211,12 +6396,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SupportCategoryDTO"
-          nullable: true
         articles:
           type: array
           items:
             $ref: "#/components/schemas/SupportArticleDTO"
-          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -6527,19 +6710,30 @@ components:
           $ref: "#/components/schemas/IRichTextType"
       additionalProperties: false
     UserDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - name
+        - role
+        - username
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         username:
+          minLength: 1
           type: string
-          nullable: true
         email:
           type: string
           nullable: true
         name:
+          minLength: 1
           type: string
-          nullable: true
         telegramId:
           type: string
           nullable: true
@@ -6635,16 +6829,32 @@ components:
         - system-default
       type: string
     WorkDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - title
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
         title:
+          minLength: 1
           type: string
-          nullable: true
         type:
-          type: string
-          nullable: true
+          $ref: "#/components/schemas/WorkType"
         description:
           type: string
           nullable: true
@@ -6686,10 +6896,30 @@ components:
         - sequence
       type: string
     WorkTaskDTO:
+      required:
+        - _entityName
+        - checkStrategy
+        - content
+        - createdAt
+        - id
+        - maxScore
+        - order
+        - type
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
         type:
           $ref: "#/components/schemas/WorkTaskType"
         order:
@@ -6700,7 +6930,7 @@ components:
           format: int32
         content:
           $ref: "#/components/schemas/IRichTextType"
-        rightAnswer:
+        rightAnswers:
           type: array
           items:
             type: string
@@ -6722,6 +6952,7 @@ components:
         - text
         - essay
         - final-essay
+        - dictation
       type: string
     WorkType:
       enum:

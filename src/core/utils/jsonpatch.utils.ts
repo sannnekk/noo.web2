@@ -104,12 +104,14 @@ function normalizeJsonPatchTarget(value: unknown): unknown {
 /**
  * Type guard to check if an array contains ApiEntity objects
  */
-function isEntityArray(value: unknown[]): value is ApiEntity[] {
+function isEntityArray<TName extends string>(
+  value: unknown[]
+): value is ApiEntity<TName>[] {
   return value.some(
     (item) =>
       typeof item === 'object' &&
       item !== null &&
-      '_entityName' in (item as ApiEntity)
+      '_entityName' in (item as ApiEntity<TName>)
   )
 }
 

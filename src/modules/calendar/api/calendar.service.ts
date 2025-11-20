@@ -22,7 +22,10 @@ interface ICalendarService {
    * @returns A promise that resolves to an ApiResponse containing the created CalendarEventEntity.
    */
   createEvent(
-    event: UnsavedEntity<CalendarEventEntity>
+    event: UnsavedEntity<
+      CalendarEventEntity,
+      CalendarEventEntity['_entityName']
+    >
   ): Promise<ApiResponse<{ id: string }>>
   /**
    * Delete a calendar event.
@@ -43,7 +46,7 @@ async function getEvents(
 }
 
 async function createEvent(
-  event: UnsavedEntity<CalendarEventEntity>
+  event: UnsavedEntity<CalendarEventEntity, CalendarEventEntity['_entityName']>
 ): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(BASE_PATH, event)
 }

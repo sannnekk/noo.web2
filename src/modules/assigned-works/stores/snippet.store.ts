@@ -17,7 +17,10 @@ interface SnippetStore {
    * Adds a new snippet to the store.
    * @param snippet The snippet to add.
    */
-  addSnippet: UseApiRequestReturn<UnsavedEntity<SnippetEntity>, { id: string }>
+  addSnippet: UseApiRequestReturn<
+    UnsavedEntity<SnippetEntity, SnippetEntity['_entityName']>,
+    { id: string }
+  >
   /**
    * Updates an existing snippet in the store.
    * @param snippet The snippet to update.
@@ -38,7 +41,7 @@ const useSnippetStore = defineStore(
     const snippets = useApiRequest<void, SnippetEntity[]>(SnippetService.get)
 
     const addSnippet = useApiRequest<
-      UnsavedEntity<SnippetEntity>,
+      UnsavedEntity<SnippetEntity, SnippetEntity['_entityName']>,
       { id: string }
     >(
       SnippetService.create,

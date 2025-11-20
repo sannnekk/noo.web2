@@ -78,6 +78,7 @@ declare module 'vue' {
     NooCropModalDeprecated: typeof import('./src/components/files/noo-crop-modal-deprecated.vue')['default']
     NooDangerBlock: typeof import('./src/components/blocks/noo-danger-block.vue')['default']
     NooDate: typeof import('./src/components/text/noo-date.vue')['default']
+    NooDateInput: typeof import('./src/components/inputs/noo-date-input.vue')['default']
     NooDoughnutChart: typeof import('./src/components/charts/noo-doughnut-chart.vue')['default']
     NooDraggableList: typeof import('./src/components/lists/noo-draggable-list.vue')['default']
     NooDuration: typeof import('./src/components/text/noo-duration.vue')['default']

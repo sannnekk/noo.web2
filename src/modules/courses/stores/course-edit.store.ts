@@ -1,10 +1,15 @@
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
+import {
+  JsonPatchUtils,
+  type PatchGenerator
+} from '@/core/utils/jsonpatch.utils'
 import { defineStore } from 'pinia'
-import { ref, type Ref, type ShallowRef } from 'vue'
+import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { CourseService } from '../api/course.service'
 import { type CourseEntity } from '../api/course.types'
-import type { PossiblyUnsavedCourse, PossiblyUnsavedMaterial } from '../types'
+import type { PossiblyUnsavedCourse } from '../types'
 
 interface CourseEditStore {
   /**
@@ -12,13 +17,13 @@ interface CourseEditStore {
    */
   course: Ref<PossiblyUnsavedCourse | null>
   /**
-   * The material being edited.
-   */
-  material: Ref<PossiblyUnsavedMaterial | null>
-  /**
    * Mode to tell editing from creating
    */
   mode: ShallowRef<'view' | 'edit' | 'create' | 'error' | 'loading'>
+  /**
+   * Responsible to generate JSON Patch document for updating the work.
+   */
+  coursePatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>
   /**
    * Inits the store with a course ID.
    * If no course ID is provided, it initializes an empty course.
@@ -37,11 +42,12 @@ const useCourseEditStore = defineStore(
   'courses:course-edit',
   (): CourseEditStore => {
     const uiStore = useGlobalUIStore()
+    const router = useRouter()
 
     const mode = ref<'view' | 'edit' | 'create' | 'error' | 'loading'>('create')
-
     const course = ref<PossiblyUnsavedCourse | null>(null)
-    const material = ref<PossiblyUnsavedMaterial | null>(null)
+    const coursePatchGenerator =
+      shallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>(null)
 
     async function init(courseId?: string): Promise<void> {
       if (!courseId) {
@@ -72,9 +78,14 @@ const useCourseEditStore = defineStore(
         return
       }
 
-      course.value = convertToLocal<CourseEntity, PossiblyUnsavedCourse>(
-        response.data
-      )
+      const loadedCourse = convertToLocal<
+        CourseEntity,
+        CourseEntity['_entityName'],
+        PossiblyUnsavedCourse
+      >(response.data)
+
+      course.value = loadedCourse
+      coursePatchGenerator.value = JsonPatchUtils.observe(loadedCourse)
       mode.value = 'edit'
     }
 
@@ -83,38 +94,52 @@ const useCourseEditStore = defineStore(
         return
       }
 
-      uiStore.setLoading(true)
+      if (mode.value === 'create') {
+        mode.value = 'loading'
 
-      const response =
-        mode.value === 'create'
-          ? // @ts-expect-error not implemented yet
-            await CourseService.create(course.value)
-          : // @ts-expect-error not implemented yet
-            await CourseService.update(course.value.id, course.value)
+        const response = await CourseService.create(course.value)
 
-      if (response.error) {
-        uiStore.setLoading(false)
-        uiStore.createApiErrorToast(
-          mode.value === 'create'
-            ? 'Не удалось создать курс'
-            : 'Не удалось обновить курс',
-          response.error
+        if (response.error) {
+          uiStore.createApiErrorToast('Не удалось создать курс', response.error)
+          mode.value = 'create'
+
+          return
+        } else {
+          router.replace({
+            name: 'courses.edit',
+            params: { courseId: response.data.id }
+          })
+
+          uiStore.createSuccessToast('Курс успешно создан')
+        }
+      } else if (mode.value === 'edit') {
+        mode.value = 'loading'
+
+        // @ts-expect-error ts sees a problem because Course entity has recursive structure in Chapters
+        const response = await CourseService.update(
+          course.value.id!,
+          coursePatchGenerator.value!.generate()
         )
 
-        return
-      }
+        if (response.error) {
+          uiStore.createApiErrorToast(
+            'Не удалось обновить курс',
+            response.error
+          )
+          mode.value = 'edit'
 
-      course.value = convertToLocal<CourseEntity, PossiblyUnsavedCourse>(
-        response.data
-      )
-      uiStore.setLoading(false)
-      uiStore.createSuccessToast('Курс успешно сохранен')
+          return
+        } else {
+          uiStore.createSuccessToast('Курс успешно обновлен')
+          await init(course.value.id)
+        }
+      }
     }
 
     return {
       mode,
       course,
-      material,
+      coursePatchGenerator,
       init,
       save
     }

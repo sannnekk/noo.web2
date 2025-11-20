@@ -8,14 +8,21 @@ import type {
 
 export type CourseListTab = 'all' | 'own' | 'archived'
 
-export type PossiblyUnsavedMaterialContent =
-  PossiblyUnsavedEntity<CourseMaterialContentEntity>
+export type PossiblyUnsavedMaterialContent = PossiblyUnsavedEntity<
+  CourseMaterialContentEntity,
+  CourseMaterialContentEntity['_entityName']
+>
 
-export type PossiblyUnsavedMaterial =
-  PossiblyUnsavedEntity<CourseMaterialEntity>
+export type PossiblyUnsavedMaterial = PossiblyUnsavedEntity<
+  CourseMaterialEntity,
+  CourseMaterialEntity['_entityName']
+>
 
 export type PossiblyUnsavedChapter = Omit<
-  PossiblyUnsavedEntity<CourseChapterEntity>,
+  PossiblyUnsavedEntity<
+    CourseChapterEntity,
+    CourseChapterEntity['_entityName']
+  >,
   'materials' | 'subChapters'
 > & {
   materials: PossiblyUnsavedMaterial[]
@@ -23,9 +30,14 @@ export type PossiblyUnsavedChapter = Omit<
 }
 
 export type PossiblyUnsavedCourse = Omit<
-  PossiblyUnsavedEntity<CourseEntity>,
+  PossiblyUnsavedEntity<CourseEntity, CourseEntity['_entityName']>,
   'chapters' | 'subjectId'
 > & {
   chapters: PossiblyUnsavedChapter[]
   subjectId: string | null
 }
+
+export type PossiblyUnsavedCourseMaterialContent = PossiblyUnsavedEntity<
+  CourseMaterialContentEntity,
+  CourseMaterialContentEntity['_entityName']
+>

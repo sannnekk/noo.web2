@@ -7,7 +7,7 @@ export type CalendarEventType =
   | 'assigned-work-checked'
   | 'assigned-work-solved'
 
-export interface CalendarEventEntity extends ApiEntity {
+export interface CalendarEventEntity extends ApiEntity<'CalendarEvent'> {
   assignedWorkId: string | null
   type: CalendarEventType
   title: string

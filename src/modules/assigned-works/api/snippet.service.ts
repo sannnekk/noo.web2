@@ -18,7 +18,7 @@ interface ISnippetService {
    * @returns A promise that resolves to an ApiResponse containing the id of the created Snippet object.
    */
   create(
-    snippet: UnsavedEntity<SnippetEntity>
+    snippet: UnsavedEntity<SnippetEntity, SnippetEntity['_entityName']>
   ): Promise<ApiResponse<{ id: string }>>
   /**
    * Updates an existing snippet
@@ -39,7 +39,7 @@ async function get(): Promise<ApiResponse<SnippetEntity[]>> {
 }
 
 async function create(
-  snippet: UnsavedEntity<SnippetEntity>
+  snippet: UnsavedEntity<SnippetEntity, SnippetEntity['_entityName']>
 ): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(BASE_PATH, snippet)
 }

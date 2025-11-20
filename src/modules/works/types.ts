@@ -4,11 +4,14 @@ import type { WorkEntity, WorkTaskEntity } from './api/work.types'
 export type WorkViewMode = 'view' | 'edit' | 'create' | 'error' | 'loading'
 
 export type PossiblyUnsavedWork = Omit<
-  PossiblyUnsavedEntity<WorkEntity>,
+  PossiblyUnsavedEntity<WorkEntity, WorkEntity['_entityName']>,
   'subjectId' | 'tasks'
 > & {
   subjectId: string | null
   tasks?: PossiblyUnsavedWorkTask[]
 }
 
-export type PossiblyUnsavedWorkTask = PossiblyUnsavedEntity<WorkTaskEntity>
+export type PossiblyUnsavedWorkTask = PossiblyUnsavedEntity<
+  WorkTaskEntity,
+  WorkTaskEntity['_entityName']
+>

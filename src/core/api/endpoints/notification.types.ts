@@ -7,7 +7,7 @@ export interface NotificationAction {
   routeName: string
 }
 
-export interface NotificationEntity extends ApiEntity {
+export interface NotificationEntity extends ApiEntity<'Notification'> {
   type: NotificationType
   icon: string
   message: string

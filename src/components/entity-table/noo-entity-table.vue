@@ -89,12 +89,19 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="T extends ApiEntity">
+<script
+  setup
+  lang="ts"
+  generic="T extends ApiEntity<TName>, TName extends string = T['_entityName']"
+>
 import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from './entity-table-helpers'
 
-export interface Props<T extends ApiEntity> {
+export interface Props<
+  T extends ApiEntity<TName>,
+  TName extends string = T['_entityName']
+> {
   data: T[] | null
   isLoading?: boolean
   columns: EntityTableColumnType<T>[]

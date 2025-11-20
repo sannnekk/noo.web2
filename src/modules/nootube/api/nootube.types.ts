@@ -10,7 +10,7 @@ export type NooTubeVideoState =
   | 'uploaded'
   | 'published'
 
-export interface NooTubeVideoEntity extends ApiEntity {
+export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   title: string
   description: string | null
   thumbnailId: string | null
@@ -26,7 +26,8 @@ export interface NooTubeVideoEntity extends ApiEntity {
   thumbnail?: MediaEntity | null
 }
 
-export interface NooTubeVideoCommentEntity extends ApiEntity {
+export interface NooTubeVideoCommentEntity
+  extends ApiEntity<'NooTubeVideoComment'> {
   videoId: string
   userId: string
   content: string

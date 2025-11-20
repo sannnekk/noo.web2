@@ -24,7 +24,7 @@ export type WorkTaskCheckStrategy =
   | 'multiple-choice'
   | 'sequence'
 
-export interface WorkEntity extends ApiEntity {
+export interface WorkEntity extends ApiEntity<'Work'> {
   title: string
   type: WorkType
   description: string | null
@@ -34,11 +34,14 @@ export interface WorkEntity extends ApiEntity {
 }
 
 export interface UnsavedWork
-  extends Omit<PossiblyUnsavedEntity<WorkEntity>, 'tasks'> {
-  tasks?: PossiblyUnsavedEntity<WorkTaskEntity>[]
+  extends Omit<
+    PossiblyUnsavedEntity<WorkEntity, WorkEntity['_entityName']>,
+    'tasks'
+  > {
+  tasks?: PossiblyUnsavedEntity<WorkTaskEntity, WorkTaskEntity['_entityName']>[]
 }
 
-export interface WorkTaskEntity extends ApiEntity {
+export interface WorkTaskEntity extends ApiEntity<'WorkTask'> {
   type: WorkTaskType
   order: number
   maxScore: number

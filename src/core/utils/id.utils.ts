@@ -19,10 +19,12 @@ function uid(): string {
  * @param obj Entity received from the server
  * @returns PossiblyUnsavedEntity instance
  */
-function convertToLocal<T extends ApiEntity, U = PossiblyUnsavedEntity<T>>(
-  obj: T
-): U {
-  const localObj: PossiblyUnsavedEntity<T> = { ...obj, _key: uid() }
+function convertToLocal<
+  T extends ApiEntity<TName>,
+  TName extends string = T['_entityName'],
+  U = PossiblyUnsavedEntity<T, TName>
+>(obj: T): U {
+  const localObj: PossiblyUnsavedEntity<T, TName> = { ...obj, _key: uid() }
 
   for (const [key, value] of Object.entries(localObj)) {
     if (Array.isArray(value)) {
@@ -40,14 +42,14 @@ function convertToLocal<T extends ApiEntity, U = PossiblyUnsavedEntity<T>>(
   return localObj as U
 }
 
-function convertArrayItems(items: unknown[]): unknown[] {
+function convertArrayItems<TName extends string>(items: unknown[]): unknown[] {
   return items.map((item) => {
     if (Array.isArray(item)) {
       return convertArrayItems(item)
     }
 
     if (typeof item === 'object' && item !== null) {
-      return convertToLocal(item as ApiEntity)
+      return convertToLocal(item as ApiEntity<TName>)
     }
 
     return item

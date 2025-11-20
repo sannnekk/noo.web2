@@ -1,7 +1,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { IRichText } from '@/core/utils/richtext.utils'
 
-export interface SnippetEntity extends ApiEntity {
+export interface SnippetEntity extends ApiEntity<'Snippet'> {
   name: string
   content: IRichText
 }

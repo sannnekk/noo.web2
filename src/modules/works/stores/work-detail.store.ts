@@ -150,9 +150,11 @@ const useWorkDetailStore = defineStore(
         return
       }
 
-      const loadedWork = convertToLocal<WorkEntity, PossiblyUnsavedWork>(
-        response.data
-      )
+      const loadedWork = convertToLocal<
+        WorkEntity,
+        WorkEntity['_entityName'],
+        PossiblyUnsavedWork
+      >(response.data)
 
       work.value = loadedWork
       workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)

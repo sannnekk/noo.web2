@@ -36,14 +36,14 @@ export interface PollQuestionConfig {
   maxFileCount?: number | null
 }
 
-export interface PollEntity extends ApiEntity {
+export interface PollEntity extends ApiEntity<'Poll'> {
   title: string
   description: string | null
   isActive: boolean
   questions?: PollQuestionEntity[]
 }
 
-export interface PollQuestionEntity extends ApiEntity {
+export interface PollQuestionEntity extends ApiEntity<'PollQuestion'> {
   title: string
   description: string | null
   isRequired: boolean
@@ -51,7 +51,8 @@ export interface PollQuestionEntity extends ApiEntity {
   config: PollQuestionConfig
 }
 
-export interface PollParticipationEntity extends ApiEntity {
+export interface PollParticipationEntity
+  extends ApiEntity<'PollParticipation'> {
   pollId: string
   poll?: PollEntity
   userType: ParticipatingUserType
@@ -62,7 +63,7 @@ export interface PollParticipationEntity extends ApiEntity {
   answers?: PollAnswerEntity[]
 }
 
-export interface PollAnswerEntity extends ApiEntity {
+export interface PollAnswerEntity extends ApiEntity<'PollAnswer'> {
   pollQuestionId: string
   value: {
     type: PollQuestionType
@@ -71,10 +72,13 @@ export interface PollAnswerEntity extends ApiEntity {
   pollQuestion?: PollQuestionEntity
 }
 
-export type PossiblyUnsavedQuestion = PossiblyUnsavedEntity<PollQuestionEntity>
+export type PossiblyUnsavedQuestion = PossiblyUnsavedEntity<
+  PollQuestionEntity,
+  PollQuestionEntity['_entityName']
+>
 
 export type PossiblyUnsavedPoll = Omit<
-  PossiblyUnsavedEntity<PollEntity>,
+  PossiblyUnsavedEntity<PollEntity, PollEntity['_entityName']>,
   'questions'
 > & {
   questions: PossiblyUnsavedQuestion[]

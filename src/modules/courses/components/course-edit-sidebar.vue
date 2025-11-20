@@ -48,6 +48,24 @@
               label="Описание курса"
             />
           </div>
+          <div class="course-edit-sidebar__dates">
+            <noo-date-input
+              v-model="editCourseStore.course.startDate"
+              label="Дата начала"
+              :disabled="
+                editCourseStore.mode !== 'create' &&
+                editCourseStore.mode !== 'edit'
+              "
+            />
+            <noo-date-input
+              v-model="editCourseStore.course.endDate"
+              label="Дата окончания"
+              :disabled="
+                editCourseStore.mode !== 'create' &&
+                editCourseStore.mode !== 'edit'
+              "
+            />
+          </div>
         </div>
       </template>
       <template #tab-title-tree> Главы </template>
