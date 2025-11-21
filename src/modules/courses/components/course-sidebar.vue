@@ -61,7 +61,7 @@
       >
         Авторы:
       </noo-text-block>
-      <noo-inline-user-card-list :users="course.authors ?? []" />
+      <!-- TODO: add authors -->
     </div>
     <div class="course-sidebar__chapter-tree">
       <noo-scrollable-block max-height="60vh">

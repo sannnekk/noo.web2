@@ -37,9 +37,15 @@ interface PatchGenerator<T extends object> {
  * Observes an object and returns a function that generates a JSON Patch document
  *
  */
-function observe<T extends object>(obj: T): PatchGenerator<T> {
+function observe<T extends object>(
+  obj: T,
+  normalizeValue?: (key: string, value: unknown) => unknown
+): PatchGenerator<T> {
   const original = _.cloneDeep(obj) as T
-  const normalizedOriginal = normalizeJsonPatchTarget(original) as T
+  const normalizedOriginal = normalizeJsonPatchTarget(
+    original,
+    normalizeValue
+  ) as T
 
   // Filter out the following keys from the JSON Patch document:
   // - _key (local only property)
@@ -49,7 +55,10 @@ function observe<T extends object>(obj: T): PatchGenerator<T> {
 
   function generate(): JsonPatchDocument<T> {
     return jsonpatch
-      .compare(normalizedOriginal, normalizeJsonPatchTarget(obj) as T)
+      .compare(
+        normalizedOriginal,
+        normalizeJsonPatchTarget(obj, normalizeValue) as T
+      )
       .filter(
         (operation) =>
           !excludedPaths.some((path) => operation.path.endsWith(path))
@@ -68,17 +77,24 @@ function observe<T extends object>(obj: T): PatchGenerator<T> {
  * JSON Patch documents, because otherwise the patch operations would use
  * array indices which can lead to issues when the array is modified.
  */
-function normalizeJsonPatchTarget(value: unknown): unknown {
+function normalizeJsonPatchTarget(
+  value: unknown,
+  normalizeValue?: (key: string, value: unknown) => unknown,
+  key?: string
+): unknown {
+  if (normalizeValue && key !== undefined) {
+    value = normalizeValue(key, value)
+  }
+
   if (Array.isArray(value)) {
     if (value.length > 0 && isEntityArray(value)) {
       return value.reduce<Record<string, unknown>>((acc, item) => {
         const entity = item as unknown as Record<string, unknown>
         const entityId = entity.id as string | number
 
-        const newIdentifier = _.uniqueId('new-')
+        const _key = String(entityId ?? _.uniqueId('new-'))
 
-        acc[String(entityId ?? newIdentifier)] =
-          normalizeJsonPatchTarget(entity)
+        acc[_key] = normalizeJsonPatchTarget(entity, normalizeValue, _key)
 
         return acc
       }, {})
@@ -90,7 +106,7 @@ function normalizeJsonPatchTarget(value: unknown): unknown {
   if (_.isPlainObject(value)) {
     return Object.entries(value as Record<string, unknown>).reduce(
       (acc, [key, item]) => {
-        acc[key] = normalizeJsonPatchTarget(item)
+        acc[key] = normalizeJsonPatchTarget(item, normalizeValue, key)
 
         return acc
       },

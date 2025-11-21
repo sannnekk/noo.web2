@@ -18,9 +18,11 @@
     >
       <draggable
         v-model="model"
-        :item-key="itemKey ?? '_key'"
         :handle="handle"
         :group="group"
+        :animation="200"
+        :item-key="itemKey ?? '_key'"
+        @end="$emit('reorder')"
       >
         <template #item="{ element }">
           <div :style="{ marginBottom: gap }">
@@ -43,7 +45,10 @@ interface Props {
   gap?: string
 }
 
+type Emits = (event: 'reorder') => void
+
 defineProps<Props>()
+defineEmits<Emits>()
 
 const model = defineModel<T[]>('modelValue', {
   type: Array as () => T[],

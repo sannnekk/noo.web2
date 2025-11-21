@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import { CourseService } from '../api/course.service'
 import { type CourseEntity } from '../api/course.types'
 import type { PossiblyUnsavedCourse } from '../types'
+import { normalizeCoursePatch } from '../utils'
 
 interface CourseEditStore {
   /**
@@ -85,7 +86,10 @@ const useCourseEditStore = defineStore(
       >(response.data)
 
       course.value = loadedCourse
-      coursePatchGenerator.value = JsonPatchUtils.observe(loadedCourse)
+      coursePatchGenerator.value = JsonPatchUtils.observe(
+        loadedCourse,
+        normalizeCoursePatch
+      )
       mode.value = 'edit'
     }
 

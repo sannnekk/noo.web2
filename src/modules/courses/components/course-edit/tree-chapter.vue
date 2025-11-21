@@ -1,8 +1,15 @@
 <template>
   <div
     class="tree-chapter"
+    :class="{
+      'tree-chapter--active': chapterModel.isActive
+    }"
     @click="$emit('toggle')"
   >
+    <div
+      class="tree-chapter__active-toggle"
+      @click.stop="chapterModel.isActive = !chapterModel.isActive"
+    ></div>
     <div class="tree-chapter__drag-handle">
       <noo-icon name="drag-handle" />
     </div>
@@ -11,7 +18,7 @@
         :size="5"
         no-margin
       >
-        {{ chapter.title }}
+        {{ chapterModel.title }} | {{ chapterModel.order }}
       </noo-title>
     </div>
     <div
@@ -35,7 +42,6 @@
 import type { PossiblyUnsavedChapter } from '../../types'
 
 interface Props {
-  chapter: PossiblyUnsavedChapter
   editable?: boolean
 }
 
@@ -46,11 +52,14 @@ interface Emits {
 
 defineProps<Props>()
 defineEmits<Emits>()
+
+const chapterModel = defineModel<PossiblyUnsavedChapter>('chapter', {
+  required: true
+})
 </script>
 
 <style scoped lang="sass">
 .tree-chapter
-  padding: 0.5em 0.7em
   border-radius: var(--border-radius)
   border: var(--light-background-color) 1px solid
   background-color: var(--light-background-color)
@@ -58,9 +67,19 @@ defineEmits<Emits>()
   gap: 0.5em
   align-items: center
   cursor: pointer
+  border-left: 4px solid var(--danger)
+
+  &--active
+    border-left-color: var(--success)
 
   &:hover
     background-color: var(--form-background)
+
+  &__active-toggle
+    width: 0.5em
+    height: 3em
+    background-color: transparent
+    transition: all 0.2s ease-in-out
 
   &__drag-handle
     cursor: grab
@@ -69,10 +88,12 @@ defineEmits<Emits>()
 
   &__title
     flex-grow: 1
+    padding: 0.5em 0.7em
 
   &__actions
     display: flex
     flex-direction: row
     align-items: center
     gap: 0.5em
+    padding-right: 0.5em
 </style>

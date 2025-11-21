@@ -9,7 +9,7 @@
           <noo-sidebar-skeleton />
         </div>
         <div
-          v-if="editCourseStore.mode === 'error'"
+          v-else-if="editCourseStore.mode === 'error'"
           class="edit-course-page__sidebar__error"
         >
           <noo-error-block

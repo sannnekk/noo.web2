@@ -94,7 +94,7 @@
       >
         Редактировать
       </noo-button>
-      <noo-button> Сохранить </noo-button>
+      <noo-button @click="editCourseStore.save()"> Сохранить </noo-button>
     </div>
   </div>
 </template>

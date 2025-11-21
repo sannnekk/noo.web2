@@ -21,6 +21,7 @@ export interface CourseEntity extends ApiEntity<'Course'> {
 }
 
 export interface CourseChapterEntity extends ApiEntity<'CourseChapter'> {
+  order: number
   title: string
   color: string | null
   isActive: boolean
@@ -29,6 +30,7 @@ export interface CourseChapterEntity extends ApiEntity<'CourseChapter'> {
 }
 
 export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
+  order: number
   title: string
   titleColor: string | null
   isActive: boolean

@@ -5,13 +5,12 @@ import {
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { defineStore } from 'pinia'
 import { shallowRef, type ShallowRef } from 'vue'
+import { CourseService } from '../api/course.service'
 import type {
   CourseEntity,
   CourseMaterialContentEntity,
   CourseMaterialEntity
 } from '../api/course.types'
-import { courseApiResponse } from '../mock-data/course-api-response'
-import { materialContentResponse } from '../mock-data/material-content-api-response'
 import { findMaterial } from '../utils'
 
 interface CourseDetailStore {
@@ -40,22 +39,16 @@ const useCourseDetailStore = defineStore(
 
     const currentMaterial = shallowRef<CourseMaterialEntity | null>(null)
 
-    const course = useApiRequest(
-      (_id: string) => {
-        return Promise.resolve(courseApiResponse)
-        /* return CourseService.getById(id) */
-      },
-      undefined,
-      (error) => uiStore.createApiErrorToast('Не удалось загрузить курс', error)
+    const course = useApiRequest(CourseService.getById, undefined, (error) =>
+      uiStore.createApiErrorToast('Не удалось загрузить курс', error)
     )
 
     const materialContent = useApiRequest<void, CourseMaterialContentEntity>(
-      async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        return materialContentResponse
-        /* return CourseService.getMaterialContent(course.data.value!.id, currentMaterial.value!.contentId) */
-      },
+      async () =>
+        CourseService.getMaterialContent(
+          course.data.value!.id,
+          currentMaterial.value!.contentId
+        ),
       undefined,
       (error) =>
         uiStore.createApiErrorToast('Не удалось загрузить материал', error)

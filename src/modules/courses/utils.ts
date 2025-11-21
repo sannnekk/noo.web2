@@ -49,4 +49,20 @@ function searchMaterials(
   return results
 }
 
-export { findMaterial, searchMaterials }
+function normalizeCoursePatch(key: string, value: unknown): unknown {
+  if (key === 'chapters' && Array.isArray(value) && value.length === 0) {
+    return null
+  }
+
+  if (key === 'subChapters' && Array.isArray(value) && value.length === 0) {
+    return null
+  }
+
+  if (key === 'materials' && Array.isArray(value) && value.length === 0) {
+    return null
+  }
+
+  return value
+}
+
+export { findMaterial, normalizeCoursePatch, searchMaterials }

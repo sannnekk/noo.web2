@@ -7,9 +7,19 @@
       v-model="materialsModel"
       :disabled="!editable"
       handle=".tree-material-list__item__drag-handle"
+      group="materials"
+      item-key="_key"
+      @reorder="adjustOrder()"
     >
       <template #default="{ item: material }">
-        <div class="tree-material-list__item">
+        <div
+          class="tree-material-list__item"
+          :class="{ 'tree-material-list__item--active': material.isActive }"
+        >
+          <div
+            class="tree-material-list__item__active-toggle"
+            @click="material.isActive = !material.isActive"
+          ></div>
           <div class="tree-material-list__item__drag-handle">
             <noo-icon name="drag-handle" />
           </div>
@@ -44,7 +54,7 @@
     </noo-draggable-list>
     <div class="tree-material-list__item tree-material-list__item__add">
       <div
-        class="tree-material-list__item__title"
+        class="tree-material-list__item__add__title"
         @click="addMaterial()"
       >
         Добавить материал
@@ -74,10 +84,11 @@ function addMaterial(): void {
     ...materialsModel.value,
     {
       _entityName: 'CourseMaterial',
+      order: materialsModel.value.length + 1,
       _key: uid(),
       title: 'Новый материал ' + (materialsModel.value.length + 1),
       titleColor: null,
-      contentId: '',
+      contentId: null,
       isActive: false,
       publishAt: null
     }
@@ -89,12 +100,18 @@ function removeMaterial(key: string): void {
     (material) => material._key !== key
   )
 }
+
+function adjustOrder(): void {
+  materialsModel.value = materialsModel.value.map((material, index) => ({
+    ...material,
+    order: index + 1
+  }))
+}
 </script>
 
 <style scoped lang="sass">
 .tree-material-list
   &__item
-    padding: 0.5em 0.7em
     border-radius: var(--border-radius)
     border: var(--light-background-color) 1px solid
     cursor: pointer
@@ -102,9 +119,19 @@ function removeMaterial(key: string): void {
     gap: 0.5em
     align-items: center
     margin: 0.5em 0
+    border-left: 4px solid var(--danger)
+
+    &--active
+      border-left-color: var(--success)
 
     &:hover
       background-color: var(--light-background-color)
+
+    &__active-toggle
+      width: 0.5em
+      height: 3em
+      background-color: transparent
+      transition: all 0.2s ease-in-out
 
     &__drag-handle
       cursor: grab
@@ -113,16 +140,18 @@ function removeMaterial(key: string): void {
 
     &__title
       flex-grow: 1
+      padding: 0.5em 0.7em
 
     &__actions
       display: flex
       flex-direction: row
       align-items: center
       gap: 0.5em
+      padding-right: 0.5em
 
     &__add
       cursor: pointer
-      border: 1px dashed var(--secondary)
+      border: none
       background-color: unset
       font-size: 0.8em
       border-radius: var(--border-radius)

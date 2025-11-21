@@ -9,18 +9,20 @@
       gap="0.5em"
       :disabled="!editable"
       handle=".tree-chapter__drag-handle"
+      group="chapters"
+      @reorder="adjustOrder()"
     >
-      <template #default="{ item }">
+      <template #default="{ item: chapter }">
         <div class="course-edit-chapter-tree__item">
           <tree-chapter
-            :chapter="item"
+            :chapter="chapter"
             :editable="editable"
-            @toggle="chaptersState[item._key] = !chaptersState[item._key]"
-            @remove="removeChapter(item._key)"
+            @toggle="chaptersState[chapter._key] = !chaptersState[chapter._key]"
+            @remove="removeChapter(chapter._key)"
           />
           <noo-if-animation>
             <div
-              v-if="chaptersState[item._key]"
+              v-if="chaptersState[chapter._key]"
               class="course-edit-chapter-tree__item__content"
             >
               <div
@@ -28,7 +30,7 @@
                 class="course-edit-chapter-tree__item__subchapters"
               >
                 <course-chapter-tree
-                  v-model:tree="item.subChapters"
+                  v-model:tree="chapter.subChapters"
                   :level="level + 1"
                   :editable="editable"
                 />
@@ -38,7 +40,7 @@
                 :class="`course-edit-chapter-tree__item__materials--level-${level + 1}`"
               >
                 <tree-material-list
-                  v-model:materials="item.materials"
+                  v-model:materials="chapter.materials"
                   :editable="editable"
                   :level="level + 1"
                 />
@@ -87,6 +89,7 @@ function addChapter(): void {
     {
       _entityName: 'CourseChapter',
       _key: `new-chapter-${Date.now()}`,
+      order: treeModel.value.length + 1,
       title: 'Новая глава ' + (treeModel.value.length + 1),
       color: null,
       isActive: false,
@@ -98,6 +101,13 @@ function addChapter(): void {
 
 function removeChapter(key: string): void {
   treeModel.value = treeModel.value.filter((chapter) => chapter._key !== key)
+}
+
+function adjustOrder(): void {
+  treeModel.value = treeModel.value.map((chapter, index) => ({
+    ...chapter,
+    order: index + 1
+  }))
 }
 </script>
 
@@ -119,7 +129,8 @@ function removeChapter(key: string): void {
     &__chapter
       &__add
         cursor: pointer
-        border: 1px dashed var(--secondary)
+        border: none
+        display: inline-block
         background-color: unset
         font-size: 0.8em
         border-radius: var(--border-radius)

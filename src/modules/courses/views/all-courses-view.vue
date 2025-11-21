@@ -31,18 +31,7 @@
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
 import { AppConstants } from '@/core/config/constants.config'
-import { courses } from '../mock-data/courses'
+import { CourseService } from '../api/course.service'
 
-const search = useSearch(
-  async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    return {
-      data: courses,
-      meta: { total: courses.length }
-    }
-    /* return CourseService.get() */
-  },
-  { immediate: true }
-)
+const search = useSearch(CourseService.get, { immediate: true })
 </script>

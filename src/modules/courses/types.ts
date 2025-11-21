@@ -13,10 +13,15 @@ export type PossiblyUnsavedMaterialContent = PossiblyUnsavedEntity<
   CourseMaterialContentEntity['_entityName']
 >
 
-export type PossiblyUnsavedMaterial = PossiblyUnsavedEntity<
-  CourseMaterialEntity,
-  CourseMaterialEntity['_entityName']
->
+export type PossiblyUnsavedMaterial = Omit<
+  PossiblyUnsavedEntity<
+    CourseMaterialEntity,
+    CourseMaterialEntity['_entityName']
+  >,
+  'contentId'
+> & {
+  contentId: string | null
+}
 
 export type PossiblyUnsavedChapter = Omit<
   PossiblyUnsavedEntity<
