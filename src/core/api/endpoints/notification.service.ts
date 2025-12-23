@@ -9,15 +9,35 @@ interface INotificationService {
 }
 
 async function getUnread(): Promise<ApiResponse<NotificationEntity[]>> {
-  return await Api.get('/notification?isRead=0')
+  return await Api.get('/notification', { IsRead: false })
 }
 
 async function getRead(): Promise<ApiResponse<NotificationEntity[]>> {
-  return await Api.get('/notification?isRead=1')
+  return await Api.get('/notification', { IsRead: true })
 }
 
 async function markAllAsRead(): Promise<ApiResponse> {
-  return await Api.patch('/notification/mark-all-as-read')
+  // OpenAPI does not expose a bulk mark-all-as-read endpoint.
+  // Implement it using PATCH `/notification/{notificationId}/mark-read`.
+  const unread = await getUnread()
+
+  if (unread.error) {
+    return unread as unknown as ApiResponse
+  }
+
+  const notifications = unread.data ?? []
+
+  for (const notification of notifications) {
+    const result = await Api.patch<void, void>(
+      `/notification/${notification.id}/mark-read`
+    )
+
+    if (result.error) {
+      return result
+    }
+  }
+
+  return { data: undefined, meta: null, error: null }
 }
 
 async function deleteNotification(

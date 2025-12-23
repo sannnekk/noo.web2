@@ -2,7 +2,7 @@ export interface IPagination {
   page?: number
   pageSize?: number
   sortBy?: string
-  sortDirection?: 'asc' | 'desc'
+  sortDirection?: 'ascending' | 'descending'
   filters?: IFilter[]
   toQuery: () => Record<string, string>
 }
@@ -16,7 +16,7 @@ class Pagination implements IPagination {
   public page: number
   public pageSize: number
   public sortBy?: string
-  public sortDirection?: 'asc' | 'desc'
+  public sortDirection?: 'ascending' | 'descending'
   public filters: IFilter[]
   public search?: string
 
@@ -24,7 +24,7 @@ class Pagination implements IPagination {
     page = 1,
     pageSize = 10,
     sortBy: string | undefined = undefined,
-    sortDirection: 'asc' | 'desc' | undefined = 'desc',
+    sortDirection: 'ascending' | 'descending' | undefined = 'descending',
     filters: IFilter[] = [],
     search: string | undefined = undefined
   ) {
@@ -40,17 +40,17 @@ class Pagination implements IPagination {
     const params: URLSearchParams = new URLSearchParams()
 
     if (this.page) {
-      params.append('page', this.page.toString())
+      params.append('Page', this.page.toString())
     }
     if (this.pageSize) {
-      params.append('pageSize', this.pageSize.toString())
+      params.append('PerPage', this.pageSize.toString())
     }
     if (this.sortBy) {
-      params.append('sortBy', this.sortBy)
-      params.append('sortDirection', this.sortDirection ?? 'desc')
+      params.append('Sort', this.sortBy)
+      params.append('SortBy', this.sortDirection ?? 'descending')
     }
     if (this.search) {
-      params.append('search', this.safeQueryString(this.search))
+      params.append('Search', this.safeQueryString(this.search))
     }
 
     if (this.filters.length) {
@@ -58,7 +58,9 @@ class Pagination implements IPagination {
         const key = filter.getQueryKey()
         const value = filter.getQueryValue()
 
-        params.append(`filter.${key}`, value)
+        // OpenAPI schema uses direct query parameters (e.g. SolveStatus, SubjectId)
+        // rather than a `filter.` prefix.
+        params.append(key, value)
       })
     }
 

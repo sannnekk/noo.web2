@@ -4,7 +4,7 @@
     class="noo-profile-widget"
   >
     <div class="noo-profile-widget__avatar">
-      <noo-user-avatar :name="authStore.userInfo?.name" />
+      <noo-user-avatar :name="authStore.userInfo?.name ?? undefined" />
       <!-- TODO: add avatar -->
     </div>
     <div class="noo-profile-widget__credentials">

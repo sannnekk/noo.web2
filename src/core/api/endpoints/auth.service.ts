@@ -27,25 +27,32 @@ async function usernameIsFree(username: string): Promise<ApiResponse<boolean>> {
 }
 
 async function forgotPassword(email: string): Promise<ApiResponse> {
-  return await Api.post('/auth/forgot-password', { email })
+  return await Api.patch('/auth/request-password-change', { email })
 }
 
 async function resetPassword(
   payload: ResetPasswordPayload
 ): Promise<ApiResponse> {
-  return await Api.post('/auth/reset-password', payload)
+  return await Api.patch('/auth/confirm-password-change', payload)
 }
 
 async function verifyEmail(token: string): Promise<ApiResponse> {
-  return await Api.post('/auth/verify-email', { token })
+  return await Api.patch('/auth/confirm-email-change', { token })
 }
 
 async function register(payload: RegisterPayload): Promise<ApiResponse> {
-  return await Api.post('/auth/register', payload)
+  const dto = {
+    name: payload.name,
+    username: payload.username,
+    email: payload.email,
+    password: payload.password
+  }
+
+  return await Api.post('/auth/register', dto)
 }
 
 async function removeCurrentSession(): Promise<ApiResponse> {
-  return await Api.delete('/auth/current-session')
+  return await Api.delete('/session')
 }
 
 export const AuthService: IAuthService = {

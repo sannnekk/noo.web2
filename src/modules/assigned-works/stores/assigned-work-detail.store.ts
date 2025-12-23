@@ -1,3 +1,4 @@
+import type { ApiError } from '@/core/api/api.utils'
 import {
   useApiRequest,
   type UseApiRequestReturn
@@ -151,21 +152,38 @@ const useAssignedWorkDetailStore = defineStore(
 
       globalUiStore.setLoading(true, undefined, 'Сохранение работы...')
 
-      const response = await AssignedWorkService.saveAnswers(
-        changedAnswers as AssignedWorkAnswerEntity[]
-      )
+      const answerIdsByTaskId: Record<string, string> = {}
 
-      if (response.error) {
-        globalUiStore.setLoading(false)
-        globalUiStore.createApiErrorToast(
-          'Не удалось сохранить работу',
-          response.error ?? undefined
+      for (const answer of changedAnswers as AssignedWorkAnswerEntity[]) {
+        const response = await AssignedWorkService.saveAnswer(
+          assignedWork.value!.id,
+          {
+            id: answer.id,
+            taskId: answer.taskId,
+            status: answer.status,
+            richTextContent: answer.richTextContent ?? undefined,
+            wordContent: answer.wordContent,
+            mentorComment: answer.mentorComment ?? undefined,
+            score: answer.score,
+            maxScore: answer.maxScore,
+            detailedScore: answer.detailedScore
+          }
         )
 
-        return
+        if (response.error) {
+          globalUiStore.setLoading(false)
+          globalUiStore.createApiErrorToast(
+            'Не удалось сохранить работу',
+            response.error ?? undefined
+          )
+
+          return
+        }
+
+        answerIdsByTaskId[answer.taskId] = response.data.id
       }
 
-      setSavedAnswerIds(response.data)
+      setSavedAnswerIds(answerIdsByTaskId)
       globalUiStore.setLoading(false)
       saveStatus.pushSaveStatus()
     }
@@ -204,7 +222,30 @@ const useAssignedWorkDetailStore = defineStore(
      * Shifts the deadline request
      */
     const shiftDeadline = useApiRequest(
-      () => AssignedWorkService.shiftDeadline(assignedWork.value!.id),
+      () => {
+        const newDeadline = DateHelpers.addDays(
+          assignedWork.value!.solveDeadlineAt,
+          AssignedWorkConfig.solveDeadlineShift
+        )
+
+        if (!newDeadline) {
+          return Promise.resolve({
+            error: {
+              id: 'INVALID_DEADLINE',
+              statusCode: 0,
+              name: 'Invalid deadline',
+              description:
+                'Невозможно сдвинуть дедлайн: текущий дедлайн отсутствует',
+              payload: null
+            } as ApiError
+          })
+        }
+
+        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
+          newDeadline,
+          notifyOthers: true
+        })
+      },
       () => {
         globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
       }
@@ -236,7 +277,30 @@ const useAssignedWorkDetailStore = defineStore(
      * Shifts the solve deadline of the assigned work.
      */
     const shiftSolveDeadline = useApiRequest(
-      () => AssignedWorkService.shiftDeadline(assignedWork.value!.id),
+      () => {
+        const newDeadline = DateHelpers.addDays(
+          assignedWork.value!.solveDeadlineAt,
+          AssignedWorkConfig.solveDeadlineShift
+        )
+
+        if (!newDeadline) {
+          return Promise.resolve({
+            error: {
+              id: 'INVALID_DEADLINE',
+              statusCode: 0,
+              name: 'Invalid deadline',
+              description:
+                'Невозможно сдвинуть дедлайн: текущий дедлайн отсутствует',
+              payload: null
+            } as ApiError
+          })
+        }
+
+        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
+          newDeadline,
+          notifyOthers: true
+        })
+      },
       () => {
         globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
         assignedWork.value!.solveDeadlineAt = DateHelpers.addDays(
@@ -257,7 +321,30 @@ const useAssignedWorkDetailStore = defineStore(
      * Shifts the check deadline of the assigned work.
      */
     const shiftCheckDeadline = useApiRequest(
-      () => AssignedWorkService.shiftDeadline(assignedWork.value!.id),
+      () => {
+        const newDeadline = DateHelpers.addDays(
+          assignedWork.value!.checkDeadlineAt,
+          AssignedWorkConfig.checkDeadlineShift
+        )
+
+        if (!newDeadline) {
+          return Promise.resolve({
+            error: {
+              id: 'INVALID_DEADLINE',
+              statusCode: 0,
+              name: 'Invalid deadline',
+              description:
+                'Невозможно сдвинуть дедлайн проверки: текущий дедлайн отсутствует',
+              payload: null
+            } as ApiError
+          })
+        }
+
+        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
+          newDeadline,
+          notifyOthers: true
+        })
+      },
       () => {
         globalUiStore.createSuccessToast('Дедлайн проверки успешно сдвинут')
         assignedWork.value!.checkDeadlineAt = DateHelpers.addDays(

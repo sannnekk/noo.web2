@@ -44,7 +44,7 @@ function useApiRequest<TRequest = void, TResponse = void>(
     })
 
     data.value = response.data ?? null
-    metadata.value = response.metadata ?? null
+    metadata.value = response.meta ?? null
     error.value = response.error ?? null
     progress.value = null
 

@@ -1,9 +1,9 @@
 import { type ApiResponse, Api } from '../api.utils'
-import type { UserSettings } from './user-settings.types'
+import type { UserSettings, UserSettingsUpdate } from './user-settings.types'
 
 interface IUserSettingsService {
   getSettings: () => Promise<ApiResponse<UserSettings>>
-  updateSettings: (settings: Partial<UserSettings>) => Promise<ApiResponse>
+  updateSettings: (settings: UserSettingsUpdate) => Promise<ApiResponse>
 }
 
 async function getSettings(): Promise<ApiResponse<UserSettings>> {
@@ -11,7 +11,7 @@ async function getSettings(): Promise<ApiResponse<UserSettings>> {
 }
 
 async function updateSettings(
-  settings: Partial<UserSettings>
+  settings: UserSettingsUpdate
 ): Promise<ApiResponse> {
   return await Api.patch('/user-settings', settings)
 }

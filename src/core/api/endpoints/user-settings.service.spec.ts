@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Api } from '../api.utils'
 import { UserSettingsService } from './user-settings.service'
-import type { UserSettings } from './user-settings.types'
+import type { UserSettingsUpdate } from './user-settings.types'
 
 vi.mock('../api.utils', () => ({
   Api: {
@@ -26,10 +26,9 @@ describe('UserSettingsService', () => {
 
   describe('updateSettings', () => {
     it('should call Api.patch with the correct endpoint and payload and return the response', async () => {
-      const mockSettings: UserSettings = {
+      const mockSettings: UserSettingsUpdate = {
         theme: 'light',
-        fontSize: 'small',
-        backgroundImage: null
+        fontSize: 'small'
       }
 
       await UserSettingsService.updateSettings(mockSettings)

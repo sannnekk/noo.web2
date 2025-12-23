@@ -27,7 +27,7 @@ const useNotificationsStore = defineStore(
     const unreadNotifications = useApiRequest(NotificationService.getUnread)
 
     const unreadCount = computed(
-      () => readNotifications.data.value?.length ?? 0
+      () => unreadNotifications.data.value?.length ?? 0
     )
 
     const unreadCountText = computed(() =>

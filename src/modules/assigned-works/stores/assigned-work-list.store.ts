@@ -1,8 +1,8 @@
 import { useSearch } from '@/core/composables/useSearch'
-import { defineStore } from 'pinia'
-import { AssignedWorkService } from '../api/assigned-work.service'
-import { shallowRef } from 'vue'
 import { EnumFilter } from '@/core/utils/pagination.utils'
+import { defineStore } from 'pinia'
+import { shallowRef } from 'vue'
+import { AssignedWorkService } from '../api/assigned-work.service'
 import type {
   AssignedWorkEntity,
   CheckStatus,
@@ -32,7 +32,7 @@ const useAssignedWorkListStore = defineStore(
       {
         immediate: false,
         initialFilters: [
-          new EnumFilter<SolveStatus>('checkStatus', 'not-solved')
+          new EnumFilter<SolveStatus>('SolveStatus', 'not-solved')
         ]
       }
     )
@@ -42,8 +42,8 @@ const useAssignedWorkListStore = defineStore(
       {
         immediate: false,
         initialFilters: [
-          new EnumFilter<SolveStatus>('solveStatus', 'solved'),
-          new EnumFilter<CheckStatus>('checkStatus', 'not-checked')
+          new EnumFilter<SolveStatus>('SolveStatus', 'solved'),
+          new EnumFilter<CheckStatus>('CheckStatus', 'not-checked')
         ]
       }
     )
@@ -52,7 +52,7 @@ const useAssignedWorkListStore = defineStore(
       (pagination) => AssignedWorkService.get(pagination, userId.value),
       {
         immediate: false,
-        initialFilters: [new EnumFilter<CheckStatus>('checkStatus', 'checked')]
+        initialFilters: [new EnumFilter<CheckStatus>('CheckStatus', 'checked')]
       }
     )
 

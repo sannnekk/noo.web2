@@ -56,12 +56,28 @@ export interface AssignedWorkRemakeOptions {
 
 /**
  * Options to add a mentor to an assigned work.
- * If `notify` is true, the new mentor will be notified about the assignment.
  */
 export interface AddHelperMentorOptions {
   mentorId: string
   notifyMentor?: boolean
   notifyStudent?: boolean
+}
+
+/**
+ * Matches `ReplaceMainMentorOptionsDTO` in OpenAPI.
+ */
+export interface ReplaceMainMentorOptions {
+  mentorId: string
+  notifyMentor?: boolean
+  notifyStudent?: boolean
+}
+
+/**
+ * Matches `ShiftAssignedWorkDeadlineOptionsDTO` in OpenAPI.
+ */
+export interface ShiftAssignedWorkDeadlineOptions {
+  newDeadline: Date
+  notifyOthers?: boolean
 }
 
 export type AssignedWorkAnswerStatus = 'not-submitted' | 'submitted' | 'checked'
@@ -135,4 +151,33 @@ export interface AssignedWorkAnswerEntity
   detailedScore: DetailedScore | null
   maxScore: number
   status: AssignedWorkAnswerStatus
+}
+
+/**
+ * Matches `UpsertAssignedWorkAnswerDTO` in OpenAPI.
+ * Used as request payload for POST `/assigned-work/{assignedWorkId}/save-answer`.
+ */
+export interface UpsertAssignedWorkAnswerDto {
+  id?: string
+  richTextContent?: IRichText
+  wordContent?: string | null
+  mentorComment?: IRichText
+  score?: number | null
+  maxScore: number
+  detailedScore?: DetailedScore | null
+  status: AssignedWorkAnswerStatus
+  taskId: string
+}
+
+/**
+ * Matches `UpsertAssignedWorkCommentDTO` in OpenAPI.
+ * Used as request payload for POST `/assigned-work/{assignedWorkId}/comment`.
+ */
+export interface UpsertAssignedWorkCommentDto {
+  id?: string
+  content?: IRichText
+}
+
+export interface IdResponseDto {
+  id: string
 }

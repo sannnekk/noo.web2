@@ -5,11 +5,14 @@ import {
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { reactive, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { CourseService } from '../api/course.service'
 import { type CourseEntity } from '../api/course.types'
-import type { PossiblyUnsavedCourse } from '../types'
+import type {
+  PossiblyUnsavedCourse,
+  PossiblyUnsavedCourseMaterialContent
+} from '../types'
 import { normalizeCoursePatch } from '../utils'
 
 interface CourseEditStore {
@@ -25,6 +28,14 @@ interface CourseEditStore {
    * Responsible to generate JSON Patch document for updating the work.
    */
   coursePatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>
+  /**
+   * The key of the currently edited material content.
+   */
+  currentMaterialContentKey: Ref<string | null>
+  /**
+   * An object to store material contents being edited, where _key is used as the key.
+   */
+  materialContents: Record<string, PossiblyUnsavedCourseMaterialContent>
   /**
    * Inits the store with a course ID.
    * If no course ID is provided, it initializes an empty course.
@@ -49,6 +60,10 @@ const useCourseEditStore = defineStore(
     const course = ref<PossiblyUnsavedCourse | null>(null)
     const coursePatchGenerator =
       shallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>(null)
+    const currentMaterialContentKey = ref<string | null>(null)
+    const materialContents = reactive<
+      Record<string, PossiblyUnsavedCourseMaterialContent>
+    >({})
 
     async function init(courseId?: string): Promise<void> {
       if (!courseId) {
@@ -144,6 +159,8 @@ const useCourseEditStore = defineStore(
       mode,
       course,
       coursePatchGenerator,
+      currentMaterialContentKey,
+      materialContents,
       init,
       save
     }

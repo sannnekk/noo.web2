@@ -8,11 +8,12 @@ import { serialize } from './serialization.utils'
 export type ApiResponse<T = void> =
   | {
       data: T
-      metadata?: ApiMetadata
+      meta?: ApiMetadata | null
       error?: null
     }
   | {
       data?: null
+      meta?: null
       metadata?: null
       error: ApiError
     }
@@ -27,7 +28,7 @@ export interface ApiError {
 }
 
 export interface ApiMetadata {
-  total: number
+  total?: number
 }
 
 export interface RequestProgress {
@@ -46,6 +47,38 @@ const api = axios.create({
     Accept: 'application/json'
   }
 })
+
+function normalizeSuccessResponse<T>(raw: unknown): ApiResponse<T> {
+  if (!raw) {
+    return {
+      data: undefined as T,
+      meta: null,
+      error: null
+    }
+  }
+
+  if (typeof raw === 'object' && raw !== null) {
+    const record = raw as Record<string, unknown>
+
+    if ('data' in record) {
+      const meta = (record.meta ??
+        record.metadata ??
+        null) as ApiMetadata | null
+
+      return {
+        data: record.data as T,
+        meta,
+        error: null
+      }
+    }
+  }
+
+  return {
+    data: raw as T,
+    meta: null,
+    error: null
+  }
+}
 
 api.interceptors.request.use((config) => {
   const token = CookieStorage.get<string>(CookieStorage.StorageAliases.apiToken)
@@ -69,23 +102,36 @@ api.interceptors.response.use(
         }
       }
 
-      let description =
-        ApiErrorCodes[error.response.data.error?.id]?.description ||
-        ApiErrorCodes.fallback.description
+      const responseBody = error.response.data as unknown
+      const exception = (
+        typeof responseBody === 'object' && responseBody !== null
+          ? ((responseBody as Record<string, unknown>).error ?? responseBody)
+          : responseBody
+      ) as Record<string, unknown> | null
 
-      if (error.response.data.error?.logId) {
-        description += `. Обратитесь, пожалуйста, в службу поддержки, указав код ошибки: ${error.response.data.error.logId}`
+      const errorId = (exception?.id as string | undefined) ?? 'UNKNOWN_ERROR'
+      const logId = exception?.logId as string | undefined
+      const message = exception?.message as string | undefined
+      const payload = (exception?.payload as unknown) ?? null
+
+      const known = ApiErrorCodes[errorId]
+      let description = known?.description ?? ApiErrorCodes.fallback.description
+
+      if (!known && message) {
+        description = message
+      }
+
+      if (logId) {
+        description += `. Обратитесь, пожалуйста, в службу поддержки, указав код ошибки: ${logId}`
       }
 
       return Promise.reject({
-        id: error.response.data.error?.id ?? 'UNKNOWN_ERROR',
-        logId: error.response.data.error?.logId,
+        id: errorId,
+        logId,
         statusCode: error.response.status,
-        name:
-          ApiErrorCodes[error.response.data.error?.id]?.name ||
-          ApiErrorCodes.fallback.name,
+        name: known?.name ?? ApiErrorCodes.fallback.name,
         description,
-        payload: error.response.data.error?.payload ?? null
+        payload
       } as ApiError)
     }
 
@@ -112,7 +158,7 @@ async function httpGet<T>(
       onDownloadProgress: (event) => onProgress?.(event)
     })
 
-    return response.data
+    return normalizeSuccessResponse<T>(response.data)
   } catch (error) {
     return { error } as ApiResponse<T>
   }
@@ -130,27 +176,27 @@ async function httpPost<TRequest, TResponse>(
       onUploadProgress: (event) => onProgress?.(event)
     })
 
-    return response.data
+    return normalizeSuccessResponse<TResponse>(response.data)
   } catch (error) {
     return { error } as ApiResponse<TResponse>
   }
 }
 
-async function httpPatch<T>(
+async function httpPatch<TRequest, TResponse = void>(
   path: string,
-  body?: T,
+  body?: TRequest,
   headers?: Record<string, string>,
   onProgress?: (progressEvent: RequestProgress) => void
-): Promise<ApiResponse> {
+): Promise<ApiResponse<TResponse>> {
   try {
     const response = await api.patch(path, serialize(body), {
       headers,
       onDownloadProgress: (event) => onProgress?.(event)
     })
 
-    return response.data
+    return normalizeSuccessResponse<TResponse>(response.data)
   } catch (error) {
-    return { error } as ApiResponse
+    return { error } as ApiResponse<TResponse>
   }
 }
 
@@ -159,7 +205,9 @@ async function httpDelete(
   headers?: Record<string, string>
 ): Promise<ApiResponse> {
   try {
-    return await api.delete(path, { headers })
+    const response = await api.delete(path, { headers })
+
+    return normalizeSuccessResponse<void>(response.data)
   } catch (error) {
     return { error } as ApiResponse
   }
@@ -182,7 +230,7 @@ async function httpFileUpload<T>(
       onUploadProgress: (event) => onProgress?.(event)
     })
 
-    return response.data
+    return normalizeSuccessResponse<T>(response.data)
   } catch (error) {
     return { error } as ApiResponse<T>
   }

@@ -1311,7 +1311,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CourseDTOApiResponseDTO"
+                $ref: "#/components/schemas/CourseMaterialContentDTOApiResponseDTO"
         "400":
           description: Bad Request
           content:
@@ -4917,6 +4917,53 @@ components:
           minLength: 1
           type: string
       additionalProperties: false
+    CourseChapterDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - isActive
+        - materials
+        - order
+        - subChapters
+        - title
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        order:
+          type: integer
+          format: int32
+        title:
+          minLength: 1
+          type: string
+        color:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        parentChapterId:
+          $ref: "#/components/schemas/Ulid"
+        subChapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseChapterDTO"
+        materials:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseMaterialDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
     CourseDTO:
       required:
         - _entityName
@@ -4958,6 +5005,11 @@ components:
           $ref: "#/components/schemas/Ulid"
         subject:
           $ref: "#/components/schemas/SubjectDTO"
+        chapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseChapterDTO"
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -4983,6 +5035,100 @@ components:
             $ref: "#/components/schemas/CourseDTO"
           nullable: true
         meta:
+          nullable: true
+      additionalProperties: false
+    CourseMaterialContentDTO:
+      required:
+        - _entityName
+        - content
+        - createdAt
+        - id
+        - medias
+        - nooTubeVideos
+        - workAssignments
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        content:
+          $ref: "#/components/schemas/IRichTextType"
+        poll:
+          $ref: "#/components/schemas/PollDTO"
+        nooTubeVideos:
+          type: array
+          items:
+            $ref: "#/components/schemas/NooTubeVideoDTO"
+        medias:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaDTO"
+        workAssignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseWorkAssignmentDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    CourseMaterialContentDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CourseMaterialContentDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    CourseMaterialDTO:
+      required:
+        - _entityName
+        - chapterId
+        - contentId
+        - createdAt
+        - id
+        - isActive
+        - order
+        - publishAt
+        - title
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        order:
+          type: integer
+          format: int32
+        title:
+          minLength: 1
+          type: string
+        titleColor:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        publishAt:
+          type: string
+          format: date-time
+        chapterId:
+          $ref: "#/components/schemas/Ulid"
+        contentId:
+          $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
           nullable: true
       additionalProperties: false
     CourseMembershipDTO:
@@ -5054,6 +5200,47 @@ components:
         - external-assigned
         - subscription
       type: string
+    CourseWorkAssignmentDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - isActive
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        workId:
+          $ref: "#/components/schemas/Ulid"
+        note:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        deactivatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        solveDeadlineAt:
+          type: string
+          format: date
+          nullable: true
+        checkDeadlineAt:
+          type: string
+          format: date
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
     CreateCalendarEventDTO:
       type: object
       properties:
@@ -5074,6 +5261,37 @@ components:
           nullable: true
         assignedWorkId:
           $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    CreateCourseChapterDTO:
+      required:
+        - isActive
+        - order
+        - title
+      type: object
+      properties:
+        order:
+          type: integer
+          format: int32
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        color:
+          maxLength: 63
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        subChapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateCourseChapterDTO"
+          nullable: true
+        materials:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateCourseMaterialDTO"
+          nullable: true
       additionalProperties: false
     CreateCourseDTO:
       required:
@@ -5101,24 +5319,58 @@ components:
           $ref: "#/components/schemas/Ulid"
         subjectId:
           $ref: "#/components/schemas/Ulid"
+        chapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateCourseChapterDTO"
+          nullable: true
       additionalProperties: false
     CreateCourseMaterialContentDTO:
       required:
         - content
-        - isWorkAvailable
       type: object
       properties:
         content:
           $ref: "#/components/schemas/IRichTextType"
-        workId:
+        pollId:
           $ref: "#/components/schemas/Ulid"
-        isWorkAvailable:
-          type: boolean
-        workSolveDeadlineAt:
-          type: string
-          format: date-time
+        nootubeVideoIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ulid"
           nullable: true
-        workCheckDeadlineAt:
+        mediaIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ulid"
+          nullable: true
+        workAssignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateCourseWorkAssignmentDTO"
+          nullable: true
+      additionalProperties: false
+    CreateCourseMaterialDTO:
+      required:
+        - isActive
+        - order
+        - title
+      type: object
+      properties:
+        order:
+          type: integer
+          format: int32
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        titleColor:
+          maxLength: 63
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        publishAt:
           type: string
           format: date-time
           nullable: true
@@ -5135,6 +5387,39 @@ components:
           $ref: "#/components/schemas/Ulid"
         notifyStudent:
           type: boolean
+      additionalProperties: false
+    CreateCourseWorkAssignmentDTO:
+      required:
+        - isActive
+        - materialContentId
+        - order
+        - workId
+      type: object
+      properties:
+        order:
+          type: integer
+          format: int32
+        materialContentId:
+          $ref: "#/components/schemas/Ulid"
+        workId:
+          $ref: "#/components/schemas/Ulid"
+        note:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        deactivatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        solveDeadlineAt:
+          type: string
+          format: date
+          nullable: true
+        checkDeadlineAt:
+          type: string
+          format: date
+          nullable: true
       additionalProperties: false
     CreateGoogleSheetsIntegrationDTO:
       required:
@@ -5423,6 +5708,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           type: string
           format: uuid
@@ -5548,6 +5834,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         path:
@@ -5585,6 +5872,7 @@ components:
       additionalProperties: false
     MentorAssignmentDTO:
       required:
+        - _entityName
         - createdAt
         - id
         - mentorId
@@ -5592,6 +5880,10 @@ components:
         - subjectId
       type: object
       properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         studentId:
@@ -5623,6 +5915,99 @@ components:
             $ref: "#/components/schemas/MentorAssignmentDTO"
           nullable: true
         meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeServiceType:
+      enum:
+        - noo-tube
+        - you-tube
+        - vk-video
+        - rutube
+      type: string
+    NooTubeVideoCommentDTO:
+      required:
+        - _entityName
+        - content
+        - createdAt
+        - id
+        - userId
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        userId:
+          $ref: "#/components/schemas/Ulid"
+        user:
+          $ref: "#/components/schemas/UserDTO"
+        content:
+          minLength: 1
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    NooTubeVideoDTO:
+      required:
+        - _entityName
+        - id
+        - publishedAt
+        - serviceType
+        - state
+        - title
+        - uploadedByUserId
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        title:
+          minLength: 1
+          type: string
+        description:
+          type: string
+          nullable: true
+        thumbnailId:
+          $ref: "#/components/schemas/Ulid"
+        externalIdentifier:
+          type: string
+          nullable: true
+        externalUrl:
+          type: string
+          nullable: true
+        externalThumbnailUrl:
+          type: string
+          nullable: true
+        serviceType:
+          $ref: "#/components/schemas/NooTubeServiceType"
+        state:
+          $ref: "#/components/schemas/VideoState"
+        duration:
+          type: integer
+          format: int32
+          nullable: true
+        publishedAt:
+          type: string
+          format: date-time
+        uploadedByUserId:
+          $ref: "#/components/schemas/Ulid"
+        uploadedByUser:
+          $ref: "#/components/schemas/UserDTO"
+        thumbnail:
+          $ref: "#/components/schemas/MediaDTO"
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/NooTubeVideoCommentDTO"
           nullable: true
       additionalProperties: false
     NotificationChannelType:
@@ -5713,6 +6098,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         pollQuestionId:
@@ -5748,6 +6134,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         title:
@@ -5806,6 +6193,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         pollId:
@@ -5927,6 +6315,7 @@ components:
         _entityName:
           minLength: 1
           type: string
+          readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
         title:
@@ -6827,6 +7216,13 @@ components:
         - light
         - dark
         - system-default
+      type: string
+    VideoState:
+      enum:
+        - not-uploaded
+        - uploading
+        - uploaded
+        - published
       type: string
     WorkDTO:
       required:

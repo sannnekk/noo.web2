@@ -50,7 +50,7 @@
           v-else
           class="edit-course-page__content"
         >
-          <material-edit-form />
+          <material-content-edit-form />
         </div>
       </template>
     </noo-sidebar-layout>
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import courseEditSidebar from '../components/course-edit-sidebar.vue'
-import materialEditForm from '../components/material-edit-form.vue'
+import materialContentEditForm from '../components/material-content-edit-form.vue'
 import { useCourseEditStore } from '../stores/course-edit.store'
 
 export interface EditCoursePageProps {

@@ -1,16 +1,12 @@
 import type { ApiEntity } from '../api.types'
 
-export type NotificationType = 'info' | 'success' | 'warning' | 'error'
-
-export interface NotificationAction {
-  label: string
-  routeName: string
-}
-
 export interface NotificationEntity extends ApiEntity<'Notification'> {
-  type: NotificationType
-  icon: string
-  message: string
+  /** Backend-controlled notification type; OpenAPI defines it as a string. */
+  type: string
+  title: string
+  message: string | null
   isRead: boolean
-  actions: NotificationAction[]
+  isBanner: boolean
+  link: string | null
+  linkText: string | null
 }

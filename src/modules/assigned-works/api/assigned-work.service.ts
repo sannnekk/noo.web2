@@ -2,12 +2,14 @@ import { type ApiResponse, Api } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type {
   AddHelperMentorOptions,
-  AssignedWorkAnswerEntity,
-  AssignedWorkCommentEntity,
   AssignedWorkEntity,
   AssignedWorkProgress,
   AssignedWorkRemakeOptions,
-  AssignedWorkStatusHistoryEntity
+  IdResponseDto,
+  ReplaceMainMentorOptions,
+  ShiftAssignedWorkDeadlineOptions,
+  UpsertAssignedWorkAnswerDto,
+  UpsertAssignedWorkCommentDto
 } from './assigned-work.types'
 
 const BASE_PATH = '/assigned-work'
@@ -47,17 +49,7 @@ interface IAssignedWorkService {
   remake(
     id: string,
     remakeOptions?: AssignedWorkRemakeOptions
-  ): Promise<ApiResponse<{ id: string }>>
-  /**
-   * Gets or creates an assigned work by material ID. The work attached to the material will be used if it exists, otherwise an error will come from the server.
-   *
-   * @param id The ID of the assigned work to update progress for.
-   * @param progress The new progress object to set.
-   * @returns A promise that resolves to an ApiResponse containing the updated AssignedWorkProgress object.
-   */
-  getOrCreateByMaterialId(
-    materialId: string
-  ): Promise<ApiResponse<{ id: string }>>
+  ): Promise<ApiResponse<IdResponseDto>>
   /**
    * Marks an assigned work as solved.
    *
@@ -70,22 +62,16 @@ interface IAssignedWorkService {
    * @param id The ID of the assigned work to mark as checked.
    */
   markChecked(id: string): Promise<ApiResponse>
-  /**
-   * Save an answer to an assigned work.
-   *
-   * @param answers The answer objects to save.
-   * @returns A promise that resolves to an ApiResponse containing the map with task IDs as keys and answer IDs as values.
-   */
-  saveAnswers(
-    answers: AssignedWorkAnswerEntity[]
-  ): Promise<ApiResponse<Record<string, string>>>
-  /**
-   * Save a comment to an assigned work.
-   *
-   * @param comment The comment object to save.
-   * @returns A promise that resolves to an ApiResponse containing the ID of the saved comment.
-   */
-  saveComment(comment: AssignedWorkCommentEntity): Promise<ApiResponse<string>>
+  /** Save (upsert) a single answer for an assigned work. */
+  saveAnswer(
+    assignedWorkId: string,
+    answer: UpsertAssignedWorkAnswerDto
+  ): Promise<ApiResponse<IdResponseDto>>
+  /** Save (upsert) a comment for an assigned work. */
+  saveComment(
+    assignedWorkId: string,
+    comment: UpsertAssignedWorkCommentDto
+  ): Promise<ApiResponse<IdResponseDto>>
   /**
    * Archive an assigned work. The work will be archived for the current user or a user role.
    *
@@ -106,25 +92,25 @@ interface IAssignedWorkService {
    */
   addMentor(id: string, options: AddHelperMentorOptions): Promise<ApiResponse>
   /**
-   * Remove a mentor from an assigned work. If the mentor is not assigned, an error will be returned from server.
-   *
-   * @param id The ID of the assigned work to remove a mentor from.
-   * @param mentorId The ID of the mentor to be removed.
-   */
-  removeMentor(id: string, mentorId: string): Promise<ApiResponse>
-  /**
    * Replace main mentor of assigned work.
    *
    * @param id The ID of the assigned work to replace the main mentor.
-   * @param mentorId The ID of the new main mentor.
+   * @param options Replace options.
    */
-  replaceMainMentor(id: string, mentorId: string): Promise<ApiResponse>
+  replaceMainMentor(
+    id: string,
+    options: ReplaceMainMentorOptions
+  ): Promise<ApiResponse>
   /**
    * Shift the deadline for an assigned work. The deadline will be shifted for the current user or a user role.
    *
    * @param id The ID of the assigned work to shift the deadline for.
+   * @param options Shift options.
    */
-  shiftDeadline(id: string): Promise<ApiResponse>
+  shiftDeadline(
+    id: string,
+    options: ShiftAssignedWorkDeadlineOptions
+  ): Promise<ApiResponse>
   /**
    * Mark an assigned work as unsolved.
    *
@@ -137,15 +123,6 @@ interface IAssignedWorkService {
    * @param id The ID of the assigned work to mark as unchecked.
    */
   markUnchecked(id: string): Promise<ApiResponse>
-  /**
-   * Get the change history of an assigned work.
-   *
-   * @param assignedWorkId The ID of the assigned work to get history for.
-   * @returns A promise that resolves to an ApiResponse containing an array of AssignedWorkEntity objects representing the history.
-   */
-  getHistory(
-    assignedWorkId: string
-  ): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>>
   /** Delete an assigned work.
    *
    * @param id The ID of the assigned work to be deleted.
@@ -172,34 +149,41 @@ async function getProgress(
 async function remake(
   id: string,
   remakeOptions?: AssignedWorkRemakeOptions
-): Promise<ApiResponse<{ id: string }>> {
-  return await Api.post(`${BASE_PATH}/${id}/remake`, remakeOptions)
-}
-
-async function getOrCreateByMaterialId(
-  materialId: string
-): Promise<ApiResponse<{ id: string }>> {
-  return await Api.get(`${BASE_PATH}/material/${materialId}`)
+): Promise<ApiResponse<IdResponseDto>> {
+  return await Api.post<AssignedWorkRemakeOptions | undefined, IdResponseDto>(
+    `${BASE_PATH}/${id}/remake`,
+    remakeOptions
+  )
 }
 
 async function markSolved(id: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/mark-solved`)
+  // OpenAPI: POST /assigned-work/{assignedWorkId}/mark-solved
+  return await Api.post<void, void>(`${BASE_PATH}/${id}/mark-solved`)
 }
 
 async function markChecked(id: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/mark-checked`)
+  // OpenAPI: POST /assigned-work/{assignedWorkId}/mark-checked
+  return await Api.post<void, void>(`${BASE_PATH}/${id}/mark-checked`)
 }
 
-async function saveAnswers(
-  answers: AssignedWorkAnswerEntity[]
-): Promise<ApiResponse<Record<string, string>>> {
-  return await Api.post(`${BASE_PATH}/answers`, answers)
+async function saveAnswer(
+  assignedWorkId: string,
+  answer: UpsertAssignedWorkAnswerDto
+): Promise<ApiResponse<IdResponseDto>> {
+  return await Api.post<UpsertAssignedWorkAnswerDto, IdResponseDto>(
+    `${BASE_PATH}/${assignedWorkId}/save-answer`,
+    answer
+  )
 }
 
 async function saveComment(
-  comment: AssignedWorkCommentEntity
-): Promise<ApiResponse<string>> {
-  return await Api.post(`${BASE_PATH}/comments`, comment)
+  assignedWorkId: string,
+  comment: UpsertAssignedWorkCommentDto
+): Promise<ApiResponse<IdResponseDto>> {
+  return await Api.post<UpsertAssignedWorkCommentDto, IdResponseDto>(
+    `${BASE_PATH}/${assignedWorkId}/comment`,
+    comment
+  )
 }
 
 async function archive(id: string): Promise<ApiResponse> {
@@ -217,36 +201,28 @@ async function addMentor(
   return await Api.patch(`${BASE_PATH}/${id}/add-helper-mentor`, options)
 }
 
-async function removeMentor(
-  id: string,
-  mentorId: string
-): Promise<ApiResponse> {
-  return await Api.delete(`${BASE_PATH}/${id}/mentors/${mentorId}`)
-}
-
 async function replaceMainMentor(
   id: string,
-  mentorId: string
+  options: ReplaceMainMentorOptions
 ): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/mentors/${mentorId}/replace-main`)
+  return await Api.patch(`${BASE_PATH}/${id}/replace-main-mentor`, options)
 }
 
-async function shiftDeadline(id: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/shift-deadline`)
+async function shiftDeadline(
+  id: string,
+  options: ShiftAssignedWorkDeadlineOptions
+): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${id}/shift-deadline`, options)
 }
 
 async function markUnsolved(id: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/mark-unsolved`)
+  // OpenAPI: PATCH /assigned-work/{assignedWorkId}/return-to-solve
+  return await Api.patch<void, void>(`${BASE_PATH}/${id}/return-to-solve`)
 }
 
 async function markUnchecked(id: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}/mark-unchecked`)
-}
-
-async function getHistory(
-  assignedWorkId: string
-): Promise<ApiResponse<AssignedWorkStatusHistoryEntity[]>> {
-  return await Api.get(`${BASE_PATH}/${assignedWorkId}/history`)
+  // OpenAPI: PATCH /assigned-work/{assignedWorkId}/return-to-check
+  return await Api.patch<void, void>(`${BASE_PATH}/${id}/return-to-check`)
 }
 
 async function deleteAssignedWork(id: string): Promise<ApiResponse> {
@@ -258,19 +234,16 @@ export const AssignedWorkService: IAssignedWorkService = {
   getById,
   getProgress,
   remake,
-  getOrCreateByMaterialId,
   markSolved,
   markChecked,
-  saveAnswers,
+  saveAnswer,
   saveComment,
   archive,
   unarchive,
   addMentor,
-  removeMentor,
   replaceMainMentor,
   shiftDeadline,
   markUnsolved,
   markUnchecked,
-  getHistory,
   delete: deleteAssignedWork
 }

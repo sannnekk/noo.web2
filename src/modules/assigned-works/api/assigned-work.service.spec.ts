@@ -5,9 +5,10 @@ import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import { AssignedWorkService } from './assigned-work.service'
 import type {
   AddHelperMentorOptions,
-  AssignedWorkAnswerEntity,
-  AssignedWorkCommentEntity,
-  AssignedWorkRemakeOptions
+  AssignedWorkRemakeOptions,
+  ShiftAssignedWorkDeadlineOptions,
+  UpsertAssignedWorkAnswerDto,
+  UpsertAssignedWorkCommentDto
 } from './assigned-work.types'
 
 // Mock the entire API module
@@ -91,7 +92,7 @@ describe('AssignedWorkService', () => {
         includeOnlyWrongTasks: true
       }
 
-      ;(Api.post as Mock).mockResolvedValue({ data: 'new-id' })
+      ;(Api.post as Mock).mockResolvedValue({ data: { id: 'new-id' } })
 
       const result = await AssignedWorkService.remake(mockId, mockOptions)
 
@@ -99,23 +100,7 @@ describe('AssignedWorkService', () => {
         `/assigned-work/${mockId}/remake`,
         mockOptions
       )
-      expect(result.data).toBe('new-id')
-    })
-  })
-
-  describe('getOrCreateByMaterialId', () => {
-    test('should call material endpoint', async () => {
-      const mockMaterialId = 'material-123'
-
-      ;(Api.get as Mock).mockResolvedValue({ data: 'work-id' })
-
-      const result =
-        await AssignedWorkService.getOrCreateByMaterialId(mockMaterialId)
-
-      expect(Api.get).toHaveBeenCalledWith(
-        `/assigned-work/material/${mockMaterialId}`
-      )
-      expect(result.data).toBe('work-id')
+      expect(result.data).toEqual({ id: 'new-id' })
     })
   })
 
@@ -123,40 +108,40 @@ describe('AssignedWorkService', () => {
     test('should call mark-solved endpoint', async () => {
       const mockId = '123'
 
-      ;(Api.patch as Mock).mockResolvedValue({})
+      ;(Api.post as Mock).mockResolvedValue({})
 
       await AssignedWorkService.markSolved(mockId)
-      expect(Api.patch).toHaveBeenCalledWith(
+      expect(Api.post).toHaveBeenCalledWith(
         `/assigned-work/${mockId}/mark-solved`
       )
     })
   })
 
   describe('saveAnswer', () => {
-    test('should post answer to answers endpoint', async () => {
-      const mockAnswer: AssignedWorkAnswerEntity = {
-        _entityName: 'AssignedWorkAnswer',
+    test('should post answer to save-answer endpoint', async () => {
+      const mockAssignedWorkId = 'aw1'
+      const payload: UpsertAssignedWorkAnswerDto = {
         id: 'a1',
         taskId: 't1',
         status: 'not-submitted',
-        richTextContent: null,
         wordContent: null,
-        mentorComment: null,
         score: null,
         detailedScore: null,
-        maxScore: 10,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        maxScore: 10
       }
 
-      ;(Api.post as Mock).mockResolvedValue({ data: 'answer-id' })
+      ;(Api.post as Mock).mockResolvedValue({ data: { id: 'answer-id' } })
 
-      const result = await AssignedWorkService.saveAnswers([mockAnswer])
+      const result = await AssignedWorkService.saveAnswer(
+        mockAssignedWorkId,
+        payload
+      )
 
-      expect(Api.post).toHaveBeenCalledWith('/assigned-work/answers', [
-        mockAnswer
-      ])
-      expect(result.data).toBe('answer-id')
+      expect(Api.post).toHaveBeenCalledWith(
+        `/assigned-work/${mockAssignedWorkId}/save-answer`,
+        payload
+      )
+      expect(result.data).toEqual({ id: 'answer-id' })
     })
   })
 
@@ -165,8 +150,7 @@ describe('AssignedWorkService', () => {
       const mockId = '123'
       const mockMentorId = 'm1'
       const mockOptions: AddHelperMentorOptions = {
-        mentorId: mockMentorId,
-        notifyMentor: true
+        mentorId: mockMentorId
       }
 
       ;(Api.patch as Mock).mockResolvedValue({})
@@ -195,46 +179,51 @@ describe('AssignedWorkService', () => {
     test('should call mark-checked endpoint', async () => {
       const mockId = '123'
 
-      ;(Api.patch as Mock).mockResolvedValue({})
+      ;(Api.post as Mock).mockResolvedValue({})
 
       await AssignedWorkService.markChecked(mockId)
-      expect(Api.patch).toHaveBeenCalledWith(
+      expect(Api.post).toHaveBeenCalledWith(
         `/assigned-work/${mockId}/mark-checked`
       )
     })
   })
 
   describe('saveComment', () => {
-    test('should post comment to comments endpoint', async () => {
-      const mockComment: AssignedWorkCommentEntity = {
-        _entityName: 'AssignedWorkComment',
-        id: 'c1',
-        content: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
+    test('should post comment to comment endpoint', async () => {
+      const mockAssignedWorkId = 'aw1'
+      const payload: UpsertAssignedWorkCommentDto = {
+        id: 'c1'
       }
 
-      ;(Api.post as Mock).mockResolvedValue({ data: 'comment-id' })
+      ;(Api.post as Mock).mockResolvedValue({ data: { id: 'comment-id' } })
 
-      const result = await AssignedWorkService.saveComment(mockComment)
+      const result = await AssignedWorkService.saveComment(
+        mockAssignedWorkId,
+        payload
+      )
 
       expect(Api.post).toHaveBeenCalledWith(
-        '/assigned-work/comments',
-        mockComment
+        `/assigned-work/${mockAssignedWorkId}/comment`,
+        payload
       )
-      expect(result.data).toBe('comment-id')
+      expect(result.data).toEqual({ id: 'comment-id' })
     })
   })
 
   describe('shiftDeadline', () => {
     test('should call shift-deadline endpoint', async () => {
       const mockId = '123'
+      const options: ShiftAssignedWorkDeadlineOptions = {
+        newDeadline: new Date('2025-01-01T00:00:00.000Z'),
+        notifyOthers: true
+      }
 
       ;(Api.patch as Mock).mockResolvedValue({})
 
-      await AssignedWorkService.shiftDeadline(mockId)
+      await AssignedWorkService.shiftDeadline(mockId, options)
       expect(Api.patch).toHaveBeenCalledWith(
-        `/assigned-work/${mockId}/shift-deadline`
+        `/assigned-work/${mockId}/shift-deadline`,
+        options
       )
     })
   })

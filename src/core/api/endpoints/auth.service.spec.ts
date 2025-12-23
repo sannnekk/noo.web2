@@ -51,19 +51,21 @@ describe('AuthService', () => {
 
   describe('forgotPassword', () => {
     it('should send password reset email', async () => {
-      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+      const spy = vi.spyOn(Api, 'patch').mockResolvedValue(mockSuccessResponse)
       const email = 'user@example.com'
 
       const result = await AuthService.forgotPassword(email)
 
-      expect(spy).toHaveBeenCalledWith('/auth/forgot-password', { email })
+      expect(spy).toHaveBeenCalledWith('/auth/request-password-change', {
+        email
+      })
       expect(result).toEqual(mockSuccessResponse)
     })
   })
 
   describe('resetPassword', () => {
     it('should submit new password', async () => {
-      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+      const spy = vi.spyOn(Api, 'patch').mockResolvedValue(mockSuccessResponse)
       const payload: ResetPasswordPayload = {
         token: 'reset-token',
         newPassword: 'new-password'
@@ -71,19 +73,19 @@ describe('AuthService', () => {
 
       const result = await AuthService.resetPassword(payload)
 
-      expect(spy).toHaveBeenCalledWith('/auth/reset-password', payload)
+      expect(spy).toHaveBeenCalledWith('/auth/confirm-password-change', payload)
       expect(result).toEqual(mockSuccessResponse)
     })
   })
 
   describe('verifyEmail', () => {
     it('should validate email token', async () => {
-      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+      const spy = vi.spyOn(Api, 'patch').mockResolvedValue(mockSuccessResponse)
       const token = 'email-verification-token'
 
       const result = await AuthService.verifyEmail(token)
 
-      expect(spy).toHaveBeenCalledWith('/auth/verify-email', { token })
+      expect(spy).toHaveBeenCalledWith('/auth/confirm-email-change', { token })
       expect(result).toEqual(mockSuccessResponse)
     })
   })
@@ -102,7 +104,12 @@ describe('AuthService', () => {
 
       const result = await AuthService.register(payload)
 
-      expect(spy).toHaveBeenCalledWith('/auth/register', payload)
+      expect(spy).toHaveBeenCalledWith('/auth/register', {
+        name: payload.name,
+        username: payload.username,
+        email: payload.email,
+        password: payload.password
+      })
       expect(result).toEqual(mockSuccessResponse)
     })
   })
@@ -113,7 +120,7 @@ describe('AuthService', () => {
 
       const result = await AuthService.removeCurrentSession()
 
-      expect(spy).toHaveBeenCalledWith('/auth/current-session')
+      expect(spy).toHaveBeenCalledWith('/session')
       expect(result).toEqual(mockSuccessResponse)
     })
   })

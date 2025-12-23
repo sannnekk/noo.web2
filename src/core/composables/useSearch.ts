@@ -27,7 +27,7 @@ interface UseSearchReturn<T> {
   page: ShallowRef<number>
   pageSize: ShallowRef<number>
   sort: ShallowRef<string | undefined>
-  sortDirection: ShallowRef<'asc' | 'desc' | undefined>
+  sortDirection: ShallowRef<'ascending' | 'descending' | undefined>
   total: ShallowRef<number>
   error: ShallowRef<ApiError | null>
   filters: ShallowRef<IPagination['filters']>
@@ -48,7 +48,7 @@ function useSearch<T>(
   const total = shallowRef<number>(0)
   const filters = ref<IPagination['filters']>()
   const sort = shallowRef<string>()
-  const sortDirection = shallowRef<'asc' | 'desc'>('desc')
+  const sortDirection = shallowRef<'ascending' | 'descending'>('descending')
   const isLoading = shallowRef<boolean>(false)
   const error = shallowRef<ApiError | null>(null)
 
@@ -69,7 +69,7 @@ function useSearch<T>(
 
       data.value = response.data ?? []
       error.value = response.error ?? null
-      total.value = response.metadata?.total ?? 0
+      total.value = response.meta?.total ?? 0
     } finally {
       isLoading.value = false
     }
