@@ -3,7 +3,8 @@
     class="noo-error-block"
     :class="{
       'noo-error-block--centered': centered,
-      'noo-error-block__with-image': withImage
+      'noo-error-block__with-image': withImage,
+      'noo-error-block--no-margin': noMargin
     }"
   >
     <div
@@ -44,6 +45,7 @@ interface Props {
   withImage?: boolean
   tryAgain?: () => unknown
   centered?: boolean
+  noMargin?: boolean
 }
 
 defineProps<Props>()
@@ -59,6 +61,9 @@ defineProps<Props>()
   background-color: var(--lightest)
   color: var(--danger)
   width: min(100%, 600px)
+
+  &--no-margin
+    padding: 0
 
   &--centered
     justify-content: center
@@ -91,4 +96,9 @@ defineProps<Props>()
     flex-wrap: wrap
     flex-direction: row
     gap: 0.5em
+
+  :deep() ul
+    padding-left: 1.5em
+    margin: 0.2em 0
+    line-height: 1.1em
 </style>

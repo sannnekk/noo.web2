@@ -12,7 +12,7 @@
     <template #content>
       <div class="save-work-changes-modal__content">
         <noo-text-block
-          v-if="changesCount > 0"
+          v-if="hasChanges"
           dimmed
         >
           {{
@@ -50,6 +50,22 @@
             </div>
           </template>
         </noo-collapsable-block>
+        <noo-error-block
+          v-if="workDetailStore.workValidationState.isValid === false"
+          no-margin
+        >
+          Не все поля работы заполнены корректно. Пожалуйста, исправьте ошибки:
+          <ul>
+            <li
+              v-for="(error, index) in workDetailStore.workValidationState
+                .errors"
+              :key="index"
+            >
+              {{ error }}
+            </li>
+          </ul>
+        </noo-error-block>
+        {{ workDetailStore.task }}
       </div>
     </template>
     <template #actions>
@@ -60,8 +76,10 @@
         Отмена
       </noo-button>
       <noo-button
-        v-if="changesCount > 0"
         variant="primary"
+        :disabled="
+          !hasChanges || workDetailStore.workValidationState.isValid === false
+        "
         @click="onSave()"
       >
         Сохранить
@@ -71,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { workPathLabels } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
 
@@ -82,6 +100,10 @@ const isOpenModel = defineModel<boolean>('isOpen', {
 const workDetailStore = useWorkDetailStore()
 
 const changesCount = ref(0)
+
+const hasChanges = computed(
+  () => workDetailStore.mode === 'create' || changesCount.value > 0
+)
 
 watch(isOpenModel, () => {
   changesCount.value = workDetailStore.workPatchGenerator?.countChanges() ?? 0

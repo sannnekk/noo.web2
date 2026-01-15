@@ -5,8 +5,9 @@ import {
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
+import type { ZodFieldErrors } from '@/core/validators/zod-validation.utils'
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { ref, shallowRef, watch, type Ref, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
@@ -15,7 +16,7 @@ import type {
   PossiblyUnsavedWorkTask,
   WorkViewMode
 } from '../types'
-import { validateWorkState } from '../utils'
+import { validateWorkState, validateWorkTaskState } from '../utils'
 
 interface WorkDetailStore {
   /**
@@ -43,6 +44,14 @@ interface WorkDetailStore {
     isValid: boolean
     errors: string[]
   }>
+  /**
+   * Validation errors for work fields.
+   */
+  workFieldErrors: Ref<ZodFieldErrors>
+  /**
+   * Validation errors for current task fields.
+   */
+  taskFieldErrors: Ref<ZodFieldErrors>
   /**
    * Validates the current work.
    * This function should be implemented to check the work's validity.
@@ -105,18 +114,47 @@ const useWorkDetailStore = defineStore(
       isValid: true,
       errors: []
     })
+    const workFieldErrors = ref<ZodFieldErrors>({})
+    const taskFieldErrors = ref<ZodFieldErrors>({})
 
     function validateWork(): void {
       if (!work.value) {
+        workFieldErrors.value = {}
+        workValidationState.value = {
+          isValid: true,
+          errors: []
+        }
+
         return
       }
 
-      const errors = validateWorkState(work.value)
+      const result = validateWorkState(work.value)
+
+      const detailedErrors = Object.entries(result.fieldErrors).flatMap(
+        ([path, errors]) =>
+          errors.map((error) =>
+            path ? `${path}: ${error.message}` : error.message
+          )
+      )
 
       workValidationState.value = {
-        isValid: errors.length === 0,
-        errors
+        isValid: result.isValid,
+        errors: detailedErrors
       }
+
+      workFieldErrors.value = result.fieldErrors
+    }
+
+    function validateTask(): void {
+      if (!task.value) {
+        taskFieldErrors.value = {}
+
+        return
+      }
+
+      const result = validateWorkTaskState(task.value)
+
+      taskFieldErrors.value = result.fieldErrors
     }
 
     async function init(workId?: string): Promise<void> {
@@ -131,6 +169,8 @@ const useWorkDetailStore = defineStore(
           tasks: [],
           subjectId: ''
         }
+
+        validateWork()
 
         return
       }
@@ -159,6 +199,7 @@ const useWorkDetailStore = defineStore(
       work.value = loadedWork
       workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)
       mode.value = 'view'
+      validateWork()
     }
 
     function nextTask(): void {
@@ -202,6 +243,9 @@ const useWorkDetailStore = defineStore(
         showAnswerBeforeCheck: false,
         checkOneByOne: false
       })
+
+      validateWork()
+      validateTask()
     }
 
     function removeTask(key: string): void {
@@ -214,6 +258,8 @@ const useWorkDetailStore = defineStore(
       }
 
       work.value.tasks = work.value.tasks.filter((t) => t._key !== key)
+
+      validateWork()
     }
 
     async function save(): Promise<void> {
@@ -265,10 +311,17 @@ const useWorkDetailStore = defineStore(
       work.value = null
       task.value = null
       mode.value = 'view'
+      workFieldErrors.value = {}
+      taskFieldErrors.value = {}
     }
+
+    watch(work, validateWork, { deep: true })
+    watch(task, validateTask, { deep: true })
 
     return {
       workValidationState,
+      workFieldErrors,
+      taskFieldErrors,
       validateWork,
       work,
       workPatchGenerator,

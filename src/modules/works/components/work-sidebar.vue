@@ -14,6 +14,7 @@
         v-model:subject="workDetailStore.work.subject"
         v-model:subject-id="workDetailStore.work.subjectId"
         label="Предмет"
+        :errors="workDetailStore.workFieldErrors.subjectId"
       />
     </div>
     <div class="work-sidebar__title">
@@ -27,7 +28,7 @@
         v-else
         v-model="workDetailStore.work.title"
         label="Название работы"
-        :validators="[(value) => maxLength(value, 200)]"
+        :errors="workDetailStore.workFieldErrors.title"
       />
     </div>
     <div class="work-sidebar__type">
@@ -45,6 +46,7 @@
         v-else
         v-model="workDetailStore.work.type"
         label="Тип работы"
+        :errors="workDetailStore.workFieldErrors.type"
       />
     </div>
     <div class="work-sidebar__description">
@@ -59,6 +61,7 @@
         v-else
         v-model="workDetailStore.work.description"
         label="Описание работы"
+        :errors="workDetailStore.workFieldErrors.description"
       />
     </div>
     <div
@@ -124,7 +127,6 @@
 
 <script setup lang="ts">
 import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
-import { maxLength } from '@/core/validators/string.utils'
 import { computed, shallowRef } from 'vue'
 import { workConfig } from '../config'
 import { workTypes } from '../constants'
@@ -147,10 +149,7 @@ const canAddTask = computed(() => {
 })
 
 const canSaveWork = computed(() => {
-  return (
-    (workDetailStore.mode === 'create' || workDetailStore.mode === 'edit') &&
-    workDetailStore.workValidationState.isValid
-  )
+  return workDetailStore.mode === 'create' || workDetailStore.mode === 'edit'
 })
 
 /**

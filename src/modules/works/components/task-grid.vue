@@ -8,6 +8,9 @@
           class="task-grid__grid__item"
           :class="{
             'task-grid__grid__item--active': task._key === activeTaskKey,
+            'task-grid__grid__item--invalid': invalidTaskKeys.includes(
+              task._key
+            ),
             'task-grid__grid__item--word': task.type === 'word',
             'task-grid__grid__item--text': task.type === 'text',
             'task-grid__grid__item--essay': task.type === 'essay',
@@ -46,6 +49,7 @@
 import { computed } from 'vue'
 import { taskTypes } from '../constants'
 import type { PossiblyUnsavedWorkTask } from '../types'
+import { validateWorkTaskState } from '../utils'
 
 interface LegendItem {
   color: string
@@ -68,6 +72,12 @@ const legend = computed<LegendItem[]>(() => {
   return taskTypes.filter((type) =>
     props.tasks.some((task) => task.type === type.value)
   )
+})
+
+const invalidTaskKeys = computed(() => {
+  return props.tasks
+    .filter((task) => !validateWorkTaskState(task).isValid)
+    .map((task) => task._key)
 })
 
 const taskTypeColors = taskTypes.reduce(
@@ -111,6 +121,10 @@ const taskTypeColors = taskTypes.reduce(
       &--active
         background-color: var(--primary)
         color: var(--black)
+
+      &--invalid
+        background-color: var(--danger) !important
+        color: var(--white) !important
 
       &--word
         border-color: v-bind('taskTypeColors["word"]')

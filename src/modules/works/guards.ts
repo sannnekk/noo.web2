@@ -7,7 +7,7 @@ async function loadWorkGuard(
   const workDetailStore = useWorkDetailStore()
   const workId = to.params.workId as string | undefined
 
-  workDetailStore.init(workId)
+  await workDetailStore.init(workId)
 
   return true
 }

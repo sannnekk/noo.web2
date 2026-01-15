@@ -22,6 +22,7 @@
           label="Тип задания"
           :options="taskTypes"
           :readonly="isReadonlyMode"
+          :errors="workDetailStore.taskFieldErrors.type"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -35,6 +36,7 @@
           label="Максимальный балл"
           :options="taskTypes"
           :readonly="isReadonlyMode"
+          :errors="workDetailStore.taskFieldErrors.maxScore"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -50,6 +52,7 @@
             label="Тип проверки"
             :options="taskCheckStrategies"
             :readonly="isReadonlyMode"
+            :errors="workDetailStore.taskFieldErrors.checkStrategy"
           />
         </noo-if-animation>
       </noo-grid-layout-item>
@@ -65,6 +68,7 @@
             v-model="workDetailStore.task.rightAnswers"
             label="Правильные ответы"
             :readonly="isReadonlyMode"
+            :errors="workDetailStore.taskFieldErrors.rightAnswers"
           />
         </noo-if-animation>
       </noo-grid-layout-item>
@@ -115,6 +119,7 @@
           :placeholder="
             isReadonlyMode ? 'Нет текста задания' : 'Введите текст задания'
           "
+          :errors="workDetailStore.taskFieldErrors.content"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -129,6 +134,7 @@
           :placeholder="
             isReadonlyMode ? 'Нет текста подсказки' : 'Введите текст подсказки'
           "
+          :errors="workDetailStore.taskFieldErrors.solveHint"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -145,6 +151,7 @@
               ? 'Нет текста объяснения'
               : 'Введите текст объяснения'
           "
+          :errors="workDetailStore.taskFieldErrors.explanation"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item

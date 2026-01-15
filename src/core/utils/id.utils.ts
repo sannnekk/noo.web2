@@ -24,7 +24,11 @@ function convertToLocal<
   TName extends string = T['_entityName'],
   U = PossiblyUnsavedEntity<T, TName>
 >(obj: T): U {
-  const localObj: PossiblyUnsavedEntity<T, TName> = { ...obj, _key: uid() }
+  const hasEntityName =
+    typeof (obj as Record<string, unknown>)._entityName === 'string'
+  const localObj = (hasEntityName
+    ? { ...obj, _key: uid() }
+    : { ...obj }) as unknown as PossiblyUnsavedEntity<T, TName>
 
   for (const [key, value] of Object.entries(localObj)) {
     if (Array.isArray(value)) {
@@ -33,7 +37,11 @@ function convertToLocal<
       continue
     }
 
-    if (typeof value === 'object' && value !== null) {
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      Object.prototype.isPrototypeOf.call(Date.prototype, value) === false
+    ) {
       // @ts-expect-error - we know that we can index into localObj with key
       localObj[key] = convertToLocal(value as ApiEntity) as unknown
     }

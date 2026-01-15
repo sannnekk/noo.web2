@@ -3,7 +3,7 @@ import { appConfig } from '../config/app.config'
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
 import { ApiErrorCodes } from './api-error-codes.data'
-import { serialize } from './serialization.utils'
+import { reviveDates, serialize } from './serialization.utils'
 
 export type ApiResponse<T = void> =
   | {
@@ -45,7 +45,16 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json'
-  }
+  },
+  transformResponse: [
+    (data) => {
+      if (typeof data === 'string') {
+        return JSON.parse(data, reviveDates)
+      }
+
+      return data
+    }
+  ]
 })
 
 function normalizeSuccessResponse<T>(raw: unknown): ApiResponse<T> {
