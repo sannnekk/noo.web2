@@ -65,7 +65,6 @@
             </li>
           </ul>
         </noo-error-block>
-        {{ workDetailStore.task }}
       </div>
     </template>
     <template #actions>

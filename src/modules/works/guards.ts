@@ -7,7 +7,8 @@ async function loadWorkGuard(
   const workDetailStore = useWorkDetailStore()
   const workId = to.params.workId as string | undefined
 
-  await workDetailStore.init(workId)
+  // explicitly without await as we don't want to block navigation
+  workDetailStore.init(workId)
 
   return true
 }
