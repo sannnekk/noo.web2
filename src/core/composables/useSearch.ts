@@ -1,7 +1,11 @@
 import { debouncedWatch } from '@vueuse/core'
 import { ref, shallowRef, type ShallowRef } from 'vue'
 import type { ApiError, ApiResponse } from '../api/api.utils'
-import { Pagination, type IPagination } from '../utils/pagination.utils'
+import {
+  Pagination,
+  type IPagination,
+  type SortDirection
+} from '../utils/pagination.utils'
 
 interface UseSearchOptions {
   /**
@@ -27,7 +31,7 @@ interface UseSearchReturn<T> {
   page: ShallowRef<number>
   pageSize: ShallowRef<number>
   sort: ShallowRef<string | undefined>
-  sortDirection: ShallowRef<'ascending' | 'descending' | undefined>
+  sortDirection: ShallowRef<SortDirection | undefined>
   total: ShallowRef<number>
   error: ShallowRef<ApiError | null>
   filters: ShallowRef<IPagination['filters']>
@@ -48,7 +52,7 @@ function useSearch<T>(
   const total = shallowRef<number>(0)
   const filters = ref<IPagination['filters']>()
   const sort = shallowRef<string>()
-  const sortDirection = shallowRef<'ascending' | 'descending'>('descending')
+  const sortDirection = shallowRef<SortDirection>('Descending')
   const isLoading = shallowRef<boolean>(false)
   const error = shallowRef<ApiError | null>(null)
 
@@ -86,10 +90,7 @@ function useSearch<T>(
     const combinedFilters = [...(filters ?? []), ...(initialFilters ?? [])]
 
     return combinedFilters.filter((filter, index, self) => {
-      return (
-        index ===
-        self.findIndex((f) => f.getQueryKey() === filter.getQueryKey())
-      )
+      return index === self.findIndex((f) => f.getKey() === filter.getKey())
     })
   }
 

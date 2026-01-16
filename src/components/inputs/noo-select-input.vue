@@ -31,7 +31,7 @@ interface Props {
   label: string
   options: {
     label: string
-    value: T
+    value: T | null
   }[]
   readonly?: boolean
   errors?: ValidationError[]
@@ -39,7 +39,7 @@ interface Props {
 
 defineProps<Props>()
 
-const model = defineModel<T>({
+const model = defineModel<T | null>({
   default: null,
   required: true
 })

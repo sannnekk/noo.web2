@@ -46,7 +46,7 @@ interface Props {
 
 defineProps<Props>()
 
-const model = defineModel<string | undefined>('model', {
+const model = defineModel<string | undefined>({
   default: ''
 })
 

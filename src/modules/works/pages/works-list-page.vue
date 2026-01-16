@@ -14,6 +14,27 @@
         })
       "
     >
+      <template #above-content>
+        <noo-search-filters v-model:filters="search.filters.value">
+          <noo-search-range-filter
+            v-model:filters="search.filters.value"
+            filter-key="createdAt"
+            from-label="Дата создания с"
+            to-label="до"
+          />
+          <noo-search-subject-filter
+            v-model:filters="search.filters.value"
+            filter-key="subjectId"
+          />
+          <noo-search-enum-filter
+            v-model:filters="search.filters.value"
+            filter-key="type"
+            label="Тип"
+            multiple
+            :options="workTypes"
+          />
+        </noo-search-filters>
+      </template>
       <template #actions>
         <noo-button
           :to="{ name: 'works.edit' }"
@@ -60,6 +81,7 @@ import type { EntityTableColumnType } from '@/components/entity-table/entity-tab
 import { useSearch } from '@/core/composables/useSearch'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity } from '../api/work.types'
+import { workTypes } from '../constants'
 
 const search = useSearch<WorkEntity>(WorkService.get)
 

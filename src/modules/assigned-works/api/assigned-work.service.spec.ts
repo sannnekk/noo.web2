@@ -28,10 +28,14 @@ describe('AssignedWorkService', () => {
 
   describe('get', () => {
     test('should fetch assigned works with pagination', async () => {
+      const query = new URLSearchParams()
+      query.append('page', '1')
+      query.append('perPage', '10')
+
       const mockPagination: IPagination = {
         page: 1,
         pageSize: 10,
-        toQuery: () => ({ page: '1', pageSize: '10' })
+        toQuery: () => query
       }
       const mockData = [{ id: '1' }]
 
@@ -39,10 +43,15 @@ describe('AssignedWorkService', () => {
 
       const result = await AssignedWorkService.get(mockPagination)
 
-      expect(Api.get).toHaveBeenCalledWith('/assigned-work', {
-        page: '1',
-        pageSize: '10'
-      })
+      expect(Api.get).toHaveBeenCalledWith(
+        '/assigned-work',
+        expect.any(URLSearchParams)
+      )
+
+      const params = (Api.get as Mock).mock.calls[0]?.[1] as URLSearchParams
+
+      expect(params.get('page')).toBe('1')
+      expect(params.get('perPage')).toBe('10')
       expect(result.data).toEqual(mockData)
     })
 

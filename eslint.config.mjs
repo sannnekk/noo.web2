@@ -15,6 +15,7 @@ export default defineConfig([
       '**/node_modules/**',
       '**/*.d.ts',
       '**/*.spec.ts',
+      '**/*.test.ts',
       '**/.output/**',
       '**/.cache/**',
       './*.*'

@@ -1,134 +1,181 @@
+export type SortDirection = 'Ascending' | 'Descending'
+
+export type FilterPrimitive = string | number | boolean | Date
+
+export interface QueryEntry {
+  key: string
+  value: string
+}
+
 export interface IPagination {
   page?: number
   pageSize?: number
-  sortBy?: string
-  sortDirection?: 'ascending' | 'descending'
+  sort?: string
+  sortDirection?: SortDirection
   filters?: IFilter[]
-  toQuery: () => Record<string, string>
+  search?: string
+  toQuery: () => URLSearchParams
 }
 
 export interface IFilter {
-  getQueryKey: () => string
-  getQueryValue: () => string
+  getKey: () => string
+  getEntries: () => QueryEntry[]
 }
 
 class Pagination implements IPagination {
   public page: number
   public pageSize: number
-  public sortBy?: string
-  public sortDirection?: 'ascending' | 'descending'
+  public sort?: string
+  public sortDirection?: SortDirection
   public filters: IFilter[]
   public search?: string
 
   public constructor(
     page = 1,
     pageSize = 10,
-    sortBy: string | undefined = undefined,
-    sortDirection: 'ascending' | 'descending' | undefined = 'descending',
+    sort: string | undefined = undefined,
+    sortDirection: SortDirection | undefined = 'Descending',
     filters: IFilter[] = [],
     search: string | undefined = undefined
   ) {
     this.page = page
     this.pageSize = pageSize
-    this.sortBy = sortBy
+    this.sort = sort
     this.sortDirection = sortDirection
     this.filters = filters
     this.search = search
   }
 
-  public toQuery(): Record<string, string> {
+  public toQuery(): URLSearchParams {
     const params: URLSearchParams = new URLSearchParams()
 
     if (this.page) {
-      params.append('Page', this.page.toString())
+      params.append('page', this.page.toString())
     }
     if (this.pageSize) {
-      params.append('PerPage', this.pageSize.toString())
+      params.append('perPage', this.pageSize.toString())
     }
-    if (this.sortBy) {
-      params.append('Sort', this.sortBy)
-      params.append('SortBy', this.sortDirection ?? 'descending')
+    if (this.sort) {
+      params.append('sort', this.sort)
+      params.append('sortBy', this.sortDirection ?? 'Descending')
     }
-    if (this.search) {
-      params.append('Search', this.safeQueryString(this.search))
+    if (this.search?.trim()) {
+      params.append('search', this.search.trim())
     }
 
     if (this.filters.length) {
       this.filters.forEach((filter) => {
-        const key = filter.getQueryKey()
-        const value = filter.getQueryValue()
-
-        // OpenAPI schema uses direct query parameters (e.g. SolveStatus, SubjectId)
-        // rather than a `filter.` prefix.
-        params.append(key, value)
+        filter.getEntries().forEach(({ key, value }) => {
+          params.append(key, value)
+        })
       })
     }
 
-    return Object.fromEntries(params.entries())
-  }
-
-  private safeQueryString(query: string): string {
-    return query.replace(/[^a-zA-Z0-9а-яА-ЯёЁ0-9\s]/g, '')
+    return params
   }
 }
 
-class DateRangeFilter implements IFilter {
-  private startDate: Date | null
-  private endDate: Date | null
+class EqualsFilter<TValue extends FilterPrimitive> implements IFilter {
   private key: string
+  private value: TValue
 
-  constructor(key: string, startDate: Date | null, endDate: Date | null) {
-    this.key = key
-    this.startDate = startDate
-    this.endDate = endDate
-  }
-
-  getQueryKey(): string {
-    return this.key
-  }
-
-  getQueryValue(): string {
-    const start = this.startDate ? this.startDate.toISOString() : 'null'
-    const end = this.endDate ? this.endDate.toISOString() : 'null'
-
-    return `date-range(${start},${end})`
-  }
-}
-
-class BooleanFilter implements IFilter {
-  private key: string
-  private value: boolean
-
-  constructor(key: string, value: boolean) {
+  constructor(key: string, value: TValue) {
     this.key = key
     this.value = value
   }
 
-  getQueryKey(): string {
+  getKey(): string {
     return this.key
   }
 
-  getQueryValue(): string {
-    return this.value ? '1' : '0'
+  getEntries(): QueryEntry[] {
+    return [{ key: this.key, value: serializeFilterValue(this.value) }]
+  }
+
+  getValue(): TValue {
+    return this.value
   }
 }
 
-class EnumFilter<Type extends string> implements IFilter {
+class RangeFilter<TValue extends FilterPrimitive> implements IFilter {
   private key: string
-  private value: Type
+  private min: TValue | null
+  private max: TValue | null
 
-  constructor(key: string, value: Type) {
+  constructor(key: string, min: TValue | null, max: TValue | null) {
     this.key = key
-    this.value = value
+    this.min = min
+    this.max = max
   }
 
-  getQueryKey(): string {
+  getKey(): string {
     return this.key
   }
 
-  getQueryValue(): string {
-    return this.value.toString()
+  getEntries(): QueryEntry[] {
+    const entries: QueryEntry[] = []
+
+    if (this.min !== null && this.min !== undefined) {
+      entries.push({
+        key: `${this.key}.Min`,
+        value: serializeFilterValue(this.min)
+      })
+    }
+
+    if (this.max !== null && this.max !== undefined) {
+      entries.push({
+        key: `${this.key}.Max`,
+        value: serializeFilterValue(this.max)
+      })
+    }
+
+    return entries
+  }
+
+  getValue(): { min: TValue | null; max: TValue | null } {
+    return { min: this.min, max: this.max }
   }
 }
 
-export { BooleanFilter, DateRangeFilter, EnumFilter, Pagination }
+class ArrayFilter<TValue extends FilterPrimitive> implements IFilter {
+  private key: string
+  private values: TValue[]
+
+  constructor(key: string, values: TValue[]) {
+    this.key = key
+    this.values = values.filter(
+      (value) => value !== null && value !== undefined
+    )
+  }
+
+  getKey(): string {
+    return this.key
+  }
+
+  getEntries(): QueryEntry[] {
+    return this.values.map((value) => ({
+      key: this.key,
+      value: serializeFilterValue(value)
+    }))
+  }
+
+  getValue(): TValue[] {
+    return [...this.values]
+  }
+}
+
+function serializeFilterValue(value: FilterPrimitive): string {
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
+
+  return String(value)
+}
+
+export {
+  ArrayFilter,
+  EqualsFilter,
+  Pagination,
+  RangeFilter,
+  serializeFilterValue
+}

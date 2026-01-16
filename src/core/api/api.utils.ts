@@ -156,7 +156,7 @@ api.interceptors.response.use(
 
 async function httpGet<T>(
   path: string,
-  params?: Record<string, unknown>,
+  params?: Record<string, unknown> | URLSearchParams,
   headers?: Record<string, string>,
   onProgress?: (progressEvent: RequestProgress) => void
 ): Promise<ApiResponse<T>> {

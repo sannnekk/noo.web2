@@ -22,10 +22,14 @@ describe('CourseService', () => {
 
   describe('get', () => {
     test('should fetch courses with pagination', async () => {
+      const query = new URLSearchParams()
+      query.append('page', '1')
+      query.append('perPage', '10')
+
       const mockPagination: IPagination = {
         page: 1,
         pageSize: 10,
-        toQuery: () => ({ page: '1', pageSize: '10' })
+        toQuery: () => query
       }
       const mockData = [{ id: 'c1', name: 'Test Course' }]
 
@@ -33,10 +37,15 @@ describe('CourseService', () => {
 
       const result = await CourseService.get(mockPagination)
 
-      expect(Api.get).toHaveBeenCalledWith('/course', {
-        page: '1',
-        pageSize: '10'
-      })
+      expect(Api.get).toHaveBeenCalledWith(
+        '/course',
+        expect.any(URLSearchParams)
+      )
+
+      const params = (Api.get as Mock).mock.calls[0]?.[1] as URLSearchParams
+
+      expect(params.get('page')).toBe('1')
+      expect(params.get('perPage')).toBe('10')
       expect(result.data).toEqual(mockData)
     })
 
@@ -214,10 +223,14 @@ describe('CourseService', () => {
 
   describe('getMemberships', () => {
     test('should fetch course memberships with pagination', async () => {
+      const query = new URLSearchParams()
+      query.append('page', '1')
+      query.append('perPage', '10')
+
       const mockPagination: IPagination = {
         page: 1,
         pageSize: 10,
-        toQuery: () => ({ page: '1', pageSize: '10' })
+        toQuery: () => query
       }
       const mockData = [
         { id: 'm1', courseId: 'c1', studentId: 's1', isActive: true }
@@ -227,10 +240,15 @@ describe('CourseService', () => {
 
       const result = await CourseService.getMemberships(mockPagination)
 
-      expect(Api.get).toHaveBeenCalledWith('/course/membership', {
-        page: '1',
-        pageSize: '10'
-      })
+      expect(Api.get).toHaveBeenCalledWith(
+        '/course/membership',
+        expect.any(URLSearchParams)
+      )
+
+      const params = (Api.get as Mock).mock.calls[0]?.[1] as URLSearchParams
+
+      expect(params.get('page')).toBe('1')
+      expect(params.get('perPage')).toBe('10')
       expect(result.data).toEqual(mockData)
     })
 
