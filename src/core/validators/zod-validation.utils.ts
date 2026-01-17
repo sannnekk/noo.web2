@@ -4,11 +4,11 @@ import type { ValidationError } from './validation-helpers.utils'
 const ROOT_ERROR_KEY = '__root'
 const FALLBACK_MESSAGE = 'Некорректное значение'
 
-type ZodFieldErrors = Record<string, ValidationError[]>
+type FieldErrors = Record<string, ValidationError[]>
 
 interface ZodValidationResult {
   isValid: boolean
-  fieldErrors: ZodFieldErrors
+  fieldErrors: FieldErrors
   messages: string[]
 }
 
@@ -37,7 +37,7 @@ function toPathString(path: ZodIssue['path']): string {
 }
 
 function mergeFieldError(
-  fieldErrors: ZodFieldErrors,
+  fieldErrors: FieldErrors,
   path: string,
   message: string
 ): void {
@@ -51,14 +51,14 @@ function mergeFieldError(
   }
 }
 
-function getZodFieldErrors(schema: ZodTypeAny, data: unknown): ZodFieldErrors {
+function getZodFieldErrors(schema: ZodTypeAny, data: unknown): FieldErrors {
   const result = schema.safeParse(data)
 
   if (result.success) {
     return {}
   }
 
-  const fieldErrors: ZodFieldErrors = {}
+  const fieldErrors: FieldErrors = {}
 
   for (const issue of result.error.issues) {
     const path = toPathString(issue.path)
@@ -70,7 +70,7 @@ function getZodFieldErrors(schema: ZodTypeAny, data: unknown): ZodFieldErrors {
   return fieldErrors
 }
 
-function flattenZodFieldErrors(fieldErrors: ZodFieldErrors): string[] {
+function flattenZodFieldErrors(fieldErrors: FieldErrors): string[] {
   return Object.values(fieldErrors)
     .flat()
     .map((error) => error.message)
@@ -91,7 +91,7 @@ function validateWithZod(
 }
 
 function getFieldErrors(
-  fieldErrors: ZodFieldErrors,
+  fieldErrors: FieldErrors,
   path: string
 ): ValidationError[] {
   return fieldErrors[path] ?? []
@@ -104,6 +104,6 @@ export {
   getZodFieldErrors,
   ROOT_ERROR_KEY,
   validateWithZod,
-  type ZodFieldErrors,
+  type FieldErrors,
   type ZodValidationResult
 }

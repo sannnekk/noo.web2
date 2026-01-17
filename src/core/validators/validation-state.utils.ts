@@ -1,13 +1,14 @@
 import type { ValidationError } from './validation-helpers.utils'
 import {
   ROOT_ERROR_KEY,
-  type ZodFieldErrors,
+  type FieldErrors,
   type ZodValidationResult
 } from './zod-validation.utils'
 
 interface ValidationState {
   isValid: boolean
   errors: string[]
+  fieldErrors: FieldErrors
 }
 
 interface ValidationStateOptions {
@@ -17,7 +18,8 @@ interface ValidationStateOptions {
 function createValidationState(): ValidationState {
   return {
     isValid: true,
-    errors: []
+    errors: [],
+    fieldErrors: {}
   }
 }
 
@@ -29,12 +31,13 @@ function buildValidationStateFromZodResult(
 
   return {
     isValid: result.isValid,
-    errors
+    errors,
+    fieldErrors: result.fieldErrors
   }
 }
 
 function buildValidationErrors(
-  fieldErrors: ZodFieldErrors,
+  fieldErrors: FieldErrors,
   options: ValidationStateOptions = {}
 ): string[] {
   const includeFieldPath = options.includeFieldPath ?? true

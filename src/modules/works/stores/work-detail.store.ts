@@ -1,3 +1,4 @@
+import { useEntityValidation } from '@/core/composables/useEntityValidation'
 import { useViewMode, type ViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
@@ -6,14 +7,9 @@ import {
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
-import {
-  buildValidationStateFromZodResult,
-  createValidationState,
-  type ValidationState
-} from '@/core/validators/validation-state.utils'
-import type { ZodFieldErrors } from '@/core/validators/zod-validation.utils'
+import type { ValidationState } from '@/core/validators/validation-state.utils'
 import { defineStore } from 'pinia'
-import { ref, shallowRef, watch, type Ref, type ShallowRef } from 'vue'
+import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
@@ -44,13 +40,9 @@ interface WorkDetailStore {
    */
   workValidationState: Ref<ValidationState>
   /**
-   * Validation errors for work fields.
+   * Task validation state.
    */
-  workFieldErrors: Ref<ZodFieldErrors>
-  /**
-   * Validation errors for current task fields.
-   */
-  taskFieldErrors: Ref<ZodFieldErrors>
+  taskValidationState: Ref<ValidationState>
   /**
    * Validates the current work.
    * This function should be implemented to check the work's validity.
@@ -106,49 +98,74 @@ const useWorkDetailStore = defineStore(
       shallowRef<PatchGenerator<PossiblyUnsavedWork> | null>(null)
     const task = ref<PossiblyUnsavedWorkTask | null>(null)
     const { mode, resetMode, setMode } = useViewMode('view')
-    const workValidationState = ref<ValidationState>(createValidationState())
-    const workFieldErrors = ref<ZodFieldErrors>({})
-    const taskFieldErrors = ref<ZodFieldErrors>({})
+    const workValidation = useEntityValidation(work, validateWorkState)
+    const taskValidation = useEntityValidation(task, validateWorkTaskState)
+
+    function createEmptyWork(): PossiblyUnsavedWork {
+      return {
+        _entityName: 'Work',
+        _key: uid(),
+        title: '',
+        type: 'test',
+        description: null,
+        tasks: [],
+        subjectId: ''
+      }
+    }
+
+    function createTaskDraft(
+      type: WorkTaskType = 'word'
+    ): PossiblyUnsavedWorkTask {
+      return {
+        _entityName: 'WorkTask',
+        _key: uid(),
+        order: (work.value?.tasks?.length ?? 0) + 1,
+        content: emptyRichText(),
+        type,
+        checkStrategy: type === 'word' ? 'exact-match-or-zero' : 'manual',
+        maxScore: 1,
+        rightAnswers: type === 'word' ? ['Правильный ответ'] : null,
+        explanation: null,
+        solveHint: null,
+        showAnswerBeforeCheck: false,
+        checkOneByOne: false
+      }
+    }
+
+    function getTaskIndexById(taskId?: PossiblyUnsavedWorkTask['id']): number {
+      return work.value?.tasks?.findIndex((t) => t.id === taskId) ?? -1
+    }
+
+    function moveTaskBy(offset: number): void {
+      if (!work.value || !task.value) {
+        return
+      }
+
+      const currentIndex = getTaskIndexById(task.value.id)
+      const nextIndex = currentIndex + offset
+      const tasks = work.value.tasks ?? []
+
+      if (nextIndex >= 0 && nextIndex < tasks.length) {
+        task.value = tasks[nextIndex] ?? null
+      }
+    }
 
     function validateWork(): void {
       if (!work.value) {
-        workFieldErrors.value = {}
-        workValidationState.value = createValidationState()
+        workValidation.reset()
+        taskValidation.reset()
 
         return
       }
 
-      const result = validateWorkState(work.value)
-
-      workValidationState.value = buildValidationStateFromZodResult(result)
-
-      workFieldErrors.value = result.fieldErrors
-    }
-
-    function validateTask(): void {
-      if (!task.value) {
-        taskFieldErrors.value = {}
-
-        return
-      }
-
-      const result = validateWorkTaskState(task.value)
-
-      taskFieldErrors.value = result.fieldErrors
+      workValidation.validate()
     }
 
     async function init(workId?: string): Promise<void> {
-      if (typeof workId === 'undefined') {
+      if (!workId) {
         setMode('create')
-        work.value = {
-          _entityName: 'Work',
-          _key: uid(),
-          title: '',
-          type: 'test',
-          description: null,
-          tasks: [],
-          subjectId: ''
-        }
+        work.value = createEmptyWork()
+        workPatchGenerator.value = null
 
         return
       }
@@ -181,25 +198,11 @@ const useWorkDetailStore = defineStore(
     }
 
     function nextTask(): void {
-      if (work.value && task.value) {
-        const currentIndex =
-          work.value.tasks?.findIndex((t) => t.id === task.value?.id) ?? -1
-
-        if (currentIndex < (work.value.tasks?.length ?? 0) - 1) {
-          task.value = work.value.tasks?.[currentIndex + 1] ?? null
-        }
-      }
+      moveTaskBy(1)
     }
 
     function previousTask(): void {
-      if (work.value && task.value) {
-        const currentIndex =
-          work.value.tasks?.findIndex((t) => t.id === task.value?.id) ?? -1
-
-        if (currentIndex > 0) {
-          task.value = work.value.tasks?.[currentIndex - 1] ?? null
-        }
-      }
+      moveTaskBy(-1)
     }
 
     function addTask(type: WorkTaskType = 'word'): void {
@@ -207,23 +210,10 @@ const useWorkDetailStore = defineStore(
         return
       }
 
-      work.value.tasks.push({
-        _entityName: 'WorkTask',
-        _key: uid(),
-        order: work.value.tasks.length + 1,
-        content: emptyRichText(),
-        type,
-        checkStrategy: type === 'word' ? 'exact-match-or-zero' : 'manual',
-        maxScore: 1,
-        rightAnswers: type === 'word' ? ['Правильный ответ'] : null,
-        explanation: null,
-        solveHint: null,
-        showAnswerBeforeCheck: false,
-        checkOneByOne: false
-      })
+      work.value.tasks.push(createTaskDraft(type))
 
       validateWork()
-      validateTask()
+      taskValidation.validate()
     }
 
     function removeTask(key: string): void {
@@ -247,6 +237,7 @@ const useWorkDetailStore = defineStore(
 
       if (mode.value === 'create') {
         setMode('loading')
+
         const response = await WorkService.create(work.value)
 
         if (response.error) {
@@ -256,16 +247,23 @@ const useWorkDetailStore = defineStore(
           )
 
           setMode('create')
-        } else {
-          router.replace({
-            name: 'works.edit',
-            params: { workId: response.data.id }
-          })
 
-          uiStore.createSuccessToast('Работа успешно создана')
+          return
         }
-      } else if (mode.value === 'edit') {
+
+        router.replace({
+          name: 'works.edit',
+          params: { workId: response.data.id }
+        })
+
+        uiStore.createSuccessToast('Работа успешно создана')
+
+        return
+      }
+
+      if (mode.value === 'edit') {
         setMode('loading')
+
         const response = await WorkService.update(
           work.value.id!,
           workPatchGenerator.value!.generate()
@@ -278,28 +276,27 @@ const useWorkDetailStore = defineStore(
           )
 
           setMode('edit')
-        } else {
-          uiStore.createSuccessToast('Работа успешно обновлена')
-          await init(work.value.id)
+
+          return
         }
+
+        uiStore.createSuccessToast('Работа успешно обновлена')
+        await init(work.value.id)
       }
     }
 
     function reset(): void {
       work.value = null
       task.value = null
+      workPatchGenerator.value = null
       resetMode()
-      workFieldErrors.value = {}
-      taskFieldErrors.value = {}
+      workValidation.reset()
+      taskValidation.reset()
     }
 
-    watch(work, validateWork, { deep: true })
-    watch(task, validateTask, { deep: true })
-
     return {
-      workValidationState,
-      workFieldErrors,
-      taskFieldErrors,
+      workValidationState: workValidation.validationState,
+      taskValidationState: taskValidation.validationState,
       validateWork,
       work,
       workPatchGenerator,

@@ -2,10 +2,11 @@ import type { PathLabelMap } from '@/components/utils/noo-patch-list.types'
 import type {
   WorkEntity,
   WorkTaskCheckStrategy,
-  WorkTaskType
+  WorkTaskType,
+  WorkType
 } from './api/work.types'
 
-const workTypes: { label: string; value: string }[] = [
+const workTypes: { label: string; value: WorkType }[] = [
   { label: 'Тест', value: 'test' },
   { label: 'Мини-зачет', value: 'mini-test' },
   { label: 'Вторая часть', value: 'second-part' },

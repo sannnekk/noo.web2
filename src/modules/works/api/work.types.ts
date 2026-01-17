@@ -3,26 +3,35 @@ import type { IRichText } from '@/core/utils/richtext.utils'
 import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 
-export type WorkType =
-  | 'mini-test'
-  | 'test'
-  | 'trial-work'
-  | 'phrase'
-  | 'second-part'
+const workTypeValues = [
+  'mini-test',
+  'test',
+  'trial-work',
+  'phrase',
+  'second-part'
+] as const
 
-export type WorkTaskType =
-  | 'word'
-  | 'text'
-  | 'essay'
-  | 'final-essay'
-  | 'dictation'
+type WorkType = (typeof workTypeValues)[number]
 
-export type WorkTaskCheckStrategy =
-  | 'manual'
-  | 'exact-match-or-zero'
-  | 'exact-match-with-wrong-character'
-  | 'multiple-choice'
-  | 'sequence'
+const workTaskTypeValues = [
+  'word',
+  'text',
+  'essay',
+  'final-essay',
+  'dictation'
+] as const
+
+type WorkTaskType = (typeof workTaskTypeValues)[number]
+
+const workTaskCheckStrategyValues = [
+  'manual',
+  'exact-match-or-zero',
+  'exact-match-with-wrong-character',
+  'multiple-choice',
+  'sequence'
+] as const
+
+type WorkTaskCheckStrategy = (typeof workTaskCheckStrategyValues)[number]
 
 export interface WorkEntity extends ApiEntity<'Work'> {
   title: string
@@ -70,3 +79,6 @@ export interface WorkStatistics {
   workSolveCount: number
   work: WorkEntity
 }
+
+export { workTaskCheckStrategyValues, workTaskTypeValues, workTypeValues }
+export type { WorkTaskCheckStrategy, WorkTaskType, WorkType }

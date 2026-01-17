@@ -3,37 +3,27 @@ import { assertSchema } from '@/core/utils/zod.utils'
 import { z } from 'zod'
 import { SubjectSchema } from '../subjects/schemas'
 import type { WorkTaskCheckStrategy, WorkType } from './api/work.types'
+import {
+  workTaskCheckStrategyValues,
+  workTaskTypeValues,
+  workTypeValues
+} from './api/work.types'
 import type { PossiblyUnsavedWork, PossiblyUnsavedWorkTask } from './types'
 
-const WorkTypeSchema = z.enum(
-  ['mini-test', 'test', 'trial-work', 'phrase', 'second-part'],
-  {
-    required_error: 'Выберите тип работы',
-    invalid_type_error: 'Выберите тип работы'
-  }
-)
+const WorkTypeSchema = z.enum(workTypeValues, {
+  required_error: 'Выберите тип работы',
+  invalid_type_error: 'Выберите тип работы'
+})
 
-const TaskTypeSchema = z.enum(
-  ['word', 'text', 'essay', 'final-essay', 'dictation'],
-  {
-    required_error: 'Выберите тип задания',
-    invalid_type_error: 'Выберите тип задания'
-  }
-)
+const TaskTypeSchema = z.enum(workTaskTypeValues, {
+  required_error: 'Выберите тип задания',
+  invalid_type_error: 'Выберите тип задания'
+})
 
-const CheckStrategySchema = z.enum(
-  [
-    'manual',
-    'exact-match-or-zero',
-    'exact-match-with-wrong-character',
-    'multiple-choice',
-    'sequence'
-  ],
-  {
-    required_error: 'Выберите тип проверки',
-    invalid_type_error: 'Выберите тип проверки'
-  }
-)
+const CheckStrategySchema = z.enum(workTaskCheckStrategyValues, {
+  required_error: 'Выберите тип проверки',
+  invalid_type_error: 'Выберите тип проверки'
+})
 
 const RightAnswerSchema = z
   .string({
@@ -141,7 +131,6 @@ const PossiblyUnsavedWorkSchema = z.object({
   updatedAt: z.date().nullable().optional()
 })
 
-assertSchema<WorkType, typeof WorkTypeSchema>(WorkTypeSchema)
 assertSchema<WorkTaskCheckStrategy, typeof CheckStrategySchema>(
   CheckStrategySchema
 )

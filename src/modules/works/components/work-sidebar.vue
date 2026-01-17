@@ -14,7 +14,7 @@
         v-model:subject="workDetailStore.work.subject"
         v-model:subject-id="workDetailStore.work.subjectId"
         label="Предмет"
-        :errors="workDetailStore.workFieldErrors.subjectId"
+        :errors="workDetailStore.workValidationState.fieldErrors.subjectId"
       />
     </div>
     <div class="work-sidebar__title">
@@ -28,7 +28,7 @@
         v-else
         v-model="workDetailStore.work.title"
         label="Название работы"
-        :errors="workDetailStore.workFieldErrors.title"
+        :errors="workDetailStore.workValidationState.fieldErrors.title"
       />
     </div>
     <div class="work-sidebar__type">
@@ -46,7 +46,7 @@
         v-else
         v-model="workDetailStore.work.type"
         label="Тип работы"
-        :errors="workDetailStore.workFieldErrors.type"
+        :errors="workDetailStore.workValidationState.fieldErrors.type"
       />
     </div>
     <div class="work-sidebar__description">
@@ -61,7 +61,7 @@
         v-else
         v-model="workDetailStore.work.description"
         label="Описание работы"
-        :errors="workDetailStore.workFieldErrors.description"
+        :errors="workDetailStore.workValidationState.fieldErrors.description"
       />
     </div>
     <div
