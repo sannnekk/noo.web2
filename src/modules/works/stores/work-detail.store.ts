@@ -1,3 +1,4 @@
+import { useViewMode, type ViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
 import {
@@ -5,17 +6,18 @@ import {
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
+import {
+  buildValidationStateFromZodResult,
+  createValidationState,
+  type ValidationState
+} from '@/core/validators/validation-state.utils'
 import type { ZodFieldErrors } from '@/core/validators/zod-validation.utils'
 import { defineStore } from 'pinia'
 import { ref, shallowRef, watch, type Ref, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { WorkService } from '../api/work.service'
 import type { WorkEntity, WorkTaskType } from '../api/work.types'
-import type {
-  PossiblyUnsavedWork,
-  PossiblyUnsavedWorkTask,
-  WorkViewMode
-} from '../types'
+import type { PossiblyUnsavedWork, PossiblyUnsavedWorkTask } from '../types'
 import { validateWorkState, validateWorkTaskState } from '../utils'
 
 interface WorkDetailStore {
@@ -36,14 +38,11 @@ interface WorkDetailStore {
   /**
    * Current mode of the work view.
    */
-  mode: Ref<WorkViewMode>
+  mode: Ref<ViewMode>
   /**
    * Work validation state.
    */
-  workValidationState: Ref<{
-    isValid: boolean
-    errors: string[]
-  }>
+  workValidationState: Ref<ValidationState>
   /**
    * Validation errors for work fields.
    */
@@ -106,41 +105,22 @@ const useWorkDetailStore = defineStore(
     const workPatchGenerator =
       shallowRef<PatchGenerator<PossiblyUnsavedWork> | null>(null)
     const task = ref<PossiblyUnsavedWorkTask | null>(null)
-    const mode = ref<WorkViewMode>('view')
-    const workValidationState = ref<{
-      isValid: boolean
-      errors: string[]
-    }>({
-      isValid: true,
-      errors: []
-    })
+    const { mode, resetMode, setMode } = useViewMode('view')
+    const workValidationState = ref<ValidationState>(createValidationState())
     const workFieldErrors = ref<ZodFieldErrors>({})
     const taskFieldErrors = ref<ZodFieldErrors>({})
 
     function validateWork(): void {
       if (!work.value) {
         workFieldErrors.value = {}
-        workValidationState.value = {
-          isValid: true,
-          errors: []
-        }
+        workValidationState.value = createValidationState()
 
         return
       }
 
       const result = validateWorkState(work.value)
 
-      const detailedErrors = Object.entries(result.fieldErrors).flatMap(
-        ([path, errors]) =>
-          errors.map((error) =>
-            path ? `${path}: ${error.message}` : error.message
-          )
-      )
-
-      workValidationState.value = {
-        isValid: result.isValid,
-        errors: detailedErrors
-      }
+      workValidationState.value = buildValidationStateFromZodResult(result)
 
       workFieldErrors.value = result.fieldErrors
     }
@@ -159,7 +139,7 @@ const useWorkDetailStore = defineStore(
 
     async function init(workId?: string): Promise<void> {
       if (typeof workId === 'undefined') {
-        mode.value = 'create'
+        setMode('create')
         work.value = {
           _entityName: 'Work',
           _key: uid(),
@@ -173,7 +153,7 @@ const useWorkDetailStore = defineStore(
         return
       }
 
-      mode.value = 'loading'
+      setMode('loading')
 
       const response = await WorkService.getById(workId)
 
@@ -183,7 +163,7 @@ const useWorkDetailStore = defineStore(
           response.error
         )
 
-        mode.value = 'error'
+        setMode('error')
 
         return
       }
@@ -196,7 +176,7 @@ const useWorkDetailStore = defineStore(
 
       work.value = loadedWork
       workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)
-      mode.value = 'view'
+      setMode('view')
       validateWork()
     }
 
@@ -266,7 +246,7 @@ const useWorkDetailStore = defineStore(
       }
 
       if (mode.value === 'create') {
-        mode.value = 'loading'
+        setMode('loading')
         const response = await WorkService.create(work.value)
 
         if (response.error) {
@@ -275,7 +255,7 @@ const useWorkDetailStore = defineStore(
             response.error
           )
 
-          mode.value = 'create'
+          setMode('create')
         } else {
           router.replace({
             name: 'works.edit',
@@ -285,7 +265,7 @@ const useWorkDetailStore = defineStore(
           uiStore.createSuccessToast('Работа успешно создана')
         }
       } else if (mode.value === 'edit') {
-        mode.value = 'loading'
+        setMode('loading')
         const response = await WorkService.update(
           work.value.id!,
           workPatchGenerator.value!.generate()
@@ -297,7 +277,7 @@ const useWorkDetailStore = defineStore(
             response.error
           )
 
-          mode.value = 'edit'
+          setMode('edit')
         } else {
           uiStore.createSuccessToast('Работа успешно обновлена')
           await init(work.value.id)
@@ -308,7 +288,7 @@ const useWorkDetailStore = defineStore(
     function reset(): void {
       work.value = null
       task.value = null
-      mode.value = 'view'
+      resetMode()
       workFieldErrors.value = {}
       taskFieldErrors.value = {}
     }

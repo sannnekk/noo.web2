@@ -1,3 +1,4 @@
+import { getOptionalRouteParam } from '@/core/utils/route.utils'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { loadWorkGuard } from './guards'
@@ -31,9 +32,7 @@ const module: ApplicationModule = {
       beforeEnter: loadWorkGuard,
       props: (route): WorksDetailPageProps => {
         return {
-          workId: String(route.params.workId).trim().length
-            ? String(route.params.workId)
-            : undefined
+          workId: getOptionalRouteParam(route.params.workId)
         }
       }
     }

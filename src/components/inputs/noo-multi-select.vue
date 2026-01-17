@@ -30,8 +30,8 @@
           </noo-checkbox>
         </li>
         <li
-          class="noo-multi-select__options__more"
           v-if="expandable && options.length > 1"
+          class="noo-multi-select__options__more"
           @click="expanded = !expanded"
         >
           <noo-list-opener-icon

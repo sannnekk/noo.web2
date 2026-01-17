@@ -78,7 +78,7 @@
                     v-model="question.type"
                     label="Тип вопроса"
                     :options="questionTypes"
-                    :readonly="pollEditStore.mode === 'update'"
+                    :readonly="pollEditStore.mode === 'edit'"
                   />
                 </noo-grid-layout-item>
                 <noo-grid-layout-item

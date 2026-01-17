@@ -126,12 +126,12 @@
 </template>
 
 <script setup lang="ts">
+import type { ViewMode } from '@/core/composables/useViewMode'
 import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
 import { computed, shallowRef } from 'vue'
 import { workConfig } from '../config'
 import { workTypes } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
-import type { WorkViewMode } from '../types'
 import saveWorkChangesModal from './save-work-changes-modal.vue'
 import taskGrid from './task-grid.vue'
 
@@ -155,7 +155,7 @@ const canSaveWork = computed(() => {
 /**
  * Change the current mode of the work view.
  */
-function changeMode(newMode: WorkViewMode): void {
+function changeMode(newMode: ViewMode): void {
   if (
     workDetailStore.mode !== 'view' &&
     newMode === 'view' &&

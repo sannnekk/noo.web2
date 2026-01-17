@@ -1,8 +1,9 @@
 import type { ApiResponse } from '@/core/api/api.utils'
+import { useViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { uid } from '@/core/utils/id.utils'
 import { defineStore } from 'pinia'
-import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { PollService } from '../api/poll.service'
 import type { PossiblyUnsavedPoll } from '../api/poll.types'
@@ -13,7 +14,7 @@ interface PollEditStore {
   /**
    * Mode: view, create or edit
    */
-  mode: ShallowRef<PollViewMode>
+  mode: Ref<PollViewMode>
   /**
    *  The poll being edited. It can be null if no poll is being edited.
    */
@@ -45,13 +46,13 @@ interface PollEditStore {
 const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
   const uiStore = useGlobalUIStore()
 
-  const mode = shallowRef<PollViewMode>('create')
+  const { mode, setMode } = useViewMode('create')
 
   const poll = ref<PossiblyUnsavedPoll | null>(null)
 
   async function init(pollId?: string): Promise<void> {
     if (!pollId) {
-      mode.value = 'create'
+      setMode('create')
       poll.value = {
         _entityName: 'Poll',
         _key: uid(),
@@ -76,7 +77,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     }
 
     poll.value = toPossiblyUnsaved(response.data)
-    mode.value = 'update'
+    setMode('edit')
     uiStore.setLoading(false)
   }
 

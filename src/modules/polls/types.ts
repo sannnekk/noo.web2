@@ -1,1 +1,3 @@
-export type PollViewMode = 'create' | 'update'
+import type { ViewMode } from '@/core/composables/useViewMode'
+
+export type PollViewMode = ViewMode

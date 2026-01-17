@@ -1,8 +1,6 @@
 import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
 import type { WorkEntity, WorkTaskEntity } from './api/work.types'
 
-export type WorkViewMode = 'view' | 'edit' | 'create' | 'error' | 'loading'
-
 export type PossiblyUnsavedWork = Omit<
   PossiblyUnsavedEntity<WorkEntity, WorkEntity['_entityName']>,
   'subjectId' | 'tasks'
