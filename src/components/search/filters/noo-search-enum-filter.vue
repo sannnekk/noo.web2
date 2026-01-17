@@ -178,7 +178,3 @@ watch(
   { deep: true }
 )
 </script>
-
-<style scoped lang="sass">
-.noo-search-enum-filter
-</style>

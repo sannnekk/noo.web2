@@ -199,6 +199,7 @@ function onConfirmChangeModeToView() {
     flex-direction: column
     align-items: center
     gap: 10px
+    margin-top: 2em
 
   &__task-grid
     margin: 1em 0

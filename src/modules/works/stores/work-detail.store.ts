@@ -170,8 +170,6 @@ const useWorkDetailStore = defineStore(
           subjectId: ''
         }
 
-        validateWork()
-
         return
       }
 

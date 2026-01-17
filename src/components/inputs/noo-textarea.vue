@@ -10,13 +10,17 @@
       v-model="model"
       class="noo-text-area__textarea"
       :class="{
-        'noo-text-area__textarea--readonly': readonly
+        'noo-text-area__textarea--readonly': readonly,
+        'noo-text-area__textarea--error': allErrors.length > 0
       }"
       :placeholder="placeholder"
       :readonly="readonly"
     />
   </div>
-  <noo-input-error-list :errors="allErrors" />
+  <noo-input-error-list
+    :errors="allErrors"
+    class="noo-text-area__errors"
+  />
 </template>
 
 <script setup lang="ts">
@@ -74,6 +78,8 @@ function validateInput(value: string | undefined | null) {
 
 <style scoped lang="sass">
 .noo-text-area
+  margin-bottom: -0.5em
+
   &__label
     font-size: 0.8em
     color: var(--text-light)
@@ -84,7 +90,6 @@ function validateInput(value: string | undefined | null) {
     border-radius: var(--border-radius)
     border: 1px solid var(--border-color)
     outline: none
-    transition: border-color 0.2s ease-in-out
     resize: vertical
     font-family: inherit
     min-height: 5em
@@ -101,4 +106,7 @@ function validateInput(value: string | undefined | null) {
     &:focus
       outline: none
       border-color: var(--primary)
+
+  &__errors
+    margin-bottom: 0.5em
 </style>

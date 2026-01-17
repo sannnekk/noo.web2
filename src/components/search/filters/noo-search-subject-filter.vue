@@ -138,6 +138,8 @@ async function loadSubjects() {
 
 <style scoped lang="sass">
 .noo-search-subject-filter
+  min-width: 150px
+
   &__loading
     min-height: 5em
 

@@ -31,6 +31,7 @@
         </li>
         <li
           class="noo-multi-select__options__more"
+          v-if="expandable && options.length > 1"
           @click="expanded = !expanded"
         >
           <noo-list-opener-icon

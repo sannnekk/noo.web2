@@ -57,11 +57,17 @@
           Не все поля работы заполнены корректно. Пожалуйста, исправьте ошибки:
           <ul>
             <li
-              v-for="(error, index) in workDetailStore.workValidationState
-                .errors"
+              v-for="(
+                error, index
+              ) in workDetailStore.workValidationState.errors.slice(0, 5)"
               :key="index"
             >
               {{ error }}
+            </li>
+            <li v-if="workDetailStore.workValidationState.errors.length > 5">
+              И ещё
+              {{ workDetailStore.workValidationState.errors.length - 5 }}
+              ошибка...
             </li>
           </ul>
         </noo-error-block>

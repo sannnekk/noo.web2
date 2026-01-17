@@ -31,7 +31,9 @@ const module: ApplicationModule = {
       beforeEnter: loadWorkGuard,
       props: (route): WorksDetailPageProps => {
         return {
-          workId: String(route.params.workId)
+          workId: String(route.params.workId).trim().length
+            ? String(route.params.workId)
+            : undefined
         }
       }
     }
