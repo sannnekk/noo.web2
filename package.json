@@ -25,7 +25,7 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
-    "fast-json-patch": "3.1.1",
+    "fast-json-patch": "github:sannnekk/JSON-Patch#feature/date-object-support",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "mitt": "^3.0.1",
@@ -41,7 +41,6 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
-    "husky": "^9.1.6",
     "@eslint/js": "9.29.0",
     "@tsconfig/node18": "^18.2.4",
     "@types/js-cookie": "^3.0.6",
@@ -60,6 +59,7 @@
     "eslint-plugin-simple-import-sort": "12.1.1",
     "eslint-plugin-vue": "10.2.0",
     "globals": "16.2.0",
+    "husky": "^9.1.6",
     "jsdom": "^26.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.5.3",

@@ -50,7 +50,6 @@ const workPathLabels: PathLabelMap<WorkEntity> = {
   description: 'Описание',
   subjectId: 'Предмет',
   tasks: {
-    label: 'Задания',
     '*': {
       label: 'Задание',
       type: 'Тип задания',

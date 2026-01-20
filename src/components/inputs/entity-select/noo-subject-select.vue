@@ -9,6 +9,7 @@
         :label="label"
         :options="subjectOptions"
         :errors="errors"
+        :readonly="readonly"
       />
     </div>
     <div
@@ -52,6 +53,7 @@ import { computed, onMounted, shallowRef, watchEffect } from 'vue'
 interface Props {
   label?: string
   errors?: ValidationError[]
+  readonly?: boolean
 }
 
 withDefaults(defineProps<Props>(), {

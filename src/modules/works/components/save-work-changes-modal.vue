@@ -1,5 +1,8 @@
 <template>
-  <noo-base-modal v-model:is-open="isOpenModel">
+  <noo-base-modal
+    v-model:is-open="isOpenModel"
+    :full-width="showChanges"
+  >
     <template #title>
       <noo-title :size="2">
         {{
@@ -27,13 +30,7 @@
         >
           Нет внесённых изменений.
         </noo-text-block>
-        <noo-collapsable-block
-          v-if="
-            workDetailStore.mode === 'edit' &&
-            workDetailStore.workPatchGenerator &&
-            changesCount > 0
-          "
-        >
+        <noo-collapsable-block v-if="showChanges">
           <template #collapsed>
             <noo-text-block>
               Внесённых изменений:
@@ -41,13 +38,10 @@
             </noo-text-block>
           </template>
           <template #visible>
-            <div class="save-work-changes-modal__content__patch-list">
-              <noo-patch-list
-                :patch="workDetailStore.workPatchGenerator.generate()"
-                :original="workDetailStore.workPatchGenerator.getOriginal()"
-                :path-labels="workPathLabels"
-              />
-            </div>
+            <work-patch-list
+              :patch="workDetailStore.workPatchGenerator!.generate()"
+              :original="workDetailStore.workPatchGenerator!.getOriginal()"
+            />
           </template>
         </noo-collapsable-block>
         <noo-error-block
@@ -95,8 +89,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { workPathLabels } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
+import workPatchList from './work-patch-list.vue'
 
 const isOpenModel = defineModel<boolean>('isOpen', {
   default: false
@@ -106,8 +100,13 @@ const workDetailStore = useWorkDetailStore()
 
 const changesCount = ref(0)
 
-const hasChanges = computed(
-  () => workDetailStore.mode === 'create' || changesCount.value > 0
+const hasChanges = computed(() => changesCount.value > 0)
+
+const showChanges = computed(
+  () =>
+    workDetailStore.mode === 'edit' &&
+    changesCount.value > 0 &&
+    workDetailStore.workValidationState.isValid
 )
 
 watch(isOpenModel, () => {

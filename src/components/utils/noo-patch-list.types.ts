@@ -1,3 +1,5 @@
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
+
 type Primitive = string | number | boolean | bigint | symbol
 
 type Nil = null | undefined
@@ -22,13 +24,20 @@ export type PathLabelMap<T> = T extends Primitive | Nil
   : T extends readonly unknown[]
     ?
         | string
-        | ({
-            label?: string
+        | ({ label?: string } & {
             '*'?: ArrayChildMap<T>
           } & ObjectChildMap<ArrayElement<T>>)
     :
         | string
-        | ({
-            label?: string
+        | ({ label?: string } & {
             '*'?: PathLabelMap<Record<string, unknown>>
           } & ObjectChildMap<T>)
+
+export interface Change<T extends object> {
+  label: string
+  type: 'richtext' | 'date' | 'regular'
+  pathKey: string
+  operations: JsonPatchDocument<T>
+  prevValue: unknown
+  nowValue: unknown
+}

@@ -30,8 +30,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.1.0)
       fast-json-patch:
-        specifier: 3.1.1
-        version: 3.1.1
+        specifier: github:sannnekk/JSON-Patch#feature/date-object-support
+        version: https://codeload.github.com/sannnekk/JSON-Patch/tar.gz/c4a18865765d2be46b7fe9c76acff0030ed385bc
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1658,8 +1658,9 @@ packages:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
 
-  fast-json-patch@3.1.1:
-    resolution: {integrity: sha512-vf6IHUX2SBcA+5/+4883dsIjpBTqmfBjmYiWK1savxQmFk4JfBMLa7ynTYOs1Rolp/T1betJxHiGD3g1Mn8lUQ==}
+  fast-json-patch@https://codeload.github.com/sannnekk/JSON-Patch/tar.gz/c4a18865765d2be46b7fe9c76acff0030ed385bc:
+    resolution: {tarball: https://codeload.github.com/sannnekk/JSON-Patch/tar.gz/c4a18865765d2be46b7fe9c76acff0030ed385bc}
+    version: 3.1.1
 
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -4622,7 +4623,7 @@ snapshots:
       merge2: 1.4.1
       micromatch: 4.0.8
 
-  fast-json-patch@3.1.1: {}
+  fast-json-patch@https://codeload.github.com/sannnekk/JSON-Patch/tar.gz/c4a18865765d2be46b7fe9c76acff0030ed385bc: {}
 
   fast-json-stable-stringify@2.1.0: {}
 
