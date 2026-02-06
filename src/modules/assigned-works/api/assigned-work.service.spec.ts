@@ -1,5 +1,5 @@
 // assigned-work.service.test.ts
-import { Api } from '@/core/api/api.utils'
+import { Api, isApiError } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import { AssignedWorkService } from './assigned-work.service'
@@ -12,14 +12,19 @@ import type {
 } from './assigned-work.types'
 
 // Mock the entire API module
-vi.mock('@/core/api/api.utils', () => ({
-  Api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn()
+vi.mock('@/core/api/api.utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/core/api/api.utils')>()
+
+  return {
+    ...actual,
+    Api: {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn()
+    }
   }
-}))
+})
 
 describe('AssignedWorkService', () => {
   beforeEach(() => {
@@ -52,7 +57,7 @@ describe('AssignedWorkService', () => {
 
       expect(params.get('page')).toBe('1')
       expect(params.get('perPage')).toBe('10')
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should handle error response', async () => {
@@ -62,7 +67,7 @@ describe('AssignedWorkService', () => {
 
       const result = await AssignedWorkService.get()
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -76,7 +81,7 @@ describe('AssignedWorkService', () => {
       const result = await AssignedWorkService.getById(mockId)
 
       expect(Api.get).toHaveBeenCalledWith(`/assigned-work/${mockId}`)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
   })
 
@@ -90,7 +95,7 @@ describe('AssignedWorkService', () => {
       const result = await AssignedWorkService.getProgress(mockId)
 
       expect(Api.get).toHaveBeenCalledWith(`/assigned-work/${mockId}/progress`)
-      expect(result.data).toEqual(mockProgress)
+      expect(!isApiError(result) && result.data).toEqual(mockProgress)
     })
   })
 
@@ -109,7 +114,7 @@ describe('AssignedWorkService', () => {
         `/assigned-work/${mockId}/remake`,
         mockOptions
       )
-      expect(result.data).toEqual({ id: 'new-id' })
+      expect(!isApiError(result) && result.data).toEqual({ id: 'new-id' })
     })
   })
 
@@ -150,7 +155,7 @@ describe('AssignedWorkService', () => {
         `/assigned-work/${mockAssignedWorkId}/save-answer`,
         payload
       )
-      expect(result.data).toEqual({ id: 'answer-id' })
+      expect(!isApiError(result) && result.data).toEqual({ id: 'answer-id' })
     })
   })
 
@@ -215,7 +220,7 @@ describe('AssignedWorkService', () => {
         `/assigned-work/${mockAssignedWorkId}/comment`,
         payload
       )
-      expect(result.data).toEqual({ id: 'comment-id' })
+      expect(!isApiError(result) && result.data).toEqual({ id: 'comment-id' })
     })
   })
 

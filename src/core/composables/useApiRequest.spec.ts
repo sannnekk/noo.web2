@@ -5,7 +5,7 @@ describe('useApiRequest', () => {
   test('handles success and progress updates', async () => {
     const request = vi.fn(async (_payload: { id: string }, onProgress) => {
       onProgress?.({ loaded: 50, total: 100, bytes: 50 })
-      return { data: { ok: true }, meta: { total: 1 }, error: null }
+      return { data: { ok: true }, meta: { total: 1 } }
     })
 
     const onSuccess = vi.fn()
@@ -28,8 +28,6 @@ describe('useApiRequest', () => {
 
   test('handles error responses', async () => {
     const request = vi.fn(async () => ({
-      data: null,
-      meta: null,
       error: { id: 'ERR', statusCode: 500, name: 'Error', payload: null }
     }))
 
@@ -44,8 +42,6 @@ describe('useApiRequest', () => {
 
   test('does not call onSuccess for errors', async () => {
     const request = vi.fn(async () => ({
-      data: null,
-      meta: null,
       error: { id: 'ERR', statusCode: 500, name: 'Error', payload: null }
     }))
 
@@ -60,7 +56,7 @@ describe('useApiRequest', () => {
   test('sets progress to null when total is missing', async () => {
     const request = vi.fn(async (_payload: { id: string }, onProgress) => {
       onProgress?.({ loaded: 50, bytes: 50 })
-      return { data: { ok: true }, meta: null, error: null }
+      return { data: { ok: true }, meta: null }
     })
 
     const { execute, progress } = useApiRequest(request)

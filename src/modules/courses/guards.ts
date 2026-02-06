@@ -10,7 +10,7 @@ async function initCoursePageGuard(
   const courseId = String(to.params.courseId)
   const courseDetailStore = useCourseDetailStore()
 
-  await courseDetailStore.course.execute(courseId)
+  courseDetailStore.course.execute(courseId)
 
   return true
 }
@@ -21,6 +21,8 @@ async function initCourseStudentsPageGuard(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const courseId = to.params.courseId
 
+  // TODO: fetch students for the course
+
   return true
 }
 
@@ -30,7 +32,7 @@ async function initEditCoursePageGuard(
   const courseId = to.params.courseId ? String(to.params.courseId) : undefined
   const courseDetailStore = useCourseEditStore()
 
-  await courseDetailStore.init(courseId)
+  courseDetailStore.init(courseId)
 
   return true
 }

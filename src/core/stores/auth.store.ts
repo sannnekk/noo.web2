@@ -61,14 +61,12 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   const login = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      // TODO: Resolve why ts fails to see that data is not null or undefined here
-      userInfo.value = response.data!.userInfo
+      userInfo.value = response.data.userInfo
 
       CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)
       CookieStorage.set(
         CookieStorage.StorageAliases.apiToken,
-        // TODO: Resolve why ts fails to see that data is not null or undefined here
-        response.data!.accessToken
+        response.data.accessToken
       )
 
       if (redirect.value) {
@@ -85,8 +83,7 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   const retryLogin = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      // TODO: Resolve why ts fails to see that data is not null or undefined here
-      userInfo.value = response.data!.userInfo
+      userInfo.value = response.data.userInfo
       isRetryLoginModalVisible.value = false
 
       CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)

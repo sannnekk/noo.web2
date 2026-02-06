@@ -1,4 +1,4 @@
-import { type ApiResponse, Api } from '../api.utils'
+import { type ApiResponse, Api, isApiError } from '../api.utils'
 import type { NotificationEntity } from './notification.types'
 
 interface INotificationService {
@@ -21,8 +21,8 @@ async function markAllAsRead(): Promise<ApiResponse> {
   // Implement it using PATCH `/notification/{notificationId}/mark-read`.
   const unread = await getUnread()
 
-  if (unread.error) {
-    return unread as unknown as ApiResponse
+  if (isApiError(unread)) {
+    return unread
   }
 
   const notifications = unread.data ?? []
@@ -32,12 +32,12 @@ async function markAllAsRead(): Promise<ApiResponse> {
       `/notification/${notification.id}/mark-read`
     )
 
-    if (result.error) {
+    if (isApiError(result)) {
       return result
     }
   }
 
-  return { data: undefined, meta: null, error: null }
+  return { data: undefined }
 }
 
 async function deleteNotification(

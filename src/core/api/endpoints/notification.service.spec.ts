@@ -3,13 +3,18 @@ import { Api, type ApiResponse } from '../api.utils'
 import { NotificationService } from './notification.service'
 import type { NotificationEntity } from './notification.types'
 
-vi.mock('../api.utils', () => ({
-  Api: {
-    get: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn()
+vi.mock('../api.utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../api.utils')>()
+
+  return {
+    ...actual,
+    Api: {
+      get: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn()
+    }
   }
-}))
+})
 
 describe('NotificationService', () => {
   describe('getUnread', () => {

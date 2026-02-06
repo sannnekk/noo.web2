@@ -1,3 +1,4 @@
+import { isApiError } from '@/core/api/api.utils'
 import { useEntityValidation } from '@/core/composables/useEntityValidation'
 import { useViewMode, type ViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
@@ -174,12 +175,18 @@ const useWorkDetailStore = defineStore(
 
       const response = await WorkService.getById(workId)
 
-      if (response.error) {
+      if (isApiError(response)) {
         uiStore.createApiErrorToast(
           'Не удалось загрузить работу',
           response.error
         )
 
+        setMode('error')
+
+        return
+      }
+
+      if (!response.data) {
         setMode('error')
 
         return
@@ -240,7 +247,7 @@ const useWorkDetailStore = defineStore(
 
         const response = await WorkService.create(work.value)
 
-        if (response.error) {
+        if (isApiError(response)) {
           uiStore.createApiErrorToast(
             'Не удалось создать работу',
             response.error
@@ -251,10 +258,12 @@ const useWorkDetailStore = defineStore(
           return
         }
 
-        router.replace({
-          name: 'works.edit',
-          params: { workId: response.data.id }
-        })
+        if (response.data) {
+          router.replace({
+            name: 'works.edit',
+            params: { workId: response.data.id }
+          })
+        }
 
         uiStore.createSuccessToast('Работа успешно создана')
 
@@ -269,7 +278,7 @@ const useWorkDetailStore = defineStore(
           workPatchGenerator.value!.generate()
         )
 
-        if (response.error) {
+        if (isApiError(response)) {
           uiStore.createApiErrorToast(
             'Не удалось обновить работу',
             response.error

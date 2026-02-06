@@ -1,6 +1,7 @@
 import { debouncedWatch } from '@vueuse/core'
 import { ref, shallowRef, type ShallowRef } from 'vue'
 import type { ApiError, ApiResponse } from '../api/api.utils'
+import { isApiError } from '../api/api.utils'
 import {
   Pagination,
   type IPagination,
@@ -71,9 +72,15 @@ function useSearch<T>(
     try {
       const response = await searchFunction(pagination)
 
-      data.value = response.data ?? []
-      error.value = response.error ?? null
-      total.value = response.meta?.total ?? 0
+      if (isApiError(response)) {
+        data.value = []
+        error.value = response.error
+        total.value = 0
+      } else {
+        data.value = response.data ?? []
+        error.value = null
+        total.value = response.meta?.total ?? 0
+      }
     } finally {
       isLoading.value = false
     }

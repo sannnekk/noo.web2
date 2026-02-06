@@ -89,6 +89,7 @@ function addMaterial(): void {
       title: 'Новый материал ' + (materialsModel.value.length + 1),
       titleColor: null,
       contentId: null,
+      chapterId: '',
       isActive: false,
       publishAt: null
     }

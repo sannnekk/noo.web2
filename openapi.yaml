@@ -5227,11 +5227,11 @@ components:
           nullable: true
         solveDeadlineAt:
           type: string
-          format: date
+          format: date-time
           nullable: true
         checkDeadlineAt:
           type: string
-          format: date
+          format: date-time
           nullable: true
         createdAt:
           type: string
@@ -5414,11 +5414,11 @@ components:
           nullable: true
         solveDeadlineAt:
           type: string
-          format: date
+          format: date-time
           nullable: true
         checkDeadlineAt:
           type: string
-          format: date
+          format: date-time
           nullable: true
       additionalProperties: false
     CreateGoogleSheetsIntegrationDTO:

@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { isApiError } from '@/core/api/api.utils'
 import { AuthService } from '@/core/api/endpoints/auth.service'
 import { debounce } from 'lodash'
 import { shallowRef, watch } from 'vue'
@@ -54,7 +55,9 @@ async function checkUsername() {
     try {
       const response = await AuthService.usernameIsFree(props.username)
 
-      usernameIsFree.value = response.data ?? false
+      usernameIsFree.value = isApiError(response)
+        ? undefined
+        : (response.data ?? false)
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {

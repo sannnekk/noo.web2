@@ -40,6 +40,8 @@ export interface PollEntity extends ApiEntity<'Poll'> {
   title: string
   description: string | null
   isActive: boolean
+  expiresAt: Date | null
+  isAuthRequired: boolean
   questions?: PollQuestionEntity[]
 }
 

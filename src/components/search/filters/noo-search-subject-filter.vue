@@ -39,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import { isApiError } from '@/core/api/api.utils'
 import { ArrayFilter, type IFilter } from '@/core/utils/pagination.utils'
 import { SubjectService } from '@/modules/subjects/api/subject.service'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
@@ -125,11 +126,11 @@ async function loadSubjects() {
 
   const response = await SubjectService.get()
 
-  if (response.data?.length) {
+  if (isApiError(response)) {
+    state.value = 'error'
+  } else if (response.data?.length) {
     subjects.value = response.data
     state.value = 'loaded'
-  } else if (response.error) {
-    state.value = 'error'
   } else {
     state.value = 'empty'
   }

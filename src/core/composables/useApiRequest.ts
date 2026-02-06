@@ -3,8 +3,10 @@ import type {
   ApiError,
   ApiMetadata,
   ApiResponse,
+  ApiSuccessResponse,
   RequestProgress
 } from '../api/api.utils'
+import { isApiError } from '../api/api.utils'
 
 export interface UseApiRequestReturn<TRequest = void, TResponse = void> {
   data: ShallowRef<TResponse | null>
@@ -20,7 +22,7 @@ function useApiRequest<TRequest = void, TResponse = void>(
     payload: TRequest,
     onProgress?: (event: RequestProgress) => void
   ) => Promise<ApiResponse<TResponse>>,
-  onSuccess?: (response: ApiResponse<TResponse>) => void,
+  onSuccess?: (response: ApiSuccessResponse<TResponse>) => void,
   onError?: (error: ApiError) => void
 ): UseApiRequestReturn<TRequest, TResponse> {
   const data = shallowRef<TResponse | null>(null)
@@ -43,17 +45,21 @@ function useApiRequest<TRequest = void, TResponse = void>(
       }
     })
 
-    data.value = response.data ?? null
-    metadata.value = response.meta ?? null
-    error.value = response.error ?? null
     progress.value = null
 
-    if (onSuccess && !response.error) {
-      onSuccess(response)
-    }
+    if (isApiError(response)) {
+      error.value = response.error
 
-    if (onError && error.value) {
-      onError(error.value)
+      if (onError) {
+        onError(response.error)
+      }
+    } else {
+      data.value = response.data
+      metadata.value = response.meta ?? null
+
+      if (onSuccess && response.data !== null) {
+        onSuccess(response as ApiSuccessResponse<TResponse>)
+      }
     }
 
     isLoading.value = false

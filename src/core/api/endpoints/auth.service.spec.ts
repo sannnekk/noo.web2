@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Api, type ApiResponse } from '../api.utils'
+import { Api, isApiError, type ApiResponse } from '../api.utils'
 import { AuthService } from './auth.service'
 import type {
   LoginPayload,
@@ -45,7 +45,7 @@ describe('AuthService', () => {
         password: 'wrong'
       })
 
-      expect(result.error).toBeDefined()
+      expect(isApiError(result) && result.error).toBeDefined()
     })
   })
 

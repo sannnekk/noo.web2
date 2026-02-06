@@ -25,8 +25,8 @@
           {{ video.description }}
         </noo-text-block>
         <noo-user-card
-          v-if="video.uploadedBy"
-          :user="video.uploadedBy"
+          v-if="video.uploadedByUser"
+          :user="video.uploadedByUser"
         />
       </div>
     </div>

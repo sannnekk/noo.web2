@@ -2,7 +2,7 @@ import type { ApiEntity } from '@/core/api/api.types'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import type { UserEntity } from '@/modules/users/api/user.types'
 
-export type NooTubeServiceType = 'noo-tube' | 'youtube' | 'vk-video' | 'rutube'
+export type NooTubeServiceType = 'noo-tube' | 'you-tube' | 'vk-video' | 'rutube'
 
 export type NooTubeVideoState =
   | 'not-uploaded'
@@ -21,8 +21,8 @@ export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   state: NooTubeVideoState
   duration: number | null
   publishedAt: Date
-  uploadedById: string | null
-  uploadedBy?: UserEntity
+  uploadedByUserId: string
+  uploadedByUser?: UserEntity
   thumbnail?: MediaEntity | null
 }
 

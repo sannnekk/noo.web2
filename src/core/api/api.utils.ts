@@ -6,17 +6,19 @@ import { ApiErrorCodes } from './api-error-codes.data'
 import { reviveDates, serialize } from './serialization.utils'
 
 export type ApiResponse<T = void> =
+  | ApiSuccessResponse<T>
   | {
-      data: T
+      data: null
       meta?: ApiMetadata | null
-      error?: null
     }
   | {
-      data?: null
-      meta?: null
-      metadata?: null
       error: ApiError
     }
+
+export interface ApiSuccessResponse<T = void> {
+  data: T
+  meta?: ApiMetadata | null
+}
 
 export interface ApiError {
   id: string
@@ -40,6 +42,26 @@ export interface RequestProgress {
   estimated?: number
 }
 
+/**
+ * Type guard to check if an API response is an error response.
+ * Use this to narrow the `ApiResponse` union before accessing `.data` or `.error`.
+ *
+ * @example
+ * ```ts
+ * const response = await Api.get('/path')
+ * if (isApiError(response)) {
+ *   console.error(response.error)
+ *   return
+ * }
+ * // response.data is safely narrowed here
+ * ```
+ */
+export function isApiError<T>(
+  response: ApiResponse<T>
+): response is { error: ApiError } {
+  return 'error' in response
+}
+
 const api = axios.create({
   baseURL: appConfig.apiUrl,
   headers: {
@@ -60,9 +82,7 @@ const api = axios.create({
 function normalizeSuccessResponse<T>(raw: unknown): ApiResponse<T> {
   if (!raw) {
     return {
-      data: undefined as T,
-      meta: null,
-      error: null
+      data: undefined as T
     }
   }
 
@@ -76,16 +96,13 @@ function normalizeSuccessResponse<T>(raw: unknown): ApiResponse<T> {
 
       return {
         data: record.data as T,
-        meta,
-        error: null
+        meta
       }
     }
   }
 
   return {
-    data: raw as T,
-    meta: null,
-    error: null
+    data: raw as T
   }
 }
 

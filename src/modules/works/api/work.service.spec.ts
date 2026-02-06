@@ -1,18 +1,23 @@
-import { Api } from '@/core/api/api.utils'
+import { Api, isApiError } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import type { PossiblyUnsavedWork } from '../types'
 import { WorkService } from './work.service'
 import type { WorkEntity, WorkStatistics } from './work.types'
 
-vi.mock('@/core/api/api.utils', () => ({
-  Api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn()
+vi.mock('@/core/api/api.utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/core/api/api.utils')>()
+
+  return {
+    ...actual,
+    Api: {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn()
+    }
   }
-}))
+})
 
 describe('WorkService', () => {
   beforeEach(() => {
@@ -42,7 +47,7 @@ describe('WorkService', () => {
 
       expect(params.get('page')).toBe('1')
       expect(params.get('perPage')).toBe('10')
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should fetch works without pagination', async () => {
@@ -53,7 +58,7 @@ describe('WorkService', () => {
       const result = await WorkService.get()
 
       expect(Api.get).toHaveBeenCalledWith('/work', undefined)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should return error response', async () => {
@@ -63,7 +68,7 @@ describe('WorkService', () => {
 
       const result = await WorkService.get()
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -77,7 +82,7 @@ describe('WorkService', () => {
       const result = await WorkService.getById(mockId)
 
       expect(Api.get).toHaveBeenCalledWith(`/work/${mockId}`)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should handle error response', async () => {
@@ -88,7 +93,7 @@ describe('WorkService', () => {
 
       const result = await WorkService.getById(mockId)
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -118,7 +123,7 @@ describe('WorkService', () => {
       const result = await WorkService.getStatisticsById(mockId)
 
       expect(Api.get).toHaveBeenCalledWith(`/work/${mockId}/statistics`)
-      expect(result.data).toEqual(mockStats)
+      expect(!isApiError(result) && result.data).toEqual(mockStats)
     })
 
     test('should handle statistics error response', async () => {
@@ -129,7 +134,7 @@ describe('WorkService', () => {
 
       const result = await WorkService.getStatisticsById(mockId)
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -151,7 +156,7 @@ describe('WorkService', () => {
       const result = await WorkService.create(payload)
 
       expect(Api.post).toHaveBeenCalledWith('/work', payload)
-      expect(result.data).toEqual(mockResponse)
+      expect(!isApiError(result) && result.data).toEqual(mockResponse)
     })
   })
 

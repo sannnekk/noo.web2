@@ -16,8 +16,7 @@ describe('useSearch', () => {
   test('runs search and exposes data', async () => {
     const searchFn = vi.fn(async () => ({
       data: [{ id: '1' }],
-      meta: { total: 5 },
-      error: null
+      meta: { total: 5 }
     }))
 
     const search = useSearch(searchFn, { immediate: true, debounce: 0 })
@@ -33,8 +32,7 @@ describe('useSearch', () => {
     const searchFn = vi.fn(
       async (_pagination?: IPagination): Promise<ApiResponse<unknown[]>> => ({
         data: [],
-        meta: { total: 0 },
-        error: null
+        meta: { total: 0 }
       })
     )
 
@@ -66,8 +64,7 @@ describe('useSearch', () => {
     const searchFn = vi.fn(
       async (_pagination?: IPagination): Promise<ApiResponse<unknown[]>> => ({
         data: [],
-        meta: { total: 0 },
-        error: null
+        meta: { total: 0 }
       })
     )
 
@@ -82,8 +79,7 @@ describe('useSearch', () => {
     const searchFn = vi.fn(
       async (_pagination?: IPagination): Promise<ApiResponse<unknown[]>> => ({
         data: [],
-        meta: { total: 0 },
-        error: null
+        meta: { total: 0 }
       })
     )
 
@@ -111,8 +107,6 @@ describe('useSearch', () => {
   test('exposes error response', async () => {
     const searchFn = vi.fn(
       async (): Promise<ApiResponse<unknown[]>> => ({
-        data: null,
-        meta: null,
         error: { id: 'ERR', statusCode: 500, name: 'Error', payload: null }
       })
     )

@@ -1,4 +1,4 @@
-import { Api } from '@/core/api/api.utils'
+import { Api, isApiError } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import type { PossiblyUnsavedCourse } from '../types'
@@ -6,14 +6,19 @@ import { CourseService } from './course.service'
 import type { CreateCourseMembershipPayload } from './course.types'
 
 // Mock the entire API module
-vi.mock('@/core/api/api.utils', () => ({
-  Api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn()
+vi.mock('@/core/api/api.utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/core/api/api.utils')>()
+
+  return {
+    ...actual,
+    Api: {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn()
+    }
   }
-}))
+})
 
 describe('CourseService', () => {
   beforeEach(() => {
@@ -46,7 +51,7 @@ describe('CourseService', () => {
 
       expect(params.get('page')).toBe('1')
       expect(params.get('perPage')).toBe('10')
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should fetch courses without pagination', async () => {
@@ -57,7 +62,7 @@ describe('CourseService', () => {
       const result = await CourseService.get()
 
       expect(Api.get).toHaveBeenCalledWith('/course', undefined)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should handle error response', async () => {
@@ -67,7 +72,7 @@ describe('CourseService', () => {
 
       const result = await CourseService.get()
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -81,7 +86,7 @@ describe('CourseService', () => {
       const result = await CourseService.getById(mockId)
 
       expect(Api.get).toHaveBeenCalledWith(`/course/${mockId}`)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should handle not found error', async () => {
@@ -92,7 +97,7 @@ describe('CourseService', () => {
 
       const result = await CourseService.getById(mockId)
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 
@@ -115,7 +120,7 @@ describe('CourseService', () => {
       expect(Api.get).toHaveBeenCalledWith(
         `/course/${mockCourseId}/content/${mockContentId}`
       )
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
   })
 
@@ -139,7 +144,7 @@ describe('CourseService', () => {
       const result = await CourseService.create(mockCourse)
 
       expect(Api.post).toHaveBeenCalledWith('/course', mockCourse)
-      expect(result.data).toEqual(mockResponse)
+      expect(!isApiError(result) && result.data).toEqual(mockResponse)
     })
   })
 
@@ -178,10 +183,9 @@ describe('CourseService', () => {
         _key: 'temp-key',
         _entityName: 'CourseMaterialContent',
         content: { type: 'doc', content: [] },
-        workId: null,
-        isWorkAvailable: false,
-        workSolveDeadlineAt: null,
-        workCheckDeadlineAt: null
+        nooTubeVideos: [],
+        medias: [],
+        workAssignments: []
       }
       const mockResponse = { id: 'new-content-id' }
 
@@ -195,7 +199,7 @@ describe('CourseService', () => {
         '/course/material-content',
         mockContent
       )
-      expect(result.data).toEqual(mockResponse)
+      expect(!isApiError(result) && result.data).toEqual(mockResponse)
     })
   })
 
@@ -249,7 +253,7 @@ describe('CourseService', () => {
 
       expect(params.get('page')).toBe('1')
       expect(params.get('perPage')).toBe('10')
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
 
     test('should fetch memberships without pagination', async () => {
@@ -262,7 +266,7 @@ describe('CourseService', () => {
       const result = await CourseService.getMemberships()
 
       expect(Api.get).toHaveBeenCalledWith('/course/membership', undefined)
-      expect(result.data).toEqual(mockData)
+      expect(!isApiError(result) && result.data).toEqual(mockData)
     })
   })
 
@@ -293,7 +297,7 @@ describe('CourseService', () => {
         '/course/membership',
         mockMembership
       )
-      expect(result.data).toEqual(mockResponse)
+      expect(!isApiError(result) && result.data).toEqual(mockResponse)
     })
 
     test('should create membership without notification', async () => {
@@ -347,7 +351,7 @@ describe('CourseService', () => {
 
       const result = await CourseService.delete(mockId)
 
-      expect(result.error).toEqual(mockError.error)
+      expect(isApiError(result) && result.error).toEqual(mockError.error)
     })
   })
 })

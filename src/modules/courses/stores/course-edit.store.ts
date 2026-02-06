@@ -1,3 +1,4 @@
+import { isApiError } from '@/core/api/api.utils'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
 import {
@@ -87,9 +88,16 @@ const useCourseEditStore = defineStore(
 
       const response = await CourseService.getById(courseId)
 
-      if (response.error) {
+      if (isApiError(response)) {
         mode.value = 'error'
         uiStore.createApiErrorToast('Не удалось загрузить курс', response.error)
+
+        return
+      }
+
+      if (!response.data) {
+        mode.value = 'error'
+        uiStore.createErrorToast('Курс не найден')
 
         return
       }
@@ -118,12 +126,14 @@ const useCourseEditStore = defineStore(
 
         const response = await CourseService.create(course.value)
 
-        if (response.error) {
+        if (isApiError(response)) {
           uiStore.createApiErrorToast('Не удалось создать курс', response.error)
           mode.value = 'create'
 
           return
-        } else {
+        }
+
+        if (response.data) {
           router.replace({
             name: 'courses.edit',
             params: { courseId: response.data.id }
@@ -140,7 +150,7 @@ const useCourseEditStore = defineStore(
           coursePatchGenerator.value!.generate()
         )
 
-        if (response.error) {
+        if (isApiError(response)) {
           uiStore.createApiErrorToast(
             'Не удалось обновить курс',
             response.error

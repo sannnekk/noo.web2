@@ -26,7 +26,7 @@ interface ISubjectService {
    * @param subject The subject object to create
    * @returns ID of the subject created, in a Promise
    */
-  create(subject: UnsavedSubject): Promise<ApiResponse<string>>
+  create(subject: UnsavedSubject): Promise<ApiResponse<{ id: string }>>
   /**
    * Update a subject using JSONPatchDocument
    *
@@ -55,7 +55,9 @@ async function getById(id: string): Promise<ApiResponse<SubjectEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
-async function create(subject: UnsavedSubject): Promise<ApiResponse<string>> {
+async function create(
+  subject: UnsavedSubject
+): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(BASE_PATH, subject)
 }
 

@@ -1,4 +1,4 @@
-import type { ApiResponse } from '@/core/api/api.utils'
+import { isApiError } from '@/core/api/api.utils'
 import { useViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { uid } from '@/core/utils/id.utils'
@@ -59,6 +59,8 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
         title: 'Новый опрос',
         description: null,
         isActive: true,
+        expiresAt: null,
+        isAuthRequired: false,
         questions: []
       } as PossiblyUnsavedPoll
 
@@ -69,8 +71,14 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
 
     const response = await PollService.getById(pollId)
 
-    if (response.error) {
+    if (isApiError(response)) {
       uiStore.createApiErrorToast('Не удалось загрузить опрос', response.error)
+      uiStore.setLoading(false)
+
+      return
+    }
+
+    if (!response.data) {
       uiStore.setLoading(false)
 
       return
@@ -92,27 +100,43 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
 
     uiStore.setLoading(true)
 
-    let response: ApiResponse | ApiResponse<{ id: string }>
-
     if (poll.value?.id) {
-      response = await PollService.update(poll.value.id, poll.value)
+      const response = await PollService.update(poll.value.id, poll.value)
+
+      uiStore.setLoading(false)
+
+      if (isApiError(response)) {
+        uiStore.createApiErrorToast(
+          'Не удалось сохранить опрос',
+          response.error
+        )
+
+        return
+      }
+
+      uiStore.createSuccessToast('Опрос сохранен')
     } else {
-      response = await PollService.create(poll.value)
-    }
+      const response = await PollService.create(poll.value)
 
-    uiStore.setLoading(false)
+      uiStore.setLoading(false)
 
-    if (response.error) {
-      uiStore.createApiErrorToast('Не удалось сохранить опрос', response.error)
-    }
+      if (isApiError(response)) {
+        uiStore.createApiErrorToast(
+          'Не удалось сохранить опрос',
+          response.error
+        )
 
-    uiStore.createSuccessToast('Опрос сохранен')
+        return
+      }
 
-    if (response?.data?.id) {
-      useRouter().push({
-        name: 'polls.edit',
-        params: { pollId: response?.data?.id }
-      })
+      uiStore.createSuccessToast('Опрос сохранен')
+
+      if (response.data?.id) {
+        useRouter().push({
+          name: 'polls.edit',
+          params: { pollId: response.data.id }
+        })
+      }
     }
   }
 

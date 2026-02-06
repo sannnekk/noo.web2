@@ -86,12 +86,12 @@ export const videos: NooTubeVideoEntity[] = [
     externalIdentifier: 'abc123',
     externalUrl: 'https://youtube.com/watch?v=abc123',
     externalThumbnailUrl: 'https://img.youtube.com/vi/abc123/0.jpg',
-    serviceType: 'youtube',
+    serviceType: 'you-tube',
     state: 'published',
     duration: 1200,
     publishedAt: new Date('2025-06-01T10:00:00Z'),
-    uploadedById: 'user1',
-    uploadedBy: mockUsers.user1
+    uploadedByUserId: 'user1',
+    uploadedByUser: mockUsers.user1
   },
   {
     _entityName: 'NooTubeVideo',
@@ -108,8 +108,8 @@ export const videos: NooTubeVideoEntity[] = [
     state: 'uploaded',
     duration: 900,
     publishedAt: new Date('2025-06-02T09:30:00Z'),
-    uploadedById: 'user2',
-    uploadedBy: mockUsers.user2
+    uploadedByUserId: 'user2',
+    uploadedByUser: mockUsers.user2
   },
   {
     _entityName: 'NooTubeVideo',
@@ -126,7 +126,7 @@ export const videos: NooTubeVideoEntity[] = [
     state: 'published',
     duration: 1800,
     publishedAt: new Date('2025-06-03T12:00:00Z'),
-    uploadedById: 'user3',
-    uploadedBy: mockUsers.user3
+    uploadedByUserId: 'user3',
+    uploadedByUser: mockUsers.user3
   }
 ]

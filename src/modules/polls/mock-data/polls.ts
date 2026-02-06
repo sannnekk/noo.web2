@@ -7,6 +7,8 @@ const polls: PollEntity[] = [
     title: 'Favorite Front‑End Framework',
     description: 'Choose your preferred JS framework/library.',
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-01T09:00:00Z'),
     updatedAt: new Date('2025-06-02T10:15:00Z')
   },
@@ -16,6 +18,8 @@ const polls: PollEntity[] = [
     title: 'Weekly Team Lunch Spot',
     description: 'Vote for where we should go this Friday.',
     isActive: false,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-02T11:30:00Z'),
     updatedAt: new Date('2025-06-03T08:45:00Z')
   },
@@ -25,6 +29,8 @@ const polls: PollEntity[] = [
     title: 'Next Hackathon Theme',
     description: 'Select the theme for our July hackathon.',
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-03T14:20:00Z'),
     updatedAt: null
   },
@@ -34,6 +40,8 @@ const polls: PollEntity[] = [
     title: 'Some poll',
     description: 'Anonymous feedback: How can we improve sprint planning?',
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-04T10:00:00Z'),
     updatedAt: null
   },
@@ -43,6 +51,8 @@ const polls: PollEntity[] = [
     title: 'Company Retreat Location',
     description: null,
     isActive: false,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-05T12:00:00Z'),
     updatedAt: new Date('2025-06-06T13:00:00Z')
   },
@@ -52,6 +62,8 @@ const polls: PollEntity[] = [
     title: 'Preferred IDE',
     description: 'VSCode, WebStorm, Vim, or other?',
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-06T09:45:00Z'),
     updatedAt: null
   },
@@ -61,6 +73,8 @@ const polls: PollEntity[] = [
     title: 'Office Snack Choices',
     description: 'Vote on what snacks to stock next month.',
     isActive: false,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-07T15:10:00Z'),
     updatedAt: new Date('2025-06-08T16:25:00Z')
   },
@@ -70,6 +84,8 @@ const polls: PollEntity[] = [
     title: 'Team Building Activity',
     description: 'Prefer virtual game night or in‑person outing?',
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-08T08:30:00Z'),
     updatedAt: null
   },
@@ -79,6 +95,8 @@ const polls: PollEntity[] = [
     title: 'Learning Workshop Topic',
     description: 'Which new technology should we cover in July?',
     isActive: false,
+    expiresAt: null,
+    isAuthRequired: false,
     createdAt: new Date('2025-06-09T13:55:00Z'),
     updatedAt: new Date('2025-06-10T09:15:00Z')
   },
@@ -88,6 +106,8 @@ const polls: PollEntity[] = [
     title: 'Quarterly All‑Hands Agenda',
     description: null,
     isActive: true,
+    expiresAt: null,
+    isAuthRequired: true,
     createdAt: new Date('2025-06-10T10:10:00Z'),
     updatedAt: null
   }

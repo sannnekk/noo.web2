@@ -18,11 +18,11 @@
       />
     </div>
     <div
-      v-if="courseDetailStore.materialContent.data.files?.length"
+      v-if="courseDetailStore.materialContent.data.medias?.length"
       class="course-material-content-view__files"
     >
       <noo-title :size="3"> Прикрепленные файлы </noo-title>
-      <noo-file-list :files="courseDetailStore.materialContent.data.files" />
+      <noo-file-list :files="courseDetailStore.materialContent.data.medias" />
     </div>
   </div>
   <div

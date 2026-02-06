@@ -1,4 +1,5 @@
 import type { ApiError } from '@/core/api/api.utils'
+import { isApiError } from '@/core/api/api.utils'
 import {
   useApiRequest,
   type UseApiRequestReturn
@@ -113,12 +114,18 @@ const useAssignedWorkDetailStore = defineStore(
 
       //const apiResponse = await AssignedWorkService.getById(assignedWorkId)
 
-      if (apiResponse.error) {
+      if (isApiError(apiResponse)) {
         globalUiStore.setLoading(false)
         globalUiStore.createApiErrorToast(
           'Не удалось загрузить работу',
-          apiResponse.error ?? undefined
+          apiResponse.error
         )
+
+        return false
+      }
+
+      if (!apiResponse.data) {
+        globalUiStore.setLoading(false)
 
         return false
       }
@@ -170,17 +177,19 @@ const useAssignedWorkDetailStore = defineStore(
           }
         )
 
-        if (response.error) {
+        if (isApiError(response)) {
           globalUiStore.setLoading(false)
           globalUiStore.createApiErrorToast(
             'Не удалось сохранить работу',
-            response.error ?? undefined
+            response.error
           )
 
           return
         }
 
-        answerIdsByTaskId[answer.taskId] = response.data.id
+        if (response.data) {
+          answerIdsByTaskId[answer.taskId] = response.data.id
+        }
       }
 
       setSavedAnswerIds(answerIdsByTaskId)
@@ -258,8 +267,7 @@ const useAssignedWorkDetailStore = defineStore(
     const remake = useApiRequest<AssignedWorkRemakeOptions, { id: string }>(
       (options) => AssignedWorkService.remake(assignedWork.value!.id, options),
       (response) => {
-        // TODO: Resolve why ts fails to see that data is not null or undefined here
-        const newAssignedWorkId = response.data!.id
+        const newAssignedWorkId = response.data.id
 
         globalUiStore.createSuccessToast('Новый экземпляр работы создан')
 
