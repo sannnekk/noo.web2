@@ -56,7 +56,11 @@
                 editCourseStore.mode !== 'create' &&
                 editCourseStore.mode !== 'edit'
               "
-            />
+            >
+              <template #tooltip>
+                TODO: чет написать про то что значит эта дата
+              </template>
+            </noo-date-input>
             <noo-date-input
               v-model="editCourseStore.course.endDate"
               label="Дата окончания"
@@ -110,6 +114,14 @@ const editCourseStore = useCourseEditStore()
 .course-edit-sidebar
   &__general
     padding: 1em 0
+
+  &__dates
+    display: flex
+    flex-direction: row
+    gap: 1em
+
+    & > *
+        flex: 1
 
   &__tree
     padding: 1em 0

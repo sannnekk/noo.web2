@@ -1,25 +1,31 @@
 <template>
-  <div class="noo-select-input">
-    <label class="noo-select-input__label">
-      <span class="noo-select-input__label-text">{{ label }}</span>
-      <select
-        v-model="model"
-        :disabled="readonly"
-        class="noo-select-input__select"
-        :class="{
-          'noo-select-input__select--readonly': readonly,
-          'noo-select-input__select--error': errors?.length
-        }"
+  <div class="noo-input">
+    <div class="noo-input__head">
+      <label class="noo-input__label">
+        <span class="noo-select-input__label-text">{{ label }}</span>
+      </label>
+      <span
+        v-if="$slots.tooltip"
+        class="noo-input__explanation-tooltip"
+      ></span>
+    </div>
+    <select
+      v-model="model"
+      :disabled="readonly"
+      class="noo-input__select"
+      :class="{
+        'noo-select-input__select--readonly': readonly,
+        'noo-select-input__select--error': errors?.length
+      }"
+    >
+      <option
+        v-for="option in options"
+        :key="option.label"
+        :value="option.value"
       >
-        <option
-          v-for="option in options"
-          :key="option.label"
-          :value="option.value"
-        >
-          {{ option.label }}
-        </option>
-      </select>
-    </label>
+        {{ option.label }}
+      </option>
+    </select>
     <noo-input-error-list :errors="errors" />
   </div>
 </template>
@@ -45,36 +51,4 @@ const model = defineModel<T | null>({
 })
 </script>
 
-<style scoped lang="sass">
-.noo-select-input
-  &__label
-    color: var(--text-light)
-
-  &__label-text
-    font-size: 0.8em
-    margin-right: 0.5em
-
-  &__select
-    border: 1px solid var(--border-color)
-    border-radius: var(--border-radius)
-    outline: none
-    padding: 0.5em 0.8em
-    box-sizing: border-box
-    font-size: 0.9em
-    font-family: inherit
-    width: 100%
-    height: 2.4em
-    background: var(--form-background)
-    color: var(--form-text-color)
-    line-height: 1
-
-    &--error
-      border-color: var(--danger) !important
-
-    &:focus
-      border-color: var(--primary)
-
-    &--readonly
-      background: var(--light)
-      opacity: 0.7
-</style>
+<style scoped lang="sass" src="./noo-input.sass"></style>

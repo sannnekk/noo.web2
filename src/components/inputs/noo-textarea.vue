@@ -1,26 +1,36 @@
 <template>
-  <div class="noo-text-area">
-    <label
-      v-if="label"
-      class="noo-text-area__label"
-    >
-      {{ label }}
-    </label>
+  <div class="noo-input">
+    <div class="noo-input__head">
+      <label
+        v-if="label"
+        class="noo-input__label"
+      >
+        {{ label }}
+      </label>
+      <span
+        v-if="$slots.tooltip"
+        class="noo-input__explanation-tooltip"
+      >
+        <noo-tooltip>
+          <slot name="tooltip" />
+        </noo-tooltip>
+      </span>
+    </div>
     <textarea
       v-model="model"
-      class="noo-text-area__textarea"
+      class="noo-input__textarea"
       :class="{
-        'noo-text-area__textarea--readonly': readonly,
-        'noo-text-area__textarea--error': allErrors.length > 0
+        'noo-input__textarea--readonly': readonly,
+        'noo-input__textarea--error': allErrors.length > 0
       }"
       :placeholder="placeholder"
       :readonly="readonly"
     />
+    <noo-input-error-list
+      :errors="allErrors"
+      class="noo-input__errors"
+    />
   </div>
-  <noo-input-error-list
-    :errors="allErrors"
-    class="noo-text-area__errors"
-  />
 </template>
 
 <script setup lang="ts">
@@ -76,37 +86,4 @@ function validateInput(value: string | undefined | null) {
 }
 </script>
 
-<style scoped lang="sass">
-.noo-text-area
-  margin-bottom: -0.5em
-
-  &__label
-    font-size: 0.8em
-    color: var(--text-light)
-
-  &__textarea
-    width: 100%
-    padding: 0.7em 0.8em
-    border-radius: var(--border-radius)
-    border: 1px solid var(--border-color)
-    outline: none
-    resize: vertical
-    font-family: inherit
-    min-height: 5em
-    color: var(--form-text-color)
-    background: var(--form-background)
-
-    &--readonly
-      background: var(--light-background-color)
-      color: var(--text-light)
-
-    &--error
-      border-color: var(--danger)
-
-    &:focus
-      outline: none
-      border-color: var(--primary)
-
-  &__errors
-    margin-bottom: 0.5em
-</style>
+<style scoped lang="sass" src="./noo-input.sass"></style>

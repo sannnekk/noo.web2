@@ -140,6 +140,7 @@ declare module 'vue' {
     NooToast: typeof import('./src/components/notifications/noo-toast.vue')['default']
     NooToastArea: typeof import('./src/components/layout/noo-toast-area.vue')['default']
     NooToggleInput: typeof import('./src/components/inputs/noo-toggle-input.vue')['default']
+    NooTooltip: typeof import('./src/components/utils/noo-tooltip.vue')['default']
     NootubeIcon: typeof import('./src/components/icons/noo-icons/nootube-icon.vue')['default']
     NooTypingText: typeof import('./src/components/text/noo-typing-text.vue')['default']
     NooUploadedImage: typeof import('./src/components/images/noo-uploaded-image.vue')['default']

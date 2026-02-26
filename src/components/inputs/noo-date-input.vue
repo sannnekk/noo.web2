@@ -1,36 +1,46 @@
 <template>
-  <label сlass="noo-date-input">
-    <span class="noo-date-input__label">
-      {{ label }}
-    </span>
-    <div class="noo-date-input__input-container">
-      <div class="noo-date-input__input-before">
+  <div сlass="noo-input">
+    <div class="noo-input__head">
+      <label class="noo-input__label">
+        {{ label }}
+      </label>
+      <span
+        v-if="$slots.tooltip"
+        class="noo-input__explanation-tooltip"
+      >
+        <noo-tooltip>
+          <slot name="tooltip" />
+        </noo-tooltip>
+      </span>
+    </div>
+    <div class="noo-input__input-container">
+      <div class="noo-input__input-before">
         <slot name="before" />
       </div>
       <input
         v-model="inputModel"
-        class="noo-date-input__input"
+        class="noo-input__input"
         :class="{
-          'noo-date-input__input--error': allErrors.length,
-          'noo-date-input__input--readonly': readonly
+          'noo-input__input--error': allErrors.length,
+          'noo-input__input--readonly': readonly
         }"
         :type="type || 'date'"
         :placeholder="placeholder"
         :disabled="readonly"
         @keypress.enter="$emit('enter-press')"
       />
-      <div class="noo-date-input__input-after">
+      <div class="noo-input__input-after">
         <slot name="after" />
         <noo-icon
           v-if="resettable !== false && !readonly && model"
           name="cross-red"
-          class="noo-date-input__reset-button"
+          class="noo-input__reset-button"
           @click="resetValue"
         />
       </div>
     </div>
     <noo-input-error-list :errors="allErrors" />
-  </label>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -176,82 +186,4 @@ function parseWeek(value: string): Date {
 }
 </script>
 
-<style scoped lang="sass">
-.noo-date-input
-  &__label
-    font-size: 0.8em
-    color: var(--text-light)
-
-  &__explanation-tooltip
-    color: var(--text-light)
-    margin-bottom: 1em
-
-  &__input-container
-    position: relative
-
-    &:hover
-      .noo-date-input__copy-button
-        visibility: visible
-
-  &__copy-button
-    position: absolute
-    right: 0.2em
-    top: 50%
-    transform: translateY(-50%)
-    font-size: 1.2em
-    display: flex
-    align-items: center
-    justify-content: center
-    visibility: hidden
-    cursor: pointer
-    background-color: var(--form-background)
-    border-radius: 50%
-    padding: 0.2em
-
-    &:hover
-      background-color: var(--border-color)
-
-  &__input
-    border: 1px solid var(--border-color)
-    border-radius: var(--border-radius)
-    outline: none
-    padding: 0.5em 0.8em
-    box-sizing: border-box
-    font-family: inherit
-    width: 100%
-    min-width: 100%
-    max-width: 100%
-    background: var(--form-background)
-    color: var(--form-text-color)
-    display: block
-    font-size: 0.9em
-    line-height: 1
-    height: 2.4em
-
-    &:focus
-      border-color: var(--primary)
-
-    &--error
-      border-color: var(--danger) !important
-
-    &--readonly
-      background: var(--light)
-      opacity: 0.7
-    &__input-after
-      position: absolute
-      top: 50%
-      right: 0.5em
-      transform: translateY(-50%)
-      display: flex
-      align-items: center
-      gap: 0.25em
-
-    &__reset-button
-      font-size: 1.6em
-      cursor: pointer
-      color: var(--text-light)
-      transition: transform 0.2s ease-in-out
-
-      &:hover
-        transform: rotate(90deg)
-</style>
+<style scoped lang="sass" src="./noo-input.sass"></style>

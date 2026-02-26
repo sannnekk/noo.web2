@@ -1,0 +1,74 @@
+.noo-input
+  display: block
+  margin-bottom: 0.7em
+
+  &__head
+    display: flex
+    align-items: center
+    gap: 0.5em
+    margin-bottom: 0.1em
+    justify-content: space-between
+
+  &__label
+    font-size: 0.8em
+    color: var(--text-light)
+
+  &__explanation-tooltip
+    font-size: 0.8em
+    height: 1.3em
+
+  &__input-container
+    position: relative
+
+    &:hover
+      .noo-text-input__copy-button
+        visibility: visible
+
+  &__copy-button
+    position: absolute
+    right: 0.2em
+    top: 50%
+    transform: translateY(-50%)
+    font-size: 1.2em
+    display: flex
+    align-items: center
+    justify-content: center
+    visibility: hidden
+    cursor: pointer
+    background-color: var(--form-background)
+    border-radius: 50%
+    padding: 0.2em
+
+    &:hover
+      background-color: var(--border-color)
+
+  &__input
+    height: 2.4em
+
+  &__textarea
+    resize: vertical
+    min-height: 5em
+
+  &__input, &__textarea, &__select
+    width: 100%
+    padding: 0.5em 0.8em
+    border: 1px solid var(--border-color)
+    border-radius: var(--border-radius)
+    outline: none
+    box-sizing: border-box
+    font-family: inherit
+    color: var(--form-text-color)
+    background: var(--form-background)
+    display: block
+    font-size: 0.9em
+    line-height: 1
+
+    &:focus
+      border-color: var(--primary)
+
+    &--error
+      border-color: var(--danger) !important
+
+    &--readonly
+      background: var(--light)
+      opacity: 0.7

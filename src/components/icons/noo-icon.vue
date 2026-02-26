@@ -25,7 +25,7 @@ export type IconName =
   | 'check-green'
   | 'check-red'
   | 'cross-red'
-  | 'question-yellow'
+  | 'question'
   | 'attention-yellow'
   | 'minus-yellow'
   | 'jpg-file'
