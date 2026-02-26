@@ -6,8 +6,6 @@
     <noo-grid-layout></noo-grid-layout>
     <noo-title :size="3">Курсы</noo-title>
     <noo-grid-layout></noo-grid-layout>
-    <noo-title :size="3">Опасная зона</noo-title>
-    <noo-grid-layout></noo-grid-layout>
   </div>
 </template>
 

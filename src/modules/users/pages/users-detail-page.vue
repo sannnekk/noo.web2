@@ -31,6 +31,10 @@
           <template #tab-history>
             <history-view />
           </template>
+          <template #tab-title-danger-zone>Опасная зона</template>
+          <template #tab-danger-zone>
+            <danger-zone-view />
+          </template>
         </noo-tabs-layout>
       </template>
     </noo-sidebar-layout>
@@ -45,6 +49,7 @@ import generalInfoView from '../views/general-info-view.vue'
 import historyView from '../views/history-view.vue'
 import pollsView from '../views/polls-view.vue'
 import statisticsView from '../views/statistics-view.vue'
+import dangerZoneView from '../views/danger-zone-view.vue'
 
 export interface UsersDetailPageProps {
   tabId: UserDetailTab

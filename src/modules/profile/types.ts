@@ -1,1 +1,1 @@
-export type ProfilePageTab = 'info' | 'statistics' | 'polls'
+export type ProfilePageTab = 'info' | 'statistics' | 'polls' | 'payments'

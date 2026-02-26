@@ -15,7 +15,10 @@
         </noo-title>
       </div>
       <div class="noo-notifications-pane__body">
-        <noo-tabs-layout v-model:active-tab="currentTab">
+        <noo-tabs-layout
+          v-model:active-tab="currentTab"
+          with-padding
+        >
           <template #tab-title-unread>
             <span>Непрочитанные</span>
           </template>
