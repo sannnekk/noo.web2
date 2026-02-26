@@ -15,7 +15,7 @@
     <template #content>
       <div class="save-work-changes-modal__content">
         <noo-text-block
-          v-if="hasChanges"
+          v-if="hasChanges || workDetailStore.mode === 'create'"
           dimmed
         >
           {{
@@ -38,10 +38,10 @@
             </noo-text-block>
           </template>
           <template #visible>
-            <work-patch-list
+            <!--<work-patch-list
               :patch="workDetailStore.workPatchGenerator!.generate()"
               :original="workDetailStore.workPatchGenerator!.getOriginal()"
-            />
+            />-->
           </template>
         </noo-collapsable-block>
         <noo-error-block
@@ -76,9 +76,7 @@
       </noo-button>
       <noo-button
         variant="primary"
-        :disabled="
-          !hasChanges || workDetailStore.workValidationState.isValid === false
-        "
+        :disabled="!canBeSaved"
         @click="onSave()"
       >
         Сохранить
@@ -90,7 +88,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useWorkDetailStore } from '../stores/work-detail.store'
-import workPatchList from './work-patch-list.vue'
+//import workPatchList from './work-patch-list.vue'
 
 const isOpenModel = defineModel<boolean>('isOpen', {
   default: false
@@ -101,6 +99,14 @@ const workDetailStore = useWorkDetailStore()
 const changesCount = ref(0)
 
 const hasChanges = computed(() => changesCount.value > 0)
+
+const canBeSaved = computed(() => {
+  const isValid = workDetailStore.workValidationState.isValid
+  const isEditMode = workDetailStore.mode === 'edit'
+  const isCreateMode = workDetailStore.mode === 'create'
+
+  return isValid && ((isEditMode && hasChanges.value) || isCreateMode)
+})
 
 const showChanges = computed(
   () =>

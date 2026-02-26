@@ -18,7 +18,7 @@
         :size="5"
         no-margin
       >
-        {{ chapterModel.title }} | {{ chapterModel.order }}
+        {{ chapterModel.title }}
       </noo-title>
     </div>
     <div

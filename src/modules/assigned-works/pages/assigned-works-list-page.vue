@@ -2,6 +2,7 @@
   <div class="assigned-works-list-page">
     <noo-tabs-layout
       use-route-tabs
+      with-padding
       route-param-name="tab"
     >
       <template #tab-title-all>

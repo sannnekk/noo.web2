@@ -25,17 +25,11 @@
           </div>
           <div class="tree-material-list__item__title">
             <noo-title
-              v-if="!editable"
               :size="5"
               no-margin
             >
               {{ material.title }}
             </noo-title>
-            <noo-text-input
-              v-else
-              v-model="material.title"
-              placeholder="Название материала"
-            />
           </div>
           <div
             v-if="editable"

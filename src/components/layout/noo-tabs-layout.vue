@@ -1,6 +1,9 @@
 <template>
   <div class="noo-tabs-view">
-    <div class="noo-tabs-view__titles">
+    <div
+      class="noo-tabs-view__titles"
+      :class="{ 'noo-tabs-view__titles--with-padding': props.withPadding }"
+    >
       <div class="noo-tabs-view__titles__row">
         <template
           v-for="tab in tabKeys"
@@ -67,6 +70,7 @@ interface Slots {
 interface Props {
   useRouteTabs?: boolean
   routeParamName?: string
+  withPadding?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -124,6 +128,9 @@ function isTabActive(tab: string) {
 <style scoped lang="sass">
 .noo-tabs-view
   &__titles
+    &--with-padding
+      padding: 0.5em
+
     &__row
       display: flex
       align-items: center

@@ -122,7 +122,7 @@ function adjustOrder(): void {
   &--level-3,
   &--level-4,
   &--level-5
-    padding-left: 1.5em
+    padding-left: 2em
     gap: 0.25em
 
   &__item
@@ -148,5 +148,5 @@ function adjustOrder(): void {
       &--level-3,
       &--level-4,
       &--level-5
-        padding-left: 1.5em
+        padding-left: 2em
 </style>

@@ -2,6 +2,7 @@
   <div class="own-courses-page">
     <noo-tabs-layout
       use-route-tabs
+      with-padding
       route-param-name="tabId"
     >
       <template #tab-title-all>

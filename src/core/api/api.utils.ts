@@ -71,6 +71,10 @@ const api = axios.create({
   transformResponse: [
     (data) => {
       if (typeof data === 'string') {
+        if (!data) {
+          return null
+        }
+
         return JSON.parse(data, reviveDates)
       }
 
@@ -123,8 +127,6 @@ api.interceptors.response.use(
       if (error.response.status === 401) {
         if (CookieStorage.isSet(CookieStorage.StorageAliases.apiToken)) {
           GlobalEventBus.emit('auth:login-expired', undefined)
-        } else {
-          GlobalEventBus.emit('auth:logout', undefined)
         }
       }
 
