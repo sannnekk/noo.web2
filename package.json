@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@duskmoon/vue3-typed-js": "^0.0.4",
+    "@unovis/ts": "1.6.4",
+    "@unovis/vue": "1.6.4",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "^13.4.0",
     "animate.css": "^4.1.1",

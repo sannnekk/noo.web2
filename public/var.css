@@ -26,6 +26,9 @@ html {
   --dark-text-color: var(--dark);
   --text-light: #939393;
 
+  /* Charts  */
+  --grid-color: #e0e0e0;
+
   /* other */
   --border-radius: 8px;
   --border-radius-button: 18px;
@@ -59,6 +62,8 @@ html.dark {
 
   --dark-text-color: #fff;
   --text-light: #939393;
+
+  --grid-color: #555;
 
   --border-color: #616161;
 
