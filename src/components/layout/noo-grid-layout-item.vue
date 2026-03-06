@@ -2,8 +2,8 @@
   <div
     class="noo-grid-layout-item"
     :style="{
-      gridColumn: `span ${colspan} / span ${col}`,
-      gridRow: `span ${rowspan} / span ${row}`,
+      gridColumn: `${col} / span ${colspan}`,
+      gridRow: `${row} / span ${rowspan}`,
       display: 'grid',
       alignItems: verticalAlign,
       justifyItems: horizontalAlign,

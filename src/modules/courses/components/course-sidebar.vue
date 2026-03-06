@@ -61,15 +61,11 @@
       >
         Авторы:
       </noo-text-block>
-      <!-- TODO: add authors -->
+      TODO: add authors
     </div>
     <div class="course-sidebar__chapter-tree">
       <noo-scrollable-block max-height="60vh">
-        <course-chapter-tree
-          :course-id="course.id"
-          :chapters="course.chapters ?? []"
-          :opened-material-id-or-key="courseDetailStore.currentMaterial?.id"
-        />
+        TODO: add chapter tree
       </noo-scrollable-block>
     </div>
     <div class="course-sidebar__course-link">
@@ -91,7 +87,6 @@
 import { usePageUrl } from '@/core/composables/usePageUrl'
 import { computed, shallowRef } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
-import CourseChapterTree from './course-chapter-tree.vue'
 import MaterialSearchModal from './material-search-modal.vue'
 
 interface Props {

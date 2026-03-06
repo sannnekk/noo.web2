@@ -27,21 +27,7 @@
         </div>
       </div>
     </noo-scrollable-block>
-    <div class="task-grid__legend">
-      <div
-        v-for="item in legend"
-        :key="item.color"
-        class="task-grid__legend__item"
-      >
-        <noo-color-badge :color="item.color" />
-        <noo-text-block
-          dimmed
-          size="small"
-        >
-          {{ item.label }}
-        </noo-text-block>
-      </div>
-    </div>
+    <noo-legend :items="legend" />
   </div>
 </template>
 
@@ -150,18 +136,4 @@ const taskTypeColors = taskTypes.reduce(
         font-size: 0.875rem
         font-weight: 500
         line-height: 0.8
-
-  &__legend
-    display: flex
-    flex-direction: column
-    gap: 0.2em
-    padding: 0.5em 0
-
-    &__item
-      white-space: nowrap
-
-      .noo-text-block
-        margin: 0
-        display: inline-block !important
-        padding-left: 0.5em
 </style>

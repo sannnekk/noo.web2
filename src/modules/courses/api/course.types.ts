@@ -26,6 +26,7 @@ export interface CourseChapterEntity extends ApiEntity<'CourseChapter'> {
   color: string | null
   isActive: boolean
   parentChapterId?: string
+  publishAt: Date | null
   subChapters?: CourseChapterEntity[]
   materials?: CourseMaterialEntity[]
 }
@@ -37,7 +38,7 @@ export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   isActive: boolean
   publishAt: Date | null
   chapterId: string
-  contentId: string
+  contentId: string | null
 }
 
 export interface CourseMaterialContentEntity

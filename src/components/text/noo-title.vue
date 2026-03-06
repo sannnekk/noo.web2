@@ -4,7 +4,8 @@
     :class="['noo-title', size]"
     :style="{
       textAlign: align,
-      margin: noMargin ? '0' : undefined
+      margin: noMargin ? '0' : undefined,
+      color
     }"
   >
     <slot />
@@ -15,6 +16,7 @@
 interface Props {
   size: number
   align?: 'left' | 'center' | 'right'
+  color?: string | null
   noMargin?: boolean
 }
 

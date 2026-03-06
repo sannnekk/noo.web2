@@ -1,18 +1,29 @@
 import { isApiError } from '@/core/api/api.utils'
+import { useEntityDrafts } from '@/core/composables/useEntityDrafts'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { convertToLocal, uid } from '@/core/utils/id.utils'
 import {
   JsonPatchUtils,
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
+import { emptyRichText } from '@/core/utils/richtext.utils'
 import { defineStore } from 'pinia'
-import { reactive, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
+import {
+  computed,
+  ref,
+  shallowRef,
+  type ComputedRef,
+  type Ref,
+  type ShallowRef
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { CourseService } from '../api/course.service'
-import { type CourseEntity } from '../api/course.types'
+import type { CourseEntity } from '../api/course.types'
 import type {
+  PossiblyUnsavedChapter,
   PossiblyUnsavedCourse,
-  PossiblyUnsavedCourseMaterialContent
+  PossiblyUnsavedCourseMaterialContent,
+  PossiblyUnsavedMaterial
 } from '../types'
 import { normalizeCoursePatch } from '../utils'
 
@@ -30,13 +41,21 @@ interface CourseEditStore {
    */
   coursePatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>
   /**
-   * The key of the currently edited material content.
+   * The key of the currently edited material.
    */
   currentMaterialContentKey: Ref<string | null>
   /**
-   * An object to store material contents being edited, where _key is used as the key.
+   * Indicates whether the current material content is being loaded.
    */
-  materialContents: Record<string, PossiblyUnsavedCourseMaterialContent>
+  isCurrentMaterialContentLoading: Ref<boolean>
+  /**
+   * Content of the currently selected material.
+   */
+  currentMaterialContent: ComputedRef<PossiblyUnsavedCourseMaterialContent | null>
+  /**
+   * Indicates whether there are unsaved course or material content changes.
+   */
+  hasUnsavedChanges: ComputedRef<boolean>
   /**
    * Inits the store with a course ID.
    * If no course ID is provided, it initializes an empty course.
@@ -44,11 +63,21 @@ interface CourseEditStore {
    */
   init: (courseId?: string) => Promise<void>
   /**
-   * Saves the current course and material.
-   * If the course is new, it creates a new course.
-   * If the course already exists, it updates the existing course.
+   * Saves the current course and all changed material contents.
    */
   save: () => Promise<void>
+  /**
+   * Opens material content for editing by material local key.
+   */
+  selectMaterial: (materialKey: string) => Promise<void>
+  /**
+   * Current selected material
+   */
+  currentMaterial: Ref<PossiblyUnsavedMaterial | null>
+  /**
+   * Marks material content as removed and tracks it for delete on save.
+   */
+  markMaterialRemoved: (materialKey: string, contentId: string | null) => void
 }
 
 const useCourseEditStore = defineStore(
@@ -62,11 +91,92 @@ const useCourseEditStore = defineStore(
     const coursePatchGenerator =
       shallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>(null)
     const currentMaterialContentKey = ref<string | null>(null)
-    const materialContents = reactive<
-      Record<string, PossiblyUnsavedCourseMaterialContent>
-    >({})
+    const currentMaterial = ref<PossiblyUnsavedMaterial | null>(null)
+    const isCurrentMaterialContentLoading = ref(false)
+    const deletedMaterialContentIds = ref<string[]>([])
+    const materialContentDrafts =
+      useEntityDrafts<PossiblyUnsavedCourseMaterialContent>()
+
+    const currentMaterialContent = computed(() => {
+      const key = currentMaterialContentKey.value
+
+      if (!key) {
+        return null
+      }
+
+      return materialContentDrafts.getDraft(key)?.entity ?? null
+    })
+
+    const hasUnsavedChanges = computed(() => {
+      const hasCourseChanges =
+        (coursePatchGenerator.value?.countChanges() ?? 0) > 0
+
+      return (
+        hasCourseChanges ||
+        materialContentDrafts.hasAnyChanges.value ||
+        deletedMaterialContentIds.value.length > 0
+      )
+    })
+
+    function createEmptyMaterialContent(): PossiblyUnsavedCourseMaterialContent {
+      return {
+        _entityName: 'CourseMaterialContent',
+        _key: uid(),
+        content: emptyRichText(),
+        nooTubeVideos: [],
+        medias: [],
+        workAssignments: []
+      }
+    }
+
+    function resetMaterialContentState(): void {
+      currentMaterialContentKey.value = null
+      isCurrentMaterialContentLoading.value = false
+      deletedMaterialContentIds.value = []
+      materialContentDrafts.clear()
+    }
+
+    function findMaterialByKey(
+      chapters: PossiblyUnsavedChapter[] | undefined,
+      materialKey: string
+    ): PossiblyUnsavedMaterial | null {
+      for (const chapter of chapters ?? []) {
+        const material = (chapter.materials ?? []).find(
+          (_material) => _material._key === materialKey
+        )
+
+        if (material) {
+          return material
+        }
+
+        const subChapterMaterial = findMaterialByKey(
+          chapter.subChapters,
+          materialKey
+        )
+
+        if (subChapterMaterial) {
+          return subChapterMaterial
+        }
+      }
+
+      return null
+    }
+
+    function pushDeletedMaterialContentId(contentId: string): void {
+      if (!deletedMaterialContentIds.value.includes(contentId)) {
+        deletedMaterialContentIds.value.push(contentId)
+      }
+    }
+
+    function removeDeletedMaterialContentId(contentId: string): void {
+      deletedMaterialContentIds.value = deletedMaterialContentIds.value.filter(
+        (_contentId) => _contentId !== contentId
+      )
+    }
 
     async function init(courseId?: string): Promise<void> {
+      resetMaterialContentState()
+
       if (!courseId) {
         mode.value = 'create'
         course.value = {
@@ -80,6 +190,7 @@ const useCourseEditStore = defineStore(
           thumbnailId: null,
           chapters: []
         }
+        coursePatchGenerator.value = null
 
         return
       }
@@ -116,6 +227,245 @@ const useCourseEditStore = defineStore(
       mode.value = 'edit'
     }
 
+    async function selectMaterial(materialKey: string): Promise<void> {
+      const material = findMaterialByKey(course.value?.chapters, materialKey)
+
+      if (!material) {
+        currentMaterialContentKey.value = null
+
+        return
+      }
+
+      currentMaterialContentKey.value = materialKey
+      currentMaterial.value = material
+
+      const existingDraft = materialContentDrafts.getDraft(materialKey)
+
+      if (existingDraft) {
+        if (existingDraft.entity.id) {
+          removeDeletedMaterialContentId(existingDraft.entity.id)
+        }
+
+        materialContentDrafts.unmarkDeleted(materialKey)
+
+        return
+      }
+
+      if (!material.contentId) {
+        materialContentDrafts.setDraft(
+          materialKey,
+          createEmptyMaterialContent(),
+          {
+            isNew: true
+          }
+        )
+
+        return
+      }
+
+      if (!course.value?.id) {
+        material.contentId = null
+        materialContentDrafts.setDraft(
+          materialKey,
+          createEmptyMaterialContent(),
+          {
+            isNew: true
+          }
+        )
+
+        return
+      }
+
+      isCurrentMaterialContentLoading.value = true
+
+      const response = await CourseService.getMaterialContent(
+        course.value.id,
+        material.contentId
+      )
+
+      isCurrentMaterialContentLoading.value = false
+
+      if (isApiError(response)) {
+        if (response.error.statusCode === 404) {
+          material.contentId = null
+          materialContentDrafts.setDraft(
+            materialKey,
+            createEmptyMaterialContent(),
+            {
+              isNew: true
+            }
+          )
+
+          return
+        }
+
+        uiStore.createApiErrorToast(
+          'Не удалось загрузить содержимое материала',
+          response.error
+        )
+
+        return
+      }
+
+      if (!response.data) {
+        material.contentId = null
+        materialContentDrafts.setDraft(
+          materialKey,
+          createEmptyMaterialContent(),
+          {
+            isNew: true
+          }
+        )
+
+        return
+      }
+
+      const loadedContent = convertToLocal(response.data)
+
+      materialContentDrafts.setDraft(materialKey, loadedContent)
+
+      if (loadedContent.id) {
+        removeDeletedMaterialContentId(loadedContent.id)
+      }
+    }
+
+    function markMaterialRemoved(
+      materialKey: string,
+      contentId: string | null
+    ): void {
+      if (currentMaterialContentKey.value === materialKey) {
+        currentMaterialContentKey.value = null
+      }
+
+      const draft = materialContentDrafts.getDraft(materialKey)
+
+      if (draft) {
+        if (draft.entity.id) {
+          pushDeletedMaterialContentId(draft.entity.id)
+          materialContentDrafts.markDeleted(materialKey)
+
+          return
+        }
+
+        materialContentDrafts.removeDraft(materialKey)
+
+        return
+      }
+
+      if (contentId) {
+        pushDeletedMaterialContentId(contentId)
+      }
+    }
+
+    async function saveMaterialContentChanges(): Promise<boolean> {
+      if (!course.value) {
+        return true
+      }
+
+      for (const [materialKey, draft] of Object.entries(
+        materialContentDrafts.drafts
+      )) {
+        if (draft.isDeleted) {
+          continue
+        }
+
+        const material = findMaterialByKey(course.value.chapters, materialKey)
+
+        if (!material || material.contentId) {
+          continue
+        }
+
+        const createResponse = await CourseService.createMaterialContent(
+          draft.entity
+        )
+
+        if (isApiError(createResponse)) {
+          uiStore.createApiErrorToast(
+            'Не удалось создать содержимое материала',
+            createResponse.error
+          )
+
+          return false
+        }
+
+        if (!createResponse.data) {
+          uiStore.createErrorToast('Не удалось создать содержимое материала')
+
+          return false
+        }
+
+        material.contentId = createResponse.data.id
+        draft.entity.id = createResponse.data.id
+        materialContentDrafts.resetDraftBaseline(materialKey)
+      }
+
+      for (const [materialKey, draft] of Object.entries(
+        materialContentDrafts.drafts
+      )) {
+        if (draft.isDeleted) {
+          continue
+        }
+
+        const material = findMaterialByKey(course.value.chapters, materialKey)
+
+        if (!material?.contentId) {
+          continue
+        }
+
+        const patch = draft.patchGenerator.generate()
+
+        if (patch.length === 0) {
+          continue
+        }
+
+        const updateResponse = await CourseService.updateMaterialContent(
+          material.contentId,
+          patch
+        )
+
+        if (isApiError(updateResponse)) {
+          uiStore.createApiErrorToast(
+            'Не удалось обновить содержимое материала',
+            updateResponse.error
+          )
+
+          return false
+        }
+
+        materialContentDrafts.resetDraftBaseline(materialKey)
+      }
+
+      for (const contentId of deletedMaterialContentIds.value) {
+        const deleteResponse =
+          await CourseService.deleteMaterialContent(contentId)
+
+        if (isApiError(deleteResponse)) {
+          uiStore.createApiErrorToast(
+            'Не удалось удалить содержимое материала',
+            deleteResponse.error
+          )
+
+          return false
+        }
+      }
+
+      if (deletedMaterialContentIds.value.length > 0) {
+        const deletedContentIds = new Set(deletedMaterialContentIds.value)
+
+        deletedMaterialContentIds.value = []
+
+        for (const [materialKey, draft] of Object.entries(
+          materialContentDrafts.drafts
+        )) {
+          if (draft.entity.id && deletedContentIds.has(draft.entity.id)) {
+            materialContentDrafts.removeDraft(materialKey)
+          }
+        }
+      }
+
+      return true
+    }
+
     async function save(): Promise<void> {
       if (!course.value) {
         return
@@ -123,6 +473,14 @@ const useCourseEditStore = defineStore(
 
       if (mode.value === 'create') {
         mode.value = 'loading'
+
+        const materialContentSaved = await saveMaterialContentChanges()
+
+        if (!materialContentSaved) {
+          mode.value = 'create'
+
+          return
+        }
 
         const response = await CourseService.create(course.value)
 
@@ -141,27 +499,50 @@ const useCourseEditStore = defineStore(
 
           uiStore.createSuccessToast('Курс успешно создан')
         }
-      } else if (mode.value === 'edit') {
+
+        return
+      }
+
+      if (mode.value === 'edit') {
         mode.value = 'loading'
 
-        // @ts-expect-error ts sees a problem because Course entity has recursive structure in Chapters
-        const response = await CourseService.update(
-          course.value.id!,
-          coursePatchGenerator.value!.generate()
-        )
+        const hadMaterialContentChanges =
+          materialContentDrafts.hasAnyChanges.value ||
+          deletedMaterialContentIds.value.length > 0
+        const materialContentSaved = await saveMaterialContentChanges()
 
-        if (isApiError(response)) {
-          uiStore.createApiErrorToast(
-            'Не удалось обновить курс',
-            response.error
-          )
+        if (!materialContentSaved) {
           mode.value = 'edit'
 
           return
-        } else {
-          uiStore.createSuccessToast('Курс успешно обновлен')
-          await init(course.value.id)
         }
+
+        const coursePatch = coursePatchGenerator.value!.generate()
+
+        if (coursePatch.length > 0) {
+          // @ts-expect-error ts sees a problem because Course entity has recursive structure in Chapters
+          const response = await CourseService.update(
+            course.value.id!,
+            coursePatch
+          )
+
+          if (isApiError(response)) {
+            uiStore.createApiErrorToast(
+              'Не удалось обновить курс',
+              response.error
+            )
+            mode.value = 'edit'
+
+            return
+          }
+        } else if (!hadMaterialContentChanges) {
+          mode.value = 'edit'
+
+          return
+        }
+
+        uiStore.createSuccessToast('Курс успешно обновлен')
+        await init(course.value.id)
       }
     }
 
@@ -170,9 +551,14 @@ const useCourseEditStore = defineStore(
       course,
       coursePatchGenerator,
       currentMaterialContentKey,
-      materialContents,
+      currentMaterial,
+      isCurrentMaterialContentLoading,
+      currentMaterialContent,
+      hasUnsavedChanges,
       init,
-      save
+      save,
+      selectMaterial,
+      markMaterialRemoved
     }
   }
 )

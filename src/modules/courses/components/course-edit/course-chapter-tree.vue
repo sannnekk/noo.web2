@@ -57,6 +57,18 @@
     >
       {{ level === 0 ? 'Добавить главу' : 'Добавить подглаву' }}
     </div>
+    <div
+      v-if="level === 0"
+      class="course-edit-chapter-tree__legend"
+    >
+      <noo-legend
+        :items="[
+          { color: 'var(--success)', label: 'Активный материал' },
+          { color: 'var(--warning)', label: 'Запланирована публикация' },
+          { color: 'var(--text-light)', label: 'Неактивный материал' }
+        ]"
+      />
+    </div>
   </div>
 </template>
 
@@ -64,6 +76,7 @@
 import { reactive } from 'vue'
 import { CourseConfig } from '../../config'
 import { type PossiblyUnsavedChapter } from '../../types'
+import { useCourseEditStore } from '../../stores/course-edit.store'
 import treeChapter from './tree-chapter.vue'
 import TreeMaterialList from './tree-material-list.vue'
 
@@ -82,6 +95,7 @@ const treeModel = defineModel<PossiblyUnsavedChapter[]>('tree', {
 })
 
 const chaptersState = reactive<Record<string, boolean>>({})
+const courseEditStore = useCourseEditStore()
 
 function addChapter(): void {
   treeModel.value = [
@@ -93,6 +107,7 @@ function addChapter(): void {
       title: 'Новая глава ' + (treeModel.value.length + 1),
       color: null,
       isActive: false,
+      publishAt: null,
       subChapters: [],
       materials: []
     }
@@ -100,7 +115,23 @@ function addChapter(): void {
 }
 
 function removeChapter(key: string): void {
+  const removedChapter = treeModel.value.find((chapter) => chapter._key === key)
+
+  if (removedChapter) {
+    markChapterMaterialsRemoved(removedChapter)
+  }
+
   treeModel.value = treeModel.value.filter((chapter) => chapter._key !== key)
+}
+
+function markChapterMaterialsRemoved(chapter: PossiblyUnsavedChapter): void {
+  for (const material of chapter.materials ?? []) {
+    courseEditStore.markMaterialRemoved(material._key, material.contentId)
+  }
+
+  for (const subChapter of chapter.subChapters ?? []) {
+    markChapterMaterialsRemoved(subChapter)
+  }
 }
 
 function adjustOrder(): void {
@@ -149,4 +180,7 @@ function adjustOrder(): void {
       &--level-4,
       &--level-5
         padding-left: 2em
+
+  &__legend
+    margin-top: 1em
 </style>

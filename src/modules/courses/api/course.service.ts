@@ -77,6 +77,12 @@ interface ICourseService {
     patch: JsonPatchDocument<CourseMaterialContentEntity>
   ): Promise<ApiResponse>
   /**
+   * Deletes a course material content by ID.
+   *
+   * @param contentId ID of the material content to delete
+   */
+  deleteMaterialContent(contentId: string): Promise<ApiResponse>
+  /**
    * Fetches a list of course memberships
    *
    * @param pagination Pagination object to paginate the results. If not provided, the default pagination will be used.
@@ -151,6 +157,10 @@ async function updateMaterialContent(
   return await Api.patch(`${BASE_PATH}/material-content/${contentId}`, patch)
 }
 
+async function deleteMaterialContent(contentId: string): Promise<ApiResponse> {
+  return await Api.delete(`${BASE_PATH}/material-content/${contentId}`)
+}
+
 async function getMemberships(
   pagination?: IPagination
 ): Promise<ApiResponse<CourseMembershipEntity[]>> {
@@ -182,6 +192,7 @@ export const CourseService: ICourseService = {
   update,
   createMaterialContent,
   updateMaterialContent,
+  deleteMaterialContent,
   getMemberships,
   createMembership,
   deleteMembership,

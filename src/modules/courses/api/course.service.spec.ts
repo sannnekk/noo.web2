@@ -225,6 +225,20 @@ describe('CourseService', () => {
     })
   })
 
+  describe('deleteMaterialContent', () => {
+    test('should delete material content by ID', async () => {
+      const mockContentId = 'content1'
+
+      ;(Api.delete as Mock).mockResolvedValue({})
+
+      await CourseService.deleteMaterialContent(mockContentId)
+
+      expect(Api.delete).toHaveBeenCalledWith(
+        `/course/material-content/${mockContentId}`
+      )
+    })
+  })
+
   describe('getMemberships', () => {
     test('should fetch course memberships with pagination', async () => {
       const query = new URLSearchParams()

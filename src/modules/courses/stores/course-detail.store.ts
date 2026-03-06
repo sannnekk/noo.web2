@@ -47,7 +47,7 @@ const useCourseDetailStore = defineStore(
       async () =>
         CourseService.getMaterialContent(
           course.data.value!.id,
-          currentMaterial.value!.contentId
+          currentMaterial.value!.contentId!
         ),
       undefined,
       (error) =>

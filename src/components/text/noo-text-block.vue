@@ -4,7 +4,8 @@
     :style="{
       textAlign: align,
       color: dimmed ? 'var(--text-light)' : 'inherit',
-      display: inline ? 'inline' : 'block'
+      display: inline ? 'inline' : 'block',
+      margin: noMargin ? '0.1em 0 0.1em 0' : undefined
     }"
   >
     <slot />
@@ -17,6 +18,7 @@ interface Props {
   align?: 'left' | 'center' | 'right'
   dimmed?: boolean
   inline?: boolean
+  noMargin?: boolean
 }
 
 defineProps<Props>()

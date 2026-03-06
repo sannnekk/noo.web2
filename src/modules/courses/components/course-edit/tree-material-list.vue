@@ -14,19 +14,30 @@
       <template #default="{ item: material }">
         <div
           class="tree-material-list__item"
-          :class="{ 'tree-material-list__item--active': material.isActive }"
+          :class="{
+            'tree-material-list__item--planned': material.publishAt !== null,
+            'tree-material-list__item--active':
+              material.publishAt === null && material.isActive,
+            'tree-material-list__item--selected':
+              material._key === courseEditStore.currentMaterialContentKey
+          }"
+          @click="selectMaterial(material._key)"
         >
           <div
             class="tree-material-list__item__active-toggle"
-            @click="material.isActive = !material.isActive"
+            @click.stop="material.isActive = !material.isActive"
           ></div>
           <div class="tree-material-list__item__drag-handle">
             <noo-icon name="drag-handle" />
           </div>
           <div class="tree-material-list__item__title">
+            <div class="tree-material-list__item__title__info">
+              Материал | {{ infoText(material) }}
+            </div>
             <noo-title
               :size="5"
               no-margin
+              :color="material.titleColor"
             >
               {{ material.title }}
             </noo-title>
@@ -39,7 +50,7 @@
               <noo-icon
                 name="delete"
                 hoverable
-                @click="removeMaterial(material._key)"
+                @click.stop="removeMaterial(material)"
               />
             </div>
           </div>
@@ -59,6 +70,7 @@
 
 <script setup lang="ts">
 import { uid } from '@/core/utils/id.utils'
+import { useCourseEditStore } from '../../stores/course-edit.store'
 import type { PossiblyUnsavedMaterial } from '../../types'
 
 interface Props {
@@ -72,6 +84,25 @@ const materialsModel = defineModel<PossiblyUnsavedMaterial[]>('materials', {
   type: Array as () => PossiblyUnsavedMaterial[],
   required: true
 })
+const courseEditStore = useCourseEditStore()
+
+function infoText(material: PossiblyUnsavedMaterial): string {
+  const parts = []
+
+  if (material.publishAt) {
+    parts.push('Запланирована публикация')
+  } else if (material.isActive) {
+    parts.push('Активный')
+  } else {
+    parts.push('Неактивный')
+  }
+
+  if (!material.contentId) {
+    parts.push('Новый')
+  }
+
+  return parts.join(' | ')
+}
 
 function addMaterial(): void {
   materialsModel.value = [
@@ -90,9 +121,14 @@ function addMaterial(): void {
   ]
 }
 
-function removeMaterial(key: string): void {
+function selectMaterial(materialKey: string): void {
+  void courseEditStore.selectMaterial(materialKey)
+}
+
+function removeMaterial(material: PossiblyUnsavedMaterial): void {
+  courseEditStore.markMaterialRemoved(material._key, material.contentId)
   materialsModel.value = materialsModel.value.filter(
-    (material) => material._key !== key
+    (_material) => _material._key !== material._key
   )
 }
 
@@ -114,10 +150,18 @@ function adjustOrder(): void {
     gap: 0.5em
     align-items: center
     margin: 0.5em 0
-    border-left: 4px solid var(--danger)
+    border-left: 4px solid var(--text-light)
 
     &--active
       border-left-color: var(--success)
+
+    &--planned
+      border-left-color: var(--warning)
+
+    &--selected
+      border-right-color: var(--lila)
+      border-top-color: var(--lila)
+      border-bottom-color: var(--lila)
 
     &:hover
       background-color: var(--light-background-color)
@@ -136,6 +180,10 @@ function adjustOrder(): void {
     &__title
       flex-grow: 1
       padding: 0.5em 0.7em
+
+      &__info
+        font-size: 0.7em
+        color: var(--text-light)
 
     &__actions
       display: flex

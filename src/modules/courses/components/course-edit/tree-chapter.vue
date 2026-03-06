@@ -2,7 +2,9 @@
   <div
     class="tree-chapter"
     :class="{
-      'tree-chapter--active': chapterModel.isActive
+      'tree-chapter-list--planned': chapterModel.publishAt !== null,
+      'tree-chapter--active':
+        chapterModel.publishAt === null && chapterModel.isActive
     }"
     @click="$emit('toggle')"
   >
@@ -14,6 +16,24 @@
       <noo-icon name="drag-handle" />
     </div>
     <div class="tree-chapter__title">
+      <div class="tree-chapter__title__info">
+        Глава | {{ chapterModel.materials.length }}
+        {{
+          pluralize(chapterModel.materials.length, [
+            'материал',
+            'материала',
+            'материалов'
+          ])
+        }}
+        | {{ chapterModel.subChapters.length }}
+        {{
+          pluralize(chapterModel.subChapters.length, [
+            'подглава',
+            'подглавы',
+            'подглав'
+          ])
+        }}
+      </div>
       <noo-title
         :size="5"
         no-margin
@@ -40,6 +60,7 @@
 
 <script setup lang="ts">
 import type { PossiblyUnsavedChapter } from '../../types'
+import { pluralize } from '@/core/utils/lang.utils'
 
 interface Props {
   editable?: boolean
@@ -67,10 +88,13 @@ const chapterModel = defineModel<PossiblyUnsavedChapter>('chapter', {
   gap: 0.5em
   align-items: center
   cursor: pointer
-  border-left: 4px solid var(--danger)
+  border-left: 4px solid var(--text-light)
 
   &--active
     border-left-color: var(--success)
+
+  &--planned
+    border-left-color: var(--warning)
 
   &:hover
     background-color: var(--form-background)
@@ -89,6 +113,10 @@ const chapterModel = defineModel<PossiblyUnsavedChapter>('chapter', {
   &__title
     flex-grow: 1
     padding: 0.5em 0.7em
+
+    &__info
+      font-size: 0.7em
+      color: var(--text-light)
 
   &__actions
     display: flex

@@ -1,8 +1,16 @@
 <template>
   <div class="noo-input">
     <div class="noo-input__head">
-      <label class="noo-input__label">
-        <span class="noo-select-input__label-text">{{ label }}</span>
+      <label
+        v-if="label || $slots.label"
+        class="noo-input__label"
+      >
+        <slot
+          name="label"
+          :value="model"
+        >
+          <span class="noo-select-input__label-text">{{ label }}</span>
+        </slot>
       </label>
       <span
         v-if="$slots.tooltip"
@@ -34,7 +42,7 @@
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 
 interface Props {
-  label: string
+  label?: string
   options: {
     label: string
     value: T | null
