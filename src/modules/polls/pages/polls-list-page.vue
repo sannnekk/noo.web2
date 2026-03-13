@@ -11,7 +11,7 @@
         })
       "
       :is-loading="search.isLoading.value"
-      :items="/* search.data.value */ polls"
+      :items="search.data.value"
       :total-count="search.total.value"
     >
       <template #actions>
@@ -28,11 +28,7 @@
         </noo-text-block>
       </template>
       <template #column-is-active="{ item }">
-        <noo-is-active-tag
-          class="polls-list-page__is-active-cell"
-          :value="item.isActive"
-          :values="['Активен', 'Неактивен']"
-        />
+        <noo-active-tag :active="item.isActive" />
       </template>
       <template #column-created-at="{ item }">
         <noo-text-block
@@ -61,7 +57,6 @@ import type { EntityTableColumnType } from '@/components/entity-table/entity-tab
 import { useSearch } from '@/core/composables/useSearch'
 import { PollService } from '../api/poll.service'
 import type { PollEntity } from '../api/poll.types'
-import { polls } from '../mock-data/polls'
 
 const search = useSearch(PollService.get)
 
@@ -87,8 +82,4 @@ const columns: EntityTableColumnType<PollEntity>[] = [
 
   &__title-cell
     margin: 0
-
-  &__is-active-cell
-    display: inline-block
-    font-size: 0.8em
 </style>

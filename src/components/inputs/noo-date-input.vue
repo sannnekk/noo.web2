@@ -1,5 +1,5 @@
 <template>
-  <div сlass="noo-input">
+  <div class="noo-date-input noo-input">
     <div class="noo-input__head">
       <label class="noo-input__label">
         {{ label }}
@@ -22,7 +22,8 @@
         class="noo-input__input"
         :class="{
           'noo-input__input--error': allErrors.length,
-          'noo-input__input--readonly': readonly
+          'noo-input__input--readonly': readonly,
+          'noo-date-input__input--with-reset': resettable === true
         }"
         :type="type || 'date'"
         :placeholder="placeholder"
@@ -31,12 +32,16 @@
       />
       <div class="noo-input__input-after">
         <slot name="after" />
-        <noo-icon
-          v-if="resettable !== false && !readonly && model"
-          name="cross-red"
-          class="noo-input__reset-button"
+        <button
+          v-if="resettable === true && !readonly && model"
+          type="button"
+          class="noo-date-input__reset-button"
+          title="Сбросить дату"
+          aria-label="Сбросить дату"
           @click="resetValue"
-        />
+        >
+          <noo-icon name="close" />
+        </button>
       </div>
     </div>
     <noo-input-error-list :errors="allErrors" />
@@ -187,3 +192,32 @@ function parseWeek(value: string): Date {
 </script>
 
 <style scoped lang="sass" src="./noo-input.sass"></style>
+<style scoped lang="sass">
+.noo-date-input
+  .noo-input__input-after
+    position: absolute
+    top: 50%
+    right: 0.4em
+    transform: translateY(-50%)
+    display: flex
+    align-items: center
+
+  &__input--with-reset
+    padding-right: 2.1em
+
+  &__reset-button
+    border: none
+    background: transparent
+    color: var(--text-light)
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    cursor: pointer
+    font-size: 1.6em
+    line-height: 1
+    padding: 0
+    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out
+
+    &:hover
+      --form-text-color: var(--danger)
+</style>

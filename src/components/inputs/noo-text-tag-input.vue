@@ -86,6 +86,7 @@ label
   padding: 0.5rem 0.8rem
   max-width: 100%
   overflow: auto
+  background: var(--form-background)
 
   &--error
     border-color: var(--danger) !important

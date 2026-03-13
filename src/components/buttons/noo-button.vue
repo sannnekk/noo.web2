@@ -9,6 +9,7 @@
       'noo-button--tertiary': variant === 'tertiary',
       'noo-button--danger': variant === 'danger',
       'noo-button--inline': variant === 'inline',
+      'noo-button--danger-inline': variant === 'danger-inline',
       'noo-button--loading': isLoading,
       'noo-button--disabled': disabled,
       'noo-button--small': size === 'small',
@@ -40,6 +41,7 @@ export type ButtonType =
   | 'tertiary'
   | 'danger'
   | 'inline'
+  | 'danger-inline'
 export type ButtonSize = 'small' | 'medium' | 'large'
 
 interface Props {
@@ -105,6 +107,9 @@ const { mode } = useTheme()
     color: var(--black)
     border-color: var(--black)
 
+    &.noo-button--dark
+      border-color: var(--primary)
+
     &:hover
       background-color: var(--lightest)
       color: var(--form-text-color)
@@ -144,11 +149,20 @@ const { mode } = useTheme()
       background-color: transparent
       color: var(--text-light)
 
+  &--danger-inline
+    background-color: transparent
+    color: var(--danger)
+    border: none
+
+    &:hover
+      background-color: transparent
+      color: var(--text-light)
+
   &--disabled
     cursor: not-allowed
     background-color: var(--border-color) !important
     color: var(--white)
-    border-color: transparent
+    border-color: transparent !important
 
   &__loading
     font-size: 1.25em

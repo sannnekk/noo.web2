@@ -3,7 +3,11 @@
     :class="['noo-text-block', `noo-text-block--${size}`]"
     :style="{
       textAlign: align,
-      color: dimmed ? 'var(--text-light)' : 'inherit',
+      color: color
+        ? `var(--${color})`
+        : dimmed
+          ? 'var(--text-light)'
+          : 'inherit',
       display: inline ? 'inline' : 'block',
       margin: noMargin ? '0.1em 0 0.1em 0' : undefined
     }"
@@ -19,6 +23,7 @@ interface Props {
   dimmed?: boolean
   inline?: boolean
   noMargin?: boolean
+  color?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger'
 }
 
 defineProps<Props>()

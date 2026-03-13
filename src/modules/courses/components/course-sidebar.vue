@@ -65,7 +65,10 @@
     </div>
     <div class="course-sidebar__chapter-tree">
       <noo-scrollable-block max-height="60vh">
-        TODO: add chapter tree
+        <course-chapter-tree
+          :chapters="course.chapters ?? []"
+          :initially-selected-material-id="openedMaterialId"
+        />
       </noo-scrollable-block>
     </div>
     <div class="course-sidebar__course-link">
@@ -88,6 +91,7 @@ import { usePageUrl } from '@/core/composables/usePageUrl'
 import { computed, shallowRef } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 import MaterialSearchModal from './material-search-modal.vue'
+import CourseChapterTree from './course-chapter-tree.vue'
 
 interface Props {
   openedMaterialId?: string

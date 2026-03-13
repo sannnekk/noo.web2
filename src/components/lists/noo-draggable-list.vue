@@ -5,11 +5,14 @@
       class="noo-draggable-list__disabled"
     >
       <div
-        v-for="item in model"
+        v-for="(item, index) in model"
         :key="(item as unknown as any)[itemKey ?? '_key']"
         :style="{ marginBottom: gap }"
       >
-        <slot :item="item" />
+        <slot
+          :item="item"
+          :index="index"
+        />
       </div>
     </div>
     <div
@@ -24,9 +27,12 @@
         :item-key="itemKey ?? '_key'"
         @end="$emit('reorder')"
       >
-        <template #item="{ element }">
+        <template #item="{ element, index }">
           <div :style="{ marginBottom: gap }">
-            <slot :item="element as T" />
+            <slot
+              :item="element as T"
+              :index="index"
+            />
           </div>
         </template>
       </draggable>

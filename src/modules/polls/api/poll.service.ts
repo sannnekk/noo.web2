@@ -1,4 +1,5 @@
 import { Api, type ApiResponse } from '@/core/api/api.utils'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type { PollEntity, PossiblyUnsavedPoll } from './poll.types'
 
@@ -30,10 +31,13 @@ interface IPollService {
    * Updates an existing poll.
    *
    * @param id The ID of the poll to update.
-   * @param poll The updated poll data.
+   * @param patch The patch document to apply.
    * @returns A promise that resolves to an ApiResponse indicating the success of the operation.
    */
-  update: (id: string, poll: PossiblyUnsavedPoll) => Promise<ApiResponse>
+  update: (
+    id: string,
+    patch: JsonPatchDocument<PossiblyUnsavedPoll>
+  ) => Promise<ApiResponse>
   /**
    * Deletes a poll.
    *
@@ -61,9 +65,9 @@ async function create(
 
 async function update(
   id: string,
-  poll: PossiblyUnsavedPoll
+  patch: JsonPatchDocument<PossiblyUnsavedPoll>
 ): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${id}`, poll)
+  return await Api.patch(`${BASE_PATH}/${id}`, patch)
 }
 
 async function deletePoll(id: string): Promise<ApiResponse> {

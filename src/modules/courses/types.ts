@@ -3,7 +3,8 @@ import type {
   CourseChapterEntity,
   CourseEntity,
   CourseMaterialContentEntity,
-  CourseMaterialEntity
+  CourseMaterialEntity,
+  CourseWorkAssignmentEntity
 } from './api/course.types'
 
 export type CourseListTab = 'all' | 'own' | 'archived'
@@ -42,7 +43,15 @@ export type PossiblyUnsavedCourse = Omit<
   subjectId: string | null
 }
 
-export type PossiblyUnsavedCourseMaterialContent = PossiblyUnsavedEntity<
-  CourseMaterialContentEntity,
-  CourseMaterialContentEntity['_entityName']
->
+export type PossiblyUnsavedCourseMaterialContent = Omit<
+  PossiblyUnsavedEntity<
+    CourseMaterialContentEntity,
+    CourseMaterialContentEntity['_entityName']
+  >,
+  'workAssignments'
+> & {
+  workAssignments: PossiblyUnsavedEntity<
+    CourseWorkAssignmentEntity,
+    CourseWorkAssignmentEntity['_entityName']
+  >[]
+}

@@ -73,6 +73,7 @@
       :col="1"
       :row="5"
       :colspan="6"
+      vertical-align="bottom"
     >
       <noo-title :size="3"> Прикрепленные работы </noo-title>
     </noo-grid-layout-item>
@@ -80,8 +81,11 @@
       :col="1"
       :row="6"
       :colspan="6"
+      horizontal-align="stretch"
     >
-      <noo-text-block dimmed> Блок прикрепленных работ... </noo-text-block>
+      <work-assignments-form
+        v-model:work-assignments="currentContent.workAssignments"
+      />
     </noo-grid-layout-item>
     <noo-grid-layout-item
       :col="1"
@@ -122,18 +126,26 @@
       :col="1"
       :row="12"
       :colspan="6"
+      horizontal-align="stretch"
     >
-      <noo-text-block dimmed> Блок прикрепленного опроса... </noo-text-block>
+      <noo-poll-select
+        v-model="currentContent.poll"
+        label="Выберите опрос"
+      />
     </noo-grid-layout-item>
   </noo-grid-layout>
   <noo-text-block v-else>
     Выберите материал для редактирования.
   </noo-text-block>
+  <pre
+    >{{ { currentMaterial, currentContent } }}
+  </pre>
 </template>
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useCourseEditStore } from '../stores/course-edit.store'
+import WorkAssignmentsForm from './course-edit/work-assignments-form.vue'
 
 const courseEditStore = useCourseEditStore()
 

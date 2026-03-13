@@ -18,7 +18,10 @@ import {
 } from 'vue'
 import { useRouter } from 'vue-router'
 import { CourseService } from '../api/course.service'
-import type { CourseEntity } from '../api/course.types'
+import type {
+  CourseEntity,
+  CourseMaterialContentEntity
+} from '../api/course.types'
 import type {
   PossiblyUnsavedChapter,
   PossiblyUnsavedCourse,
@@ -320,7 +323,11 @@ const useCourseEditStore = defineStore(
         return
       }
 
-      const loadedContent = convertToLocal(response.data)
+      const loadedContent = convertToLocal<
+        CourseMaterialContentEntity,
+        CourseMaterialContentEntity['_entityName'],
+        PossiblyUnsavedCourseMaterialContent
+      >(response.data)
 
       materialContentDrafts.setDraft(materialKey, loadedContent)
 

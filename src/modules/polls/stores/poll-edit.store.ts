@@ -2,8 +2,12 @@ import { isApiError } from '@/core/api/api.utils'
 import { useViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { uid } from '@/core/utils/id.utils'
+import {
+  JsonPatchUtils,
+  type PatchGenerator
+} from '@/core/utils/jsonpatch.utils'
 import { defineStore } from 'pinia'
-import { ref, type Ref } from 'vue'
+import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { PollService } from '../api/poll.service'
 import type { PossiblyUnsavedPoll } from '../api/poll.types'
@@ -16,9 +20,17 @@ interface PollEditStore {
    */
   mode: Ref<PollViewMode>
   /**
+   * Sets the current mode.
+   */
+  setMode: (value: PollViewMode) => void
+  /**
    *  The poll being edited. It can be null if no poll is being edited.
    */
   poll: Ref<PossiblyUnsavedPoll | null>
+  /**
+   * Responsible to generate JSON Patch document for updating the poll.
+   */
+  pollPatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedPoll> | null>
   /**
    * Saves the current poll.
    */
@@ -41,6 +53,14 @@ interface PollEditStore {
    * Resets the store to its initial state, clearing the current poll.
    */
   reset: () => void
+  /**
+   * Checks if there are any unsaved changes.
+   */
+  hasChanges: () => boolean
+  /**
+   * Cancels the current edit and reverts changes.
+   */
+  cancelEdit: () => void
 }
 
 const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
@@ -49,6 +69,8 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
   const { mode, setMode } = useViewMode('create')
 
   const poll = ref<PossiblyUnsavedPoll | null>(null)
+  const pollPatchGenerator =
+    shallowRef<PatchGenerator<PossiblyUnsavedPoll> | null>(null)
 
   async function init(pollId?: string): Promise<void> {
     if (!pollId) {
@@ -63,6 +85,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
         isAuthRequired: false,
         questions: []
       } as PossiblyUnsavedPoll
+      pollPatchGenerator.value = null
 
       return
     }
@@ -85,12 +108,35 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     }
 
     poll.value = toPossiblyUnsaved(response.data)
-    setMode('edit')
+    if (poll.value) {
+      pollPatchGenerator.value = JsonPatchUtils.observe(poll.value)
+    }
+    setMode('view')
     uiStore.setLoading(false)
   }
 
   function reset(): void {
     poll.value = null
+    pollPatchGenerator.value = null
+  }
+
+  function hasChanges(): boolean {
+    return (pollPatchGenerator.value?.countChanges() ?? 0) > 0
+  }
+
+  function cancelEdit(): void {
+    if (!poll.value) {
+      return
+    }
+
+    if (pollPatchGenerator.value) {
+      poll.value = pollPatchGenerator.value.getOriginal()
+      if (poll.value) {
+        pollPatchGenerator.value = JsonPatchUtils.observe(poll.value)
+      }
+    }
+
+    setMode('view')
   }
 
   async function save(): Promise<void> {
@@ -101,7 +147,16 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     uiStore.setLoading(true)
 
     if (poll.value?.id) {
-      const response = await PollService.update(poll.value.id, poll.value)
+      if (!pollPatchGenerator.value) {
+        uiStore.setLoading(false)
+
+        return
+      }
+
+      const response = await PollService.update(
+        poll.value.id,
+        pollPatchGenerator.value.generate()
+      )
 
       uiStore.setLoading(false)
 
@@ -115,6 +170,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
       }
 
       uiStore.createSuccessToast('Опрос сохранен')
+      await init(poll.value.id)
     } else {
       const response = await PollService.create(poll.value)
 
@@ -169,12 +225,16 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
 
   return {
     mode,
+    setMode,
     poll,
+    pollPatchGenerator,
     init,
     reset,
     save,
     addQuestion,
-    removeQuestion
+    removeQuestion,
+    hasChanges,
+    cancelEdit
   }
 })
 

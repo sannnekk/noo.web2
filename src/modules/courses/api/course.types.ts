@@ -5,6 +5,7 @@ import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
 import type { PollEntity } from '@/modules/polls/api/poll.types'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 import type { UserEntity } from '@/modules/users/api/user.types'
+import type { WorkEntity } from '@/modules/works/api/work.types'
 
 export interface CourseEntity extends ApiEntity<'Course'> {
   name: string
@@ -53,6 +54,7 @@ export interface CourseMaterialContentEntity
 export interface CourseWorkAssignmentEntity
   extends ApiEntity<'CourseWorkAssignment'> {
   workId?: string
+  work?: WorkEntity
   note: string | null
   isActive: boolean
   deactivatedAt: Date | null

@@ -27,6 +27,28 @@ function findMaterial(
   return null
 }
 
+function findChapterByMaterialId(
+  chapters: CourseChapterEntity[] | undefined,
+  materialId: string
+): CourseChapterEntity | null {
+  for (const chapter of chapters ?? []) {
+    if ((chapter.materials ?? []).some((m) => m.id === materialId)) {
+      return chapter
+    }
+
+    const chapterFromSubChapters = findChapterByMaterialId(
+      chapter.subChapters,
+      materialId
+    )
+
+    if (chapterFromSubChapters) {
+      return chapterFromSubChapters
+    }
+  }
+
+  return null
+}
+
 function searchMaterials(
   chapters: CourseChapterEntity[] | undefined,
   search: string,
@@ -65,4 +87,9 @@ function normalizeCoursePatch(key: string, value: unknown): unknown {
   return value
 }
 
-export { findMaterial, normalizeCoursePatch, searchMaterials }
+export {
+  findMaterial,
+  findChapterByMaterialId,
+  normalizeCoursePatch,
+  searchMaterials
+}
