@@ -15,17 +15,6 @@ async function initCoursePageGuard(
   return true
 }
 
-async function initCourseStudentsPageGuard(
-  to: RouteLocationNormalized
-): Promise<NavigationGuardReturn> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const courseId = to.params.courseId
-
-  // TODO: fetch students for the course
-
-  return true
-}
-
 async function initEditCoursePageGuard(
   to: RouteLocationNormalized
 ): Promise<NavigationGuardReturn> {
@@ -70,6 +59,5 @@ function courseListTabAccessGuard(
 export {
   courseListTabAccessGuard,
   initCoursePageGuard,
-  initCourseStudentsPageGuard,
   initEditCoursePageGuard
 }

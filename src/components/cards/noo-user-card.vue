@@ -7,13 +7,9 @@
           // @ts-expect-error not-implemented yet
           user.avatar
         "
-        @click="isModalOpen = true"
       />
     </div>
-    <div
-      class="noo-user-card__credentials"
-      @click="isModalOpen = true"
-    >
+    <div class="noo-user-card__credentials">
       <noo-title
         class="noo-user-card__credentials__name"
         :size="4"
@@ -29,23 +25,16 @@
       </noo-text-block>
     </div>
   </div>
-  <user-info-modal
-    v-model:visible="isModalOpen"
-    :user="user"
-  />
 </template>
 
 <script setup lang="ts">
 import type { UserEntity } from '@/modules/users/api/user.types'
-import { ref } from 'vue'
 
 interface Props {
   user: UserEntity
 }
 
 defineProps<Props>()
-
-const isModalOpen = ref(false)
 </script>
 
 <style scoped lang="sass">

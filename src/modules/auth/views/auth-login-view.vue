@@ -25,7 +25,7 @@
         <noo-text-input
           v-model="loginPayload.usernameOrEmail"
           label="Никнейм или e-mail"
-          @keyup.enter="authStore.login.execute(loginPayload)"
+          @enter-press="authStore.login.execute(loginPayload)"
         />
       </div>
       <div class="auth-login-view__form__input">
@@ -33,7 +33,7 @@
           v-model="loginPayload.password"
           label="Пароль"
           type="password"
-          @keyup.enter="authStore.login.execute(loginPayload)"
+          @enter-press="authStore.login.execute(loginPayload)"
         />
       </div>
       <div class="auth-login-view__form__button">

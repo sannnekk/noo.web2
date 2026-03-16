@@ -1,12 +1,22 @@
 <template>
   <transition-group
     name="list"
-    tag="div"
+    :tag="tag"
     class="list"
   >
     <slot />
   </transition-group>
 </template>
+
+<script setup lang="ts">
+interface Props {
+  tag?: string
+}
+
+withDefaults(defineProps<Props>(), {
+  tag: 'div'
+})
+</script>
 
 <style lang="sass" scoped>
 :deep()

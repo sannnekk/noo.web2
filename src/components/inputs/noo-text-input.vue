@@ -14,6 +14,9 @@
       </span>
     </div>
     <div class="noo-input__input-container">
+      <div class="noo-input__input-before">
+        <slot name="before" />
+      </div>
       <input
         v-model="model"
         class="noo-input__input"
@@ -23,6 +26,7 @@
         }"
         :type="type || 'text'"
         :placeholder="placeholder"
+        :autocomplete="autocomplete"
         :disabled="readonly"
         @keypress.enter="$emit('enter-press')"
       />
@@ -59,6 +63,7 @@ interface Props {
   readonly?: boolean
   copyButton?: boolean
   type?: 'text' | 'email' | 'password'
+  autocomplete?: string
   validators?: InputValidator<string>[]
   errors?: ValidationError[]
 }

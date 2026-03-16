@@ -135,9 +135,9 @@ paths:
       tags:
         - AssignedWork
       summary: Deletes an assigned work.
-      description: "Only possible if the status of the assigned work is not Solved.\r
-
-        Otherwise, it will return a 409 Conflict status code."
+      description: |-
+        Only possible if the status of the assigned work is not Solved.
+        Otherwise, it will return a 409 Conflict status code.
       parameters:
         - name: assignedWorkId
           in: path
@@ -178,9 +178,9 @@ paths:
     get:
       tags:
         - AssignedWork
-      summary: "Gets the progress of an assigned work by its ID.\r
-
-        Used when loading the whole assigned work is not needed"
+      summary: |-
+        Gets the progress of an assigned work by its ID.
+        Used when loading the whole assigned work is not needed
       parameters:
         - name: assignedWorkId
           in: path
@@ -223,9 +223,9 @@ paths:
     post:
       tags:
         - AssignedWork
-      summary: "Remakes an assigned work.\r
-
-        Returns the ID of the newly created assigned work."
+      summary: |-
+        Remakes an assigned work.
+        Returns the ID of the newly created assigned work.
       parameters:
         - name: assignedWorkId
           in: path
@@ -279,15 +279,12 @@ paths:
     post:
       tags:
         - AssignedWork
-      summary: "Saves an Answer to an assigned work.\r
-
-        This is used by students to submit their answers to assigned works,\r
-
-        or by mentors to save their comments on the assigned work.\r
-
-        If the answer already exists, it will be updated.\r
-
-        If the answer does not exist, it will be created."
+      summary: |-
+        Saves an Answer to an assigned work.
+        This is used by students to submit their answers to assigned works,
+        or by mentors to save their comments on the assigned work.
+        If the answer already exists, it will be updated.
+        If the answer does not exist, it will be created.
       description: It will also update the status of the assigned work to "In
         Progress" if it was not already.
       parameters:
@@ -343,14 +340,15 @@ paths:
     post:
       tags:
         - AssignedWork
-      summary: "Saves a comment to an assigned work.\r
+      summary: >-
+        Saves a comment to an assigned work.
 
         This is used by both students and mentors to comment on an assigned
-        work.\r
+        work.
 
-        If the comment already exists, it will be updated.\r
+        If the comment already exists, it will be updated.
 
-        If the comment does not exist, it will be created."
+        If the comment does not exist, it will be created.
       description: It will also update the status of the assigned work to "In
         Progress" if it was not already.
       parameters:
@@ -489,11 +487,12 @@ paths:
       tags:
         - AssignedWork
       summary: Archives an assigned work.
-      description: "There is an archived flag in the assigned work for the following
-        roles: student, mentor, and assistant.\r
+      description: >-
+        There is an archived flag in the assigned work for the following roles:
+        student, mentor, and assistant.
 
         Toggling the archived flag for mentors will not affect the archived flag
-        for students and assistants and so on."
+        for students and assistants and so on.
       parameters:
         - name: assignedWorkId
           in: path
@@ -535,11 +534,12 @@ paths:
       tags:
         - AssignedWork
       summary: unarchives an assigned work.
-      description: "There is an archived flag in the assigned work for the following
-        roles: student, mentor, and assistant.\r
+      description: >-
+        There is an archived flag in the assigned work for the following roles:
+        student, mentor, and assistant.
 
         Toggling the archived flag for mentors will not affect the archived flag
-        for students and assistants and so on."
+        for students and assistants and so on.
       parameters:
         - name: assignedWorkId
           in: path
@@ -737,10 +737,11 @@ paths:
     patch:
       tags:
         - AssignedWork
-      summary: "Changes the solve status of the assigned work back to in progress.\r
+      summary: >-
+        Changes the solve status of the assigned work back to in progress.
 
         This is usually used when the assigned work was marked as solved by
-        mistake."
+        mistake.
       parameters:
         - name: assignedWorkId
           in: path
@@ -781,10 +782,11 @@ paths:
     patch:
       tags:
         - AssignedWork
-      summary: "Changes the check status of the assigned work back to in progress.\r
+      summary: >-
+        Changes the check status of the assigned work back to in progress.
 
         This is usually used when the assigned work was marked as checked by
-        mistake."
+        mistake.
       parameters:
         - name: assignedWorkId
           in: path
@@ -866,10 +868,11 @@ paths:
     post:
       tags:
         - Auth
-      summary: "Registers a new user with the provided details.\r
+      summary: >-
+        Registers a new user with the provided details.
 
         During registration, an email verification token is sent to the user's
-        email address."
+        email address.
       requestBody:
         content:
           application/json:
@@ -902,9 +905,9 @@ paths:
     get:
       tags:
         - Auth
-      summary: "Checks if the username is already taken.\r
-
-        Returns true if the username is free, otherwise false"
+      summary: |-
+        Checks if the username is already taken.
+        Returns true if the username is free, otherwise false
       parameters:
         - name: username
           in: path
@@ -990,10 +993,11 @@ paths:
     patch:
       tags:
         - Auth
-      summary: "Confirms an email change by validating the confirmation token.\r
+      summary: >-
+        Confirms an email change by validating the confirmation token.
 
         This endpoint is used to finalize the email change process after the
-        user has requested it."
+        user has requested it.
       requestBody:
         content:
           application/json:
@@ -1898,11 +1902,11 @@ paths:
     post:
       tags:
         - Media
-      summary: "Request a pre-signed upload URL for a public file (for example: user
-        avatar or course image).\r
+      summary: >-
+        Request a pre-signed upload URL for a public file (for example: user
+        avatar or course image).
 
-        The frontend should use the returned URL to PUT the file directly to
-        S3."
+        The frontend should use the returned URL to PUT the file directly to S3.
       parameters:
         - name: fileName
           in: query
@@ -2065,10 +2069,11 @@ paths:
     post:
       tags:
         - Media
-      summary: "Confirm that an upload completed and update stored metadata (size,
-        optional etag/hash).\r
+      summary: >-
+        Confirm that an upload completed and update stored metadata (size,
+        optional etag/hash).
 
-        Frontend should call this after successfully PUTting the file to S3."
+        Frontend should call this after successfully PUTting the file to S3.
       parameters:
         - name: mediaId
           in: path
@@ -2859,9 +2864,9 @@ paths:
     delete:
       tags:
         - Session
-      summary: "Deleted the current user session.\r
-
-        Typically used to log out the user."
+      summary: |-
+        Deleted the current user session.
+        Typically used to log out the user.
       responses:
         "204":
           description: No Content
@@ -3902,10 +3907,11 @@ paths:
     patch:
       tags:
         - User
-      summary: "Changes the role of a user by their unique identifier.\r
+      summary: >-
+        Changes the role of a user by their unique identifier.
 
         Only possible to change role if the user is a student, otherwise it will
-        throw a conflict error."
+        throw a conflict error.
       description: After role change, all the user sessions will be invalidated, the
         user will be logged out.
       parameters:
@@ -4347,13 +4353,12 @@ paths:
     get:
       tags:
         - UserSettings
-      summary: "Get the current user settings.\r
-
-        This includes theme, font size, and other user preferences."
-      description: "This endpoint always returns settings and never null or
-        NotFound.\r
-
-        If the user has not set any settings, default values will be returned."
+      summary: |-
+        Get the current user settings.
+        This includes theme, font size, and other user preferences.
+      description: |-
+        This endpoint always returns settings and never null or NotFound.
+        If the user has not set any settings, default values will be returned.
       responses:
         "200":
           description: OK
@@ -4377,13 +4382,14 @@ paths:
       tags:
         - UserSettings
       summary: Update the current user settings.
-      description: "This update endpoint, unlike others, uses a full DTO instead of a
-        patch document.\r
+      description: >-
+        This update endpoint, unlike others, uses a full DTO instead of a patch
+        document.
 
         This is because user settings are typically small and it's easier to
-        manage them as a whole. And they are always loaded as a whole\r
+        manage them as a whole. And they are always loaded as a whole
 
-        so partial updates are less relevant."
+        so partial updates are less relevant.
       requestBody:
         content:
           application/json:
@@ -4533,9 +4539,9 @@ paths:
     get:
       tags:
         - Work
-      summary: "Retrieves a specific work by its ID.\r
-
-        It will also include the work's associated tasks"
+      summary: |-
+        Retrieves a specific work by its ID.
+        It will also include the work's associated tasks
       parameters:
         - name: id
           in: path
@@ -5090,7 +5096,6 @@ components:
       required:
         - _entityName
         - chapterId
-        - contentId
         - createdAt
         - id
         - isActive
@@ -5796,6 +5801,7 @@ components:
           minLength: 1
           type: string
         password:
+          maxLength: 256
           minLength: 1
           type: string
       additionalProperties: false

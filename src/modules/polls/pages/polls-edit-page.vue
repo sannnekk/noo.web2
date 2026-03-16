@@ -494,7 +494,6 @@
                         },
                         { label: 'Документы', value: ['application/pdf'] }
                       ]"
-                      multiple
                     />
                   </noo-grid-layout-item>
 

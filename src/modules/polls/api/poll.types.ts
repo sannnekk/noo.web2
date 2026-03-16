@@ -53,8 +53,7 @@ export interface PollQuestionEntity extends ApiEntity<'PollQuestion'> {
   config: PollQuestionConfig
 }
 
-export interface PollParticipationEntity
-  extends ApiEntity<'PollParticipation'> {
+export interface PollParticipationEntity extends ApiEntity<'PollParticipation'> {
   pollId: string
   poll?: PollEntity
   userType: ParticipatingUserType

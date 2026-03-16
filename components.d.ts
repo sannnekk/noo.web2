@@ -157,6 +157,7 @@ declare module 'vue' {
     NooUsernameExistsBlock: typeof import('./src/components/utils/noo-username-exists-block.vue')['default']
     NooUserReactions: typeof import('./src/components/utils/noo-user-reactions.vue')['default']
     NooUserRoleTag: typeof import('./src/components/tags/noo-user-role-tag.vue')['default']
+    NooUserSelect: typeof import('./src/components/inputs/entity-select/noo-user-select.vue')['default']
     NooVideoCard: typeof import('./src/components/cards/noo-video-card.vue')['default']
     NooWarningBlock: typeof import('./src/components/blocks/noo-warning-block.vue')['default']
     NooWorkSelect: typeof import('./src/components/inputs/entity-select/noo-work-select.vue')['default']

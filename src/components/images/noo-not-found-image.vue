@@ -1,7 +1,6 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    xml:space="preserve"
     width="7.62cm"
     height="5.08cm"
     version="1.1"
@@ -13,8 +12,7 @@
       clip-rule: evenodd;
     "
     viewBox="0 0 7620 5080"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xodm="http://www.corel.com/coreldraw/odm/2003"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
   >
     <g id="Слой_x0020_1">
       <metadata id="CorelCorpID_0Corel-Layer" />

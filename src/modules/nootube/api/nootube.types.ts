@@ -26,8 +26,7 @@ export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   thumbnail?: MediaEntity | null
 }
 
-export interface NooTubeVideoCommentEntity
-  extends ApiEntity<'NooTubeVideoComment'> {
+export interface NooTubeVideoCommentEntity extends ApiEntity<'NooTubeVideoComment'> {
   videoId: string
   userId: string
   content: string

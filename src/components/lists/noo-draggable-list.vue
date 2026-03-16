@@ -41,7 +41,14 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import draggable from 'vuedraggable'
+import type { DefineComponent } from 'vue'
+import draggableSource from 'vuedraggable'
+
+type DraggableProps = InstanceType<typeof draggableSource>['$props'] & {
+  handle?: string
+  group?: string
+  animation?: number
+}
 
 interface Props {
   handle?: string
@@ -60,4 +67,6 @@ const model = defineModel<T[]>('modelValue', {
   type: Array as () => T[],
   required: true
 })
+
+const draggable = draggableSource as unknown as DefineComponent<DraggableProps>
 </script>

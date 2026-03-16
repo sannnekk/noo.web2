@@ -143,6 +143,7 @@ function isTabActive(tab: string) {
       font-size: 0.9em
       color: var(--form-text-color)
       text-decoration: none
+      line-height: 1.1em
 
       &--active
         color: var(--white)

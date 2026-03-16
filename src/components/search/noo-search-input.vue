@@ -8,7 +8,7 @@
       v-model="model"
       label=""
       placeholder="Поиск..."
-      :autocomplete="false"
+      autocomplete="off"
       class="noo-search-input__input"
       type="text"
     >
@@ -55,32 +55,22 @@ const isOnHover = ref(false)
 
 <style scoped lang="sass">
 .noo-search-input
+  width: 100%
   position: relative
-
-  @media screen and (max-width: 768px)
-    font-size: 12px
 
   &__icon
     position: absolute
     top: 50%
     left: 0.3rem
     transform: translateY(-50%)
-    transition: transform 0.2s ease-in-out
-    font-size: 30px
+    font-size: 1.5em
 
-    @media screen and (max-width: 768px)
-      font-size: 22px
+  &__input
+    margin-bottom: 0 !important
 
-  &__input:deep()
-    input
-      font-size: 16px
-      padding: 0.75em 1em 0.75em 1em !important
-      padding-left: 2.75em !important
-      border-color: var(--border-color) !important
-      color: var(--form-text-color)
-
-      @media screen and (max-width: 768px)
-        font-size: 12px
+    &:deep()
+      input
+        padding: 0.75em 1em 0.75em 2.5em !important
 
   &__erase-button
     position: absolute

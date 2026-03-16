@@ -2,6 +2,7 @@
   <noo-select-input
     v-model="model"
     :label="label"
+    :readonly="readonly"
     :options="options"
   >
     <template #label>
@@ -17,6 +18,7 @@
 <script setup lang="ts">
 interface Props {
   label?: string
+  readonly?: boolean
 }
 
 defineProps<Props>()

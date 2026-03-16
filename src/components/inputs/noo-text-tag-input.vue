@@ -42,10 +42,14 @@ import { ref } from 'vue'
 interface Props {
   label: string
   readonly?: boolean
+  min?: number
+  max?: number
   errors?: ValidationError[]
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  min: 0
+})
 
 const model = defineModel<string[] | null>({
   default: () => [],
@@ -55,6 +59,14 @@ const model = defineModel<string[] | null>({
 const input = ref('')
 
 function addTag() {
+  if (props.readonly) {
+    return
+  }
+
+  if (props.max !== undefined && (model.value ?? []).length >= props.max) {
+    return
+  }
+
   if (input.value?.trim()) {
     model.value = [...(model.value ?? []), input.value.trim()]
     input.value = ''
@@ -62,6 +74,14 @@ function addTag() {
 }
 
 function removeTag(index: number) {
+  if (props.readonly) {
+    return
+  }
+
+  if ((model.value ?? []).length <= (props.min ?? 0)) {
+    return
+  }
+
   model.value = (model.value ?? []).filter((_, i) => i !== index)
 }
 

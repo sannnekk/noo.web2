@@ -1,5 +1,5 @@
 <template>
-  <vue-router
+  <router-link
     class="noo-video-card"
     :to="{
       name: 'nootube.video',
@@ -30,7 +30,7 @@
         />
       </div>
     </div>
-  </vue-router>
+  </router-link>
 </template>
 
 <script setup lang="ts">

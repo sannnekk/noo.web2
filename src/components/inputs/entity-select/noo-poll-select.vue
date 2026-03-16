@@ -3,7 +3,7 @@
     v-model="model"
     v-model:ids="idsModel"
     :label="label"
-    :placeholder="placeholder"
+    :placeholder="placeholderValue"
     :readonly="readonly"
     :errors="errors"
     :multiple="multiple"
@@ -26,6 +26,7 @@ import type { ValidationError } from '@/core/validators/validation-helpers.utils
 import { Pagination } from '@/core/utils/pagination.utils'
 import { PollService } from '@/modules/polls/api/poll.service'
 import type { PollEntity } from '@/modules/polls/api/poll.types'
+import { computed } from 'vue'
 
 interface Props {
   label?: string
@@ -36,7 +37,7 @@ interface Props {
   pageSize?: number
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: 'Выберите опрос',
   placeholder: 'Начните вводить название',
   readonly: false,
@@ -50,6 +51,14 @@ const model = defineModel<PollEntity | PollEntity[] | null>({
 
 const idsModel = defineModel<string | string[] | null>('ids', {
   default: null
+})
+
+const placeholderValue = computed(() => {
+  if (props.readonly && !model.value) {
+    return 'Опрос не выбран'
+  }
+
+  return props.placeholder
 })
 
 async function fetchPolls(query: string): Promise<PollEntity[]> {

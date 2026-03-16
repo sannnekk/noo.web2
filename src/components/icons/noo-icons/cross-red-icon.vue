@@ -10,7 +10,7 @@
       fill-rule: evenodd;
       clip-rule: evenodd;
     "
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
   >
     <g>
       <path

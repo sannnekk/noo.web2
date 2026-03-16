@@ -1,6 +1,9 @@
 <template>
   <div class="edit-course-page">
-    <noo-sidebar-layout wide-sidebar>
+    <noo-sidebar-layout
+      wide-sidebar
+      collapsible
+    >
       <template #sidebar>
         <div
           v-if="editCourseStore.mode === 'loading'"

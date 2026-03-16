@@ -3,7 +3,6 @@ import type { ApplicationModule } from '@/types/ApplicationModule'
 import {
   courseListTabAccessGuard,
   initCoursePageGuard,
-  initCourseStudentsPageGuard,
   initEditCoursePageGuard
 } from './guards'
 import type { CourseDetailPageProps } from './pages/course-detail-page.vue'
@@ -72,7 +71,6 @@ const module: ApplicationModule = {
         roles: ['admin', 'teacher', /* TODO: remove */ 'student']
       },
       component: () => import('./pages/course-students-page.vue'),
-      beforeEnter: [initCourseStudentsPageGuard],
       props: (route): CourseStudentsPageProps => {
         return {
           courseId: String(route.params.courseId)

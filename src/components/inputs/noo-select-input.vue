@@ -22,8 +22,8 @@
       :disabled="readonly"
       class="noo-input__select"
       :class="{
-        'noo-select-input__select--readonly': readonly,
-        'noo-select-input__select--error': errors?.length
+        'noo-input__select--readonly': readonly,
+        'noo-input__select--error': errors?.length
       }"
     >
       <option

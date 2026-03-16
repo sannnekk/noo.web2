@@ -1,13 +1,9 @@
 <template>
   <svg
     version="1.1"
-    xmlns:x="&ns_extend;"
-    xmlns:i="&ns_ai;"
-    xmlns:graph="&ns_graphs;"
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
     viewBox="0 0 420 420"
-    xml:space="preserve"
   >
     <g>
       <g>

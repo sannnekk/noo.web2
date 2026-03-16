@@ -1,5 +1,5 @@
 <template>
-  <svg viewbox="0 0 18 18">
+  <svg viewBox="0 0 18 18">
     <path
       class="ql-stroke"
       d="M5,4H9.5A2.5,2.5,0,0,1,12,6.5v0A2.5,2.5,0,0,1,9.5,9H5A0,0,0,0,1,5,9V4A0,0,0,0,1,5,4Z"

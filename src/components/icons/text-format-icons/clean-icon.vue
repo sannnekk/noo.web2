@@ -1,7 +1,7 @@
 <template>
   <svg
     class=""
-    viewbox="0 0 18 18"
+    viewBox="0 0 18 18"
   >
     <line
       class="ql-stroke"

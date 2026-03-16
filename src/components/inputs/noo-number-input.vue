@@ -1,5 +1,5 @@
 <template>
-  <label сlass="noo-number-input">
+  <label class="noo-number-input">
     <span class="noo-number-input__label">
       {{ label }}
     </span>
@@ -19,6 +19,7 @@
         :disabled="readonly"
         :max="max"
         :min="min"
+        :step="step"
         @keypress.enter="$emit('enter-press')"
       />
       <div class="noo-number-input__input-after">
@@ -40,6 +41,7 @@ interface Props {
   label: string
   max?: number
   min?: number
+  step?: number
   placeholder?: string
   readonly?: boolean
   validators?: InputValidator<number>[]

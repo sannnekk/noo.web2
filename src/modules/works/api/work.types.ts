@@ -42,11 +42,10 @@ export interface WorkEntity extends ApiEntity<'Work'> {
   tasks?: WorkTaskEntity[]
 }
 
-export interface UnsavedWork
-  extends Omit<
-    PossiblyUnsavedEntity<WorkEntity, WorkEntity['_entityName']>,
-    'tasks'
-  > {
+export interface UnsavedWork extends Omit<
+  PossiblyUnsavedEntity<WorkEntity, WorkEntity['_entityName']>,
+  'tasks'
+> {
   tasks?: PossiblyUnsavedEntity<WorkTaskEntity, WorkTaskEntity['_entityName']>[]
 }
 

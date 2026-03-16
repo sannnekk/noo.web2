@@ -227,7 +227,7 @@ const useCourseEditStore = defineStore(
         loadedCourse,
         normalizeCoursePatch
       )
-      mode.value = 'edit'
+      mode.value = 'view'
     }
 
     async function selectMaterial(materialKey: string): Promise<void> {

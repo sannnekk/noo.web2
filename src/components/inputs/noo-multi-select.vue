@@ -13,7 +13,6 @@
         >
           <noo-checkbox
             :model-value="isSelected(option.value)"
-            :value="option.value"
             :readonly="isReadonly(option.value)"
             @update:model-value="
               (checked) => toggleValue(option.value, Boolean(checked))

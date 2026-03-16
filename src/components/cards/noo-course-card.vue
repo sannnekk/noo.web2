@@ -5,7 +5,7 @@
         class="router-link"
         :to="to"
       >
-        <noo-uploaded-image :media="course.thumbnail" />
+        <noo-uploaded-image :src="course.thumbnail" />
       </router-link>
     </div>
     <div

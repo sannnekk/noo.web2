@@ -42,17 +42,16 @@ export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   contentId: string | null
 }
 
-export interface CourseMaterialContentEntity
-  extends ApiEntity<'CourseMaterialContent'> {
+export interface CourseMaterialContentEntity extends ApiEntity<'CourseMaterialContent'> {
   content: IRichText
   poll?: PollEntity
-  nooTubeVideos: NooTubeVideoEntity[]
-  medias: MediaEntity[]
-  workAssignments: CourseWorkAssignmentEntity[]
+  nooTubeVideos?: NooTubeVideoEntity[]
+  nooTubeVideoIds?: string[]
+  medias?: MediaEntity[]
+  workAssignments?: CourseWorkAssignmentEntity[]
 }
 
-export interface CourseWorkAssignmentEntity
-  extends ApiEntity<'CourseWorkAssignment'> {
+export interface CourseWorkAssignmentEntity extends ApiEntity<'CourseWorkAssignment'> {
   workId?: string
   work?: WorkEntity
   note: string | null
@@ -62,10 +61,13 @@ export interface CourseWorkAssignmentEntity
   checkDeadlineAt: Date | null
 }
 
-export type CourseMembershipType =
-  | 'manual-assigned'
-  | 'external-assigned'
-  | 'subscription'
+const courseMembershipTypeValues = [
+  'manual-assigned',
+  'external-assigned',
+  'subscription'
+] as const
+
+export type CourseMembershipType = (typeof courseMembershipTypeValues)[number]
 
 export interface CourseMembershipEntity extends ApiEntity<'CourseMembership'> {
   type: CourseMembershipType
@@ -84,3 +86,5 @@ export interface CreateCourseMembershipPayload {
   courseId: string
   notifyStudent?: boolean
 }
+
+export { courseMembershipTypeValues }

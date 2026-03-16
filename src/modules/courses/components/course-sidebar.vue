@@ -22,7 +22,7 @@
     <div class="course-sidebar__actions">
       <noo-text-block size="small">
         <noo-inline-link
-          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          v-if="canManageCourse"
           class="course-sidebar__actions__action"
           :to="{
             name: 'courses.students',
@@ -32,7 +32,7 @@
           Ученики курса
         </noo-inline-link>
         <noo-inline-link
-          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          v-if="canManageCourse"
           class="course-sidebar__actions__action"
           :to="{
             name: 'courses.edit',
@@ -42,7 +42,7 @@
           Редактировать курс
         </noo-inline-link>
         <noo-inline-link
-          v-if="true /* authStore.roleIsOneOf(['teacher', 'admin']) */"
+          v-if="canManageCourse"
           class="course-sidebar__actions__action"
           @click="materialSearchModalOpened = true"
         >
@@ -61,7 +61,17 @@
       >
         Авторы:
       </noo-text-block>
-      TODO: add authors
+      <div class="course-sidebar__authors__list">
+        <noo-text-block
+          v-for="author in course.authors"
+          :key="author.id"
+          size="small"
+          dimmed
+          no-margin
+        >
+          {{ author.name || author.username || author.email || author.id }}
+        </noo-text-block>
+      </div>
     </div>
     <div class="course-sidebar__chapter-tree">
       <noo-scrollable-block max-height="60vh">
@@ -87,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '@/core/stores/auth.store'
 import { usePageUrl } from '@/core/composables/usePageUrl'
 import { computed, shallowRef } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
@@ -100,8 +111,12 @@ interface Props {
 defineProps<Props>()
 
 const courseDetailStore = useCourseDetailStore()
+const authStore = useAuthStore()
 
 const course = computed(() => courseDetailStore.course.data)
+const canManageCourse = computed(() =>
+  authStore.roleIsOneOf(['teacher', 'admin'])
+)
 
 const { currentPageUrl } = usePageUrl()
 
@@ -117,4 +132,9 @@ const materialSearchModalOpened = shallowRef<boolean>(false)
   &__authors
     &__title
       margin-bottom: 0
+
+    &__list
+      display: flex
+      flex-direction: column
+      gap: 0.1em
 </style>

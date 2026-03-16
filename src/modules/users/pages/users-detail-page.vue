@@ -1,7 +1,24 @@
 <template>
-  <div class="users-list-page">
+  <div class="users-detail-page">
     <noo-sidebar-layout>
-      <template #sidebar> 123 </template>
+      <template #sidebar>
+        <div class="users-detail-page__sidebar">
+          <div class="users-detail-page__sidebar__avatar">
+            <noo-user-avatar name="Александр Иванов" />
+          </div>
+          <div class="users-detail-page__sidebar__info">
+            <noo-title :size="3"> Александр Иванов </noo-title>
+            <noo-text-block
+              size="small"
+              dimmed
+            >
+              teacher
+              <br />
+              example@outlook.com
+            </noo-text-block>
+          </div>
+        </div>
+      </template>
       <template #content>
         <noo-tabs-layout
           use-route-tabs
@@ -59,4 +76,15 @@ export interface UsersDetailPageProps {
 defineProps<UsersDetailPageProps>()
 </script>
 
-<style scoped lang="sass"></style>
+<style scoped lang="sass">
+.users-detail-page
+  &__sidebar
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 1em
+    text-align: center
+
+    &__avatar
+      font-size: 250px
+</style>

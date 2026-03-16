@@ -1,5 +1,5 @@
 <template>
-  <svg viewbox="0 0 18 18">
+  <svg viewBox="0 0 18 18">
     <line
       class="ql-stroke ql-thin"
       x1="15.5"

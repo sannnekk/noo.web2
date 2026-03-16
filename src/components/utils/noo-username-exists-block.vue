@@ -9,7 +9,7 @@
   >
     <span
       v-if="isLoading"
-      сlass="noo-username-exists-block__loading"
+      class="noo-username-exists-block__loading"
       style="color: var(--text-light)"
     >
       <noo-loader-icon v-if="isLoading" />

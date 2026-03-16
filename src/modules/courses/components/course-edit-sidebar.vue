@@ -52,22 +52,24 @@
             <noo-date-input
               v-model="editCourseStore.course.startDate"
               label="Дата начала"
-              :disabled="
+              :readonly="
                 editCourseStore.mode !== 'create' &&
                 editCourseStore.mode !== 'edit'
               "
+              resettable
             >
               <template #tooltip>
-                TODO: чет написать про то что значит эта дата
+                Дата, с которой курс считается доступным для учеников.
               </template>
             </noo-date-input>
             <noo-date-input
               v-model="editCourseStore.course.endDate"
               label="Дата окончания"
-              :disabled="
+              :readonly="
                 editCourseStore.mode !== 'create' &&
                 editCourseStore.mode !== 'edit'
               "
+              resettable
             />
           </div>
         </div>
@@ -87,27 +89,85 @@
     </noo-tabs-layout>
     <div class="course-edit-sidebar__actions">
       <noo-button
-        v-if="editCourseStore.mode === 'edit'"
+        v-if="canSwitchToView"
         variant="secondary"
+        @click="onSwitchToViewClick()"
       >
         В режим просмотра
       </noo-button>
       <noo-button
-        v-if="editCourseStore.mode === 'view'"
+        v-if="canSwitchToEdit"
         variant="secondary"
+        @click="onSwitchToEdit()"
       >
         Редактировать
       </noo-button>
-      <noo-button @click="editCourseStore.save()"> Сохранить </noo-button>
+      <noo-button
+        v-if="canSave"
+        @click="saveChangesModalOpen = true"
+      >
+        Сохранить
+      </noo-button>
     </div>
+    <save-course-changes-modal v-model:is-open="saveChangesModalOpen" />
+    <noo-sure-modal
+      v-model:is-open="confirmSwitchToViewModalOpen"
+      @confirm="void confirmSwitchToView()"
+    >
+      <template #title>
+        <noo-title :size="3"> Вернуться в режим просмотра </noo-title>
+      </template>
+      <template #content>
+        <noo-text-block dimmed>
+          У вас есть несохраненные изменения. Если вы вернетесь в режим
+          просмотра, изменения будут потеряны.
+        </noo-text-block>
+      </template>
+      <template #confirm-action-text> Вернуться </template>
+    </noo-sure-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, shallowRef } from 'vue'
 import { useCourseEditStore } from '../stores/course-edit.store'
 import CourseEditChapterTree from './course-edit/course-chapter-tree.vue'
+import SaveCourseChangesModal from './save-course-changes-modal.vue'
 
 const editCourseStore = useCourseEditStore()
+const confirmSwitchToViewModalOpen = shallowRef(false)
+const saveChangesModalOpen = shallowRef(false)
+
+const canSwitchToView = computed(() => editCourseStore.mode === 'edit')
+const canSwitchToEdit = computed(() => editCourseStore.mode === 'view')
+const canSave = computed(
+  () => editCourseStore.mode === 'create' || editCourseStore.mode === 'edit'
+)
+
+function onSwitchToEdit(): void {
+  editCourseStore.mode = 'edit'
+}
+
+function onSwitchToViewClick(): void {
+  if (editCourseStore.hasUnsavedChanges) {
+    confirmSwitchToViewModalOpen.value = true
+
+    return
+  }
+
+  editCourseStore.mode = 'view'
+}
+
+async function confirmSwitchToView(): Promise<void> {
+  if (!editCourseStore.course?.id) {
+    editCourseStore.mode = 'view'
+
+    return
+  }
+
+  await editCourseStore.init(editCourseStore.course.id)
+  editCourseStore.mode = 'view'
+}
 </script>
 
 <style scoped lang="sass">

@@ -1,5 +1,5 @@
 <template>
-  <svg viewbox="0 0 18 18">
+  <svg viewBox="0 0 18 18">
     <rect
       class="ql-stroke"
       height="10"

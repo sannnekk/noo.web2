@@ -3,6 +3,7 @@
     <noo-tabs-layout
       use-route-tabs
       route-param-name="tabId"
+      with-padding
     >
       <template #tab-title-all>
         <span>Все видео</span>

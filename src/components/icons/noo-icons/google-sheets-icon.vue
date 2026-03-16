@@ -3,7 +3,7 @@
     viewBox="0 0 49 67"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
   >
     <defs>
       <path
@@ -102,7 +102,7 @@
                     id="mask-2"
                     fill="white"
                   >
-                    <use xlink:href="#path-1" />
+                    <use href="#path-1" />
                   </mask>
                   <path
                     id="Path"
@@ -117,7 +117,7 @@
                     id="mask-4"
                     fill="white"
                   >
-                    <use xlink:href="#path-3" />
+                    <use href="#path-3" />
                   </mask>
                   <g id="SVGID_1_" />
                   <path
@@ -133,7 +133,7 @@
                     id="mask-6"
                     fill="white"
                   >
-                    <use xlink:href="#path-5" />
+                    <use href="#path-5" />
                   </mask>
                   <g id="SVGID_1_" />
                   <polygon
@@ -149,7 +149,7 @@
                     id="mask-9"
                     fill="white"
                   >
-                    <use xlink:href="#path-8" />
+                    <use href="#path-8" />
                   </mask>
                   <g id="SVGID_1_" />
                   <g
@@ -171,7 +171,7 @@
                     id="mask-11"
                     fill="white"
                   >
-                    <use xlink:href="#path-10" />
+                    <use href="#path-10" />
                   </mask>
                   <g id="SVGID_1_" />
                   <path
@@ -188,7 +188,7 @@
                     id="mask-13"
                     fill="white"
                   >
-                    <use xlink:href="#path-12" />
+                    <use href="#path-12" />
                   </mask>
                   <g id="SVGID_1_" />
                   <path
@@ -205,7 +205,7 @@
                     id="mask-15"
                     fill="white"
                   >
-                    <use xlink:href="#path-14" />
+                    <use href="#path-14" />
                   </mask>
                   <g id="SVGID_1_" />
                   <path

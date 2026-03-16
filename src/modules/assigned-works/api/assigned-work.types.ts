@@ -93,8 +93,7 @@ export type AssignedWorkStatusHistoryType =
   | 'sent-on-recheck'
   | 'sent-on-resolve'
 
-export interface AssignedWorkStatusHistoryEntity
-  extends ApiEntity<'AssignedWorkStatusHistory'> {
+export interface AssignedWorkStatusHistoryEntity extends ApiEntity<'AssignedWorkStatusHistory'> {
   status: AssignedWorkStatusHistoryType
   value: Record<string, string> | null
   changedById: string
@@ -136,13 +135,11 @@ export interface AssignedWorkEntity extends ApiEntity<'AssignedWork'> {
   answers?: AssignedWorkAnswerEntity[]
 }
 
-export interface AssignedWorkCommentEntity
-  extends ApiEntity<'AssignedWorkComment'> {
+export interface AssignedWorkCommentEntity extends ApiEntity<'AssignedWorkComment'> {
   content: IRichText | null
 }
 
-export interface AssignedWorkAnswerEntity
-  extends ApiEntity<'AssignedWorkAnswer'> {
+export interface AssignedWorkAnswerEntity extends ApiEntity<'AssignedWorkAnswer'> {
   richTextContent: IRichText | null
   wordContent: string | null
   taskId: string

@@ -5,7 +5,7 @@
   >
     <noo-draggable-list
       v-model="materialsModel"
-      :disabled="!editable"
+      :disabled="!props.editable"
       handle=".tree-material-list__item__drag-handle"
       group="materials"
       item-key="_key"
@@ -25,7 +25,7 @@
         >
           <div
             class="tree-material-list__item__active-toggle"
-            @click.stop="material.isActive = !material.isActive"
+            @click.stop="toggleMaterialActive(material)"
           ></div>
           <div class="tree-material-list__item__drag-handle">
             <noo-icon name="drag-handle" />
@@ -43,7 +43,7 @@
             </noo-title>
           </div>
           <div
-            v-if="editable"
+            v-if="props.editable"
             class="tree-material-list__item__actions"
           >
             <div class="tree-material-list__item__actions__remove">
@@ -57,7 +57,10 @@
         </div>
       </template>
     </noo-draggable-list>
-    <div class="tree-material-list__item tree-material-list__item__add">
+    <div
+      v-if="props.editable"
+      class="tree-material-list__item tree-material-list__item__add"
+    >
       <div
         class="tree-material-list__item__add__title"
         @click="addMaterial()"
@@ -78,7 +81,9 @@ interface Props {
   level: number
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  editable: false
+})
 
 const materialsModel = defineModel<PossiblyUnsavedMaterial[]>('materials', {
   type: Array as () => PossiblyUnsavedMaterial[],
@@ -105,6 +110,10 @@ function infoText(material: PossiblyUnsavedMaterial): string {
 }
 
 function addMaterial(): void {
+  if (!props.editable) {
+    return
+  }
+
   materialsModel.value = [
     ...materialsModel.value,
     {
@@ -126,13 +135,29 @@ function selectMaterial(materialKey: string): void {
 }
 
 function removeMaterial(material: PossiblyUnsavedMaterial): void {
+  if (!props.editable) {
+    return
+  }
+
   courseEditStore.markMaterialRemoved(material._key, material.contentId)
   materialsModel.value = materialsModel.value.filter(
     (_material) => _material._key !== material._key
   )
 }
 
+function toggleMaterialActive(material: PossiblyUnsavedMaterial): void {
+  if (!props.editable) {
+    return
+  }
+
+  material.isActive = !material.isActive
+}
+
 function adjustOrder(): void {
+  if (!props.editable) {
+    return
+  }
+
   materialsModel.value = materialsModel.value.map((material, index) => ({
     ...material,
     order: index + 1

@@ -34,7 +34,6 @@
         <noo-number-input
           v-model="workDetailStore.task.maxScore"
           label="Максимальный балл"
-          :options="taskTypes"
           :readonly="isReadonlyMode"
           :errors="workDetailStore.taskValidationState.fieldErrors.maxScore"
         />

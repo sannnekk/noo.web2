@@ -4,7 +4,6 @@
       <div
         v-for="reaction in reactionsModel"
         :key="reaction.reaction"
-        v-auto-animate
         class="noo-user-reactions__list__item"
         :class="{
           'noo-user-reactions__list__item--active':
@@ -13,7 +12,7 @@
         }"
         @click="react(reaction.reaction)"
       >
-        <inline-emoji :name="reaction.reaction" />
+        <noo-emoji :name="reaction.reaction" />
         <span
           v-if="!loading && !hideNumbers"
           class="noo-user-reactions__list__item__value"
@@ -24,7 +23,7 @@
           v-else-if="loading"
           class="noo-user-reactions__list__item__value"
         >
-          <loader-icon contrast />
+          <noo-loader-icon contrast />
         </span>
       </div>
     </div>

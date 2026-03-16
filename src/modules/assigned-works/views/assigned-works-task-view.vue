@@ -40,9 +40,17 @@
       </div>
     </div>
     <div class="assigned-works-task-view__score">
-      <assigned-work-score
+      <noo-number-input
+        v-if="!isScoreReadonly"
         v-model="answerScoreModel"
-        :readonly="isScoreReadonly"
+        label="Оценка"
+        :min="0"
+        :max="task?.maxScore ?? 0"
+      />
+      <assigned-work-score
+        v-else
+        :score="answerScoreModel"
+        :max-score="task?.maxScore ?? 0"
       />
     </div>
     <div
@@ -102,6 +110,7 @@
 <script setup lang="ts">
 import { maxLength } from '@/core/validators/string.utils'
 import { computed } from 'vue'
+import assignedWorkScore from '../components/assigned-work-score.vue'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import type { AssignedWorkViewMode } from '../types'
 

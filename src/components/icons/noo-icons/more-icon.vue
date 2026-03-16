@@ -1,12 +1,11 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
     style="fill: var(--form-text-color)"
     version="1.1"
     viewBox="-3 -3 67 67"
     enable-background="new 0 0 64 64"
-    xml:space="preserve"
   >
     <g>
       <path

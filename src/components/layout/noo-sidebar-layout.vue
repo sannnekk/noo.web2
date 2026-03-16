@@ -1,28 +1,42 @@
 <template>
   <div class="noo-sidebar-layout">
-    <div
+    <aside
       class="noo-sidebar-layout__sidebar"
-      :class="{ 'noo-sidebar-layout__sidebar--wide': wideSidebar }"
+      :class="{
+        'noo-sidebar-layout__sidebar--wide': wideSidebar,
+        'noo-sidebar-layout__sidebar--collapsible': collapsible,
+        'noo-sidebar-layout__sidebar--collapsed': isSidebarCollapsed
+      }"
     >
-      <div class="noo-sidebar-layout__sidebar__hide">
-        <span
-          v-if="sidebarOpened"
-          @click="sidebarOpened = false"
-        >
-          Скрыть
-        </span>
-        <span
-          v-else
-          @click="sidebarOpened = true"
-        >
-          Открыть
-        </span>
+      <button
+        v-if="collapsible"
+        type="button"
+        class="noo-sidebar-layout__toggle"
+        :class="{ 'noo-sidebar-layout__toggle--collapsed': isSidebarCollapsed }"
+        :aria-expanded="sidebarOpened"
+        :aria-controls="sidebarContentId"
+        :aria-label="toggleButtonLabel"
+        @click="toggleSidebar"
+      >
+        <noo-icon
+          :key="isSidebarCollapsed ? 'arrow-right' : 'arrow-left'"
+          :name="isSidebarCollapsed ? 'arrow-right' : 'arrow-left'"
+        />
+        <span class="noo-sidebar-layout__toggle__label">{{
+          toggleButtonLabel
+        }}</span>
+      </button>
+      <div
+        :id="sidebarContentId"
+        class="noo-sidebar-layout__sidebar__content"
+        :class="{
+          'noo-sidebar-layout__sidebar__content--hidden': isSidebarCollapsed
+        }"
+        :aria-hidden="isSidebarCollapsed"
+      >
+        <slot name="sidebar" />
       </div>
-      <slot
-        v-if="sidebarOpened"
-        name="sidebar"
-      />
-    </div>
+    </aside>
     <div
       class="noo-sidebar-layout__content"
       :class="{ 'noo-sidebar-layout__content--wide-sidebar': wideSidebar }"
@@ -33,21 +47,61 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  toRefs,
+  useId,
+  watch
+} from 'vue'
 
 interface Props {
   wideSidebar?: boolean
+  collapsible?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  wideSidebar: false,
+  collapsible: false
+})
+const { wideSidebar, collapsible } = toRefs(props)
 
 const sidebarOpened = ref(true)
+const isMobileViewport = ref(false)
+const sidebarContentId = `noo-sidebar-content-${useId()}`
+
+const isSidebarCollapsed = computed(
+  () => props.collapsible && !sidebarOpened.value
+)
+
+const toggleButtonLabel = computed(() =>
+  isSidebarCollapsed.value ? 'Развернуть' : 'Свернуть'
+)
+
+function toggleSidebar() {
+  sidebarOpened.value = !sidebarOpened.value
+}
 
 function handleResize() {
-  if (window.innerWidth > 768) {
+  const isMobile = window.innerWidth <= 768
+
+  if (isMobileViewport.value && !isMobile && props.collapsible) {
     sidebarOpened.value = true
   }
+
+  isMobileViewport.value = isMobile
 }
+
+watch(
+  () => props.collapsible,
+  (collapsible) => {
+    if (!collapsible) {
+      sidebarOpened.value = true
+    }
+  }
+)
 
 onMounted(() => {
   handleResize()
@@ -61,47 +115,116 @@ onUnmounted(() => {
 
 <style scoped lang="sass">
 .noo-sidebar-layout
+  --sidebar-width: 350px
+  --sidebar-width-wide: 500px
+  --sidebar-collapsed-width: 72px
+
   display: flex
   flex-direction: row
+  align-items: flex-start
 
   @media screen and (max-width: 768px)
     flex-direction: column
 
   &__sidebar
-    width: 350px
+    width: var(--sidebar-width)
     height: fit-content
     padding: 1em
     margin: 1em
     border-radius: var(--border-radius)
     box-shadow: var(--block-shadow)
+    transition: width 0.3s ease, padding 0.3s ease, max-height 0.3s ease
 
     &--wide
-      width: 500px
+      width: var(--sidebar-width-wide)
+
+    &--collapsible
+      overflow: hidden
+
+    &--collapsed
+      width: var(--sidebar-collapsed-width)
+      padding-right: 0.6em
+      padding-left: 0.6em
 
     @media screen and (max-width: 768px)
       width: calc(100% - 2em) !important
 
-    &__hide
-      display: none
-      padding: 0
-      text-align: right
-      cursor: pointer
-      color: var(--text-light)
-      font-size: 0.8em
+      &--collapsed
+        width: calc(100% - 2em) !important
+        max-height: 4.5em
+        margin-top: 0
+        margin-bottom: 0
 
-      &:hover
-        color: var(--info)
+    &__content
+      max-height: 1000vh
+      opacity: 1
+      transform: translateX(0)
+      transition: max-height 0.3s ease, opacity 0.2s ease, transform 0.2s ease
 
-      @media screen and (max-width: 768px)
-        display: block
+      &--hidden
+        max-height: 0
+        opacity: 0
+        transform: translateX(-10px)
+        pointer-events: none
+
+  &__toggle
+    width: 100%
+    border: none
+    border-radius: 999px
+    margin-bottom: 0.75em
+    padding: 0.5em 0.8em
+    display: flex
+    align-items: center
+    justify-content: flex-start
+    gap: 0.5em
+    background-color: var(--light-background-color)
+    color: var(--form-text-color)
+    font-size: 0.9em
+    font-weight: 500
+    text-align: left
+    cursor: pointer
+    transition: background-color 0.2s ease, box-shadow 0.2s ease
+
+    &:hover
+      background-color: var(--icon-background)
+      box-shadow: var(--block-shadow)
+
+    &:focus-visible
+      outline: 2px solid var(--primary)
+      outline-offset: 2px
+
+    &--collapsed
+      justify-content: center
+
+      .noo-sidebar-layout__toggle__label
+        max-width: 0
+        opacity: 0
+
+    &__label
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+      max-width: 16em
+      transition: max-width 0.2s ease, opacity 0.2s ease
+
+    @media screen and (max-width: 768px)
+      margin-bottom: 0.5em
+
+      &--collapsed
+        justify-content: flex-start
+
+        .noo-sidebar-layout__toggle__label
+          max-width: 16em
+          opacity: 1
 
   &__content
     flex: 1
+    min-width: 0
     padding: 1em
-    width: calc(100% - 300px)
+    width: auto
 
     &--wide-sidebar
-      width: calc(100% - 500px)
+      width: auto
 
     @media screen and (max-width: 768px)
       width: 100%
