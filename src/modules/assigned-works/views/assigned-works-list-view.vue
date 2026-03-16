@@ -165,9 +165,12 @@
 
 <script setup lang="ts">
 import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
-import { useAuthStore } from '@/core/stores/auth.store'
 import { computed, ref } from 'vue'
 import type { AssignedWorkEntity } from '../api/assigned-work.types'
+import {
+  AssignedWorksPermissions,
+  useAssignedWorksPermissions
+} from '../permissions'
 
 interface Props {
   works: AssignedWorkEntity[]
@@ -196,21 +199,11 @@ const selectedCount = computed(() => {
   return Object.values(selectedItems.value).filter(Boolean).length
 })
 
-const authStore = useAuthStore()
+const { can } = useAssignedWorksPermissions()
 
-const showStudent = authStore.roleIsOneOf([
-  'mentor',
-  'assistant',
-  'teacher',
-  'admin'
-])
+const showStudent = can(AssignedWorksPermissions.showStudentInfo)
 
-const showMentors = authStore.roleIsOneOf([
-  'student',
-  'assistant',
-  'teacher',
-  'admin'
-])
+const showMentors = can(AssignedWorksPermissions.showMentorInfo)
 
 const columns: EntityTableColumnType<AssignedWorkEntity>[] = [
   {

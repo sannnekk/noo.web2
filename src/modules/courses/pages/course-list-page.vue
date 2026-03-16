@@ -11,16 +11,28 @@
       <template #tab-all>
         <all-courses-view />
       </template>
-      <template #tab-title-own>
+      <template
+        v-if="can(CoursePermissions.viewOwnTab)"
+        #tab-title-own
+      >
         <span>Мои курсы</span>
       </template>
-      <template #tab-own>
+      <template
+        v-if="can(CoursePermissions.viewOwnTab)"
+        #tab-own
+      >
         <own-courses-view />
       </template>
-      <template #tab-title-archived>
+      <template
+        v-if="can(CoursePermissions.viewArchivedTab)"
+        #tab-title-archived
+      >
         <span>Архив</span>
       </template>
-      <template #tab-archived>
+      <template
+        v-if="can(CoursePermissions.viewArchivedTab)"
+        #tab-archived
+      >
         <archived-courses-view />
       </template>
     </noo-tabs-layout>
@@ -29,6 +41,7 @@
 
 <script setup lang="ts">
 import type { CourseListTab } from '../types'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 import AllCoursesView from '../views/all-courses-view.vue'
 import ArchivedCoursesView from '../views/archived-courses-view.vue'
 import OwnCoursesView from '../views/own-courses-view.vue'
@@ -38,4 +51,6 @@ export interface CourseListPageProps {
 }
 
 defineProps<CourseListPageProps>()
+
+const { can } = useCoursePermissions()
 </script>

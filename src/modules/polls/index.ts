@@ -2,6 +2,7 @@ import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { loadPollGuard } from './guards'
 import type { PollsEditPageProps } from './pages/polls-edit-page.vue'
+import { PollsPermissions, pollsPermissionPolicy } from './permissions'
 
 const module: ApplicationModule = {
   name: 'polls',
@@ -13,7 +14,7 @@ const module: ApplicationModule = {
         pageTitle: 'Опросы',
         tabTitle: 'Опросы',
         layout: PaneLayout,
-        roles: ['admin', 'teacher', /* TODO: remove */ 'student']
+        roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewListPage)
       },
       component: () => import('./pages/polls-list-page.vue')
     },
@@ -25,7 +26,7 @@ const module: ApplicationModule = {
         tabTitle: 'Редактировать опрос',
         warnOnLeave: true,
         layout: PaneLayout,
-        roles: ['admin', 'teacher', /* TODO: remove */ 'student']
+        roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewEditPage)
       },
       component: () => import('./pages/polls-edit-page.vue'),
       beforeEnter: loadPollGuard,

@@ -2,6 +2,7 @@ import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { loadUserGuard } from './guards'
 import type { UsersDetailPageProps } from './pages/users-detail-page.vue'
+import { UsersPermissions, usersPermissionPolicy } from './permissions'
 import type { UserDetailTab } from './types'
 
 const module: ApplicationModule = {
@@ -14,13 +15,7 @@ const module: ApplicationModule = {
         pageTitle: 'Пользователи',
         tabTitle: 'Пользователи',
         layout: PaneLayout,
-        roles: [
-          'admin',
-          'teacher',
-          'assistant',
-          'mentor',
-          /* TODO: remove */ 'student'
-        ]
+        roles: usersPermissionPolicy.rolesFor(UsersPermissions.viewListPage)
       },
       component: () => import('./pages/users-list-page.vue')
     },
@@ -32,13 +27,7 @@ const module: ApplicationModule = {
         tabTitle: 'Пользователь',
         warnOnLeave: true,
         layout: PaneLayout,
-        roles: [
-          'admin',
-          'teacher',
-          'assistant',
-          'mentor',
-          /* TODO: remove */ 'student'
-        ]
+        roles: usersPermissionPolicy.rolesFor(UsersPermissions.viewDetailPage)
       },
       component: () => import('./pages/users-detail-page.vue'),
       beforeEnter: loadUserGuard,

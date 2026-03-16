@@ -1,6 +1,7 @@
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import { useAuthStore } from '@/core/stores/auth.store'
+import { CalendarPermissions, calendarPermissionPolicy } from './permissions'
 
 const module: ApplicationModule = {
   name: 'calendar',
@@ -12,7 +13,7 @@ const module: ApplicationModule = {
         pageTitle: 'Календарь',
         tabTitle: 'Календарь',
         layout: PaneLayout,
-        roles: ['admin', 'teacher', 'assistant', 'mentor', 'student']
+        roles: calendarPermissionPolicy.rolesFor(CalendarPermissions.viewPage)
       },
       component: () => import('./pages/calendar-page.vue'),
       props: (route) => {

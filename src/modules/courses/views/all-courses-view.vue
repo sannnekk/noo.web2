@@ -10,13 +10,13 @@
   >
     <template #actions>
       <noo-button
-        v-if="canCreateCourse"
+        v-if="can(CoursePermissions.createCourse)"
         :to="{ name: 'courses.edit' }"
       >
         Создать курс
       </noo-button>
       <noo-button
-        v-if="canVisitCourseShop"
+        v-if="can(CoursePermissions.viewCourseShop)"
         :to="AppConstants.courseShopLink"
       >
         Наш магазин курсов
@@ -31,17 +31,9 @@
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
 import { AppConstants } from '@/core/config/constants.config'
-import { useAuthStore } from '@/core/stores/auth.store'
-import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
-
-const authStore = useAuthStore()
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 
 const search = useSearch(CourseService.get, { immediate: true })
-
-const canCreateCourse = computed(() =>
-  authStore.roleIsOneOf(['teacher', 'admin'])
-)
-
-const canVisitCourseShop = computed(() => authStore.roleIsOneOf(['student']))
+const { can } = useCoursePermissions()
 </script>

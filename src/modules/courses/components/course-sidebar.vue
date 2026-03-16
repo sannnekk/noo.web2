@@ -22,7 +22,7 @@
     <div class="course-sidebar__actions">
       <noo-text-block size="small">
         <noo-inline-link
-          v-if="canManageCourse"
+          v-if="can(CoursePermissions.manageCourse)"
           class="course-sidebar__actions__action"
           :to="{
             name: 'courses.students',
@@ -32,7 +32,7 @@
           Ученики курса
         </noo-inline-link>
         <noo-inline-link
-          v-if="canManageCourse"
+          v-if="can(CoursePermissions.manageCourse)"
           class="course-sidebar__actions__action"
           :to="{
             name: 'courses.edit',
@@ -42,7 +42,7 @@
           Редактировать курс
         </noo-inline-link>
         <noo-inline-link
-          v-if="canManageCourse"
+          v-if="can(CoursePermissions.manageCourse)"
           class="course-sidebar__actions__action"
           @click="materialSearchModalOpened = true"
         >
@@ -97,9 +97,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/core/stores/auth.store'
 import { usePageUrl } from '@/core/composables/usePageUrl'
 import { computed, shallowRef } from 'vue'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 import MaterialSearchModal from './material-search-modal.vue'
 import CourseChapterTree from './course-chapter-tree.vue'
@@ -111,12 +111,9 @@ interface Props {
 defineProps<Props>()
 
 const courseDetailStore = useCourseDetailStore()
-const authStore = useAuthStore()
+const { can } = useCoursePermissions()
 
 const course = computed(() => courseDetailStore.course.data)
-const canManageCourse = computed(() =>
-  authStore.roleIsOneOf(['teacher', 'admin'])
-)
 
 const { currentPageUrl } = usePageUrl()
 

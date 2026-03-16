@@ -23,11 +23,14 @@ import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
 import type { CourseEntity, CourseMembershipEntity } from '../api/course.types'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 
 const authStore = useAuthStore()
+const { can } = useCoursePermissions()
 
-const ownerFilterKey =
-  authStore.userInfo?.role === 'student' ? 'studentId' : 'assignerId'
+const ownerFilterKey = can(CoursePermissions.useStudentOwnershipFilter)
+  ? 'studentId'
+  : 'assignerId'
 
 const initialFilters = [
   new EqualsFilter('isArchived', true),

@@ -1,6 +1,10 @@
 import { useAuthStore } from '@/core/stores/auth.store'
 import { unref } from 'vue'
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
+import {
+  AssignedWorksPermissions,
+  assignedWorksPermissionPolicy
+} from './permissions'
 import { useAssignedWorkDetailStore } from './stores/assigned-work-detail.store'
 import type { AssignedWorkViewMode } from './types'
 
@@ -29,6 +33,15 @@ function assignedWorkModeGuard(
   const assignedWorkId = String(to.params.assignedWorkId)
   const mode = String(to.params.mode) as AssignedWorkViewMode
   const possibleModes: AssignedWorkViewMode[] = ['read', 'solve', 'check']
+  const role = authStore.userInfo?.role
+  const isStudent = assignedWorksPermissionPolicy.can(
+    AssignedWorksPermissions.useStudentMode,
+    role
+  )
+  const isMentor = assignedWorksPermissionPolicy.can(
+    AssignedWorksPermissions.useMentorMode,
+    role
+  )
 
   if (!assignedWorkStore.assignedWork?.work) {
     return true // still allow navigation to show the error
@@ -37,10 +50,7 @@ function assignedWorkModeGuard(
   const { solveStatus, checkStatus } = unref(assignedWorkStore.assignedWork)
 
   // if not student or mentor, redirect to read mode
-  if (
-    authStore.userInfo?.role !== 'student' &&
-    authStore.userInfo?.role !== 'mentor'
-  ) {
+  if (!isStudent && !isMentor) {
     return mode === 'read'
       ? true
       : {
@@ -58,7 +68,7 @@ function assignedWorkModeGuard(
   }
 
   // if student, make sure the work is not made yet, otherwise redirect to read mode
-  if (authStore.userInfo.role === 'student') {
+  if (isStudent) {
     if (solveStatus === 'solved' && mode !== 'read') {
       return {
         name: 'assigned-works.detail',

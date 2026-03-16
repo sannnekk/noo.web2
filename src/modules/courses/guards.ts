@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/core/stores/auth.store'
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
+import { CoursePermissions, coursePermissionPolicy } from './permissions'
 import { useCourseDetailStore } from './stores/course-detail.store'
 import { useCourseEditStore } from './stores/course-edit.store'
 import type { CourseListTab } from './types'
@@ -32,17 +33,15 @@ function courseListTabAccessGuard(
   const tabId = to.params.tabId as string
   const authStore = useAuthStore()
 
-  // only teachers and students can access own and archived tabs, for others only all
-  switch (tabId) {
-    case 'own':
-    case 'archived':
-      if (!authStore.roleIsOneOf(['teacher', 'student'])) {
-        return { name: 'courses.list', params: { tabId: 'all' } }
-      }
-      break
-    case 'all':
-    default:
-      break
+  if (tabId === 'own' || tabId === 'archived') {
+    const permission =
+      tabId === 'own'
+        ? CoursePermissions.viewOwnTab
+        : CoursePermissions.viewArchivedTab
+
+    if (!coursePermissionPolicy.can(permission, authStore.userInfo?.role)) {
+      return { name: 'courses.list', params: { tabId: 'all' } }
+    }
   }
 
   // Check if the tabId is valid

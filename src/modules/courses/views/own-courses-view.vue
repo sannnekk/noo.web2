@@ -11,7 +11,7 @@
     >
       <template #actions>
         <noo-button
-          v-if="canCreateCourse"
+          v-if="can(CoursePermissions.createCourse)"
           :to="{ name: 'courses.edit' }"
         >
           Создать курс
@@ -31,11 +31,14 @@ import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
 import type { CourseEntity, CourseMembershipEntity } from '../api/course.types'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 
 const authStore = useAuthStore()
+const { can } = useCoursePermissions()
 
-const ownerFilterKey =
-  authStore.userInfo?.role === 'student' ? 'studentId' : 'assignerId'
+const ownerFilterKey = can(CoursePermissions.useStudentOwnershipFilter)
+  ? 'studentId'
+  : 'assignerId'
 
 const initialFilters = [
   new EqualsFilter('isArchived', false),
@@ -64,8 +67,4 @@ const courses = computed<CourseEntity[]>(() => {
 
   return [...byId.values()]
 })
-
-const canCreateCourse = computed(() =>
-  authStore.roleIsOneOf(['teacher', 'admin'])
-)
 </script>

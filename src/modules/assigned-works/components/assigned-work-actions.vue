@@ -173,11 +173,14 @@ import type {
   ButtonSize,
   ButtonType
 } from '@/components/buttons/noo-button.vue'
-import { useAuthStore } from '@/core/stores/auth.store'
 import { computed, ref, shallowRef } from 'vue'
 import type { AddHelperMentorOptions } from '../api/assigned-work.types'
 import { type AssignedWorkRemakeOptions } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
+import {
+  AssignedWorksPermissions,
+  useAssignedWorksPermissions
+} from '../permissions'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import historyModal from './history-modal.vue'
 
@@ -191,13 +194,13 @@ interface AssignedWorkAction {
   handler: () => any
 }
 
-const authStore = useAuthStore()
+const { can } = useAssignedWorksPermissions()
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
 const { workIsSolved, workIsChecked, workIsRemakeable } =
   assignedWorkDetailStore
-const isStudent = authStore.roleIsOneOf(['student'])
-const isMentor = authStore.roleIsOneOf(['mentor'])
+const isStudent = can(AssignedWorksPermissions.useStudentMode)
+const isMentor = can(AssignedWorksPermissions.useMentorMode)
 
 const actions: AssignedWorkAction[] = [
   {

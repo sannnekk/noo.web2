@@ -2,6 +2,7 @@ import { getOptionalRouteParam } from '@/core/utils/route.utils'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { loadWorkGuard } from './guards'
+import { WorksPermissions, worksPermissionPolicy } from './permissions'
 import type { WorksDetailPageProps } from './pages/works-detail-page.vue'
 
 const module: ApplicationModule = {
@@ -14,7 +15,7 @@ const module: ApplicationModule = {
         pageTitle: 'Работы',
         tabTitle: 'Работы',
         layout: PaneLayout,
-        roles: ['admin', 'teacher', /* TODO: remove */ 'student']
+        roles: worksPermissionPolicy.rolesFor(WorksPermissions.viewListPage)
       },
       component: () => import('./pages/works-list-page.vue')
     },
@@ -26,7 +27,7 @@ const module: ApplicationModule = {
         tabTitle: 'Работа',
         warnOnLeave: true,
         layout: PaneLayout,
-        roles: ['admin', 'teacher', /* TODO: remove */ 'student']
+        roles: worksPermissionPolicy.rolesFor(WorksPermissions.viewEditPage)
       },
       component: () => import('./pages/works-detail-page.vue'),
       beforeEnter: loadWorkGuard,

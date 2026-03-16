@@ -7,6 +7,10 @@ import {
 } from './guards'
 import type { AssignedWorkDetailPageProps } from './pages/assigned-works-detail-page.vue'
 import type { AssignedWorkListPageProps } from './pages/assigned-works-list-page.vue'
+import {
+  AssignedWorksPermissions,
+  assignedWorksPermissionPolicy
+} from './permissions'
 import type { AssignedWorkListTab, AssignedWorkViewMode } from './types'
 import type { AssignedWorksTaskViewProps } from './views/assigned-works-task-view.vue'
 
@@ -20,7 +24,9 @@ const module: ApplicationModule = {
         pageTitle: 'Мои работы',
         tabTitle: 'Мои работы',
         layout: PaneLayout,
-        roles: ['admin', 'teacher', 'assistant', 'mentor', 'student']
+        roles: assignedWorksPermissionPolicy.rolesFor(
+          AssignedWorksPermissions.viewListPage
+        )
       },
       component: () => import('./pages/assigned-works-list-page.vue'),
       beforeEnter: [assignedWorkListTabGuard],
@@ -42,7 +48,9 @@ const module: ApplicationModule = {
         tabTitle: 'Работа',
         warnOnLeave: true,
         layout: PaneLayout,
-        roles: ['admin', 'teacher', 'assistant', 'mentor', 'student']
+        roles: assignedWorksPermissionPolicy.rolesFor(
+          AssignedWorksPermissions.viewDetailPage
+        )
       },
       component: () => import('./pages/assigned-works-detail-page.vue'),
       beforeEnter: [assignedWorkDetailInitGuard, assignedWorkModeGuard],
