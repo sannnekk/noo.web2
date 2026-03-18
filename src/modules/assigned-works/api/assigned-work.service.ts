@@ -1,5 +1,8 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
+import { uid } from '@/core/utils/id.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
+import type { WorkTaskEntity } from '@/modules/works/api/work.types'
+import type { PossiblyUnsavedAnswer } from '../types'
 import type {
   AddHelperMentorOptions,
   AssignedWorkEntity,
@@ -15,6 +18,12 @@ import type {
 const BASE_PATH = '/assigned-work'
 
 interface IAssignedWorkService {
+  /**
+   * Creates a local draft answer for a work task.
+   */
+  createAnswerDraft(
+    task: Pick<WorkTaskEntity, 'id' | 'maxScore'>
+  ): PossiblyUnsavedAnswer
   /**
    * Fetches a list of assigned works for the current user or a specific user.
    *
@@ -140,6 +149,24 @@ async function getById(id: string): Promise<ApiResponse<AssignedWorkEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
+function createAnswerDraft(
+  task: Pick<WorkTaskEntity, 'id' | 'maxScore'>
+): PossiblyUnsavedAnswer {
+  return {
+    _entityName: 'AssignedWorkAnswer',
+    _key: uid(),
+    taskId: task.id,
+    isSaved: false,
+    status: 'not-submitted',
+    richTextContent: null,
+    wordContent: null,
+    mentorComment: null,
+    detailedScore: null,
+    score: null,
+    maxScore: task.maxScore
+  }
+}
+
 async function getProgress(
   id: string
 ): Promise<ApiResponse<AssignedWorkProgress>> {
@@ -230,6 +257,7 @@ async function deleteAssignedWork(id: string): Promise<ApiResponse> {
 }
 
 export const AssignedWorkService: IAssignedWorkService = {
+  createAnswerDraft,
   get,
   getById,
   getProgress,

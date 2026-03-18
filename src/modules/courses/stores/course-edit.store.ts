@@ -1,12 +1,11 @@
 import { isApiError } from '@/core/api/api.utils'
 import { useEntityDrafts } from '@/core/composables/useEntityDrafts'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
-import { convertToLocal, uid } from '@/core/utils/id.utils'
+import { convertToLocal } from '@/core/utils/id.utils'
 import {
   JsonPatchUtils,
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
-import { emptyRichText } from '@/core/utils/richtext.utils'
 import { defineStore } from 'pinia'
 import {
   computed,
@@ -121,17 +120,6 @@ const useCourseEditStore = defineStore(
       )
     })
 
-    function createEmptyMaterialContent(): PossiblyUnsavedCourseMaterialContent {
-      return {
-        _entityName: 'CourseMaterialContent',
-        _key: uid(),
-        content: emptyRichText(),
-        nooTubeVideos: [],
-        medias: [],
-        workAssignments: []
-      }
-    }
-
     function resetMaterialContentState(): void {
       currentMaterialContentKey.value = null
       isCurrentMaterialContentLoading.value = false
@@ -182,17 +170,7 @@ const useCourseEditStore = defineStore(
 
       if (!courseId) {
         mode.value = 'create'
-        course.value = {
-          _entityName: 'Course',
-          _key: uid(),
-          name: 'Новый курс',
-          description: null,
-          startDate: new Date(),
-          endDate: new Date(),
-          subjectId: null,
-          thumbnailId: null,
-          chapters: []
-        }
+        course.value = CourseService.createDraft()
         coursePatchGenerator.value = null
 
         return
@@ -257,7 +235,7 @@ const useCourseEditStore = defineStore(
       if (!material.contentId) {
         materialContentDrafts.setDraft(
           materialKey,
-          createEmptyMaterialContent(),
+          CourseService.createMaterialContentDraft(),
           {
             isNew: true
           }
@@ -270,7 +248,7 @@ const useCourseEditStore = defineStore(
         material.contentId = null
         materialContentDrafts.setDraft(
           materialKey,
-          createEmptyMaterialContent(),
+          CourseService.createMaterialContentDraft(),
           {
             isNew: true
           }
@@ -293,7 +271,7 @@ const useCourseEditStore = defineStore(
           material.contentId = null
           materialContentDrafts.setDraft(
             materialKey,
-            createEmptyMaterialContent(),
+            CourseService.createMaterialContentDraft(),
             {
               isNew: true
             }
@@ -314,7 +292,7 @@ const useCourseEditStore = defineStore(
         material.contentId = null
         materialContentDrafts.setDraft(
           materialKey,
-          createEmptyMaterialContent(),
+          CourseService.createMaterialContentDraft(),
           {
             isNew: true
           }

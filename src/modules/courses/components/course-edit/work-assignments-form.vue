@@ -157,8 +157,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { WorkEntity } from '@/modules/works/api/work.types'
-import type { CourseWorkAssignmentEntity } from '@/modules/courses/api/course.types'
-import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
+import { CourseService } from '../../api/course.service'
+import type { PossiblyUnsavedWorkAssignment } from '../../types'
 
 interface Props {
   readonly?: boolean
@@ -166,9 +166,10 @@ interface Props {
 
 const { readonly = false } = defineProps<Props>()
 
-const workAssignmentsModel = defineModel<
-  PossiblyUnsavedEntity<CourseWorkAssignmentEntity, 'CourseWorkAssignment'>[]
->('work-assignments', { default: () => [] })
+const workAssignmentsModel = defineModel<PossiblyUnsavedWorkAssignment[]>(
+  'work-assignments',
+  { default: () => [] }
+)
 
 const workToAdd = ref<WorkEntity | null>(null)
 
@@ -180,16 +181,7 @@ function onAddWorkAssignment() {
   if (workToAdd.value) {
     workAssignmentsModel.value = [
       ...workAssignmentsModel.value,
-      {
-        _entityName: 'CourseWorkAssignment',
-        _key: `new-${Date.now()}`,
-        work: workToAdd.value,
-        note: '',
-        isActive: true,
-        deactivatedAt: null,
-        solveDeadlineAt: null,
-        checkDeadlineAt: null
-      }
+      CourseService.createWorkAssignmentDraft(workToAdd.value)
     ]
     workToAdd.value = null
   }

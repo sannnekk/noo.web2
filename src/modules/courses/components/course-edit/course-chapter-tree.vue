@@ -74,9 +74,10 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { CourseService } from '../../api/course.service'
 import { CourseConfig } from '../../config'
-import { type PossiblyUnsavedChapter } from '../../types'
 import { useCourseEditStore } from '../../stores/course-edit.store'
+import { type PossiblyUnsavedChapter } from '../../types'
 import treeChapter from './tree-chapter.vue'
 import TreeMaterialList from './tree-material-list.vue'
 
@@ -100,17 +101,7 @@ const courseEditStore = useCourseEditStore()
 function addChapter(): void {
   treeModel.value = [
     ...treeModel.value,
-    {
-      _entityName: 'CourseChapter',
-      _key: `new-chapter-${Date.now()}`,
-      order: treeModel.value.length + 1,
-      title: 'Новая глава ' + (treeModel.value.length + 1),
-      color: null,
-      isActive: false,
-      publishAt: null,
-      subChapters: [],
-      materials: []
-    }
+    CourseService.createChapterDraft(treeModel.value.length + 1)
   ]
 }
 

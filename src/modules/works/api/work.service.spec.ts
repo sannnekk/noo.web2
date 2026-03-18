@@ -24,6 +24,51 @@ describe('WorkService', () => {
     vi.clearAllMocks()
   })
 
+  describe('createDraft', () => {
+    test('should create a default local work draft', () => {
+      const draft = WorkService.createDraft()
+
+      expect(draft).toMatchObject({
+        _entityName: 'Work',
+        title: '',
+        type: 'test',
+        description: null,
+        tasks: [],
+        subjectId: ''
+      })
+      expect(draft._key).toEqual(expect.any(String))
+    })
+  })
+
+  describe('createTaskDraft', () => {
+    test('should create a word task draft with word defaults', () => {
+      const draft = WorkService.createTaskDraft('word', 2)
+
+      expect(draft).toMatchObject({
+        _entityName: 'WorkTask',
+        order: 2,
+        type: 'word',
+        checkStrategy: 'exact-match-or-zero',
+        maxScore: 1,
+        rightAnswers: ['Правильный ответ'],
+        explanation: null,
+        solveHint: null,
+        showAnswerBeforeCheck: false,
+        checkOneByOne: false
+      })
+      expect(draft._key).toEqual(expect.any(String))
+    })
+
+    test('should create a non-word task draft with manual checks', () => {
+      const draft = WorkService.createTaskDraft('essay', 1)
+
+      expect(draft.type).toBe('essay')
+      expect(draft.order).toBe(1)
+      expect(draft.checkStrategy).toBe('manual')
+      expect(draft.rightAnswers).toBeNull()
+    })
+  })
+
   describe('get', () => {
     test('should fetch works with pagination', async () => {
       const query = new URLSearchParams()

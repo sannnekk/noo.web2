@@ -7,7 +7,6 @@ import {
 import { useSaveStatus } from '@/core/composables/useSaveStatus'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { DateHelpers } from '@/core/utils/dates'
-import { uid } from '@/core/utils/id.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
 import { defineStore } from 'pinia'
 import {
@@ -475,19 +474,7 @@ const useAssignedWorkDetailStore = defineStore(
     function setEmptyAnswers(): void {
       for (const task of assignedWork.value?.work?.tasks ?? []) {
         if (!answers.value[task.id]) {
-          answers.value[task.id] = {
-            _entityName: 'AssignedWorkAnswer',
-            _key: uid(),
-            taskId: task.id,
-            isSaved: false,
-            status: 'not-submitted',
-            richTextContent: null,
-            wordContent: null,
-            mentorComment: null,
-            detailedScore: null,
-            score: null,
-            maxScore: task.maxScore
-          }
+          answers.value[task.id] = AssignedWorkService.createAnswerDraft(task)
         }
       }
     }

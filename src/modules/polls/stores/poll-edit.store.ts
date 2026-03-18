@@ -1,7 +1,6 @@
 import { isApiError } from '@/core/api/api.utils'
 import { useViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
-import { uid } from '@/core/utils/id.utils'
 import {
   JsonPatchUtils,
   type PatchGenerator
@@ -75,16 +74,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
   async function init(pollId?: string): Promise<void> {
     if (!pollId) {
       setMode('create')
-      poll.value = {
-        _entityName: 'Poll',
-        _key: uid(),
-        title: 'Новый опрос',
-        description: null,
-        isActive: true,
-        expiresAt: null,
-        isAuthRequired: false,
-        questions: []
-      } as PossiblyUnsavedPoll
+      poll.value = PollService.createDraft()
       pollPatchGenerator.value = null
 
       return
@@ -203,15 +193,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
 
     poll.value.questions = [
       ...(poll.value?.questions ?? []),
-      {
-        _entityName: 'PollQuestion',
-        _key: uid(),
-        title: 'Новый вопрос',
-        description: null,
-        type: 'text',
-        isRequired: false,
-        config: {}
-      }
+      PollService.createQuestionDraft()
     ]
   }
 

@@ -43,6 +43,11 @@ export type PossiblyUnsavedCourse = Omit<
   subjectId: string | null
 }
 
+export type PossiblyUnsavedWorkAssignment = PossiblyUnsavedEntity<
+  CourseWorkAssignmentEntity,
+  CourseWorkAssignmentEntity['_entityName']
+>
+
 export type PossiblyUnsavedCourseMaterialContent = Omit<
   PossiblyUnsavedEntity<
     CourseMaterialContentEntity,
@@ -50,8 +55,5 @@ export type PossiblyUnsavedCourseMaterialContent = Omit<
   >,
   'workAssignments'
 > & {
-  workAssignments: PossiblyUnsavedEntity<
-    CourseWorkAssignmentEntity,
-    CourseWorkAssignmentEntity['_entityName']
-  >[]
+  workAssignments: PossiblyUnsavedWorkAssignment[]
 }

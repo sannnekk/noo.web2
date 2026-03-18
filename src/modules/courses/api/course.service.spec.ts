@@ -1,5 +1,6 @@
 import { Api, isApiError } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
+import type { WorkEntity } from '@/modules/works/api/work.types'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import type { PossiblyUnsavedCourse } from '../types'
 import { CourseService } from './course.service'
@@ -23,6 +24,96 @@ vi.mock('@/core/api/api.utils', async (importOriginal) => {
 describe('CourseService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  describe('draft factories', () => {
+    test('createDraft should create a default course draft', () => {
+      const draft = CourseService.createDraft()
+
+      expect(draft).toMatchObject({
+        _entityName: 'Course',
+        name: 'Новый курс',
+        description: null,
+        subjectId: null,
+        thumbnailId: null,
+        chapters: []
+      })
+      expect(draft.startDate).toBeInstanceOf(Date)
+      expect(draft.endDate).toBeInstanceOf(Date)
+      expect(draft._key).toEqual(expect.any(String))
+    })
+
+    test('createChapterDraft should create chapter defaults', () => {
+      const chapter = CourseService.createChapterDraft(3)
+
+      expect(chapter).toMatchObject({
+        _entityName: 'CourseChapter',
+        order: 3,
+        title: 'Новая глава 3',
+        color: null,
+        isActive: false,
+        publishAt: null,
+        subChapters: [],
+        materials: []
+      })
+      expect(chapter._key).toEqual(expect.any(String))
+    })
+
+    test('createMaterialDraft should create material defaults', () => {
+      const material = CourseService.createMaterialDraft(2)
+
+      expect(material).toMatchObject({
+        _entityName: 'CourseMaterial',
+        order: 2,
+        title: 'Новый материал 2',
+        titleColor: null,
+        contentId: null,
+        chapterId: '',
+        isActive: false,
+        publishAt: null
+      })
+      expect(material._key).toEqual(expect.any(String))
+    })
+
+    test('createMaterialContentDraft should create content defaults', () => {
+      const content = CourseService.createMaterialContentDraft()
+
+      expect(content).toMatchObject({
+        _entityName: 'CourseMaterialContent',
+        nooTubeVideos: [],
+        medias: [],
+        workAssignments: []
+      })
+      expect(content._key).toEqual(expect.any(String))
+      expect(content.content.$type).toBe('delta')
+      expect(Array.isArray(content.content.ops)).toBe(true)
+    })
+
+    test('createWorkAssignmentDraft should attach selected work', () => {
+      const work = {
+        _entityName: 'Work',
+        id: 'work-1',
+        createdAt: new Date(),
+        updatedAt: null,
+        title: 'Test work',
+        type: 'test',
+        description: null,
+        subjectId: 'subject-1'
+      } as WorkEntity
+
+      const assignment = CourseService.createWorkAssignmentDraft(work)
+
+      expect(assignment).toMatchObject({
+        _entityName: 'CourseWorkAssignment',
+        work,
+        note: '',
+        isActive: true,
+        deactivatedAt: null,
+        solveDeadlineAt: null,
+        checkDeadlineAt: null
+      })
+      expect(assignment._key).toEqual(expect.any(String))
+    })
   })
 
   describe('get', () => {

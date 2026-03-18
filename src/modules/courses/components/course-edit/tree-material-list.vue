@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { uid } from '@/core/utils/id.utils'
+import { CourseService } from '../../api/course.service'
 import { useCourseEditStore } from '../../stores/course-edit.store'
 import type { PossiblyUnsavedMaterial } from '../../types'
 
@@ -116,17 +116,7 @@ function addMaterial(): void {
 
   materialsModel.value = [
     ...materialsModel.value,
-    {
-      _entityName: 'CourseMaterial',
-      order: materialsModel.value.length + 1,
-      _key: uid(),
-      title: 'Новый материал ' + (materialsModel.value.length + 1),
-      titleColor: null,
-      contentId: null,
-      chapterId: '',
-      isActive: false,
-      publishAt: null
-    }
+    CourseService.createMaterialDraft(materialsModel.value.length + 1)
   ]
 }
 

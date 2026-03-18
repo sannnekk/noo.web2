@@ -1,9 +1,15 @@
 import { Api, type ApiResponse } from '@/core/api/api.utils'
+import { uid } from '@/core/utils/id.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
+import { emptyRichText } from '@/core/utils/richtext.utils'
+import type { WorkEntity } from '@/modules/works/api/work.types'
 import type {
+  PossiblyUnsavedChapter,
   PossiblyUnsavedCourse,
-  PossiblyUnsavedCourseMaterialContent
+  PossiblyUnsavedCourseMaterialContent,
+  PossiblyUnsavedMaterial,
+  PossiblyUnsavedWorkAssignment
 } from '../types'
 import type {
   CourseEntity,
@@ -15,6 +21,26 @@ import type {
 const BASE_PATH = '/course'
 
 interface ICourseService {
+  /**
+   * Creates a local draft for a new course.
+   */
+  createDraft(): PossiblyUnsavedCourse
+  /**
+   * Creates a local draft for a new chapter.
+   */
+  createChapterDraft(order: number): PossiblyUnsavedChapter
+  /**
+   * Creates a local draft for a new material.
+   */
+  createMaterialDraft(order: number): PossiblyUnsavedMaterial
+  /**
+   * Creates a local draft for a new material content.
+   */
+  createMaterialContentDraft(): PossiblyUnsavedCourseMaterialContent
+  /**
+   * Creates a local draft for a new work assignment.
+   */
+  createWorkAssignmentDraft(work: WorkEntity): PossiblyUnsavedWorkAssignment
   /**
    * Fetches a list of courses
    *
@@ -124,6 +150,74 @@ async function getById(id: string): Promise<ApiResponse<CourseEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
+function createDraft(): PossiblyUnsavedCourse {
+  return {
+    _entityName: 'Course',
+    _key: uid(),
+    name: 'Новый курс',
+    description: null,
+    startDate: new Date(),
+    endDate: new Date(),
+    subjectId: null,
+    thumbnailId: null,
+    chapters: []
+  }
+}
+
+function createChapterDraft(order: number): PossiblyUnsavedChapter {
+  return {
+    _entityName: 'CourseChapter',
+    _key: uid(),
+    order,
+    title: `Новая глава ${order}`,
+    color: null,
+    isActive: false,
+    publishAt: null,
+    subChapters: [],
+    materials: []
+  }
+}
+
+function createMaterialDraft(order: number): PossiblyUnsavedMaterial {
+  return {
+    _entityName: 'CourseMaterial',
+    order,
+    _key: uid(),
+    title: `Новый материал ${order}`,
+    titleColor: null,
+    contentId: null,
+    chapterId: '',
+    isActive: false,
+    publishAt: null
+  }
+}
+
+function createMaterialContentDraft(): PossiblyUnsavedCourseMaterialContent {
+  return {
+    _entityName: 'CourseMaterialContent',
+    _key: uid(),
+    content: emptyRichText(),
+    nooTubeVideos: [],
+    medias: [],
+    workAssignments: []
+  }
+}
+
+function createWorkAssignmentDraft(
+  work: WorkEntity
+): PossiblyUnsavedWorkAssignment {
+  return {
+    _entityName: 'CourseWorkAssignment',
+    _key: uid(),
+    work,
+    note: '',
+    isActive: true,
+    deactivatedAt: null,
+    solveDeadlineAt: null,
+    checkDeadlineAt: null
+  }
+}
+
 async function getMaterialContent(
   courseId: string,
   contentId: string
@@ -185,6 +279,11 @@ async function deleteCourse(id: string): Promise<ApiResponse> {
 }
 
 export const CourseService: ICourseService = {
+  createDraft,
+  createChapterDraft,
+  createMaterialDraft,
+  createMaterialContentDraft,
+  createWorkAssignmentDraft,
   get,
   getById,
   getMaterialContent,

@@ -1,11 +1,24 @@
 import { Api, type ApiResponse } from '@/core/api/api.utils'
+import { uid } from '@/core/utils/id.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
-import type { PollEntity, PossiblyUnsavedPoll } from './poll.types'
+import type {
+  PollEntity,
+  PossiblyUnsavedPoll,
+  PossiblyUnsavedQuestion
+} from './poll.types'
 
 const BASE_PATH = '/poll'
 
 interface IPollService {
+  /**
+   * Creates a local draft for a new poll.
+   */
+  createDraft: () => PossiblyUnsavedPoll
+  /**
+   * Creates a local draft for a new poll question.
+   */
+  createQuestionDraft: () => PossiblyUnsavedQuestion
   /**
    * Fetches a list of polls.
    *
@@ -57,6 +70,31 @@ async function getById(id: string): Promise<ApiResponse<PollEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
+function createDraft(): PossiblyUnsavedPoll {
+  return {
+    _entityName: 'Poll',
+    _key: uid(),
+    title: 'Новый опрос',
+    description: null,
+    isActive: true,
+    expiresAt: null,
+    isAuthRequired: false,
+    questions: []
+  }
+}
+
+function createQuestionDraft(): PossiblyUnsavedQuestion {
+  return {
+    _entityName: 'PollQuestion',
+    _key: uid(),
+    title: 'Новый вопрос',
+    description: null,
+    type: 'text',
+    isRequired: false,
+    config: {}
+  }
+}
+
 async function create(
   poll: PossiblyUnsavedPoll
 ): Promise<ApiResponse<{ id: string }>> {
@@ -75,6 +113,8 @@ async function deletePoll(id: string): Promise<ApiResponse> {
 }
 
 export const PollService: IPollService = {
+  createDraft,
+  createQuestionDraft,
   get,
   getById,
   create,

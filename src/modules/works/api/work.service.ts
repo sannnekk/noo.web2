@@ -1,12 +1,30 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
+import { uid } from '@/core/utils/id.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
-import type { PossiblyUnsavedWork } from '../types'
-import type { UnsavedWork, WorkEntity, WorkStatistics } from './work.types'
+import { emptyRichText } from '@/core/utils/richtext.utils'
+import type { PossiblyUnsavedWork, PossiblyUnsavedWorkTask } from '../types'
+import type {
+  UnsavedWork,
+  WorkEntity,
+  WorkStatistics,
+  WorkTaskType
+} from './work.types'
 
 const BASE_PATH = '/work'
 
 interface IWorkService {
+  /**
+   * Creates a local draft for a new work.
+   */
+  createDraft(): PossiblyUnsavedWork
+  /**
+   * Creates a local draft for a work task.
+   *
+   * @param type The task type.
+   * @param order Order inside work.
+   */
+  createTaskDraft(type?: WorkTaskType, order?: number): PossiblyUnsavedWorkTask
   /**
    * Fetches a list of works
    *
@@ -60,6 +78,38 @@ async function getById(id: string): Promise<ApiResponse<WorkEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
+function createDraft(): PossiblyUnsavedWork {
+  return {
+    _entityName: 'Work',
+    _key: uid(),
+    title: '',
+    type: 'test',
+    description: null,
+    tasks: [],
+    subjectId: ''
+  }
+}
+
+function createTaskDraft(
+  type: WorkTaskType = 'word',
+  order = 1
+): PossiblyUnsavedWorkTask {
+  return {
+    _entityName: 'WorkTask',
+    _key: uid(),
+    order,
+    content: emptyRichText(),
+    type,
+    checkStrategy: type === 'word' ? 'exact-match-or-zero' : 'manual',
+    maxScore: 1,
+    rightAnswers: type === 'word' ? ['Правильный ответ'] : null,
+    explanation: null,
+    solveHint: null,
+    showAnswerBeforeCheck: false,
+    checkOneByOne: false
+  }
+}
+
 async function getStatisticsById(
   id: string
 ): Promise<ApiResponse<WorkStatistics>> {
@@ -82,6 +132,8 @@ async function deleteWork(id: string): Promise<ApiResponse> {
 }
 
 export const WorkService: IWorkService = {
+  createDraft,
+  createTaskDraft,
   get,
   getById,
   getStatisticsById,

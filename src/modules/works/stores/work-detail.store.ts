@@ -2,12 +2,11 @@ import { isApiError } from '@/core/api/api.utils'
 import { useEntityValidation } from '@/core/composables/useEntityValidation'
 import { useViewMode, type ViewMode } from '@/core/composables/useViewMode'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
-import { convertToLocal, uid } from '@/core/utils/id.utils'
+import { convertToLocal } from '@/core/utils/id.utils'
 import {
   JsonPatchUtils,
   type PatchGenerator
 } from '@/core/utils/jsonpatch.utils'
-import { emptyRichText } from '@/core/utils/richtext.utils'
 import type { ValidationState } from '@/core/validators/validation-state.utils'
 import { defineStore } from 'pinia'
 import { ref, shallowRef, type Ref, type ShallowRef } from 'vue'
@@ -102,37 +101,6 @@ const useWorkDetailStore = defineStore(
     const workValidation = useEntityValidation(work, validateWorkState)
     const taskValidation = useEntityValidation(task, validateWorkTaskState)
 
-    function createEmptyWork(): PossiblyUnsavedWork {
-      return {
-        _entityName: 'Work',
-        _key: uid(),
-        title: '',
-        type: 'test',
-        description: null,
-        tasks: [],
-        subjectId: ''
-      }
-    }
-
-    function createTaskDraft(
-      type: WorkTaskType = 'word'
-    ): PossiblyUnsavedWorkTask {
-      return {
-        _entityName: 'WorkTask',
-        _key: uid(),
-        order: (work.value?.tasks?.length ?? 0) + 1,
-        content: emptyRichText(),
-        type,
-        checkStrategy: type === 'word' ? 'exact-match-or-zero' : 'manual',
-        maxScore: 1,
-        rightAnswers: type === 'word' ? ['Правильный ответ'] : null,
-        explanation: null,
-        solveHint: null,
-        showAnswerBeforeCheck: false,
-        checkOneByOne: false
-      }
-    }
-
     function getTaskIndexById(taskId?: PossiblyUnsavedWorkTask['id']): number {
       return work.value?.tasks?.findIndex((t) => t.id === taskId) ?? -1
     }
@@ -165,7 +133,7 @@ const useWorkDetailStore = defineStore(
     async function init(workId?: string): Promise<void> {
       if (!workId) {
         setMode('create')
-        work.value = createEmptyWork()
+        work.value = WorkService.createDraft()
         workPatchGenerator.value = null
 
         return
@@ -217,7 +185,9 @@ const useWorkDetailStore = defineStore(
         return
       }
 
-      work.value.tasks.push(createTaskDraft(type))
+      work.value.tasks.push(
+        WorkService.createTaskDraft(type, work.value.tasks.length + 1)
+      )
 
       validateWork()
       taskValidation.validate()

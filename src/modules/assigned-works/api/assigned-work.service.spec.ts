@@ -31,6 +31,28 @@ describe('AssignedWorkService', () => {
     vi.clearAllMocks()
   })
 
+  describe('createAnswerDraft', () => {
+    test('should create default answer draft for task', () => {
+      const task = { id: 'task-1', maxScore: 5 }
+
+      const answer = AssignedWorkService.createAnswerDraft(task)
+
+      expect(answer).toMatchObject({
+        _entityName: 'AssignedWorkAnswer',
+        taskId: 'task-1',
+        isSaved: false,
+        status: 'not-submitted',
+        richTextContent: null,
+        wordContent: null,
+        mentorComment: null,
+        detailedScore: null,
+        score: null,
+        maxScore: 5
+      })
+      expect(answer._key).toEqual(expect.any(String))
+    })
+  })
+
   describe('get', () => {
     test('should fetch assigned works with pagination', async () => {
       const query = new URLSearchParams()
