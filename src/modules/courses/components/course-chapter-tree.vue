@@ -6,7 +6,9 @@
         :key="chapter.id"
         class="course-chapter-tree__item"
         :class="{
-          'course-chapter-tree__item--opened': chaptersState[chapter.id]
+          'course-chapter-tree__item--opened': getChapterOpened(chapter.id),
+          'course-chapter-tree__item--highlighted':
+            chapter.id === highlightedKey
         }"
       >
         <div
@@ -14,7 +16,7 @@
           @click="chaptersState[chapter.id] = !chaptersState[chapter.id]"
         >
           <noo-list-opener-icon
-            :opened="chaptersState[chapter.id]"
+            :opened="getChapterOpened(chapter.id)"
             class="course-chapter-tree__item__list-opener"
           />
           <noo-title
@@ -26,13 +28,15 @@
         </div>
         <noo-if-animation>
           <div
-            v-if="chaptersState[chapter.id]"
+            v-if="getChapterOpened(chapter.id)"
             class="course-chapter-tree__item__content"
           >
             <course-chapter-tree
               :chapters="chapter.subChapters ?? []"
               :materials="chapter.materials"
               :initially-selected-material-id="initiallySelectedMaterialId"
+              :all-opened="allOpened"
+              :highlighted-key="highlightedKey"
             />
           </div>
         </noo-if-animation>
@@ -43,6 +47,10 @@
         v-for="material in materials ?? []"
         :key="material.id"
         class="course-chapter-tree__item"
+        :class="{
+          'course-chapter-tree__item--highlighted':
+            material.id === highlightedKey
+        }"
       >
         <router-link
           :to="{
@@ -62,18 +70,28 @@ import type {
   CourseChapterEntity,
   CourseMaterialEntity
 } from '../api/course.types.ts'
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { findChapterByMaterialId } from '../utils.ts'
 
 interface Props {
   chapters: CourseChapterEntity[]
   materials?: CourseMaterialEntity[]
   initiallySelectedMaterialId?: string
+  allOpened?: boolean
+  highlightedKey?: string | null
 }
 
 const props = defineProps<Props>()
 
 const chaptersState = reactive<Record<string, boolean>>({})
+
+const getChapterOpened = computed(() => (chapterId: string) => {
+  if (props.allOpened) {
+    return true
+  }
+
+  return chaptersState[chapterId] ?? false
+})
 
 if (props.initiallySelectedMaterialId) {
   const chapter = findChapterByMaterialId(
@@ -107,6 +125,13 @@ if (props.initiallySelectedMaterialId) {
         color: var(--secondary)
 
   &__item
+    &--highlighted
+      background-color: var(--secondary-light)
+      border-radius: var(--border-radius)
+
+      a
+        color: var(--secondary)
+
     &__list-opener
       font-size: 0.8em
       color: var(--text-light)

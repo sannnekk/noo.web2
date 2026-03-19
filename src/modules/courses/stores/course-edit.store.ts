@@ -11,6 +11,7 @@ import {
   computed,
   ref,
   shallowRef,
+  watch,
   type ComputedRef,
   type Ref,
   type ShallowRef
@@ -37,7 +38,7 @@ interface CourseEditStore {
   /**
    * Mode to tell editing from creating
    */
-  mode: ShallowRef<'view' | 'edit' | 'create' | 'error' | 'loading'>
+  mode: ShallowRef<'edit' | 'create' | 'error' | 'loading'>
   /**
    * Responsible to generate JSON Patch document for updating the work.
    */
@@ -88,10 +89,11 @@ const useCourseEditStore = defineStore(
     const uiStore = useGlobalUIStore()
     const router = useRouter()
 
-    const mode = ref<'view' | 'edit' | 'create' | 'error' | 'loading'>('create')
+    const mode = ref<'edit' | 'create' | 'error' | 'loading'>('create')
     const course = ref<PossiblyUnsavedCourse | null>(null)
     const coursePatchGenerator =
       shallowRef<PatchGenerator<PossiblyUnsavedCourse> | null>(null)
+    const courseChangesCount = ref(0)
     const currentMaterialContentKey = ref<string | null>(null)
     const currentMaterial = ref<PossiblyUnsavedMaterial | null>(null)
     const isCurrentMaterialContentLoading = ref(false)
@@ -110,15 +112,21 @@ const useCourseEditStore = defineStore(
     })
 
     const hasUnsavedChanges = computed(() => {
-      const hasCourseChanges =
-        (coursePatchGenerator.value?.countChanges() ?? 0) > 0
-
       return (
-        hasCourseChanges ||
+        courseChangesCount.value > 0 ||
         materialContentDrafts.hasAnyChanges.value ||
         deletedMaterialContentIds.value.length > 0
       )
     })
+
+    watch(
+      course,
+      () => {
+        courseChangesCount.value =
+          coursePatchGenerator.value?.countChanges() ?? 0
+      },
+      { deep: true }
+    )
 
     function resetMaterialContentState(): void {
       currentMaterialContentKey.value = null
@@ -205,7 +213,7 @@ const useCourseEditStore = defineStore(
         loadedCourse,
         normalizeCoursePatch
       )
-      mode.value = 'view'
+      mode.value = 'edit'
     }
 
     async function selectMaterial(materialKey: string): Promise<void> {

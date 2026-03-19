@@ -68,7 +68,6 @@ describe('CourseService', () => {
         title: 'Новый материал 2',
         titleColor: null,
         contentId: null,
-        chapterId: '',
         isActive: false,
         publishAt: null
       })

@@ -63,6 +63,7 @@ export type IconName =
   | 'table'
   | 'close'
   | 'drag-handle'
+  | 'clock'
 
 interface Props {
   name: IconName

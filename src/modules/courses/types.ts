@@ -19,7 +19,7 @@ export type PossiblyUnsavedMaterial = Omit<
     CourseMaterialEntity,
     CourseMaterialEntity['_entityName']
   >,
-  'contentId'
+  'contentId' | 'chapterId'
 > & {
   contentId: string | null
 }
@@ -43,10 +43,15 @@ export type PossiblyUnsavedCourse = Omit<
   subjectId: string | null
 }
 
-export type PossiblyUnsavedWorkAssignment = PossiblyUnsavedEntity<
-  CourseWorkAssignmentEntity,
-  CourseWorkAssignmentEntity['_entityName']
->
+export type PossiblyUnsavedWorkAssignment = Omit<
+  PossiblyUnsavedEntity<
+    CourseWorkAssignmentEntity,
+    CourseWorkAssignmentEntity['_entityName']
+  >,
+  'materialContentId'
+> & {
+  materialContentId: string | null
+}
 
 export type PossiblyUnsavedCourseMaterialContent = Omit<
   PossiblyUnsavedEntity<

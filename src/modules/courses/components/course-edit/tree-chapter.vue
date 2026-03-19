@@ -4,7 +4,8 @@
     :class="{
       'tree-chapter-list--planned': chapterModel.publishAt !== null,
       'tree-chapter--active':
-        chapterModel.publishAt === null && chapterModel.isActive
+        chapterModel.publishAt === null && chapterModel.isActive,
+      'tree-chapter--highlighted': highlighted
     }"
     @click="$emit('toggle')"
   >
@@ -64,6 +65,7 @@ import { pluralize } from '@/core/utils/lang.utils'
 
 interface Props {
   editable?: boolean
+  highlighted?: boolean
 }
 
 interface Emits {
@@ -95,6 +97,10 @@ const chapterModel = defineModel<PossiblyUnsavedChapter>('chapter', {
 
   &--planned
     border-left-color: var(--warning)
+
+  &--highlighted
+    background-color: var(--secondary-light)
+    border-color: var(--secondary)
 
   &:hover
     background-color: var(--form-background)

@@ -17,12 +17,13 @@
           <tree-chapter
             :chapter="chapter"
             :editable="editable"
+            :highlighted="highlightedKey === chapter._key"
             @toggle="chaptersState[chapter._key] = !chaptersState[chapter._key]"
             @remove="removeChapter(chapter._key)"
           />
           <noo-if-animation>
             <div
-              v-if="chaptersState[chapter._key]"
+              v-if="getChapterOpened(chapter._key)"
               class="course-edit-chapter-tree__item__content"
             >
               <div
@@ -33,6 +34,8 @@
                   v-model:tree="chapter.subChapters"
                   :level="level + 1"
                   :editable="editable"
+                  :all-opened="allOpened"
+                  :highlighted-key="highlightedKey"
                 />
               </div>
               <div
@@ -43,6 +46,7 @@
                   v-model:materials="chapter.materials"
                   :editable="editable"
                   :level="level + 1"
+                  :highlighted-key="highlightedKey"
                 />
               </div>
             </div>
@@ -73,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { CourseService } from '../../api/course.service'
 import { CourseConfig } from '../../config'
 import { useCourseEditStore } from '../../stores/course-edit.store'
@@ -84,11 +88,15 @@ import TreeMaterialList from './tree-material-list.vue'
 interface Props {
   editable?: boolean
   level?: number
+  allOpened?: boolean
+  highlightedKey?: string | null
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   editable: false,
-  level: 0
+  level: 0,
+  allOpened: false,
+  highlightedKey: null
 })
 
 const treeModel = defineModel<PossiblyUnsavedChapter[]>('tree', {
@@ -97,6 +105,14 @@ const treeModel = defineModel<PossiblyUnsavedChapter[]>('tree', {
 
 const chaptersState = reactive<Record<string, boolean>>({})
 const courseEditStore = useCourseEditStore()
+
+const getChapterOpened = computed(() => (chapterKey: string) => {
+  if (props.allOpened) {
+    return true
+  }
+
+  return chaptersState[chapterKey] ?? false
+})
 
 function addChapter(): void {
   treeModel.value = [

@@ -186,7 +186,6 @@ function createMaterialDraft(order: number): PossiblyUnsavedMaterial {
     title: `Новый материал ${order}`,
     titleColor: null,
     contentId: null,
-    chapterId: '',
     isActive: false,
     publishAt: null
   }
@@ -209,10 +208,13 @@ function createWorkAssignmentDraft(
   return {
     _entityName: 'CourseWorkAssignment',
     _key: uid(),
+    order: 0,
     work,
+    workId: work.id,
     note: '',
     isActive: true,
     deactivatedAt: null,
+    materialContentId: null,
     solveDeadlineAt: null,
     checkDeadlineAt: null
   }

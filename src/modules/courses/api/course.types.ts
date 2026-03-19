@@ -52,10 +52,12 @@ export interface CourseMaterialContentEntity extends ApiEntity<'CourseMaterialCo
 }
 
 export interface CourseWorkAssignmentEntity extends ApiEntity<'CourseWorkAssignment'> {
+  order: number
   workId?: string
   work?: WorkEntity
   note: string | null
   isActive: boolean
+  materialContentId: string
   deactivatedAt: Date | null
   solveDeadlineAt: Date | null
   checkDeadlineAt: Date | null

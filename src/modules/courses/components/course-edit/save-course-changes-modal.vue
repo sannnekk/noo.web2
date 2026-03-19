@@ -35,7 +35,7 @@
       <noo-button
         variant="primary"
         :disabled="!canBeSaved"
-        @click="void onSave()"
+        @click="onSave()"
       >
         Сохранить
       </noo-button>
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useCourseEditStore } from '../stores/course-edit.store'
+import { useCourseEditStore } from '../../stores/course-edit.store'
 
 const isOpenModel = defineModel<boolean>('isOpen', {
   default: false

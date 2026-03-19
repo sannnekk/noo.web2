@@ -16,7 +16,6 @@
         <noo-text-input
           v-model="currentMaterial.title"
           label="Заголовок материала"
-          :readonly="isReadonly"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -26,7 +25,6 @@
       >
         <noo-checkbox
           v-model="currentMaterial.isActive"
-          :readonly="isReadonly"
           dimmed
           size="small"
         >
@@ -41,7 +39,6 @@
             class="material-content-edit-form__publish-date-input"
             label="Запланировать публикацию"
             type="datetime-local"
-            :readonly="isReadonly"
             resettable
           />
         </noo-if-animation>
@@ -54,7 +51,6 @@
         <noo-color-input
           v-model="currentMaterial.titleColor"
           label="Цвет материала"
-          :readonly="isReadonly"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -65,7 +61,6 @@
         <noo-richtext-editor
           v-model="currentContent.content"
           label="Текст материала"
-          :readonly="isReadonly"
         />
       </noo-grid-layout-item>
     </noo-grid-layout>
@@ -74,7 +69,6 @@
 
     <work-assignments-form
       v-model:work-assignments="currentContent.workAssignments"
-      :readonly="isReadonly"
     />
 
     <noo-title :size="3"> Припрепленные видоеуроки НОО.Tube </noo-title>
@@ -90,7 +84,6 @@
     <noo-poll-select
       v-model="currentContent.poll"
       label="Выберите опрос"
-      :readonly="isReadonly"
     />
   </template>
   <noo-text-block v-else>
@@ -100,14 +93,13 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useCourseEditStore } from '../stores/course-edit.store'
-import WorkAssignmentsForm from './course-edit/work-assignments-form.vue'
+import { useCourseEditStore } from '../../stores/course-edit.store'
+import WorkAssignmentsForm from './work-assignments-form.vue'
 
 const courseEditStore = useCourseEditStore()
 
 const currentContent = computed(() => courseEditStore.currentMaterialContent)
 const currentMaterial = computed(() => courseEditStore.currentMaterial)
-const isReadonly = computed(() => courseEditStore.mode === 'view')
 
 // make publishAt null if material is active
 watch(

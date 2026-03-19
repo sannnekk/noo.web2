@@ -61,8 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import courseEditSidebar from '../components/course-edit-sidebar.vue'
-import materialContentEditForm from '../components/material-content-edit-form.vue'
+import courseEditSidebar from '../components/course-edit/course-edit-sidebar.vue'
+import materialContentEditForm from '../components/course-edit/material-content-edit-form.vue'
 import { useCourseEditStore } from '../stores/course-edit.store'
 
 export interface EditCoursePageProps {

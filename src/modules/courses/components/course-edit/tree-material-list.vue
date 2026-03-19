@@ -19,7 +19,8 @@
             'tree-material-list__item--active':
               material.publishAt === null && material.isActive,
             'tree-material-list__item--selected':
-              material._key === courseEditStore.currentMaterialContentKey
+              material._key === courseEditStore.currentMaterialContentKey ||
+              props.highlightedKey === material._key
           }"
           @click="selectMaterial(material._key)"
         >
@@ -79,10 +80,12 @@ import type { PossiblyUnsavedMaterial } from '../../types'
 interface Props {
   editable?: boolean
   level: number
+  highlightedKey?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  editable: false
+  editable: false,
+  highlightedKey: null
 })
 
 const materialsModel = defineModel<PossiblyUnsavedMaterial[]>('materials', {

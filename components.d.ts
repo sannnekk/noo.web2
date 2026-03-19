@@ -24,6 +24,7 @@ declare module 'vue' {
     CheckGreenIcon: typeof import('./src/components/icons/noo-icons/check-green-icon.vue')['default']
     CheckRedIcon: typeof import('./src/components/icons/noo-icons/check-red-icon.vue')['default']
     CleanIcon: typeof import('./src/components/icons/text-format-icons/clean-icon.vue')['default']
+    ClockIcon: typeof import('./src/components/icons/noo-icons/clock-icon.vue')['default']
     CloseIcon: typeof import('./src/components/icons/noo-icons/close-icon.vue')['default']
     CopyIcon: typeof import('./src/components/icons/noo-icons/copy-icon.vue')['default']
     CrossRedIcon: typeof import('./src/components/icons/noo-icons/cross-red-icon.vue')['default']

@@ -15,7 +15,7 @@ import { workTypes } from '@/modules/works/constants'
 import { computed } from 'vue'
 
 interface Props {
-  type: WorkType
+  type?: WorkType
 }
 
 const props = defineProps<Props>()

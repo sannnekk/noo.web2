@@ -74,10 +74,30 @@
       </div>
     </div>
     <div class="course-sidebar__chapter-tree">
+      <div class="course-sidebar__search">
+        <noo-search-input
+          v-model="chapterFilter.search.value"
+          @keydown="chapterFilter.onSearchKeydown"
+        />
+      </div>
       <noo-scrollable-block max-height="60vh">
+        <noo-text-block
+          v-if="
+            chapterFilter.isFiltering.value &&
+            chapterFilter.filteredChapters.value.length === 0
+          "
+          dimmed
+          size="small"
+          no-margin
+        >
+          Ничего не найдено
+        </noo-text-block>
         <course-chapter-tree
-          :chapters="course.chapters ?? []"
+          v-else
+          :chapters="chapterFilter.filteredChapters.value"
           :initially-selected-material-id="openedMaterialId"
+          :all-opened="chapterFilter.isFiltering.value"
+          :highlighted-key="chapterFilter.highlightedKey.value"
         />
       </noo-scrollable-block>
     </div>
@@ -99,6 +119,8 @@
 <script setup lang="ts">
 import { usePageUrl } from '@/core/composables/usePageUrl'
 import { computed, shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCourseChapterFilter } from '../composables/useCourseChapterFilter'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 import MaterialSearchModal from './material-search-modal.vue'
@@ -110,10 +132,23 @@ interface Props {
 
 defineProps<Props>()
 
+const router = useRouter()
 const courseDetailStore = useCourseDetailStore()
 const { can } = useCoursePermissions()
 
 const course = computed(() => courseDetailStore.course.data)
+
+const chapterFilter = useCourseChapterFilter({
+  chapters: () => course.value?.chapters,
+  onSelect: (item) => {
+    if (item.type === 'material') {
+      router.push({
+        name: 'courses.detail.material',
+        params: { materialId: item.key }
+      })
+    }
+  }
+})
 
 const { currentPageUrl } = usePageUrl()
 
@@ -134,4 +169,7 @@ const materialSearchModalOpened = shallowRef<boolean>(false)
       display: flex
       flex-direction: column
       gap: 0.1em
+
+  &__search
+    margin-bottom: 1em
 </style>

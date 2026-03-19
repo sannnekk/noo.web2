@@ -17,6 +17,18 @@
         :value="courseDetailStore.materialContent.data.content"
       />
     </div>
+    <div
+      v-if="courseDetailStore.materialContent.data.workAssignments?.length"
+      class="course-material-content-view__work-assignments"
+    >
+      <noo-title :size="3">Прикрепленные работы:</noo-title>
+      <work-assignment
+        v-for="assignment in courseDetailStore.materialContent.data
+          .workAssignments"
+        :key="assignment.id"
+        :work-assignment="assignment"
+      />
+    </div>
   </div>
   <div
     v-else-if="courseDetailStore.materialContent.isLoading"
@@ -42,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import WorkAssignment from '../components/work-assignment.vue'
 import { debounce } from 'lodash'
 import { watch } from 'vue'
 import { useCourseDetailStore } from '../stores/course-detail.store'
@@ -76,4 +89,10 @@ watch(
 
     &__icon
       font-size: 4em
+
+  &__work-assignments
+    margin-top: 2em
+    display: flex
+    flex-direction: column
+    gap: 0.25em
 </style>

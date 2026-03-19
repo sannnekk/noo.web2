@@ -3,6 +3,7 @@
     class="noo-search-input"
     @mouseenter="isOnHover = true"
     @mouseleave="isOnHover = false"
+    @keydown="$emit('keydown', $event)"
   >
     <noo-text-input
       v-model="model"
@@ -28,7 +29,7 @@
       <template #after>
         <noo-icon
           v-show="model && model.length"
-          name="cross-red"
+          name="close"
           class="noo-search-input__erase-button"
           @click="model = ''"
         />
@@ -44,7 +45,12 @@ interface Props {
   isLoading?: boolean
 }
 
+interface Emits {
+  keydown: [event: KeyboardEvent]
+}
+
 defineProps<Props>()
+defineEmits<Emits>()
 
 const model = defineModel<string | undefined>({
   default: ''
@@ -77,11 +83,11 @@ const isOnHover = ref(false)
     top: 50%
     right: 0.25em
     transform: translateY(-50%)
-    font-size: 2em
+    font-size: 1.7em
     cursor: pointer
     color: var(--text-light)
     transition: transform 0.2s ease-in-out
 
     &:hover
-      transform: translateY(-50%) rotate(90deg)
+      --form-text-color: var(--danger)
 </style>
