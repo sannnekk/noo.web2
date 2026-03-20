@@ -3,6 +3,15 @@
     v-if="course"
     class="course-sidebar"
   >
+    <div class="course-sidebar__back-button">
+      <noo-back-button
+        :route="{
+          name: 'courses.list'
+        }"
+      >
+        Назад к списку курсов
+      </noo-back-button>
+    </div>
     <div class="course-sidebar__subject">
       <noo-subject-block :subject="course.subject ?? null" />
     </div>

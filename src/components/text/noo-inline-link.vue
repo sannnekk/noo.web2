@@ -3,7 +3,7 @@
     v-if="to && !isNewTab"
     :to="to"
     class="noo-inline-link"
-    :class="`noo-inline-link--${size}`"
+    :class="`noo-inline-link--${size} ${dimmed ? 'noo-inline-link--dimmed' : ''}`"
   >
     <slot />
   </router-link>
@@ -13,7 +13,7 @@
     :target="isNewTab ? '_blank' : undefined"
     :rel="isNewTab ? 'noopener noreferrer' : undefined"
     class="noo-inline-link"
-    :class="`noo-inline-link--${size}`"
+    :class="`noo-inline-link--${size} ${dimmed ? 'noo-inline-link--dimmed' : ''}`"
   >
     <slot />
   </a>
@@ -29,6 +29,7 @@ interface Props {
   href?: string
   newTab?: boolean
   size?: 'small' | 'medium' | 'large'
+  dimmed?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), { size: 'medium' })
@@ -55,13 +56,19 @@ const computedHref = computed(() => {
   display: inline-block
   text-decoration: none
   color: var(--lila)
-  font-weight: 500
   font-size: 1em
   line-height: 1.5em
 
   &:hover
     text-decoration: underline
     cursor: pointer
+
+  &--dimmed
+    color: var(--text-light)
+
+    &:hover
+      color: var(--secondary)
+      text-decoration: none
 
   &--small
     font-size: 0.8em

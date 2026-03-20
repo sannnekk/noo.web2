@@ -18,7 +18,7 @@
         <span class="noo-profile-widget__credentials__actions__username">
           {{ authStore.userInfo?.username }}
         </span>
-        <div class="noo-profile-widget__credentials__actions__separator" />
+        <noo-dot-separator />
         <noo-logout-button
           class="noo-profile-widget__credentials__actions__logout-button"
         />
@@ -77,12 +77,6 @@ const authStore = useAuthStore()
         white-space: nowrap
         text-overflow: ellipsis
         overflow: hidden
-
-      &__separator
-        width: 3px
-        height: 3px
-        border-radius: 50%
-        background-color: var(--text-light)
 
       &__logout-button
         padding: 0

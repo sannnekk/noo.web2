@@ -3,6 +3,31 @@
     v-if="editCourseStore.course"
     class="course-edit-sidebar"
   >
+    <div class="course-edit-sidebar__top-actions">
+      <div class="course-edit-sidebar__top-actions__back-button">
+        <noo-back-button
+          :route="{
+            name: 'courses.list'
+          }"
+        >
+          Назад к списку курсов
+        </noo-back-button>
+      </div>
+      <noo-dot-separator />
+      <div class="course-edit-sidebar__top-actions__to-view-button">
+        <noo-inline-link
+          :to="{
+            name: 'courses.detail',
+            params: { courseId: editCourseStore.course.id }
+          }"
+          new-tab
+          dimmed
+          size="small"
+        >
+          Просмотреть курс
+        </noo-inline-link>
+      </div>
+    </div>
     <noo-title :size="3">
       {{ editCourseStore.course.name }}
     </noo-title>
@@ -123,6 +148,16 @@ const canSave = computed(
 
 <style scoped lang="sass">
 .course-edit-sidebar
+  &__top-actions
+    display: flex
+    flex-direction: row
+    gap: 0.7em
+    align-items: center
+
+    &__back-button > *
+      margin-bottom: 0 !important
+
+
   &__general
     padding: 1em 0
 

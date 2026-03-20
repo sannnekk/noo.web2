@@ -4,6 +4,15 @@
     v-else-if="workDetailStore.work"
     class="work-sidebar"
   >
+    <div class="work-sidebar__back-button">
+      <noo-back-button
+        :route="{
+          name: 'works.list'
+        }"
+      >
+        Назад к списку работ
+      </noo-back-button>
+    </div>
     <div class="work-sidebar__subject">
       <noo-subject-block
         v-if="workDetailStore.mode === 'view'"

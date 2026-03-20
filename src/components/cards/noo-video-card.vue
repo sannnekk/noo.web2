@@ -1,10 +1,7 @@
 <template>
   <router-link
     class="noo-video-card"
-    :to="{
-      name: 'nootube.video',
-      params: { videoId: video.id }
-    }"
+    to=""
   >
     <div class="noo-video-card__inner">
       <div class="noo-video-card__inner__thumbnail">

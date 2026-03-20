@@ -57,6 +57,9 @@
             name: 'courses.detail.material',
             params: { materialId: material.id }
           }"
+          :style="{
+            color: material.titleColor || 'inherit'
+          }"
         >
           {{ material.title }}
         </router-link>
@@ -113,7 +116,7 @@ if (props.initiallySelectedMaterialId) {
 
   &__materials
     list-style: none
-    padding-left: 2em
+    padding-left: 1.7em
     font-size: 0.9em
 
     a
@@ -130,7 +133,7 @@ if (props.initiallySelectedMaterialId) {
       border-radius: var(--border-radius)
 
       a
-        color: var(--secondary)
+        color: var(--secondary) !important
 
     &__list-opener
       font-size: 0.8em
@@ -145,7 +148,7 @@ if (props.initiallySelectedMaterialId) {
       font-size: 0.9em
 
       &:hover
-        color: var(--secondary)
+        color: var(--secondary) !important
 
     &__content
       padding-left: 1em
