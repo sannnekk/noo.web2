@@ -46,6 +46,34 @@ const module: ApplicationModule = {
             tabTitle: 'НОО.Платформа - восстановление пароля'
           },
           component: () => import('./views/auth-forgot-password-view.vue')
+        },
+        {
+          name: 'auth.verify-email',
+          path: 'verify-email',
+          meta: {
+            pageTitle: 'НОО.Платформа - подтверждение email',
+            tabTitle: 'Подтверждение email'
+          },
+          props: (route) => {
+            return {
+              token: route.query.token as string
+            }
+          },
+          component: () => import('./views/auth-verify-email-view.vue')
+        },
+        {
+          name: 'auth.reset-password',
+          path: 'reset-password',
+          meta: {
+            pageTitle: 'НОО.Платформа - сброс пароля',
+            tabTitle: 'Сброс пароля'
+          },
+          props: (route) => {
+            return {
+              token: route.query.token as string
+            }
+          },
+          component: () => import('./views/auth-reset-password-view.vue')
         }
       ]
     }

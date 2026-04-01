@@ -85,7 +85,7 @@ describe('AuthService', () => {
 
       const result = await AuthService.verifyEmail(token)
 
-      expect(spy).toHaveBeenCalledWith('/auth/confirm-email-change', { token })
+      expect(spy).toHaveBeenCalledWith('/auth/confirm-email', { token })
       expect(result).toEqual(mockSuccessResponse)
     })
   })

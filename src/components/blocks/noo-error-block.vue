@@ -58,7 +58,7 @@ defineProps<Props>()
   flex-direction: column
   padding: 1em
   border-radius: var(--border-radius)
-  background-color: var(--lightest)
+  //background-color: var(--lightest)
   color: var(--danger)
   width: min(100%, 600px)
 

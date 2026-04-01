@@ -37,7 +37,7 @@ async function resetPassword(
 }
 
 async function verifyEmail(token: string): Promise<ApiResponse> {
-  return await Api.patch('/auth/confirm-email-change', { token })
+  return await Api.patch('/auth/confirm-email', { token })
 }
 
 async function register(payload: RegisterPayload): Promise<ApiResponse> {
