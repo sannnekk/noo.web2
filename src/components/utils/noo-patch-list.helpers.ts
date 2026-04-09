@@ -1,246 +1,259 @@
-import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
-import { deepCopy } from '@/core/utils/object.utils'
-import { isRichtext } from '@/core/utils/richtext.utils'
-import { applyPatch } from 'fast-json-patch'
-import type { Change, PathLabelMap } from './noo-patch-list.types'
+import jsonpatch from 'fast-json-patch'
+import {
+  normalizeJsonPatchTarget,
+  type JsonPatchDocument
+} from '@/core/utils/jsonpatch.utils'
+import { getLabel, type LabelMap } from './noo-patch-list.types'
 
-function decodeJsonPointerSegment(segment: string): string {
-  return segment.replace(/~1/g, '/').replace(/~0/g, '~')
-}
+type PatchOperation<T extends object> = JsonPatchDocument<T>[number]
 
-function isArrayIndex(segment: string): boolean {
-  return segment === '-' || /^\d+$/.test(segment)
-}
-
-function getPathLabel<T extends object>(
-  path: string,
-  map: PathLabelMap<T>
-): string | undefined {
-  const segments = decodeJsonPointerSegment(path)
-
-  if (!segments.length) {
-    const rootLabel = getNodeLabel(map)
-
-    if (rootLabel) {
-      return rootLabel
-    }
-
-    return '/'
-  }
-
-  const labels: string[] = []
-  let node: PathLabelMap<unknown> | undefined = map
-
-  for (const segment of segments.split('/').slice(1)) {
-    if (!node) {
-      continue
-    }
-
-    if (typeof node === 'string') {
-      labels.push(node)
-      node = undefined
-      continue
-    }
-
-    const recordNode = node as {
-      label?: string
-      [key: string]: PathLabelMap<unknown> | undefined
-    }
-    const nextNode = recordNode[segment] ?? recordNode['*']
-
-    if (!nextNode) {
-      node = undefined
-      continue
-    }
-
-    const nextLabel = getNodeLabel(nextNode)
-
-    if (nextLabel) {
-      labels.push(nextLabel)
-    }
-    node = nextNode
-  }
-
-  return labels.join(' → ')
-}
-
-function getNodeLabel(
-  node: PathLabelMap<unknown> | undefined
-): string | undefined {
-  if (!node) {
-    return undefined
-  }
-
-  if (typeof node === 'string') {
-    return node
-  }
-
-  const recordNode = node
-
-  return typeof recordNode.label === 'string' ? recordNode.label : undefined
-}
-
-function getChanges<T extends object>(
-  original: T,
-  patch: JsonPatchDocument<T>,
-  pathLabels: PathLabelMap<T>
-): Change<T>[] {
-  const changes: Record<string, Change<T>> = {}
-
-  for (const operation of patch) {
-    if (!operation?.path || !operation.op) {
-      continue
-    }
-
-    const [keyPath, richtextPath] = splitRichtextPathSegment(operation.path)
-    const label = getPathLabel(keyPath, pathLabels)
-
-    if (!label) {
-      continue
-    }
-
-    const { value, type } = getValue<T>(original, operation.path)
-
-    const newOperation = {
-      op: operation.op,
-      path: richtextPath ? richtextPath : operation.path,
-      // @ts-expect-error value can be missing for remove operations
-      value: operation.value
-    } as JsonPatchDocument<T>[number]
-
-    const change: Change<T> = {
-      label,
-      operations: [newOperation],
-      pathKey: decodeJsonPointerSegment(keyPath).replaceAll('/', '-'),
-      type,
-      prevValue: value,
-      nowValue: undefined
-    }
-
-    if (changes[keyPath]) {
-      changes[keyPath].operations.push(newOperation)
-    } else {
-      changes[keyPath] = change
-    }
-  }
-
-  const updatedObj = applyPatch(
-    deepCopy(original),
-    patch,
-    /* validateOperation */ false,
-    /* mutateDocument */ false
-  ).newDocument
-
-  // use operations to set nowValue
-  return Object.values(changes)
-    .filter((change): change is Change<T> => Boolean(change))
-    .map((change) => {
-      if (change.operations.length === 0) {
-        return change
-      }
-
-      if (change.type === 'richtext') {
-        change.nowValue = applyPatch(
-          deepCopy(change.prevValue as T),
-          change.operations,
-          /* validateOperation */ false,
-          /* mutateDocument */ false
-        ).newDocument
-
-        return change
-      }
-
-      change.nowValue = getValue<T>(updatedObj, change.operations[0].path).value
-
-      return change
-    })
-}
-
-function getValue<T extends object>(
-  original: T,
+interface PatchListChange<T extends object> {
+  key: string
+  op: PatchOperation<T>['op']
   path: string
-): { value: unknown; type: Change<T>['type'] } {
-  if (!path || path === '/') {
+  pathKey: string
+  label: string
+  prevValue: unknown
+  nowValue: unknown
+  prevDisplayValue: string
+  nowDisplayValue: string
+}
+
+function createPatchListChanges<T extends object>(
+  patch: JsonPatchDocument<T>,
+  original: T,
+  pathLabels: LabelMap<T>
+): PatchListChange<T>[] {
+  const labelPaths = Object.keys(pathLabels)
+
+  let currentState = normalizeJsonPatchTarget(original) as Record<
+    string,
+    unknown
+  >
+
+  return patch.map((operation, index) => {
+    const previousState = currentState
+    const prevValue = getValueByPointer(previousState, operation.path)
+    const operationResult = jsonpatch.applyOperation(
+      previousState,
+      operation,
+      false,
+      false
+    )
+
+    currentState = operationResult.newDocument as Record<string, unknown>
+
+    const nowValue = getValueByPointer(currentState, operation.path)
+    const labelPath = resolveLabelPath(operation.path, labelPaths)
+    const labelValuePath = toConcretePathFromLabel(operation.path, labelPath)
+    const entityPath = getEntityPath(operation.path, labelPath)
+    const prevLabelValue = getValueByPointer(previousState, labelValuePath)
+    const nowLabelValue = getValueByPointer(currentState, labelValuePath)
+    const prevEntity = getValueByPointer(previousState, entityPath)
+    const nowEntity = getValueByPointer(currentState, entityPath)
+    const valueForLabel =
+      operation.op === 'remove'
+        ? (prevLabelValue ?? nowLabelValue)
+        : (nowLabelValue ?? prevLabelValue)
+    const entityForLabel =
+      operation.op === 'remove'
+        ? (prevEntity ?? nowEntity ?? previousState)
+        : (nowEntity ?? prevEntity ?? currentState)
+    const rootForLabel = (
+      operation.op === 'remove' ? previousState : currentState
+    ) as T
+    const label = getLabel(
+      pathLabels,
+      labelPath,
+      valueForLabel,
+      entityForLabel,
+      rootForLabel,
+      operation.path
+    )
+    const shouldUseLabelValue = labelPath !== operation.path
+    const prevOutputValue = shouldUseLabelValue ? prevLabelValue : prevValue
+    const nowOutputValue = shouldUseLabelValue ? nowLabelValue : nowValue
+
     return {
-      value: original,
-      type: original instanceof Date ? 'date' : 'regular'
+      key: `${index}-${operation.op}-${operation.path}`,
+      op: operation.op,
+      path: operation.path,
+      pathKey: toSlotPathKey(labelPath),
+      label,
+      prevValue: prevOutputValue,
+      nowValue: nowOutputValue,
+      prevDisplayValue: formatPatchValue(prevOutputValue),
+      nowDisplayValue: formatPatchValue(nowOutputValue)
+    }
+  })
+}
+
+function resolveLabelPath(path: string, labelPaths: string[]): string {
+  const directMatch = findBestPathMatch(path, labelPaths)
+
+  if (directMatch) {
+    return directMatch
+  }
+
+  const pathSegments = splitPointer(path)
+
+  for (let index = pathSegments.length - 1; index > 0; index -= 1) {
+    const parentPath = `/${pathSegments.slice(0, index).join('/')}`
+    const parentMatch = findBestPathMatch(parentPath, labelPaths)
+
+    if (parentMatch) {
+      return parentMatch
     }
   }
 
-  const segments = path
-    .split('/')
-    .slice(path.startsWith('/') ? 1 : 0)
-    .map(decodeJsonPointerSegment)
+  return path
+}
 
-  let current: unknown = original
+function findBestPathMatch(path: string, labelPaths: string[]): string | null {
+  const matches = labelPaths.filter((labelPath) => isPathMatch(path, labelPath))
+
+  if (matches.length === 0) {
+    return null
+  }
+
+  return (
+    matches.sort(
+      (leftPath, rightPath) =>
+        countWildcardSegments(leftPath) - countWildcardSegments(rightPath)
+    )[0] ?? null
+  )
+}
+
+function isPathMatch(path: string, labelPath: string): boolean {
+  const pathSegments = splitPointer(path)
+  const labelSegments = splitPointer(labelPath)
+
+  if (pathSegments.length !== labelSegments.length) {
+    return false
+  }
+
+  return labelSegments.every(
+    (labelSegment, index) =>
+      labelSegment === '*' || labelSegment === pathSegments[index]
+  )
+}
+
+function countWildcardSegments(path: string): number {
+  return splitPointer(path).filter((segment) => segment === '*').length
+}
+
+function splitPointer(path: string): string[] {
+  if (!path || path === '/') {
+    return []
+  }
+
+  return path.split('/').slice(1)
+}
+
+function toConcretePathFromLabel(path: string, labelPath: string): string {
+  const pathSegments = splitPointer(path)
+  const labelSegments = splitPointer(labelPath)
+
+  if (labelSegments.length === 0) {
+    return ''
+  }
+
+  const concreteSegments = mapLabelSegmentsToPathSegments(
+    labelSegments,
+    pathSegments
+  )
+
+  return `/${concreteSegments.join('/')}`
+}
+
+function getEntityPath(path: string, labelPath: string): string {
+  const pathSegments = splitPointer(path)
+  const labelSegments = splitPointer(labelPath)
+  const wildcardIndex = labelSegments.indexOf('*')
+
+  if (wildcardIndex === -1) {
+    return ''
+  }
+
+  const entitySegments = mapLabelSegmentsToPathSegments(
+    labelSegments.slice(0, wildcardIndex + 1),
+    pathSegments
+  )
+
+  return `/${entitySegments.join('/')}`
+}
+
+function mapLabelSegmentsToPathSegments(
+  labelSegments: string[],
+  pathSegments: string[]
+): string[] {
+  return labelSegments.map((labelSegment, index) =>
+    labelSegment === '*' ? (pathSegments[index] ?? labelSegment) : labelSegment
+  )
+}
+
+function decodePointerSegment(segment: string): string {
+  return segment.replaceAll('~1', '/').replaceAll('~0', '~')
+}
+
+function getValueByPointer(target: unknown, path: string): unknown {
+  if (!path) {
+    return target
+  }
+
+  const segments = splitPointer(path).map(decodePointerSegment)
+  let current: unknown = target
 
   for (const segment of segments) {
-    if (current === undefined || current === null) {
-      return { value: undefined, type: 'regular' }
-    }
-
-    // if we find richtext, we do not go deeper
-    if (isRichtext(current)) {
-      return { value: current, type: 'richtext' }
+    if (current === null || current === undefined) {
+      return undefined
     }
 
     if (Array.isArray(current)) {
-      if (segment === '-') {
-        return { value: undefined, type: 'regular' }
+      const index = Number(segment)
+
+      if (!Number.isInteger(index)) {
+        return undefined
       }
 
-      if (isArrayIndex(segment)) {
-        current = current[Number(segment)]
-        continue
-      }
-
-      const match = current.find((item) => {
-        if (!item || typeof item !== 'object') {
-          return false
-        }
-
-        const entity = item as { id?: string | number; _key?: string | number }
-
-        return String(entity.id ?? entity._key ?? '') === segment
-      })
-
-      current = match
-      continue
-    }
-
-    if (typeof current === 'object') {
-      try {
-        current = (current as Record<string, unknown>)[segment]
-      } catch {
-        return { value: undefined, type: 'regular' }
-      }
+      current = current[index]
 
       continue
     }
 
-    return { value: undefined, type: 'regular' }
+    if (typeof current !== 'object') {
+      return undefined
+    }
+
+    current = (current as Record<string, unknown>)[segment]
   }
 
-  return { value: current, type: current instanceof Date ? 'date' : 'regular' }
+  return current
 }
 
-/**
- * Return the path split into richtext path segment and the rest
- *
- * @important strongly dependend on Richtext implementation details
- */
-function splitRichtextPathSegment(path: string): [string, string] {
-  const segments = path.split('/')
-  const index = segments.indexOf('ops')
+function toSlotPathKey(path: string): string {
+  return path.replaceAll('/', '-').replaceAll('*', 'any')
+}
 
-  if (index === -1) {
-    return [path, '']
+function formatPatchValue(value: unknown): string {
+  if (value === undefined) {
+    return '—'
   }
 
-  const before = segments.slice(0, index + 1).join('/')
-  const after = '/' + segments.slice(index).join('/')
+  if (value === null) {
+    return 'null'
+  }
 
-  return [before, after]
+  if (typeof value === 'string') {
+    return value.length > 0 ? value : '""'
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 2)
+  }
+
+  return String(value)
 }
 
-export { getChanges }
+export type { PatchListChange }
+export { createPatchListChanges }

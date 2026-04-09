@@ -31,7 +31,7 @@
       <noo-button
         v-if="tryAgain"
         variant="secondary"
-        @click="tryAgain()"
+        @click="tryAgain"
       >
         Попробовать еще раз
       </noo-button>

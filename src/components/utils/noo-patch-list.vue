@@ -1,8 +1,8 @@
 <template>
   <div class="noo-patch-list">
     <div
-      v-for="(change, index) in changes"
-      :key="index"
+      v-for="change in changes"
+      :key="change.key"
       class="noo-patch-list__item"
     >
       <div class="noo-patch-list__item__title">
@@ -15,8 +15,11 @@
           <slot
             :name="`path-${change.pathKey}`"
             :value="change.prevValue"
+            :path="change.path"
+            :op="change.op"
+            side="prev"
           >
-            {{ change.prevValue }}
+            {{ change.prevDisplayValue }}
           </slot>
         </div>
         <div class="noo-patch-list__item__content__arrow">→</div>
@@ -24,8 +27,11 @@
           <slot
             :name="`path-${change.pathKey}`"
             :value="change.nowValue"
+            :path="change.path"
+            :op="change.op"
+            side="now"
           >
-            {{ change.nowValue }}
+            {{ change.nowDisplayValue }}
           </slot>
         </div>
       </div>
@@ -34,21 +40,24 @@
 </template>
 
 <script setup lang="ts" generic="T extends object">
-import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import { computed } from 'vue'
-import { getChanges } from './noo-patch-list.helpers'
-import type { PathLabelMap } from './noo-patch-list.types'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
+import {
+  createPatchListChanges,
+  type PatchListChange
+} from './noo-patch-list.helpers'
+import type { LabelMap } from './noo-patch-list.types'
 
 interface Props {
   patch: JsonPatchDocument<T>
   original: T
-  pathLabels: PathLabelMap<T>
+  pathLabels: LabelMap<T>
 }
 
 const props = defineProps<Props>()
 
-const changes = computed(() =>
-  getChanges<T>(props.original, props.patch, props.pathLabels)
+const changes = computed<PatchListChange<T>[]>(() =>
+  createPatchListChanges(props.patch, props.original, props.pathLabels)
 )
 </script>
 

@@ -1,10 +1,10 @@
-import type { PathLabelMap } from '@/components/utils/noo-patch-list.types'
+import type { LabelMap } from '@/components/utils/noo-patch-list.types'
 import type {
-  WorkEntity,
   WorkTaskCheckStrategy,
   WorkTaskType,
   WorkType
 } from './api/work.types'
+import type { PossiblyUnsavedWork } from './types'
 
 const workTypes: { label: string; value: WorkType }[] = [
   { label: 'Тест', value: 'test' },
@@ -44,26 +44,27 @@ const taskCheckStrategies: {
   { value: 'sequence', label: 'Последовательность' }
 ]
 
-const workPathLabels: PathLabelMap<WorkEntity> = {
-  title: 'Название',
-  type: 'Тип работы',
-  description: 'Описание',
-  subjectId: 'Предмет',
-  tasks: {
-    '*': {
-      label: 'Задание',
-      type: 'Тип задания',
-      order: 'Порядок',
-      maxScore: 'Максимальный балл',
-      content: 'Текст задания',
-      rightAnswers: 'Правильные ответы',
-      solveHint: 'Подсказка',
-      explanation: 'Пояснение',
-      checkStrategy: 'Способ проверки',
-      showAnswerBeforeCheck: 'Показывать ответ до сдачи',
-      checkOneByOne: 'Проверка по одному'
-    }
-  }
+const workPathLabels: LabelMap<PossiblyUnsavedWork> = {
+  '/title': 'Название',
+  '/type': 'Тип',
+  '/description': 'Описание',
+  '/subjectId': 'Предмет',
+  '/tasks': 'Задания',
+  '/tasks/*': (ctx) => `Задание №${ctx.value.order}`,
+  '/tasks/*/type': (ctx) => `Тип задания №${ctx.entity.order}`,
+  '/tasks/*/order': (ctx) => `Порядок задания №${ctx.entity.order}`,
+  '/tasks/*/maxScore': (ctx) => `Макс. балл задания №${ctx.entity.order}`,
+  '/tasks/*/content': (ctx) => `Текст задания №${ctx.entity.order}`,
+  '/tasks/*/rightAnswers': (ctx) =>
+    `Правильные ответы задания №${ctx.entity.order}`,
+  '/tasks/*/solveHint': (ctx) => `Подсказка к заданию №${ctx.entity.order}`,
+  '/tasks/*/explanation': (ctx) => `Пояснение к заданию №${ctx.entity.order}`,
+  '/tasks/*/checkStrategy': (ctx) =>
+    `Способ проверки задания №${ctx.entity.order}`,
+  '/tasks/*/showAnswerBeforeCheck': (ctx) =>
+    `Показывать ответ до сдачи работы в задании №${ctx.entity.order}`,
+  '/tasks/*/checkOneByOne': (ctx) =>
+    `Проверка по одному в задании №${ctx.entity.order}`
 }
 
 export { taskCheckStrategies, taskTypes, workPathLabels, workTypes }

@@ -38,10 +38,10 @@
             </noo-text-block>
           </template>
           <template #visible>
-            <!--<work-patch-list
+            <work-patch-list
               :patch="workDetailStore.workPatchGenerator!.generate()"
               :original="workDetailStore.workPatchGenerator!.getOriginal()"
-            />-->
+            />
           </template>
         </noo-collapsable-block>
         <noo-error-block
@@ -88,7 +88,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useWorkDetailStore } from '../stores/work-detail.store'
-//import workPatchList from './work-patch-list.vue'
+import WorkPatchList from './work-patch-list.vue'
 
 const isOpenModel = defineModel<boolean>('isOpen', {
   default: false

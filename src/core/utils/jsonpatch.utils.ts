@@ -133,4 +133,6 @@ function isEntityArray<TName extends string>(
 
 export const JsonPatchUtils = { observe }
 
+export { normalizeJsonPatchTarget }
+
 export type { JsonPatchDocument, PatchGenerator }
