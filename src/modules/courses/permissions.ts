@@ -14,7 +14,8 @@ const CoursePermissions = {
   createCourse: 'createCourse',
   manageCourse: 'manageCourse',
   viewCourseShop: 'viewCourseShop',
-  useStudentOwnershipFilter: 'useStudentOwnershipFilter'
+  useStudentOwnershipFilter: 'useStudentOwnershipFilter',
+  solveWork: 'solveWork'
 } as const
 
 type CoursePermission =
@@ -42,7 +43,8 @@ const coursePermissionMap: RolePermissionsMap<CoursePermission> = {
   [CoursePermissions.createCourse]: ['admin', 'teacher'],
   [CoursePermissions.manageCourse]: ['admin', 'teacher'],
   [CoursePermissions.viewCourseShop]: ['student'],
-  [CoursePermissions.useStudentOwnershipFilter]: ['student']
+  [CoursePermissions.useStudentOwnershipFilter]: ['student'],
+  [CoursePermissions.solveWork]: ['student']
 }
 
 const coursePermissionPolicy =

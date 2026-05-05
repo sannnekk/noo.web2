@@ -103,7 +103,7 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
         id,
         title,
         type: 'error',
-        text: error?.name ?? 'Неизвестная ошибка'
+        text: error?.description ?? 'Неизвестная ошибка'
       },
       ...toasts.value
     ]

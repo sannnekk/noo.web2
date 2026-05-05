@@ -6,7 +6,7 @@ const routerOptions: RouterOptions = {
     {
       name: 'root',
       path: '/',
-      redirect: { name: 'assigned-works.list' },
+      redirect: { name: 'courses.list' },
       meta: {
         pageTitle: 'Главная',
         tabTitle: 'НОО.Платформа'

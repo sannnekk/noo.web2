@@ -13,12 +13,4 @@
 
 <script setup lang="ts">
 import settingsMenu from '../components/settings-menu.vue'
-
-export interface SettingsPageProps {
-  tabId?: string
-}
-
-defineProps<SettingsPageProps>()
 </script>
-
-<style scoped lang="sass"></style>

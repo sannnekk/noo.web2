@@ -18,6 +18,7 @@
       <noo-button
         v-if="can(CoursePermissions.viewCourseShop)"
         :to="AppConstants.courseShopLink"
+        new-tab
       >
         Наш магазин курсов
       </noo-button>

@@ -25,7 +25,6 @@ defineProps<Props>()
   display: flex
   align-items: center
   padding: 0.2em 0
-  background-color: var(--lightest)
   color: var(--warning)
 
   &--small

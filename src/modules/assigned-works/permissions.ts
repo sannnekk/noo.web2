@@ -18,13 +18,7 @@ type AssignedWorksPermission =
 
 const assignedWorksPermissionMap: RolePermissionsMap<AssignedWorksPermission> =
   {
-    [AssignedWorksPermissions.viewListPage]: [
-      'admin',
-      'teacher',
-      'assistant',
-      'mentor',
-      'student'
-    ],
+    [AssignedWorksPermissions.viewListPage]: ['mentor', 'student'],
     [AssignedWorksPermissions.viewDetailPage]: [
       'admin',
       'teacher',

@@ -5,12 +5,12 @@ import {
 } from './permissions'
 
 describe('assigned works permissions', () => {
-  it('defines route access for all roles', () => {
+  it('defines list route access for student and mentor only, detail for all routes', () => {
     expect(
       assignedWorksPermissionPolicy.rolesFor(
         AssignedWorksPermissions.viewListPage
       )
-    ).toEqual(['admin', 'teacher', 'assistant', 'mentor', 'student'])
+    ).toEqual(['mentor', 'student'])
     expect(
       assignedWorksPermissionPolicy.rolesFor(
         AssignedWorksPermissions.viewDetailPage

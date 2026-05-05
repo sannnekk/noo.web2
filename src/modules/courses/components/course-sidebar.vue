@@ -50,13 +50,6 @@
         >
           Редактировать курс
         </noo-inline-link>
-        <noo-inline-link
-          v-if="can(CoursePermissions.manageCourse)"
-          class="course-sidebar__actions__action"
-          @click="materialSearchModalOpened = true"
-        >
-          Поиск материалов
-        </noo-inline-link>
       </noo-text-block>
     </div>
     <div

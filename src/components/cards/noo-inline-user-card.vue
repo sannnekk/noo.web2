@@ -17,9 +17,7 @@
       :class="{
         'noo-inline-user-block__name--dimmed': dimmed
       }"
-      :to="{
-        name: 'auth.login'
-      } /* TODO: { name: 'users.detail', params: { userId: user.id } } */"
+      :to="{ name: 'users.detail', params: { userId: user.id } }"
     >
       {{ user.name }}
     </noo-inline-link>

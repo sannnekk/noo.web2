@@ -3,20 +3,49 @@
     <noo-sidebar-layout>
       <template #sidebar>
         <div class="users-detail-page__sidebar">
-          <div class="users-detail-page__sidebar__avatar">
-            <noo-user-avatar name="Александр Иванов" />
-          </div>
-          <div class="users-detail-page__sidebar__info">
-            <noo-title :size="3"> Александр Иванов </noo-title>
+          <noo-back-button :route="{ name: 'users.list' }">
+            Назад к списку пользователей
+          </noo-back-button>
+          <template v-if="user">
+            <div class="users-detail-page__sidebar__avatar">
+              <noo-user-avatar :name="user.name" />
+            </div>
+            <div class="users-detail-page__sidebar__info">
+              <noo-title :size="3">
+                {{ user.name }}
+              </noo-title>
+              <noo-user-role-tag :role="user.role" />
+              <noo-text-block
+                size="small"
+                dimmed
+              >
+                {{ user.email }}
+                <br />
+                @{{ user.username }}
+              </noo-text-block>
+            </div>
+            <user-blocked-banner :user="user" />
+            <user-unverified-banner :user="user" />
+          </template>
+          <div
+            v-else-if="userDetailStore.user.isLoading"
+            class="users-detail-page__sidebar__loading"
+          >
+            <noo-loader-icon contrast />
             <noo-text-block
               size="small"
               dimmed
             >
-              teacher
-              <br />
-              example@outlook.com
+              Загрузка пользователя...
             </noo-text-block>
           </div>
+          <noo-error-block
+            v-else
+            centered
+            no-margin
+          >
+            Не удалось загрузить пользователя
+          </noo-error-block>
         </div>
       </template>
       <template #content>
@@ -48,8 +77,16 @@
           <template #tab-history>
             <history-view />
           </template>
-          <template #tab-title-danger-zone>Опасная зона</template>
-          <template #tab-danger-zone>
+          <template
+            v-if="canSeeDangerZone"
+            #tab-title-danger-zone
+          >
+            Опасная зона
+          </template>
+          <template
+            v-if="canSeeDangerZone"
+            #tab-danger-zone
+          >
             <danger-zone-view />
           </template>
         </noo-tabs-layout>
@@ -59,14 +96,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import UserBlockedBanner from '../components/user-blocked-banner.vue'
+import UserUnverifiedBanner from '../components/user-unverified-banner.vue'
+import { UsersPermissions, useUsersPermissions } from '../permissions'
+import { useUserDetailStore } from '../stores/user-detail.store'
 import type { UserDetailTab } from '../types'
 import assignedWorksView from '../views/assigned-works-view.vue'
 import calendarView from '../views/calendar-view.vue'
+import dangerZoneView from '../views/danger-zone-view.vue'
 import generalInfoView from '../views/general-info-view.vue'
 import historyView from '../views/history-view.vue'
 import pollsView from '../views/polls-view.vue'
 import statisticsView from '../views/statistics-view.vue'
-import dangerZoneView from '../views/danger-zone-view.vue'
 
 export interface UsersDetailPageProps {
   tabId: UserDetailTab
@@ -74,6 +116,13 @@ export interface UsersDetailPageProps {
 }
 
 defineProps<UsersDetailPageProps>()
+
+const userDetailStore = useUserDetailStore()
+const { can } = useUsersPermissions()
+
+const user = computed(() => userDetailStore.user.data)
+
+const canSeeDangerZone = can(UsersPermissions.viewDangerZone)
 </script>
 
 <style scoped lang="sass">
@@ -87,4 +136,17 @@ defineProps<UsersDetailPageProps>()
 
     &__avatar
       font-size: 250px
+
+    &__info
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.5em
+
+    &__loading
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.5em
+      font-size: 2em
 </style>

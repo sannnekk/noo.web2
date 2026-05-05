@@ -26,6 +26,7 @@
       </template>
       <template #column-name="{ item }">
         <noo-text-block class="users-list-page__name-cell">
+          {{ item.isBlocked ? '🚫 ' : '' }}
           {{ item.name }}
         </noo-text-block>
       </template>

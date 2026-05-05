@@ -1,10 +1,13 @@
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
+import { useUserDetailStore } from './stores/user-detail.store'
 
-function loadUserGuard(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function loadUserGuard(
   to: RouteLocationNormalized
-): NavigationGuardReturn {
-  // TODO: load a user
+): Promise<NavigationGuardReturn> {
+  const userId = String(to.params.userId)
+  const userDetailStore = useUserDetailStore()
+
+  userDetailStore.init(userId)
 
   return true
 }

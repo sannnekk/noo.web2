@@ -7,8 +7,8 @@
     :readonly="readonly"
     :errors="errors"
     :multiple="multiple"
-    :fetch="fetchStudents"
-    :resolve="resolveStudents"
+    :fetch="fetchUsers"
+    :resolve="resolveUsers"
     :to-label="toLabel"
   >
     <template #option="{ entity }">
@@ -21,9 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { isApiError } from '@/core/api/api.utils'
+import type { UserRole } from '@/core/api/endpoints/auth.types'
 import { EqualsFilter, Pagination } from '@/core/utils/pagination.utils'
+import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { UserService } from '@/modules/users/api/user.service'
 import type { UserEntity } from '@/modules/users/api/user.types'
 
@@ -34,6 +35,11 @@ interface Props {
   errors?: ValidationError[]
   multiple?: boolean
   pageSize?: number
+  /**
+   * Restricts the selectable users to a single role.
+   * Defaults to 'student' for backwards compatibility.
+   */
+  role?: UserRole
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -41,7 +47,8 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Начните вводить имя',
   readonly: false,
   multiple: false,
-  pageSize: 10
+  pageSize: 10,
+  role: 'student'
 })
 
 const model = defineModel<UserEntity | UserEntity[] | null>({
@@ -56,13 +63,13 @@ function toLabel(user: UserEntity): string {
   return user.name || user.username || user.email || user.id
 }
 
-async function fetchStudents(query: string): Promise<UserEntity[]> {
+async function fetchUsers(query: string): Promise<UserEntity[]> {
   const pagination = new Pagination(
     1,
     props.pageSize,
     undefined,
     undefined,
-    [new EqualsFilter('role', 'student')],
+    [new EqualsFilter('role', props.role)],
     query.trim() || undefined
   )
   const response = await UserService.get(pagination)
@@ -71,10 +78,10 @@ async function fetchStudents(query: string): Promise<UserEntity[]> {
     throw new Error('Failed to fetch users')
   }
 
-  return (response.data ?? []).filter((user) => user.role === 'student')
+  return (response.data ?? []).filter((user) => user.role === props.role)
 }
 
-async function resolveStudents(ids: string[]): Promise<UserEntity[]> {
+async function resolveUsers(ids: string[]): Promise<UserEntity[]> {
   const results = await Promise.all(
     ids.map(async (id) => {
       const response = await UserService.getById(id)
@@ -83,7 +90,7 @@ async function resolveStudents(ids: string[]): Promise<UserEntity[]> {
         return null
       }
 
-      if (response.data.role !== 'student') {
+      if (response.data.role !== props.role) {
         return null
       }
 

@@ -43,12 +43,20 @@ interface IAssignedWorkService {
    */
   getById(id: string): Promise<ApiResponse<AssignedWorkEntity>>
   /**
-   * Gets the progress of an assigned work by its ID.
+   * Gets the progress of an assigned work by the id of the Work Assignment.
+   * The response is an array since there can be multiple assigned works for one assignment as new attempts
    *
-   * @param id The ID of the assigned work to get progress for.
-   * @returns A promise that resolves to an ApiResponse containing the AssignedWorkProgress object.
+   * @param id The ID of the work assignment to get the progress for.
+   * @returns A promise that resolves to an ApiResponse containing the AssignedWorkProgress array.
    */
-  getProgress(id: string): Promise<ApiResponse<AssignedWorkProgress>>
+  getProgress(id: string): Promise<ApiResponse<AssignedWorkProgress[]>>
+  /**
+   * Creates a new assigned work from a course work assignment id.
+   *
+   * @param courseWorkAssignmentId The ID of the course work assignment to create an assigned work from.
+   * @returns A promise that resolves to an ApiResponse containing the ID of the newly created assigned work.
+   */
+  create(courseWorkAssignmentId: string): Promise<ApiResponse<IdResponseDto>>
   /**
    * Creates a new assigned work that will be a copy of the original assigned work but marked as a new attempt
    *
@@ -169,8 +177,16 @@ function createAnswerDraft(
 
 async function getProgress(
   id: string
-): Promise<ApiResponse<AssignedWorkProgress>> {
+): Promise<ApiResponse<AssignedWorkProgress[]>> {
   return await Api.get(`${BASE_PATH}/${id}/progress`)
+}
+
+async function create(
+  courseWorkAssignmentId: string
+): Promise<ApiResponse<IdResponseDto>> {
+  return await Api.post<void, IdResponseDto>(
+    `${BASE_PATH}/${courseWorkAssignmentId}`
+  )
 }
 
 async function remake(
@@ -261,6 +277,7 @@ export const AssignedWorkService: IAssignedWorkService = {
   get,
   getById,
   getProgress,
+  create,
   remake,
   markSolved,
   markChecked,

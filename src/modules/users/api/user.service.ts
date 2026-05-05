@@ -129,7 +129,7 @@ async function changeRole(
   userId: string,
   role: UserRole
 ): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${userId}/role`, role)
+  return await Api.patch(`${BASE_PATH}/${userId}/role`, { newRole: role })
 }
 
 async function block(userId: string): Promise<ApiResponse> {

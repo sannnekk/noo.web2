@@ -44,25 +44,25 @@ const allEntries: NavEntry[] = [
     route: { name: 'courses.list' }
   },
   {
-    for: 'all', //['student', 'mentor'],
+    for: ['student', 'mentor'],
     title: 'Работы',
     icon: 'list',
     route: { name: 'assigned-works.list' }
   },
   {
-    for: 'all', //['student', 'mentor'],
-    title: 'Работы *',
+    for: ['admin', 'teacher'],
+    title: 'Работы',
     icon: 'list',
     route: { name: 'works.list' }
   },
   {
-    for: 'all', //['admin', 'teacher', 'mentor'],
+    for: ['admin', 'teacher', 'mentor', 'assistant'],
     title: 'Пользователи',
     icon: 'users',
     route: { name: 'users.list' }
   },
   {
-    for: 'all', //['admin', 'teacher'],
+    for: ['admin', 'teacher'],
     title: 'Опросы',
     icon: 'poll',
     route: { name: 'polls.list' }

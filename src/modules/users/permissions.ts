@@ -6,25 +6,37 @@ import { useAuthStore } from '@/core/stores/auth.store'
 
 const UsersPermissions = {
   viewListPage: 'viewListPage',
-  viewDetailPage: 'viewDetailPage'
+  viewDetailPage: 'viewDetailPage',
+  viewDangerZone: 'viewDangerZone',
+  blockUser: 'blockUser',
+  verifyUser: 'verifyUser',
+  changeUserRole: 'changeUserRole',
+  deleteUser: 'deleteUser',
+  manageMentorAssignments: 'manageMentorAssignments',
+  viewMentorAssignments: 'viewMentorAssignments'
 } as const
 
 type UsersPermission = (typeof UsersPermissions)[keyof typeof UsersPermissions]
 
 const usersPermissionMap: RolePermissionsMap<UsersPermission> = {
-  [UsersPermissions.viewListPage]: [
-    'admin',
-    'teacher',
-    'assistant',
-    'mentor',
-    'student'
-  ],
+  [UsersPermissions.viewListPage]: ['admin', 'teacher', 'assistant', 'mentor'],
   [UsersPermissions.viewDetailPage]: [
     'admin',
     'teacher',
     'assistant',
-    'mentor',
-    'student'
+    'mentor'
+  ],
+  [UsersPermissions.viewDangerZone]: ['admin', 'teacher'],
+  [UsersPermissions.blockUser]: ['admin', 'teacher'],
+  [UsersPermissions.verifyUser]: ['admin', 'teacher'],
+  [UsersPermissions.changeUserRole]: ['admin', 'teacher'],
+  [UsersPermissions.deleteUser]: ['admin'],
+  [UsersPermissions.manageMentorAssignments]: ['admin', 'teacher'],
+  [UsersPermissions.viewMentorAssignments]: [
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor'
   ]
 }
 

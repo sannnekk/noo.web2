@@ -110,7 +110,7 @@ describe('AssignedWorkService', () => {
   describe('getProgress', () => {
     test('should fetch progress by ID', async () => {
       const mockId = '123'
-      const mockProgress = { solveStatus: 'solved' }
+      const mockProgress = [{ solveStatus: 'solved' }]
 
       ;(Api.get as Mock).mockResolvedValue({ data: mockProgress })
 

@@ -53,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-// TODO: refactor the component
 import { computed, onMounted, watch, type VNode } from 'vue'
 import { useRoute } from 'vue-router'
 
