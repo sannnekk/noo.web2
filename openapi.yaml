@@ -88,6 +88,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{workAssignmentId}:
+    post:
+      tags:
+        - AssignedWork
+      summary: |-
+        Creates an assigned work instance by a work assignment ID.
+        This is used when a student starts working on a work
+      parameters:
+        - name: workAssignmentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /assigned-work/{assignedWorkId}:
     get:
       tags:
@@ -174,15 +219,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /assigned-work/{assignedWorkId}/progress:
+  /assigned-work/{workAssignmentId}/progress:
     get:
       tags:
         - AssignedWork
       summary: |-
         Gets the progress of an assigned work by its ID.
-        Used when loading the whole assigned work is not needed
+        Used when loading the whole assigned work is not needed.
+      description: >-
+        It returns an array of progress because there can be multiple
+        AssignedWork's as separate attempts
+
+        for one WorkAssignment.
       parameters:
-        - name: assignedWorkId
+        - name: workAssignmentId
           in: path
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
@@ -194,7 +244,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AssignedWorkProgressDTOApiResponseDTO"
+                $ref: "#/components/schemas/AssignedWorkProgressDTOIEnumerableApiResponseDTO"
         "400":
           description: Bad Request
           content:
@@ -989,7 +1039,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /auth/confirm-email-change:
+  /auth/confirm-email:
     patch:
       tags:
         - Auth
@@ -1898,43 +1948,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /media/upload-link/public:
+  /media/upload-url:
     post:
       tags:
         - Media
-      summary: >-
-        Request a pre-signed upload URL for a public file (for example: user
-        avatar or course image).
-
-        The frontend should use the returned URL to PUT the file directly to S3.
-      parameters:
-        - name: fileName
-          in: query
-          description: File name including extension.
-          schema:
-            type: string
-        - name: contentType
-          in: query
-          description: MIME type of the file.
-          schema:
-            type: string
-        - name: reason
-          in: query
-          description: Reason/type for the file (avatar, course, etc.).
-          schema:
-            $ref: "#/components/schemas/ReasonType"
-        - name: entityId
-          in: query
-          description: Related entity id (user id, course id, etc.).
-          schema:
-            $ref: "#/components/schemas/Ulid"
+      summary: Issue a presigned upload URL plus the headers the client must include
+        on the PUT.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestUploadDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/RequestUploadDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/RequestUploadDTO"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StringApiResponseDTO"
+                $ref: "#/components/schemas/UploadTicketDTOApiResponseDTO"
         "400":
           description: Bad Request
           content:
@@ -1953,44 +1990,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-        "404":
-          description: Not Found
+        "415":
+          description: Unsupported Media Type
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /media/upload-link/private:
+  /media/{mediaId}/complete:
     post:
       tags:
         - Media
-      summary: "Request a pre-signed upload URL for a private file (for example:
-        course material)."
-      description: Private files require server-side access checks for downloads.
+      summary: Confirm that a previously requested upload has completed in S3.
       parameters:
-        - name: fileName
-          in: query
-          schema:
-            type: string
-        - name: contentType
-          in: query
-          schema:
-            type: string
-        - name: reason
-          in: query
-          schema:
-            $ref: "#/components/schemas/ReasonType"
-        - name: entityId
-          in: query
+        - name: mediaId
+          in: path
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
           schema:
             $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadDTO"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StringApiResponseDTO"
+            application/json: {}
         "400":
           description: Bad Request
           content:
@@ -2015,23 +2048,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /media/access-link/{mediaId}:
+  /media/{mediaId}/download-url:
     get:
       tags:
         - Media
-      summary: Request an access link for a private file. Access is validated
-        server-side.
+      summary: >-
+        Issue a short-lived presigned download URL after enforcing every access
+        rule
+
+        registered for this media's category.
       parameters:
         - name: mediaId
           in: path
-          description: Media id.
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
-          schema:
-            type: string
-        - name: requestorId
-          in: query
-          description: Id of the user requesting access (server may also determine current
-            user).
           schema:
             $ref: "#/components/schemas/Ulid"
       responses:
@@ -2040,13 +2070,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StringApiResponseDTO"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
+                $ref: "#/components/schemas/DownloadUrlDTOApiResponseDTO"
         "401":
           description: Unauthorized
           content:
@@ -2065,43 +2089,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /media/upload-complete/{mediaId}:
-    post:
+  /media/{mediaId}:
+    delete:
       tags:
         - Media
-      summary: >-
-        Confirm that an upload completed and update stored metadata (size,
-        optional etag/hash).
-
-        Frontend should call this after successfully PUTting the file to S3.
+      summary: Delete the file from S3 and remove the DB record. Owner or admin only.
       parameters:
         - name: mediaId
           in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
           schema:
-            type: string
-        - name: size
-          in: query
-          schema:
-            type: integer
-            format: int64
-        - name: etag
-          in: query
-          schema:
-            type: string
+            $ref: "#/components/schemas/Ulid"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ObjectApiResponseDTO"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
+            application/json: {}
         "401":
           description: Unauthorized
           content:
@@ -3777,7 +3781,7 @@ paths:
     get:
       tags:
         - User
-      summary: Retrieves a user by their unique username
+      summary: Retrieves a user by their id
       parameters:
         - name: userId
           in: path
@@ -3925,13 +3929,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserRoles"
+              $ref: "#/components/schemas/ChangeRoleDTO"
           text/json:
             schema:
-              $ref: "#/components/schemas/UserRoles"
+              $ref: "#/components/schemas/ChangeRoleDTO"
           application/*+json:
             schema:
-              $ref: "#/components/schemas/UserRoles"
+              $ref: "#/components/schemas/ChangeRoleDTO"
       responses:
         "204":
           description: No Content
@@ -4750,11 +4754,14 @@ components:
           type: integer
           format: int32
       additionalProperties: false
-    AssignedWorkProgressDTOApiResponseDTO:
+    AssignedWorkProgressDTOIEnumerableApiResponseDTO:
       type: object
       properties:
         data:
-          $ref: "#/components/schemas/AssignedWorkProgressDTO"
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignedWorkProgressDTO"
+          nullable: true
         meta:
           nullable: true
       additionalProperties: false
@@ -4888,6 +4895,14 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    ChangeRoleDTO:
+      required:
+        - newRole
+      type: object
+      properties:
+        newRole:
+          $ref: "#/components/schemas/UserRoles"
+      additionalProperties: false
     ChangeType:
       enum:
         - feature
@@ -4900,6 +4915,19 @@ components:
         - and
         - or
       type: string
+    CompleteUploadDTO:
+      required:
+        - size
+      type: object
+      properties:
+        size:
+          minimum: 0
+          type: integer
+          format: int64
+        etag:
+          type: string
+          nullable: true
+      additionalProperties: false
     ConfirmEmailChangeDTO:
       required:
         - token
@@ -5221,6 +5249,8 @@ components:
           $ref: "#/components/schemas/Ulid"
         workId:
           $ref: "#/components/schemas/Ulid"
+        work:
+          $ref: "#/components/schemas/WorkDTO"
         note:
           type: string
           nullable: true
@@ -5396,7 +5426,6 @@ components:
     CreateCourseWorkAssignmentDTO:
       required:
         - isActive
-        - materialContentId
         - order
         - workId
       type: object
@@ -5404,8 +5433,6 @@ components:
         order:
           type: integer
           format: int32
-        materialContentId:
-          $ref: "#/components/schemas/Ulid"
         workId:
           $ref: "#/components/schemas/Ulid"
         note:
@@ -5675,6 +5702,23 @@ components:
         - mobile
         - tablet
       type: string
+    DownloadUrlDTO:
+      required:
+        - url
+      type: object
+      properties:
+        url:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    DownloadUrlDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/DownloadUrlDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
     FontSize:
       enum:
         - small
@@ -5806,11 +5850,15 @@ components:
           type: string
       additionalProperties: false
     LoginResponseDTO:
+      required:
+        - accessToken
+        - expiresAt
+        - userInfo
       type: object
       properties:
         accessToken:
+          minLength: 1
           type: string
-          nullable: true
         expiresAt:
           type: string
           format: date-time
@@ -5825,16 +5873,35 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    MediaCategory:
+      enum:
+        - user-avatar
+        - video-cover
+        - video-rich-text
+        - course-cover
+        - course-attachment
+        - course-rich-text
+        - work-rich-text
+        - profile-background
+        - assigned-work-student-rich-text
+        - assigned-work-mentor-rich-text
+        - assigned-work-student-comment-rich-text
+        - assigned-work-mentor-comment-rich-text
+        - help-rich-text
+      type: string
     MediaDTO:
       required:
         - _entityName
         - actualName
+        - category
         - createdAt
         - extension
         - id
         - name
         - order
+        - ownerId
         - path
+        - status
       type: object
       properties:
         _entityName:
@@ -5861,9 +5928,10 @@ components:
         order:
           type: integer
           format: int32
-        reason:
-          type: string
-          nullable: true
+        category:
+          $ref: "#/components/schemas/MediaCategory"
+        status:
+          $ref: "#/components/schemas/MediaStatus"
         entityId:
           $ref: "#/components/schemas/Ulid"
         ownerId:
@@ -5876,6 +5944,11 @@ components:
           format: date-time
           nullable: true
       additionalProperties: false
+    MediaStatus:
+      enum:
+        - pending
+        - completed
+      type: string
     MentorAssignmentDTO:
       required:
         - _entityName
@@ -6064,14 +6137,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NotificationDTO"
-          nullable: true
-        meta:
-          nullable: true
-      additionalProperties: false
-    ObjectApiResponseDTO:
-      type: object
-      properties:
-        data:
           nullable: true
         meta:
           nullable: true
@@ -6355,18 +6420,6 @@ components:
         - rating
         - files
       type: string
-    ReasonType:
-      enum:
-        - avatar
-        - course
-        - course-thumbnail
-        - video-thumbnail
-        - help
-        - work
-        - assigned-work-answer
-        - assigned-work-comment
-        - poll-answer
-      type: string
     RegisterDTO:
       required:
         - email
@@ -6418,6 +6471,25 @@ components:
           minLength: 1
           type: string
           format: email
+      additionalProperties: false
+    RequestUploadDTO:
+      required:
+        - category
+        - contentType
+        - fileName
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/MediaCategory"
+        fileName:
+          maxLength: 255
+          minLength: 1
+          type: string
+        contentType:
+          minLength: 1
+          type: string
+        entityId:
+          $ref: "#/components/schemas/Ulid"
       additionalProperties: false
     SerializedNooException:
       type: object
@@ -7058,6 +7130,36 @@ components:
         value:
           nullable: true
       additionalProperties: false
+    UploadTicketDTO:
+      required:
+        - expiresAt
+        - headers
+        - mediaId
+        - uploadUrl
+      type: object
+      properties:
+        mediaId:
+          $ref: "#/components/schemas/Ulid"
+        uploadUrl:
+          minLength: 1
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Headers the client MUST include verbatim on the PUT request to S3.
+        expiresAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    UploadTicketDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/UploadTicketDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
     UpsertAssignedWorkAnswerDTO:
       required:
         - status
@@ -7169,19 +7271,25 @@ components:
           nullable: true
       additionalProperties: false
     UserInfoDTO:
+      required:
+        - email
+        - id
+        - name
+        - role
+        - username
       type: object
       properties:
         id:
           $ref: "#/components/schemas/Ulid"
         name:
+          minLength: 1
           type: string
-          nullable: true
         username:
+          minLength: 1
           type: string
-          nullable: true
         email:
+          minLength: 1
           type: string
-          nullable: true
         role:
           $ref: "#/components/schemas/UserRoles"
       additionalProperties: false

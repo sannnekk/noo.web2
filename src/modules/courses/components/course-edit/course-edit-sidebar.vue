@@ -13,20 +13,22 @@
           Назад к списку курсов
         </noo-back-button>
       </div>
-      <noo-dot-separator />
-      <div class="course-edit-sidebar__top-actions__to-view-button">
-        <noo-inline-link
-          :to="{
-            name: 'courses.detail',
-            params: { courseId: editCourseStore.course.id }
-          }"
-          new-tab
-          dimmed
-          size="small"
-        >
-          Просмотреть курс
-        </noo-inline-link>
-      </div>
+      <template v-if="editCourseStore.course.id">
+        <noo-dot-separator />
+        <div class="course-edit-sidebar__top-actions__to-view-button">
+          <noo-inline-link
+            :to="{
+              name: 'courses.detail',
+              params: { courseId: editCourseStore.course.id }
+            }"
+            new-tab
+            dimmed
+            size="small"
+          >
+            Просмотреть курс
+          </noo-inline-link>
+        </div>
+      </template>
     </div>
     <noo-title :size="3">
       {{ editCourseStore.course.name }}
@@ -51,6 +53,18 @@
             <noo-textarea
               v-model="editCourseStore.course.description"
               label="Описание курса"
+            />
+          </div>
+          <div class="course-edit-sidebar__cover">
+            <noo-file-uploader
+              v-model="coverFiles"
+              label="Обложка курса"
+              category="course-cover"
+              :types="['image']"
+              :max-count="1"
+              crop
+              :crop-ratio="1.5848"
+              :entity-id="editCourseStore.course.id"
             />
           </div>
           <div class="course-edit-sidebar__dates">
@@ -123,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, shallowRef } from 'vue'
 import { useCourseChapterFilter } from '../../composables/useCourseChapterFilter'
 import { useCourseEditStore } from '../../stores/course-edit.store.ts'
@@ -144,6 +159,20 @@ const chapterFilter = useCourseChapterFilter({
 const canSave = computed(
   () => editCourseStore.mode === 'create' || editCourseStore.mode === 'edit'
 )
+
+const coverFiles = computed<MediaEntity[]>({
+  get: () => {
+    const thumbnail = editCourseStore.course?.thumbnail
+    return thumbnail ? [thumbnail] : []
+  },
+  set: (next) => {
+    if (!editCourseStore.course) return
+    const [media] = next
+
+    editCourseStore.course.thumbnail = media
+    editCourseStore.course.thumbnailId = media?.id ?? null
+  }
+})
 </script>
 
 <style scoped lang="sass">

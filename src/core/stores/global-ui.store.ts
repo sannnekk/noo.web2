@@ -98,12 +98,18 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
   function createApiErrorToast(title: string, error?: ApiError) {
     const id = uid()
 
+    let errorText: string | undefined
+
+    if (error) {
+      errorText = `${error.name}: ${error.description}`
+    }
+
     toasts.value = [
       {
         id,
         title,
         type: 'error',
-        text: error?.description ?? 'Неизвестная ошибка'
+        text: errorText ?? 'Неизвестная ошибка'
       },
       ...toasts.value
     ]

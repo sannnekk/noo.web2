@@ -77,7 +77,13 @@
 
     <noo-title :size="3"> Прикрепленные файлы </noo-title>
 
-    <noo-text-block dimmed> Блок прикрепленных файлов... </noo-text-block>
+    <noo-file-uploader
+      v-model="medias"
+      category="course-attachment"
+      :types="['image', 'pdf']"
+      :max-count="15"
+      :entity-id="currentContent.id"
+    />
 
     <noo-title :size="3"> Прикрепленный опрос </noo-title>
 
@@ -92,6 +98,7 @@
 </template>
 
 <script setup lang="ts">
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, watch } from 'vue'
 import { useCourseEditStore } from '../../stores/course-edit.store'
 import WorkAssignmentsForm from './work-assignments-form.vue'
@@ -100,6 +107,15 @@ const courseEditStore = useCourseEditStore()
 
 const currentContent = computed(() => courseEditStore.currentMaterialContent)
 const currentMaterial = computed(() => courseEditStore.currentMaterial)
+
+const medias = computed<MediaEntity[]>({
+  get: () => currentContent.value?.medias ?? [],
+  set: (value) => {
+    if (currentContent.value) {
+      currentContent.value.medias = value
+    }
+  }
+})
 
 // make publishAt null if material is active
 watch(
