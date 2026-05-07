@@ -9,7 +9,7 @@
   >
     <div class="noo-file-card__thumbnail">
       <noo-loader-icon
-        v-if="isUploading"
+        v-if="isUploading || isDownloading"
         class="noo-file-card__thumbnail__loader"
       />
       <img
@@ -58,7 +58,12 @@
 
 <script lang="ts" setup>
 import type { IconName } from '@/components/icons/noo-icon.vue'
-import { computed } from 'vue'
+import { isApiError } from '@/core/api/api.utils'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store'
+import { triggerDownload } from '@/core/utils/download.utils'
+import { MediaService } from '@/modules/media/api/media.service'
+import type { MediaEntity } from '@/modules/media/api/media.types'
+import { computed, ref } from 'vue'
 
 interface Props {
   name: string
@@ -69,6 +74,8 @@ interface Props {
   error?: string | null
   clickable?: boolean
   removable?: boolean
+  media?: MediaEntity | null
+  downloadable?: boolean
 }
 
 interface Emits {
@@ -81,14 +88,18 @@ const props = withDefaults(defineProps<Props>(), {
   progress: undefined,
   error: null,
   clickable: true,
-  removable: true
+  removable: true,
+  media: null,
+  downloadable: false
 })
 
 const emit = defineEmits<Emits>()
 
-const isUploading = computed(
-  () => props.progress !== undefined && !props.error
-)
+const globalUiStore = useGlobalUIStore()
+
+const isDownloading = ref(false)
+
+const isUploading = computed(() => props.progress !== undefined && !props.error)
 
 const clampedProgress = computed(() =>
   Math.max(0, Math.min(100, props.progress ?? 0))
@@ -125,8 +136,50 @@ function formatBytes(bytes: number): string {
 }
 
 function onClick() {
-  if (props.clickable && !props.error) {
-    emit('preview')
+  if (!props.clickable || props.error) {
+    return
+  }
+
+  if (props.downloadable && props.media) {
+    void download(props.media)
+
+    return
+  }
+
+  emit('preview')
+}
+
+async function download(media: MediaEntity) {
+  if (isDownloading.value) {
+    return
+  }
+
+  isDownloading.value = true
+
+  try {
+    const response = await MediaService.getDownloadUrl(media.id)
+
+    if (isApiError(response)) {
+      globalUiStore.createApiErrorToast(
+        'Не удалось скачать файл',
+        response.error
+      )
+
+      return
+    }
+
+    if (!response.data?.url) {
+      return
+    }
+
+    await triggerDownload(response.data.url, media.actualName ?? media.name)
+  } catch (error) {
+    globalUiStore.createWarningToast(
+      'Не удалось скачать файл',
+      error instanceof Error ? error.message : undefined
+    )
+  } finally {
+    isDownloading.value = false
   }
 }
 </script>
@@ -136,7 +189,7 @@ function onClick() {
   display: flex
   align-items: center
   gap: 0.75em
-  padding: 0.5em
+  padding: 0.75em
   background-color: var(--form-background)
   border: 1px solid var(--border-color)
   border-radius: var(--border-radius)
@@ -156,16 +209,15 @@ function onClick() {
 
   &__thumbnail
     position: relative
-    width: 3em
-    height: 3em
     flex-shrink: 0
     display: flex
     align-items: center
     justify-content: center
     background-color: var(--background)
-    border-radius: calc(var(--border-radius) / 2)
     overflow: hidden
-    font-size: 1.6em
+    font-size: 3em
+    width: 1.5em
+    max-height: 2.3em
 
     &__image
       width: 100%

@@ -29,6 +29,24 @@
         :work-assignment="assignment"
       />
     </div>
+    <div
+      v-if="courseDetailStore.materialContent.data.medias?.length"
+      class="course-material-content-view__files"
+    >
+      <noo-title :size="3">Файлы:</noo-title>
+      <div class="course-material-content-view__files__list">
+        <noo-file-card
+          v-for="media in courseDetailStore.materialContent.data.medias"
+          :key="media.id"
+          :name="media.actualName ?? media.name"
+          :extension="media.extension"
+          :size="media.size"
+          :media="media"
+          :removable="false"
+          downloadable
+        />
+      </div>
+    </div>
   </div>
   <div
     v-else-if="courseDetailStore.materialContent.isLoading"
@@ -95,4 +113,15 @@ watch(
     display: flex
     flex-direction: column
     gap: 0.25em
+
+  &__files
+    margin-top: 2em
+    display: flex
+    flex-direction: column
+    gap: 0.5em
+
+    &__list
+      display: flex
+      flex-direction: column
+      gap: 0.5em
 </style>

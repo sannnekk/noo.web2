@@ -51,7 +51,7 @@ watchEffect(() => {
   ) {
     const media = props.src as MediaEntity
 
-    link.value = `${media.path}/${media.name}.${media.extension}`
+    link.value = media.url
 
     return
   }

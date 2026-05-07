@@ -419,7 +419,8 @@ function pluralize(count: number, forms: [string, string, string]): string {
 .noo-file-uploader
   display: flex
   flex-direction: column
-  gap: 0.5em
+  gap: 0.2em
+  margin-bottom: 0.7em
 
   &__label
     font-size: 0.85em
@@ -435,7 +436,7 @@ function pluralize(count: number, forms: [string, string, string]): string {
     align-items: center
     justify-content: center
     padding: 1.25em
-    border: 2px dashed var(--border-color)
+    border: 1px dashed var(--border-color)
     border-radius: var(--border-radius)
     background-color: var(--form-background)
     cursor: pointer
