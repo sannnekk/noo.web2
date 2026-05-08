@@ -54,7 +54,15 @@ const module: ApplicationModule = {
           },
           component: () => import('./views/personalization-settings-view.vue')
         },
-
+        {
+          name: 'settings.snippets',
+          path: 'snippets',
+          meta: {
+            pageTitle: 'Управление сниппетами',
+            tabTitle: 'Сниппеты'
+          },
+          component: () => import('./views/snippet-settings-view.vue')
+        },
         {
           name: 'settings.notifications',
           path: 'notifications',

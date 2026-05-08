@@ -44,6 +44,8 @@
     <noo-button
       size="small"
       variant="danger-inline"
+      :is-loading="isLoading"
+      :disabled="isLoading"
       @click="$emit('delete')"
     >
       Выйти
@@ -56,6 +58,7 @@ import type { SessionEntity } from '../api/session.types'
 
 interface Props {
   session: SessionEntity
+  isLoading?: boolean
 }
 
 interface Emits {

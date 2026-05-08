@@ -142,6 +142,7 @@ declare module 'vue' {
     NooSelectInput: typeof import('./src/components/inputs/noo-select-input.vue')['default']
     NooSidebarLayout: typeof import('./src/components/layout/noo-sidebar-layout.vue')['default']
     NooSidebarSkeleton: typeof import('./src/components/utils/noo-sidebar-skeleton.vue')['default']
+    NooSnippetCard: typeof import('./src/components/cards/noo-snippet-card.vue')['default']
     NooSolveStatusTag: typeof import('./src/components/tags/noo-solve-status-tag.vue')['default']
     NooSubjectBlock: typeof import('./src/components/blocks/noo-subject-block.vue')['default']
     NooSubjectSelect: typeof import('./src/components/inputs/entity-select/noo-subject-select.vue')['default']

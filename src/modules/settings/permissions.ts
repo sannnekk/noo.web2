@@ -12,6 +12,7 @@ const SettingsPermissions = {
   manageNotifications: 'manageNotifications',
   manageGoogleSheets: 'manageGoogleSheets',
   manageSubjects: 'manageSubjects',
+  manageSnippets: 'manageSnippets',
   viewChangelog: 'viewChangelog'
 } as const
 
@@ -44,6 +45,7 @@ const settingsPermissionMap: RolePermissionsMap<SettingsPermission> = {
   [SettingsPermissions.manageNotifications]: ['admin', 'teacher'],
   [SettingsPermissions.manageGoogleSheets]: ['admin', 'teacher'],
   [SettingsPermissions.manageSubjects]: ['admin'],
+  [SettingsPermissions.manageSnippets]: ['mentor'],
   [SettingsPermissions.viewChangelog]: [
     'admin',
     'teacher',

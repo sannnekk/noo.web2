@@ -1,12 +1,13 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { UnsavedEntity } from '@/core/utils/types.utils'
 import type { SnippetEntity } from './snippet.types'
 
-const BASE_PATH = '/assigned-work'
+const BASE_PATH = '/snippet'
 
 interface ISnippetService {
   /**
-   * Fetches a list of snippets for a mentor
+   * Fetches a list of snippets for the authenticated user.
    *
    * @returns A promise that resolves to an ApiResponse containing an array of Snippet objects.
    */
@@ -21,11 +22,15 @@ interface ISnippetService {
     snippet: UnsavedEntity<SnippetEntity, SnippetEntity['_entityName']>
   ): Promise<ApiResponse<{ id: string }>>
   /**
-   * Updates an existing snippet
+   * Updates an existing snippet using a JSON Patch document.
    *
-   * @param snippet The snippet to be updated.
+   * @param snippetId The ID of the snippet to update.
+   * @param patch JSON Patch document describing the changes.
    */
-  update(snippetId: string, snippet: SnippetEntity): Promise<ApiResponse>
+  update(
+    snippetId: string,
+    patch: JsonPatchDocument<SnippetEntity>
+  ): Promise<ApiResponse>
   /**
    * Delete a snippet
    *
@@ -46,9 +51,9 @@ async function create(
 
 async function update(
   snippetId: string,
-  snippet: SnippetEntity
+  patch: JsonPatchDocument<SnippetEntity>
 ): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${snippetId}`, snippet)
+  return await Api.patch(`${BASE_PATH}/${snippetId}`, patch)
 }
 
 async function deleteSnippet(id: string): Promise<ApiResponse> {

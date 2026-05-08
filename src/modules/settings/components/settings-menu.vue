@@ -79,8 +79,15 @@ const menuItems: MenuItem[] = [
     title: 'Персонализация',
     description: 'Обои, тема, размер шрифта',
     icon: 'brush',
-    to: { name: 'settings.notifications' },
+    to: { name: 'settings.personalization' },
     permission: SettingsPermissions.managePersonalizationSettings
+  },
+  {
+    title: 'Сниппеты',
+    description: 'Создание, редактирование и удаление сниппетов',
+    icon: 'list',
+    to: { name: 'settings.snippets' },
+    permission: SettingsPermissions.manageSnippets
   },
   {
     title: 'Предметы',

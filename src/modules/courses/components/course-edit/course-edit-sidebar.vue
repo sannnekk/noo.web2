@@ -163,10 +163,13 @@ const canSave = computed(
 const coverFiles = computed<MediaEntity[]>({
   get: () => {
     const thumbnail = editCourseStore.course?.thumbnail
+
     return thumbnail ? [thumbnail] : []
   },
   set: (next) => {
-    if (!editCourseStore.course) return
+    if (!editCourseStore.course) {
+      return
+    }
     const [media] = next
 
     editCourseStore.course.thumbnail = media
