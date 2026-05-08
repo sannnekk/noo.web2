@@ -51,6 +51,15 @@
       <div class="auth-page__inner__content">
         <div class="auth-page__inner__content__inner">
           <noo-animated-router-view />
+          <div class="auth-page__inner__content__inner__help">
+            <noo-text-block
+              size="small"
+              no-margin
+            >
+              Возникли проблемы или вопросы?
+            </noo-text-block>
+            <noo-help-widget />
+          </div>
           <div class="auth-page__inner__content__inner__rights">
             <noo-text-block
               size="small"
@@ -162,6 +171,17 @@ setTheme('light')
 				overflow-y: auto
 				overflow-x: hidden
 				max-height: calc(100vh - 20px - 4em)
+
+				&__help
+					margin-top: 1em
+					display: flex
+					gap: 0.5em
+					align-items: center
+					justify-content: center
+					flex-direction: row
+					border-radius: var(--border-radius)
+					background-color: var(--lightest)
+					padding: 0.5em
 
 				&__rights
 					margin-top: 3em

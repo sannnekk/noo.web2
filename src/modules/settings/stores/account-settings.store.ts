@@ -100,9 +100,7 @@ const useAccountSettingsStore = defineStore(
 
     function bindDraft(entity: UserEntity): void {
       draft.value = _.cloneDeep(entity)
-      patchGenerator.value = JsonPatchUtils.observe(
-        draft.value as UserEntity
-      )
+      patchGenerator.value = JsonPatchUtils.observe(draft.value as UserEntity)
       changesCount.value = 0
     }
 
@@ -237,10 +235,7 @@ const useAccountSettingsStore = defineStore(
     )
 
     async function init(): Promise<void> {
-      await Promise.all([
-        user.execute(getCurrentUserId()),
-        sessions.execute()
-      ])
+      await Promise.all([user.execute(getCurrentUserId()), sessions.execute()])
     }
 
     function resetDraft(): void {

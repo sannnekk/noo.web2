@@ -73,16 +73,17 @@ interface UserDetailStore {
    */
   deleteUser: UseApiRequestReturn
   /**
-   * Assigns a mentor to the user.
+   * Assigns a mentor to a student. Refreshes the relevant assignment list
+   * for the loaded user (mentor or student side).
    */
   assignMentor: UseApiRequestReturn<
     CreateMentorAssignmentPayload,
     { id: string }
   >
   /**
-   * Unassigns the user's mentor.
+   * Removes a single mentor assignment by id.
    */
-  unassignMentor: UseApiRequestReturn
+  unassignMentor: UseApiRequestReturn<string>
 }
 
 const useUserDetailStore = defineStore(
@@ -221,20 +222,20 @@ const useUserDetailStore = defineStore(
       CreateMentorAssignmentPayload,
       { id: string }
     >(
-      (payload) => UserService.assignMentor(getUserId(), payload),
+      (payload) => UserService.assignMentor(payload),
       async () => {
         uiStore.createSuccessToast('Куратор назначен')
-        await mentorAssignments.execute(undefined)
+        await loadAssignmentsForRole()
       },
       (error) =>
         uiStore.createApiErrorToast('Не удалось назначить куратора', error)
     )
 
-    const unassignMentor = useApiRequest(
-      () => UserService.unassignMentor(getUserId()),
+    const unassignMentor = useApiRequest<string>(
+      (assignmentId) => UserService.unassignMentor(assignmentId),
       async () => {
-        uiStore.createSuccessToast('Куратор снят с пользователя')
-        await mentorAssignments.execute(undefined)
+        uiStore.createSuccessToast('Куратор снят с ученика')
+        await loadAssignmentsForRole()
       },
       (error) => uiStore.createApiErrorToast('Не удалось снять куратора', error)
     )

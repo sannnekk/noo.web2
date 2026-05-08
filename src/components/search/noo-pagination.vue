@@ -1,5 +1,8 @@
 <template>
-  <div class="list-pagination">
+  <div
+    v-if="pageCount > 1"
+    class="list-pagination"
+  >
     <div
       v-for="page in pages"
       :key="page.number"

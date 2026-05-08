@@ -37,6 +37,29 @@
           class="mentor-assignment-list__item__user"
           :user="userSide === 'mentor' ? assignment.mentor : assignment.student"
         />
+        <div
+          v-if="canChange || canUnassign(assignment)"
+          class="mentor-assignment-list__item__actions"
+        >
+          <noo-button
+            v-if="canChange"
+            variant="inline"
+            size="small"
+            :disabled="busyAssignmentId === assignment.id"
+            @click="emit('change', assignment)"
+          >
+            Сменить
+          </noo-button>
+          <noo-button
+            v-if="canUnassign(assignment)"
+            variant="danger-inline"
+            size="small"
+            :is-loading="busyAssignmentId === assignment.id"
+            @click="emit('unassign', assignment)"
+          >
+            Снять
+          </noo-button>
+        </div>
       </li>
     </ul>
   </div>
@@ -56,11 +79,49 @@ interface Props {
    */
   userSide: 'mentor' | 'student'
   emptyText: string
+  /**
+   * Whether the current user can change the mentor for an assignment.
+   * Only meaningful on a student's profile.
+   */
+  canChange?: boolean
+  /**
+   * The current user's id, used to determine self-managed rows when the
+   * caller cannot fully manage assignments.
+   */
+  currentUserId?: string | null
+  /**
+   * Whether the current user can fully manage all assignments
+   * (admin/teacher). When false, only own rows are unassignable.
+   */
+  canManageAll?: boolean
+  /**
+   * Assignment id currently being mutated, used to disable its actions.
+   */
+  busyAssignmentId?: string | null
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  canChange: false,
+  currentUserId: null,
+  canManageAll: false,
+  busyAssignmentId: null
+})
 
-const emit = defineEmits<(e: 'retry') => void>()
+const emit = defineEmits<Emits>()
+
+interface Emits {
+  (e: 'retry'): void
+  (e: 'change', assignment: MentorAssignmentEntity): void
+  (e: 'unassign', assignment: MentorAssignmentEntity): void
+}
+
+function canUnassign(assignment: MentorAssignmentEntity): boolean {
+  if (props.canManageAll) {
+    return true
+  }
+
+  return !!props.currentUserId && assignment.mentorId === props.currentUserId
+}
 </script>
 
 <style scoped lang="sass">
@@ -89,4 +150,9 @@ const emit = defineEmits<(e: 'retry') => void>()
 
     &__user
       flex: 1 1 auto
+
+    &__actions
+      display: flex
+      gap: 0.25em
+      flex-shrink: 0
 </style>

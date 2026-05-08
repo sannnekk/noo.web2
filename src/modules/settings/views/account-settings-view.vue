@@ -251,9 +251,7 @@ const isInitialLoading = computed(
 const loadError = computed(() => !store.user.data && !!store.user.error)
 const sessions = computed(() => store.sessions.data ?? [])
 const hasEmail = computed(() => !!store.draft?.email)
-const canSave = computed(
-  () => store.hasUnsavedChanges && !store.save.isLoading
-)
+const canSave = computed(() => store.hasUnsavedChanges && !store.save.isLoading)
 
 const name = computed<string>({
   get: () => store.draft?.name ?? '',

@@ -161,7 +161,8 @@ const useSnippetSettingsStore = defineStore(
         uiStore.createSuccessToast('Сниппет удалён')
         await list.execute()
       },
-      (error) => uiStore.createApiErrorToast('Не удалось удалить сниппет', error)
+      (error) =>
+        uiStore.createApiErrorToast('Не удалось удалить сниппет', error)
     )
 
     async function init(): Promise<void> {

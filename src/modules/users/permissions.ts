@@ -13,6 +13,7 @@ const UsersPermissions = {
   changeUserRole: 'changeUserRole',
   deleteUser: 'deleteUser',
   manageMentorAssignments: 'manageMentorAssignments',
+  selfAssignAsMentor: 'selfAssignAsMentor',
   viewMentorAssignments: 'viewMentorAssignments'
 } as const
 
@@ -32,6 +33,7 @@ const usersPermissionMap: RolePermissionsMap<UsersPermission> = {
   [UsersPermissions.changeUserRole]: ['admin', 'teacher'],
   [UsersPermissions.deleteUser]: ['admin'],
   [UsersPermissions.manageMentorAssignments]: ['admin', 'teacher'],
+  [UsersPermissions.selfAssignAsMentor]: ['admin', 'teacher', 'mentor'],
   [UsersPermissions.viewMentorAssignments]: [
     'admin',
     'teacher',

@@ -87,21 +87,20 @@ interface IUserService {
     pagination?: IPagination
   ): Promise<ApiResponse<MentorAssignmentEntity[]>>
   /**
-   * Assigns a mentor to a student for a specific subject
+   * Assigns a mentor to a student for a specific subject. Replaces any
+   * existing mentor for the same subject.
    *
-   * @param studentId The ID of the student
-   * @param payload The assignment details
+   * @param payload The assignment details (carries studentId in body)
    */
   assignMentor(
-    studentId: string,
     payload: CreateMentorAssignmentPayload
   ): Promise<ApiResponse<{ id: string }>>
   /**
-   * Unassigns a mentor from a student
+   * Removes a single mentor assignment
    *
-   * @param studentId The ID of the student
+   * @param assignmentId The ID of the mentor assignment to remove
    */
-  unassignMentor(studentId: string): Promise<ApiResponse>
+  unassignMentor(assignmentId: string): Promise<ApiResponse>
 }
 
 async function get(
@@ -165,14 +164,16 @@ async function getStudentAssignments(
 }
 
 async function assignMentor(
-  studentId: string,
   payload: CreateMentorAssignmentPayload
 ): Promise<ApiResponse<{ id: string }>> {
-  return await Api.patch(`${BASE_PATH}/${studentId}/assign-mentor`, payload)
+  return await Api.patch(
+    `${BASE_PATH}/${payload.studentId}/assign-mentor`,
+    payload
+  )
 }
 
-async function unassignMentor(studentId: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/${studentId}/unassign-mentor`)
+async function unassignMentor(assignmentId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${assignmentId}/unassign-mentor`)
 }
 
 export const UserService: IUserService = {
