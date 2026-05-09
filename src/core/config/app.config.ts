@@ -48,8 +48,12 @@ export const appConfig: AppConfig = Object.freeze({
   cdnUrl: isProduction
     ? 'https://cdn.noo-school.ru/uploads'
     : 'http://localhost:5050',
-  appUrl: isProduction ? 'https://noo-school.ru' : 'http://localhost:5173',
-  apiUrl: isProduction ? 'https://api.noo-school.ru' : 'http://localhost:5001',
+  appUrl: isProduction
+    ? 'https://new-alpha.noo-school.ru'
+    : 'http://localhost:5173',
+  apiUrl: isProduction
+    ? 'https://api.new-alpha.noo-school.ru'
+    : 'http://localhost:5001',
   googleClientId:
     '643513066461-h6vrkoirgj91vr2isaqsm7hrv6tbkml8.apps.googleusercontent.com',
   maxFileSizeInBytes: 150 * 1024 * 1024, // 150 MB
