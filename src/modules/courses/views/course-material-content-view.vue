@@ -21,7 +21,21 @@
       v-if="courseDetailStore.materialContent.data.workAssignments?.length"
       class="course-material-content-view__work-assignments"
     >
-      <noo-title :size="3">Прикрепленные работы:</noo-title>
+      <noo-title
+        :size="3"
+        no-margin
+        >Прикрепленные работы:</noo-title
+      >
+      <noo-text-block
+        dimmed
+        size="small"
+      >
+        Если одна из работ ниже уже была начата, то нажатие кнопки "К работе"
+        откроет уже начатую работу, а не создаст новую. Если попыток было
+        несколько, будет открыта последняя из них. Ниже, под работой, будет
+        отображаться прогресс по работам и всем попыткам, к отдельной попытке
+        можно перейти, нажав кнопку "Перейти" в таблице прогресса.
+      </noo-text-block>
       <work-assignment
         v-for="assignment in courseDetailStore.materialContent.data
           .workAssignments"
@@ -33,12 +47,23 @@
       v-if="courseDetailStore.materialContent.data.medias?.length"
       class="course-material-content-view__files"
     >
-      <noo-title :size="3">Файлы:</noo-title>
+      <noo-title
+        :size="3"
+        no-margin
+        >Файлы:</noo-title
+      >
+      <noo-text-block
+        dimmed
+        size="small"
+      >
+        Ниже представлены файлы, прикрепленные к этому материалу. Их можно
+        скачать, нажав на нужный файл
+      </noo-text-block>
       <div class="course-material-content-view__files__list">
         <noo-file-card
           v-for="media in courseDetailStore.materialContent.data.medias"
           :key="media.id"
-          :name="media.actualName ?? media.name"
+          :name="media.actualName ?? media.name ?? 'Без названия'"
           :extension="media.extension"
           :size="media.size"
           :media="media"
@@ -112,7 +137,6 @@ watch(
     margin-top: 2em
     display: flex
     flex-direction: column
-    gap: 0.25em
 
   &__files
     margin-top: 2em

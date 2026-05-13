@@ -1,21 +1,22 @@
 <template>
-  <div class="assigned-work-score">
+  <div class="noo-assigned-work-score">
     <noo-text-block
-      class="assigned-work-score__label"
+      class="noo-assigned-work-score__label"
       size="small"
       dimmed
+      v-if="withLabel"
     >
       Результат:
     </noo-text-block>
-    <div class="assigned-work-score__value">
+    <div class="noo-assigned-work-score__value">
       <noo-title
-        class="assigned-work-score__value__main"
+        class="noo-assigned-work-score__value__main"
         :size="3"
       >
         {{ scorePercentageText }}
       </noo-title>
       <noo-text-block
-        class="assigned-work-score__value__secondary"
+        class="noo-assigned-work-score__value__secondary"
         size="small"
         dimmed
       >
@@ -29,6 +30,7 @@
 import { computed } from 'vue'
 
 interface Props {
+  withLabel?: boolean
   score: number | null
   maxScore: number
 }
@@ -40,23 +42,19 @@ const scorePercentageText = computed(() => {
     return '0%'
   }
   if (props.score === null) {
-    return '-'
+    return '- %'
   }
 
   return String(Math.round((props.score / props.maxScore) * 100)) + '%'
 })
 
 const scoreText = computed(() => {
-  if (props.score === null) {
-    return 'Не оценено'
-  }
-
-  return props.score.toString()
+  return `${props.score ?? '-'} / ${props.maxScore.toString()}`
 })
 </script>
 
 <style scoped lang="sass">
-.assigned-work-score
+.noo-assigned-work-score
   display: flex
   align-items: center
   justify-content: space-between

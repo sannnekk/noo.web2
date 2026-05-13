@@ -14,7 +14,14 @@
         v-if="can(CoursePermissions.solveWork)"
         class="work-assignment__head__actions"
       >
-        <noo-button variant="primary">К работе</noo-button>
+        <noo-button
+          variant="primary"
+          @click="toWorkClick()"
+          :disabled="!workAssignment.isActive || isLoading || isError"
+          :is-loading="isLoading"
+        >
+          К работе
+        </noo-button>
       </div>
     </div>
     <div class="work-assignment__body">
@@ -56,6 +63,15 @@
           Работа доступна до:
           <noo-date :value="workAssignment.deactivatedAt" />
         </noo-text-block>
+
+        <noo-text-block
+          v-if="!workAssignment.isActive"
+          dimmed
+          size="small"
+        >
+          <noo-icon name="cross-red" />
+          Работа недоступна для выполнения
+        </noo-text-block>
       </div>
       <div class="work-assignment__body__progress">
         <div
@@ -68,11 +84,19 @@
           v-else-if="progresses.length > 0"
           class="work-assignment__body__progress__loaded"
         >
-          <!--<noo-assigned-work-progress
-            v-for="progress in progresses"
-            :key="progress.assignedWorkId"
-            :progress="progress"
-          />-->
+          <noo-collapsable-block variant="inline">
+            <template #collapsed>
+              <noo-text-block
+                dimmed
+                size="small"
+              >
+                Прогресс по работе
+              </noo-text-block>
+            </template>
+            <template #visible>
+              <assigned-work-progress :progresses="progresses" />
+            </template>
+          </noo-collapsable-block>
         </div>
         <div
           v-else-if="!isError"
@@ -91,12 +115,17 @@
 </template>
 
 <script lang="ts" setup>
+import assignedWorkProgress from './assigned-work-progress.vue'
 import type { AssignedWorkProgress } from '@/modules/assigned-works/api/assigned-work.types.ts'
 import type { CourseWorkAssignmentEntity } from '../api/course.types.ts'
 import { CoursePermissions, useCoursePermissions } from '../permissions.ts'
 import { onMounted, shallowRef } from 'vue'
 import { AssignedWorkService } from '@/modules/assigned-works/api/assigned-work.service.ts'
 import { isApiError } from '@/core/api/api.utils.ts'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store.ts'
+import { useRouter } from 'vue-router'
+import type { AssignedWorkViewMode } from '@/modules/assigned-works/types.ts'
+import { getLastAttempt } from '../utils.ts'
 
 interface Props {
   workAssignment: CourseWorkAssignmentEntity
@@ -105,6 +134,8 @@ interface Props {
 const props = defineProps<Props>()
 
 const { can } = useCoursePermissions()
+const globalUiStore = useGlobalUIStore()
+const router = useRouter()
 
 const progresses = shallowRef<AssignedWorkProgress[]>([])
 const isLoading = shallowRef(false)
@@ -117,13 +148,59 @@ onMounted(async () => {
 
   if (isApiError(response)) {
     isError.value = true
+    console.log('Failed to load assigned work progress', response.error)
 
     return
   }
 
+  // TODO: fix api client to not show here possible null so that ! is not needed,
+  // because logically it can't be null here (after error check), maybe just an empty list []
   progresses.value = response.data!
   isLoading.value = false
 })
+
+async function toWorkClick() {
+  if (isLoading.value || isError.value) {
+    return
+  }
+
+  let assignedWorkId: string, mode: AssignedWorkViewMode
+  const lastAttempt = getLastAttempt(progresses.value)
+
+  if (lastAttempt) {
+    assignedWorkId = lastAttempt.assignedWorkId
+    mode = lastAttempt.solveStatus == 'solved' ? 'read' : 'solve'
+  } else {
+    isLoading.value = true
+    const response = await AssignedWorkService.create(props.workAssignment.id)
+
+    if (isApiError(response)) {
+      isError.value = true
+
+      globalUiStore.createApiErrorToast(
+        'Не удалось перейти к работе',
+        response.error
+      )
+
+      return
+    }
+
+    // TODO: fix api client to not show here possible null so that ! is not needed,
+    // because logically it can't be null here (after error check)
+    assignedWorkId = response.data!.id
+    mode = 'solve'
+  }
+
+  isLoading.value = false
+
+  router.push({
+    name: 'assigned-works.detail',
+    params: {
+      mode,
+      assignedWorkId
+    }
+  })
+}
 </script>
 
 <style lang="sass" scoped>

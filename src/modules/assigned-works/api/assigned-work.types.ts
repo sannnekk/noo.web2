@@ -44,7 +44,9 @@ export interface AssignedWorkProgress {
   checkStatus: CheckStatus
   checkedAt: Date | null
   score: number | null
+  attempt: number
   maxScore: number
+  createdAt: Date
 }
 
 /**

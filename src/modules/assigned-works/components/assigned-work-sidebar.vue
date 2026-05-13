@@ -129,7 +129,8 @@
       </noo-text-block>
     </div>
     <div class="assigned-work-sidebar__score">
-      <assigned-work-score
+      <noo-assigned-work-score
+        with-label
         :score="assignedWorkDetailStore.assignedWork.score"
         :max-score="assignedWorkDetailStore.assignedWork.maxScore"
       />
@@ -181,7 +182,6 @@
 <script setup lang="ts">
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import assignedWorkActions from './assigned-work-actions.vue'
-import assignedWorkScore from './assigned-work-score.vue'
 import TaskGrid from './task-grid.vue'
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()

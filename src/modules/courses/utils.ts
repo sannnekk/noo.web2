@@ -1,3 +1,4 @@
+import type { AssignedWorkProgress } from '../assigned-works/api/assigned-work.types'
 import type {
   CourseChapterEntity,
   CourseMaterialEntity
@@ -87,9 +88,22 @@ function normalizeCoursePatch(key: string, value: unknown): unknown {
   return value
 }
 
+function getLastAttempt(
+  progresses: AssignedWorkProgress[]
+): AssignedWorkProgress | null {
+  if (progresses.length === 0) {
+    return null
+  }
+
+  return progresses.sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  )[0]
+}
+
 export {
   findMaterial,
   findChapterByMaterialId,
   normalizeCoursePatch,
-  searchMaterials
+  searchMaterials,
+  getLastAttempt
 }
