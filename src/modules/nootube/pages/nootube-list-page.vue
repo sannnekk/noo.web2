@@ -12,7 +12,7 @@
         <nootube-list-view
           v-model:page="allSearch.page.value"
           v-model:search="allSearch.search.value"
-          :items="videos /* allSearch.data.value */"
+          :items="allSearch.data.value"
           :total-count="allSearch.total.value"
           :is-loading="allSearch.isLoading.value"
           :limit="allSearch.pageSize.value"
@@ -38,7 +38,6 @@
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
 import { NooTubeService } from '../api/nootube.service'
-import { videos } from '../mock-data/videos'
 import type { NooTubeListPageTab } from '../types'
 import nootubeListView from '../views/nootube-list-view.vue'
 

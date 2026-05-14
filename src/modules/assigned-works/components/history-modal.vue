@@ -70,7 +70,6 @@ import type { EntityTableColumnType } from '@/components/entity-table/entity-tab
 import { useApiRequest } from '@/core/composables/useApiRequest'
 import { watch } from 'vue'
 import type { AssignedWorkStatusHistoryEntity } from '../api/assigned-work.types'
-import { assignedWorkHistory } from '../mock-data/assigned-work-history'
 import { readableHistoryStatus } from '../utils'
 
 interface Props {
@@ -86,7 +85,7 @@ const isOpen = defineModel<boolean>('is-open', {
 const history = useApiRequest<void, AssignedWorkStatusHistoryEntity[]>(() => {
   /* AssignedWorkService.getHistory(props.assignedWorkId) */
   return Promise.resolve({
-    data: assignedWorkHistory
+    data: [] as AssignedWorkStatusHistoryEntity[]
   })
 })
 

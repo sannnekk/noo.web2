@@ -6,8 +6,7 @@
     <intl-tel-input
       ref="iti"
       :model-value="modelValue"
-      @update:model-value="onUpdateModelValue"
-      initialCountry="ru"
+      initial-country="ru"
       :disabled="readonly"
       country-name-locale="ru"
       :i18n="ru"
@@ -15,12 +14,13 @@
       allow-number-extensions
       format-as-you-type
       :load-utils="() => import('intl-tel-input/utils')"
-      @change-number="syncValidity"
-      @change-error-code="onChangeErrorCode"
       :input-props="{
         class: inputClassString,
         placeholder: '999 999 99 99'
       }"
+      @update:model-value="onUpdateModelValue"
+      @change-number="syncValidity"
+      @change-error-code="onChangeErrorCode"
     />
     <noo-input-error-list :errors="errors" />
   </div>
@@ -41,6 +41,8 @@ type IntlErrorCode =
   | 'IS_POSSIBLE_LOCAL_ONLY'
   | 'INVALID_LENGTH'
 
+const props = defineProps<Props>()
+
 const errorMessages: Record<IntlErrorCode, string> = {
   IS_POSSIBLE: 'Введите корректный номер телефона',
   INVALID_COUNTRY_CODE: 'Неверный код страны',
@@ -55,7 +57,6 @@ interface Props {
   label?: string
 }
 
-const props = defineProps<Props>()
 const modelValue = defineModel<string | null>()
 const isValidModel = defineModel<true | ValidationError[]>('isValid', {
   default: true,

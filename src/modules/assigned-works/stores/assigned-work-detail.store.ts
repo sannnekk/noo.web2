@@ -26,7 +26,6 @@ import type {
   AssignedWorkRemakeOptions
 } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
-import { assignedWorkApiResponse } from '../mock-data/assigned-work-api-response'
 import type { AssignedWorkViewMode, PossiblyUnsavedAnswer } from '../types'
 
 export interface AssignedWorkDetailStore {
@@ -93,25 +92,10 @@ const useAssignedWorkDetailStore = defineStore(
      *
      * @param assignedWorkId - The ID of the assigned work to load.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async function init(assignedWorkId: string): Promise<boolean> {
       globalUiStore.setLoading(true, undefined, 'Загрузка работы...')
 
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      /* const apiResponse =
-        Math.random() > 0.5
-          ? assignedWorkApiResponse
-          : {
-              error: {
-                id: 'UNKNWOWN_ERROR',
-                name: 'Неизвестная ошибка',
-                statusCode: 500,
-                payload: null
-              } as ApiError
-            } */
-      const apiResponse = assignedWorkApiResponse
-
-      //const apiResponse = await AssignedWorkService.getById(assignedWorkId)
+      const apiResponse = await AssignedWorkService.getById(assignedWorkId)
 
       if (isApiError(apiResponse)) {
         globalUiStore.setLoading(false)

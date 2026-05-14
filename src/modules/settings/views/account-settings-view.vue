@@ -54,7 +54,7 @@
           >
             <noo-phone-input
               v-model="accountSettingsStore.draft.phone"
-              v-model:isValid="phoneValidity"
+              v-model:is-valid="phoneValidity"
               label="Номер телефона"
             />
           </noo-grid-layout-item>
@@ -256,7 +256,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  shallowRef
+} from 'vue'
 import { storeToRefs } from 'pinia'
 import SessionCard from '../components/session-card.vue'
 import { useAccountSettingsStore } from '../stores/account-settings.store'
