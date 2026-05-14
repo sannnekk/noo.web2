@@ -42,7 +42,7 @@ const module: ApplicationModule = {
     },
     {
       name: 'assigned-works.detail',
-      path: '/assigned-work/:assignedWorkId/:mode?',
+      path: '/assigned-work/:assignedWorkId/:mode',
       meta: {
         pageTitle: 'Работа',
         tabTitle: 'Работа',

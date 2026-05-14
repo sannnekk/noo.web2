@@ -43,9 +43,11 @@ export interface AssignedWorkDetailStore {
   isStateSaved: ComputedRef<boolean>
   init: (assignedWorkId: string) => Promise<boolean>
   setMode: (mode: AssignedWorkViewMode) => void
+  viewMode: Ref<AssignedWorkViewMode>
   save: () => Promise<void>
   shiftDeadline: UseApiRequestReturn
   getTask: (taskId: string) => WorkTaskEntity | undefined
+  updateAnswer: (taskId: string, patch: Partial<PossiblyUnsavedAnswer>) => void
   workIsSolved: ComputedRef<boolean>
   workIsChecked: ComputedRef<boolean>
   workIsRemakeable: ComputedRef<boolean>
@@ -123,9 +125,29 @@ const useAssignedWorkDetailStore = defineStore(
 
     /**
      * Set the view mode of the assigned work.
+     * Also reflects the mode into the route param without reloading the page.
      */
     function setMode(mode: AssignedWorkViewMode): void {
+      if (viewMode.value === mode) {
+        return
+      }
+
       viewMode.value = mode
+
+      const currentRoute = router.currentRoute.value
+
+      if (
+        currentRoute.name &&
+        currentRoute.params.assignedWorkId &&
+        currentRoute.params.mode !== mode
+      ) {
+        router.replace({
+          name: currentRoute.name,
+          params: { ...currentRoute.params, mode },
+          query: currentRoute.query,
+          hash: currentRoute.hash
+        })
+      }
     }
 
     /**
@@ -432,6 +454,23 @@ const useAssignedWorkDetailStore = defineStore(
     }
 
     /**
+     * Applies a partial update to an answer and marks it as unsaved.
+     * All answer field mutations must go through this to keep the dirty flag in sync.
+     */
+    function updateAnswer(
+      taskId: string,
+      patch: Partial<PossiblyUnsavedAnswer>
+    ): void {
+      const answer = answers.value[taskId]
+
+      if (!answer) {
+        return
+      }
+
+      Object.assign(answer, patch, { isSaved: false })
+    }
+
+    /**
      * Sets the saved answers to the store.
      *
      * @param newAnswers The array of assigned work answers to set.
@@ -514,6 +553,7 @@ const useAssignedWorkDetailStore = defineStore(
       answers,
       init,
       setMode,
+      viewMode,
       save,
       markChecked,
       markSolved,
@@ -527,6 +567,7 @@ const useAssignedWorkDetailStore = defineStore(
       saveStatus,
       isStateSaved,
       getTask,
+      updateAnswer,
       workIsSolved,
       workIsChecked,
       workIsRemakeable,

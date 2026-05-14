@@ -201,11 +201,35 @@ const { workIsSolved, workIsChecked, workIsRemakeable } =
   assignedWorkDetailStore
 const isStudent = can(AssignedWorksPermissions.useStudentMode)
 const isMentor = can(AssignedWorksPermissions.useMentorMode)
+const mode = computed(() => assignedWorkDetailStore.viewMode)
+const hasSolveDeadline = computed(
+  () => !!assignedWorkDetailStore.assignedWork?.solveDeadlineAt
+)
+const hasCheckDeadline = computed(
+  () => !!assignedWorkDetailStore.assignedWork?.checkDeadlineAt
+)
 
 const actions: AssignedWorkAction[] = [
   {
+    key: 'to-solve-mode',
+    if: () => !workIsSolved && isStudent && mode.value == 'read',
+    size: 'medium',
+    variant: 'primary',
+    label: 'Перейти к выполнению',
+    handler: () => assignedWorkDetailStore.setMode('solve')
+  },
+  {
+    key: 'to-check-mode',
+    if: () =>
+      workIsSolved && !workIsChecked && isMentor && mode.value == 'read',
+    size: 'medium',
+    variant: 'primary',
+    label: 'Перейти к проверке',
+    handler: () => assignedWorkDetailStore.setMode('check')
+  },
+  {
     key: 'submit-work',
-    if: () => !workIsSolved && isStudent,
+    if: () => !workIsSolved && isStudent && mode.value == 'solve',
     size: 'large',
     variant: 'primary',
     label: 'Сдать работу',
@@ -213,7 +237,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'save-state',
-    if: () => !workIsSolved && isStudent,
+    if: () => !workIsSolved && isStudent && mode.value == 'solve',
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить без сдачи',
@@ -221,7 +245,11 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'shift-solve-deadline',
-    if: () => !workIsSolved && isStudent,
+    if: () =>
+      !workIsSolved &&
+      isStudent &&
+      mode.value == 'solve' &&
+      hasSolveDeadline.value,
     size: 'medium',
     variant: 'tertiary',
     label: 'Сдвинуть дедлайн',
@@ -229,7 +257,8 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'remake',
-    if: () => workIsSolved && workIsRemakeable && isStudent,
+    if: () =>
+      workIsSolved && workIsRemakeable && isStudent && mode.value == 'read',
     size: 'medium',
     variant: 'tertiary',
     label: 'Переделать работу',
@@ -237,7 +266,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'check-work',
-    if: () => !workIsChecked && isMentor,
+    if: () => !workIsChecked && isMentor && mode.value == 'check',
     size: 'large',
     variant: 'primary',
     label: 'Отправить проверку',
@@ -245,7 +274,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'save-state',
-    if: () => !workIsChecked && isMentor,
+    if: () => !workIsChecked && isMentor && mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить',
@@ -253,7 +282,8 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'add-helper-mentor',
-    if: () => !workIsChecked && workIsSolved && isMentor,
+    if: () =>
+      !workIsChecked && workIsSolved && isMentor && mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
     label: 'Добавить помогающего куратора',
@@ -261,15 +291,31 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'shift-check-deadline',
-    if: () => !workIsChecked && isMentor,
+    if: () =>
+      !workIsChecked &&
+      isMentor &&
+      mode.value == 'check' &&
+      hasCheckDeadline.value,
     size: 'medium',
     variant: 'tertiary',
     label: 'Сдвинуть дедлайн проверки',
     handler: () => (modals.beforeShiftCheckDeadline.isOpen.value = true)
   },
   {
+    key: 'to-read-mode',
+    if: () =>
+      (isStudent && mode.value == 'solve') ||
+      (isMentor && mode.value == 'check'),
+    size: 'medium',
+    variant: 'tertiary',
+    label: 'В режим просмотра',
+    handler: () => {
+      /* TODO: go to view mode and save everything */
+    }
+  },
+  {
     key: 'mark-unsolved',
-    if: () => isMentor,
+    if: () => isMentor && !workIsChecked && workIsSolved,
     size: 'medium',
     variant: 'tertiary',
     label: 'Отправить на доработку',

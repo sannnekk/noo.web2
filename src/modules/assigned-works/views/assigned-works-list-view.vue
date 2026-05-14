@@ -12,7 +12,7 @@
         :row-link="
           (item) => ({
             name: 'assigned-works.detail',
-            params: { assignedWorkId: item.id }
+            params: { assignedWorkId: item.id, mode: 'read' }
           })
         "
       >

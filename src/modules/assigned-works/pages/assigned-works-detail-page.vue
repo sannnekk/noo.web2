@@ -20,7 +20,7 @@
     <noo-error-block
       with-image
       centered
-      :try-again="tryAgainFunc"
+      :try-again="() => assignedWorkDetailStore.init(assignedWorkId)"
     >
       <noo-title :size="3"> Ошибка загрузки работы </noo-title>
       <noo-text-block
@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from 'vue'
+import { onUnmounted, watch } from 'vue'
 import assignedWorkSidebar from '../components/assigned-work-sidebar.vue'
 import AutosaveStatus from '../components/autosave-status.vue'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
@@ -50,13 +50,15 @@ const props = defineProps<AssignedWorkDetailPageProps>()
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
-assignedWorkDetailStore.setMode(props.mode)
+watch(
+  () => props.mode,
+  (newMode) => {
+    assignedWorkDetailStore.setMode(newMode)
+  },
+  { immediate: true }
+)
 
 onUnmounted(() => {
   assignedWorkDetailStore.reset()
 })
-
-function tryAgainFunc() {
-  assignedWorkDetailStore.init(props.assignedWorkId)
-}
 </script>

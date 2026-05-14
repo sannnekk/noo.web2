@@ -1,5 +1,4 @@
 import { useAuthStore } from '@/core/stores/auth.store'
-import { unref } from 'vue'
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 import {
   AssignedWorksPermissions,
@@ -33,6 +32,15 @@ function assignedWorkModeGuard(
   const assignedWorkId = String(to.params.assignedWorkId)
   const mode = String(to.params.mode) as AssignedWorkViewMode
   const possibleModes: AssignedWorkViewMode[] = ['read', 'solve', 'check']
+
+  if (mode === 'read') {
+    return true // read mode is always allowed
+  }
+
+  if (!assignedWorkStore.assignedWork?.work) {
+    return true // still allow navigation to show the error
+  }
+
   const role = authStore.userInfo?.role
   const isStudent = assignedWorksPermissionPolicy.can(
     AssignedWorksPermissions.useStudentMode,
@@ -43,20 +51,12 @@ function assignedWorkModeGuard(
     role
   )
 
-  if (!assignedWorkStore.assignedWork?.work) {
-    return true // still allow navigation to show the error
-  }
-
-  const { solveStatus, checkStatus } = unref(assignedWorkStore.assignedWork)
-
   // if not student or mentor, redirect to read mode
   if (!isStudent && !isMentor) {
-    return mode === 'read'
-      ? true
-      : {
-          name: 'assigned-works.detail',
-          params: { assignedWorkId, mode: 'read' }
-        }
+    return {
+      name: 'assigned-works.detail',
+      params: { assignedWorkId, mode: 'read' }
+    }
   }
 
   // bad value for mode, redirect to read mode
@@ -68,29 +68,19 @@ function assignedWorkModeGuard(
   }
 
   // if student, make sure the work is not made yet, otherwise redirect to read mode
-  if (isStudent) {
-    if (solveStatus === 'solved' && mode !== 'read') {
-      return {
-        name: 'assigned-works.detail',
-        params: { assignedWorkId, mode: 'read' }
-      }
+  if (isStudent && (assignedWorkStore.workIsSolved || mode === 'check')) {
+    return {
+      name: 'assigned-works.detail',
+      params: { assignedWorkId, mode: 'read' }
     }
-
-    if (mode === 'check') {
-      return {
-        name: 'assigned-works.detail',
-        params: { assignedWorkId, mode: 'read' }
-      }
-    }
-
-    return true
   }
 
   // is mentor
   // make sure the work is not checked yet and already solved, otherwise redirect to read mode
   if (
-    (checkStatus === 'checked' || solveStatus !== 'solved') &&
-    mode !== 'read'
+    isMentor &&
+    ((mode === 'check' && assignedWorkStore.workIsChecked) ||
+      !assignedWorkStore.workIsChecked)
   ) {
     return {
       name: 'assigned-works.detail',

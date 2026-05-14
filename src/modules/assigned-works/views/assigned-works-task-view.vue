@@ -12,6 +12,13 @@
         v-if="isRichText"
         class="assigned-works-task-view__answer__richtext"
       >
+        <noo-title
+          :size="4"
+          class="assigned-works-task-view__title"
+          no-margin
+        >
+          Ваш ответ
+        </noo-title>
         <noo-richtext-editor
           v-model="richTextAnswerModel"
           :placeholder="
@@ -39,13 +46,16 @@
         </noo-text-block>
       </div>
     </div>
-    <div class="assigned-works-task-view__score">
+    <div
+      v-if="isScoreVisible"
+      class="assigned-works-task-view__score"
+    >
       <noo-number-input
         v-if="!isScoreReadonly"
         v-model="answerScoreModel"
         label="Оценка"
         :min="0"
-        :max="task?.maxScore ?? 0"
+        :max="task?.maxScore"
       />
       <noo-assigned-work-score
         v-else
@@ -127,24 +137,27 @@ const task = computed(() => assignedWorkDetailStore.getTask(props.taskId))
 const richTextAnswerModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].richTextContent,
   set: (value) =>
-    (assignedWorkDetailStore.answers[props.taskId].richTextContent = value)
+    assignedWorkDetailStore.updateAnswer(props.taskId, {
+      richTextContent: value
+    })
 })
 
 const wordAnswerModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].wordContent,
   set: (value) =>
-    (assignedWorkDetailStore.answers[props.taskId].wordContent = value)
+    assignedWorkDetailStore.updateAnswer(props.taskId, { wordContent: value })
 })
 
 const mentorCommentModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].mentorComment,
   set: (value) =>
-    (assignedWorkDetailStore.answers[props.taskId].mentorComment = value)
+    assignedWorkDetailStore.updateAnswer(props.taskId, { mentorComment: value })
 })
 
 const answerScoreModel = computed({
   get: () => assignedWorkDetailStore.answers[props.taskId].score,
-  set: (value) => (assignedWorkDetailStore.answers[props.taskId].score = value)
+  set: (value) =>
+    assignedWorkDetailStore.updateAnswer(props.taskId, { score: value })
 })
 
 const isRichText = computed(
@@ -162,6 +175,10 @@ const isAnswerReadonly = computed(() => {
 
 const isScoreReadonly = computed(() => {
   return props.mode !== 'check'
+})
+
+const isScoreVisible = computed(() => {
+  return props.mode != 'solve' && assignedWorkDetailStore.workIsSolved
 })
 
 const isCommentReadonly = computed(() => {

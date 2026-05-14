@@ -3,6 +3,15 @@
     v-if="assignedWorkDetailStore.assignedWork?.work"
     class="assigned-work-sidebar"
   >
+    <div class="assigned-work-sidebar__back-button">
+      <noo-back-button
+        :route="{
+          name: 'assigned-works.list'
+        }"
+      >
+        К списку работ
+      </noo-back-button>
+    </div>
     <div class="assigned-work-sidebar__subject">
       <noo-subject-block
         :subject="assignedWorkDetailStore.assignedWork.work.subject ?? null"
@@ -128,7 +137,10 @@
         </noo-inline-link>
       </noo-text-block>
     </div>
-    <div class="assigned-work-sidebar__score">
+    <div
+      v-if="assignedWorkDetailStore.workIsSolved"
+      class="assigned-work-sidebar__score"
+    >
       <noo-assigned-work-score
         with-label
         :score="assignedWorkDetailStore.assignedWork.score"
