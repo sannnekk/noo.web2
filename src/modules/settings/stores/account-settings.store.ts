@@ -63,7 +63,7 @@ interface AccountSettingsStore {
   /**
    * Soft-deletes the current user's account and logs them out.
    */
-  deleteAccount: UseApiRequestReturn
+  deleteAccount: UseApiRequestReturn<string>
   /**
    * Whether the draft has unsaved changes compared to the loaded user.
    */
@@ -224,7 +224,7 @@ const useAccountSettingsStore = defineStore(
     )
 
     const deleteAccount = useApiRequest(
-      () => UserService.delete(getCurrentUserId()),
+      (password: string) => UserService.delete(password),
       () => {
         uiStore.createSuccessToast('Аккаунт удалён')
         authStore.logout.execute()

@@ -24,8 +24,9 @@
       <noo-title
         :size="3"
         no-margin
-        >Прикрепленные работы:</noo-title
       >
+        Прикрепленные работы:
+      </noo-title>
       <noo-text-block
         dimmed
         size="small"
@@ -50,8 +51,9 @@
       <noo-title
         :size="3"
         no-margin
-        >Файлы:</noo-title
       >
+        Файлы:
+      </noo-title>
       <noo-text-block
         dimmed
         size="small"

@@ -36,11 +36,11 @@ interface IUserService {
     patch: JsonPatchDocument<UserEntity>
   ): Promise<ApiResponse>
   /**
-   * Deletes a user by their unique identifier
+   * Deletes a current user, requires password confirmation
    *
-   * @param userId The ID of the user to delete
+   * @param password The password of the user to confirm deletion
    */
-  delete(userId: string): Promise<ApiResponse>
+  delete(password: string): Promise<ApiResponse>
   /**
    * Changes the role of a user
    *
@@ -120,8 +120,8 @@ async function update(
   return await Api.patch(`${BASE_PATH}/${userId}`, patch)
 }
 
-async function deleteUser(userId: string): Promise<ApiResponse> {
-  return await Api.delete(`${BASE_PATH}/${userId}`)
+async function deleteUser(password: string): Promise<ApiResponse> {
+  return await Api.post(`${BASE_PATH}/delete`, { password })
 }
 
 async function changeRole(

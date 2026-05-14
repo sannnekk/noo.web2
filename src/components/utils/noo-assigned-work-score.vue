@@ -1,10 +1,10 @@
 <template>
   <div class="noo-assigned-work-score">
     <noo-text-block
+      v-if="withLabel"
       class="noo-assigned-work-score__label"
       size="small"
       dimmed
-      v-if="withLabel"
     >
       Результат:
     </noo-text-block>

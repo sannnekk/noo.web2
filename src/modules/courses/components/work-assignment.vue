@@ -16,9 +16,9 @@
       >
         <noo-button
           variant="primary"
-          @click="toWorkClick()"
           :disabled="!workAssignment.isActive || isLoading || isError"
           :is-loading="isLoading"
+          @click="toWorkClick()"
         >
           К работе
         </noo-button>
@@ -148,7 +148,6 @@ onMounted(async () => {
 
   if (isApiError(response)) {
     isError.value = true
-    console.log('Failed to load assigned work progress', response.error)
 
     return
   }

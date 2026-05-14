@@ -11,6 +11,9 @@ importers:
       '@duskmoon/vue3-typed-js':
         specifier: ^0.0.4
         version: 0.0.4
+      '@intl-tel-input/vue':
+        specifier: 28.1.0
+        version: 28.1.0(vue@3.5.30(typescript@5.8.3))
       '@unovis/ts':
         specifier: 1.6.4
         version: 1.6.4
@@ -38,6 +41,9 @@ importers:
       fast-json-patch:
         specifier: github:sannnekk/JSON-Patch#feature/date-object-support
         version: https://codeload.github.com/sannnekk/JSON-Patch/tar.gz/c4a18865765d2be46b7fe9c76acff0030ed385bc
+      intl-tel-input:
+        specifier: 28.1.0
+        version: 28.1.0
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -575,6 +581,11 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
+
+  '@intl-tel-input/vue@28.1.0':
+    resolution: {integrity: sha512-RxRfp9oRZ4eAWKNPaEA2tdAxfv6HqsUko/IC7Opz27A6be19a1sD2q2Jp155kAEsLsC/uXwwyOMWR5dJxhx+TQ==}
+    peerDependencies:
+      vue: ^3.0.0
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2374,6 +2385,9 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
+  intl-tel-input@28.1.0:
+    resolution: {integrity: sha512-Tx3S1L3pRFvrcXhWXQIbYhMxPhCE4TbNN2Yk5w43BZ8ib2q3lfeUzSoAqVNB45F9JCoAcH1bUQvx9Bu7F3fSIA==}
+
   is-arguments@1.2.0:
     resolution: {integrity: sha512-7bVbi0huj/wrIAOzb8U1aszg9kdi3KN/CyU19CTI7tAoZYEZoL9yCDXpbXN+uPsuWnP02cyug1gleqq+TU+YCA==}
     engines: {node: '>= 0.4'}
@@ -3998,6 +4012,11 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
+
+  '@intl-tel-input/vue@28.1.0(vue@3.5.30(typescript@5.8.3))':
+    dependencies:
+      intl-tel-input: 28.1.0
+      vue: 3.5.30(typescript@5.8.3)
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -6017,6 +6036,8 @@ snapshots:
   internmap@1.0.1: {}
 
   internmap@2.0.3: {}
+
+  intl-tel-input@28.1.0: {}
 
   is-arguments@1.2.0:
     dependencies:

@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@duskmoon/vue3-typed-js": "^0.0.4",
+    "@intl-tel-input/vue": "28.1.0",
     "@unovis/ts": "1.6.4",
     "@unovis/vue": "1.6.4",
     "@vueup/vue-quill": "1.2.0",
@@ -28,6 +29,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "fast-json-patch": "github:sannnekk/JSON-Patch#feature/date-object-support",
+    "intl-tel-input": "28.1.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.23",
     "mitt": "^3.0.1",

@@ -14,7 +14,7 @@
         <assigned-works-list-view
           v-model:search="assignedWorksListStore.allSearch.search"
           v-model:page="assignedWorksListStore.allSearch.page"
-          :works="/* assignedWorksListStore.allSearch.data */ assignedWorkList"
+          :works="assignedWorksListStore.allSearch.data"
           :total-count="assignedWorksListStore.allSearch.total"
           :is-loading="assignedWorksListStore.allSearch.isLoading"
         />
@@ -70,7 +70,6 @@ import assignedWorksListView from '../views/assigned-works-list-view.vue'
 import { watch } from 'vue'
 import { useAssignedWorkListStore } from '../stores/assigned-work-list.store'
 import type { AssignedWorkListTab } from '../types'
-import { assignedWorkList } from '../mock-data/assigned-works'
 
 export interface AssignedWorkListPageProps {
   tabId?: AssignedWorkListTab

@@ -24,7 +24,7 @@ const useAssignedWorkListStore = defineStore(
 
     const allSearch = useSearch(
       (pagination) => AssignedWorkService.get(pagination, userId.value),
-      { immediate: false }
+      { immediate: true }
     )
 
     const notMadeSearch = useSearch(

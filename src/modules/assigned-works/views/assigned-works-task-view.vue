@@ -47,7 +47,7 @@
         :min="0"
         :max="task?.maxScore ?? 0"
       />
-      <assigned-work-score
+      <noo-assigned-work-score
         v-else
         :score="answerScoreModel"
         :max-score="task?.maxScore ?? 0"
@@ -110,7 +110,6 @@
 <script setup lang="ts">
 import { maxLength } from '@/core/validators/string.utils'
 import { computed } from 'vue'
-import assignedWorkScore from '../components/assigned-work-score.vue'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import type { AssignedWorkViewMode } from '../types'
 

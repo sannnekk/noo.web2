@@ -7,8 +7,22 @@ import {
 
 interface ValidationState {
   isValid: boolean
+  /**
+   * Flat list of all error messages with field paths included.
+   * Useful for summary blocks (e.g. a save-confirm modal listing every issue).
+   */
   errors: string[]
+  /**
+   * Errors grouped by field path. Bind to per-input `:errors` props as
+   * `:errors="state.fieldErrors.someField"`.
+   */
   fieldErrors: FieldErrors
+  /**
+   * Errors NOT tied to a single field (cross-field rules from `.refine` /
+   * `.superRefine` that resolve to the root path). Render these via
+   * `<noo-form-errors :errors="state.rootErrors" />` near the submit button.
+   */
+  rootErrors: ValidationError[]
 }
 
 interface ValidationStateOptions {
@@ -19,7 +33,8 @@ function createValidationState(): ValidationState {
   return {
     isValid: true,
     errors: [],
-    fieldErrors: {}
+    fieldErrors: {},
+    rootErrors: []
   }
 }
 
@@ -28,11 +43,13 @@ function buildValidationStateFromZodResult(
   options: ValidationStateOptions = {}
 ): ValidationState {
   const errors = buildValidationErrors(result.fieldErrors, options)
+  const rootErrors = result.fieldErrors[ROOT_ERROR_KEY] ?? []
 
   return {
     isValid: result.isValid,
     errors,
-    fieldErrors: result.fieldErrors
+    fieldErrors: result.fieldErrors,
+    rootErrors
   }
 }
 

@@ -5,6 +5,7 @@ import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 export interface UserEntity extends ApiEntity<'User'> {
   username: string
   email: string
+  phone: string | null
   name: string
   telegramId: string | null
   telegramUsername: string | null
