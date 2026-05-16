@@ -8,43 +8,32 @@
       <noo-richtext-block :value="task.content" />
     </div>
     <div class="assigned-works-task-view__answer">
-      <div
-        v-if="isRichText"
-        class="assigned-works-task-view__answer__richtext"
-      >
-        <noo-title
-          :size="4"
-          class="assigned-works-task-view__title"
-          no-margin
-        >
-          Ваш ответ
-        </noo-title>
-        <noo-richtext-editor
-          v-model="richTextAnswerModel"
-          :placeholder="
-            isAnswerReadonly ? 'Нет ответа' : 'Введите ваш ответ здесь...'
-          "
-          :readonly="isAnswerReadonly"
-        />
-      </div>
-      <div
-        v-else-if="isWord"
-        class="assigned-works-task-view__answer__word"
-      >
-        <noo-text-input
-          v-model="wordAnswerModel"
-          label="Ваш ответ"
-          :validators="[(value) => maxLength(value, 100)]"
-          :readonly="isAnswerReadonly"
-        />
-        <noo-text-block
-          dimmed
-          size="small"
-        >
-          Это задание в формате нескольких символов. Здесь не требуется длинный
-          ответ или загрузка файла. Регистр и пробелы не влияют на проверку.
-        </noo-text-block>
-      </div>
+      <word-task-container
+        v-if="taskType === 'word'"
+        v-model="wordAnswerModel"
+        :readonly="isAnswerReadonly"
+      />
+      <text-task-container
+        v-else-if="taskType === 'text'"
+        v-model="richTextAnswerModel"
+        :readonly="isAnswerReadonly"
+      />
+      <!-- These types require also detailedScore, word counter and complex comments -->
+      <essay-task-container
+        v-else-if="taskType === 'essay'"
+        v-model="richTextAnswerModel"
+        :readonly="isAnswerReadonly"
+      />
+      <final-essay-task-container
+        v-else-if="taskType === 'final-essay'"
+        v-model="richTextAnswerModel"
+        :readonly="isAnswerReadonly"
+      />
+      <dictation-task-container
+        v-else-if="taskType === 'dictation'"
+        v-model="richTextAnswerModel"
+        :readonly="isAnswerReadonly"
+      />
     </div>
     <div
       v-if="isScoreVisible"
@@ -118,7 +107,11 @@
 </template>
 
 <script setup lang="ts">
-import { maxLength } from '@/core/validators/string.utils'
+import textTaskContainer from '../components/text-task-container.vue'
+import wordTaskContainer from '../components/word-task-container.vue'
+import essayTaskContainer from '../components/essay-task-container.vue'
+import finalEssayTaskContainer from '../components/final-essay-task-container.vue'
+import dictationTaskContainer from '../components/dictation-task-container.vue'
 import { computed } from 'vue'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import type { AssignedWorkViewMode } from '../types'
@@ -160,14 +153,7 @@ const answerScoreModel = computed({
     assignedWorkDetailStore.updateAnswer(props.taskId, { score: value })
 })
 
-const isRichText = computed(
-  () =>
-    task.value?.type === 'text' ||
-    task.value?.type === 'essay' ||
-    task.value?.type === 'final-essay'
-)
-
-const isWord = computed(() => task.value?.type === 'word')
+const taskType = computed(() => task.value?.type)
 
 const isAnswerReadonly = computed(() => {
   return props.mode !== 'solve'

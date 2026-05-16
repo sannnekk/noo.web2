@@ -163,8 +163,8 @@ function createAnswerDraft(
   return {
     _entityName: 'AssignedWorkAnswer',
     _key: uid(),
+    _status: 'empty',
     taskId: task.id,
-    isSaved: false,
     status: 'not-submitted',
     richTextContent: null,
     wordContent: null,

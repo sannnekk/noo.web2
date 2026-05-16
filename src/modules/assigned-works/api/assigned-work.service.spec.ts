@@ -39,8 +39,8 @@ describe('AssignedWorkService', () => {
 
       expect(answer).toMatchObject({
         _entityName: 'AssignedWorkAnswer',
+        _status: 'empty',
         taskId: 'task-1',
-        isSaved: false,
         status: 'not-submitted',
         richTextContent: null,
         wordContent: null,

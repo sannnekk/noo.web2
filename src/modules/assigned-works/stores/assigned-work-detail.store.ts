@@ -8,6 +8,7 @@ import { useSaveStatus } from '@/core/composables/useSaveStatus'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { DateHelpers } from '@/core/utils/dates'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
+import { debouncedWatch } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import {
   computed,
@@ -28,6 +29,19 @@ import type {
 import { AssignedWorkConfig } from '../config'
 import type { AssignedWorkViewMode, PossiblyUnsavedAnswer } from '../types'
 
+/**
+ * Debounce window (ms) after the last answer change before autosave runs.
+ */
+const AUTOSAVE_DEBOUNCE_MS = 1500
+
+interface SaveOptions {
+  /**
+   * If true, suppress fullscreen loader and success toast.
+   * Used by the autosave path so user keystrokes are not interrupted.
+   */
+  silent?: boolean
+}
+
 export interface AssignedWorkDetailStore {
   assignedWork: ShallowRef<AssignedWorkEntity | undefined>
   answers: Ref<Record<string, PossiblyUnsavedAnswer>>
@@ -44,7 +58,8 @@ export interface AssignedWorkDetailStore {
   init: (assignedWorkId: string) => Promise<boolean>
   setMode: (mode: AssignedWorkViewMode) => void
   viewMode: Ref<AssignedWorkViewMode>
-  save: () => Promise<void>
+  save: (options?: SaveOptions) => Promise<void>
+  isAutosaveEnabled: ComputedRef<boolean>
   shiftDeadline: UseApiRequestReturn
   getTask: (taskId: string) => WorkTaskEntity | undefined
   updateAnswer: (taskId: string, patch: Partial<PossiblyUnsavedAnswer>) => void
@@ -77,10 +92,13 @@ const useAssignedWorkDetailStore = defineStore(
     const answers = ref<Record<string, PossiblyUnsavedAnswer>>({})
 
     /**
-     * If all answers are saved or not.
+     * True if there are unsaved (user-modified) changes pending.
+     * Pristine drafts (`_status === 'empty'`) are not considered dirty.
      */
     const isStateSaved = computed<boolean>(() =>
-      Object.values(answers.value).some((answer) => !answer.isSaved)
+      Object.values(answers.value).some(
+        (answer) => answer._status === 'modified'
+      )
     )
 
     /**
@@ -151,24 +169,62 @@ const useAssignedWorkDetailStore = defineStore(
     }
 
     /**
-     * Saves the answers to the server.
+     * Tracks an in-flight save promise so concurrent save invocations are
+     * serialized (e.g. manual save during a pending autosave debounce).
      */
-    async function save(): Promise<void> {
+    let inFlightSave: Promise<void> | null = null
+
+    /**
+     * Saves the answers to the server.
+     *
+     * Calls to `save` are serialized: if a save is already in flight, the new
+     * call waits for it and then runs, ensuring later changes are not dropped
+     * by a concurrent in-flight request.
+     */
+    async function save(options: SaveOptions = {}): Promise<void> {
+      const previous = inFlightSave
+      const next = previous
+        ? previous.catch(() => undefined).then(() => doSave(options))
+        : doSave(options)
+
+      inFlightSave = next.finally(() => {
+        if (inFlightSave === next) {
+          inFlightSave = null
+        }
+      })
+
+      return inFlightSave
+    }
+
+    /**
+     * Actual save implementation. Do not call directly — go through `save`.
+     */
+    async function doSave({ silent = false }: SaveOptions): Promise<void> {
+      if (!assignedWork.value) {
+        return
+      }
+
       const changedAnswers = getChangedAnswers()
 
       if (changedAnswers.length === 0) {
-        globalUiStore.createSuccessToast('Работа сохранена')
+        if (!silent) {
+          globalUiStore.createSuccessToast('Работа сохранена')
+        }
 
         return
       }
 
-      globalUiStore.setLoading(true, undefined, 'Сохранение работы...')
+      if (!silent) {
+        globalUiStore.setLoading(true, undefined, 'Сохранение работы...')
+      }
+
+      saveStatus.beginSave()
 
       const answerIdsByTaskId: Record<string, string> = {}
 
       for (const answer of changedAnswers as AssignedWorkAnswerEntity[]) {
         const response = await AssignedWorkService.saveAnswer(
-          assignedWork.value!.id,
+          assignedWork.value.id,
           {
             id: answer.id,
             taskId: answer.taskId,
@@ -183,11 +239,14 @@ const useAssignedWorkDetailStore = defineStore(
         )
 
         if (isApiError(response)) {
-          globalUiStore.setLoading(false)
-          globalUiStore.createApiErrorToast(
-            'Не удалось сохранить работу',
-            response.error
-          )
+          if (!silent) {
+            globalUiStore.setLoading(false)
+            globalUiStore.createApiErrorToast(
+              'Не удалось сохранить работу',
+              response.error
+            )
+          }
+          saveStatus.endSave({ success: false })
 
           return
         }
@@ -198,9 +257,49 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       setSavedAnswerIds(answerIdsByTaskId)
-      globalUiStore.setLoading(false)
-      saveStatus.pushSaveStatus()
+
+      if (!silent) {
+        globalUiStore.setLoading(false)
+      }
+
+      saveStatus.endSave({ success: true })
     }
+
+    /**
+     * Increments on every user-initiated answer change. Watched (with
+     * debouncing) to trigger autosave. We intentionally do NOT watch the
+     * `answers` ref deeply because initialization and post-save state writes
+     * would otherwise trigger spurious autosaves.
+     */
+    const autosaveTrigger = ref(0)
+
+    /**
+     * Autosave is allowed only while the user is actively solving or checking
+     * the work. Read mode is view-only and must never produce network writes.
+     */
+    const isAutosaveEnabled = computed<boolean>(
+      () => viewMode.value === 'solve' || viewMode.value === 'check'
+    )
+
+    debouncedWatch(
+      autosaveTrigger,
+      () => {
+        if (!isAutosaveEnabled.value) {
+          return
+        }
+
+        if (!assignedWork.value) {
+          return
+        }
+
+        if (getChangedAnswers().length === 0) {
+          return
+        }
+
+        void save({ silent: true })
+      },
+      { debounce: AUTOSAVE_DEBOUNCE_MS }
+    )
 
     /**
      * Marks the assigned work as solved.
@@ -435,6 +534,7 @@ const useAssignedWorkDetailStore = defineStore(
       assignedWork.value = undefined
       answers.value = {}
       saveStatus.reset()
+      inFlightSave = null
     }
 
     /**
@@ -443,7 +543,9 @@ const useAssignedWorkDetailStore = defineStore(
      * @returns The array of changed answers
      */
     function getChangedAnswers(): PossiblyUnsavedAnswer[] {
-      return Object.values(answers.value).filter((answer) => !answer.isSaved)
+      return Object.values(answers.value).filter(
+        (answer) => answer._status === 'modified'
+      )
     }
 
     /**
@@ -467,7 +569,8 @@ const useAssignedWorkDetailStore = defineStore(
         return
       }
 
-      Object.assign(answer, patch, { isSaved: false })
+      Object.assign(answer, patch, { _status: 'modified' })
+      autosaveTrigger.value++
     }
 
     /**
@@ -478,10 +581,10 @@ const useAssignedWorkDetailStore = defineStore(
     function setSavedAnswers(newAnswers: AssignedWorkAnswerEntity[]): void {
       answers.value = newAnswers.reduce<Record<string, PossiblyUnsavedAnswer>>(
         (acc, answer) => {
-          // @ts-expect-error Change to PossiblyUnsavedAnswer
           acc[answer.taskId] = {
             ...answer,
-            isSaved: true
+            _key: answer.id,
+            _status: 'saved'
           }
 
           return acc
@@ -512,7 +615,7 @@ const useAssignedWorkDetailStore = defineStore(
         const answer = answers.value[taskId]
 
         answer.id = answerId
-        answer.isSaved = true
+        answer._status = 'saved'
       }
     }
 
@@ -538,12 +641,13 @@ const useAssignedWorkDetailStore = defineStore(
     )
 
     /**
-     * Checks if all tasks are solved.
+     * Checks whether every task has an answer (saved or pending). Pristine
+     * drafts (`_status === 'empty'`) count as unanswered.
      */
     const allTasksAreSolved = computed<boolean>(() => {
       return (
         assignedWork.value?.work?.tasks?.every(
-          (task) => answers.value[task.id].isSaved
+          (task) => answers.value[task.id]?._status !== 'empty'
         ) ?? false
       )
     })
@@ -566,6 +670,7 @@ const useAssignedWorkDetailStore = defineStore(
       addHelperMentor,
       saveStatus,
       isStateSaved,
+      isAutosaveEnabled,
       getTask,
       updateAnswer,
       workIsSolved,
