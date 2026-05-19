@@ -7,6 +7,8 @@
       :is-loading="search.isLoading.value"
       :items="search.data.value"
       :total-count="search.total.value"
+      :error="search.error.value"
+      :try-again="search.reload"
     >
       <template #above-content>
         <noo-search-filters v-model:filters="search.filters.value">

@@ -15,6 +15,8 @@
             params: { assignedWorkId: item.id, mode: 'read' }
           })
         "
+        :error="error"
+        :try-again="tryAgain"
       >
         <template #above-content>
           <div class="assigned-works-list-view__head">
@@ -171,9 +173,12 @@ import {
   AssignedWorksPermissions,
   useAssignedWorksPermissions
 } from '../permissions'
+import type { ApiError } from '@/core/api/api.utils'
 
 interface Props {
   works: AssignedWorkEntity[]
+  error?: ApiError | null
+  tryAgain?: () => void
   totalCount: number
   isLoading?: boolean
 }

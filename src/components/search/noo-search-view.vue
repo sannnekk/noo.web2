@@ -20,6 +20,8 @@
         :columns="columns"
         :is-loading="isLoading"
         :row-link="rowLink"
+        :error="error"
+        :try-again="tryAgain"
       >
         <template
           v-for="column in columns"
@@ -52,6 +54,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from '../entity-table/entity-table-helpers'
+import type { ApiError } from '@/core/api/api.utils'
 
 export interface Props<
   T extends ApiEntity<TName>,
@@ -63,6 +66,8 @@ export interface Props<
   isLoading?: boolean
   columns: EntityTableColumnType<T>[]
   rowLink?: (item: T) => RouteLocationAsRelativeGeneric
+  error?: ApiError | null
+  tryAgain?: () => void
 }
 
 defineProps<Props<T>>()

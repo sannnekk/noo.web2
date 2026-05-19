@@ -41,7 +41,7 @@
       </div>
     </div>
     <div
-      v-else
+      v-else-if="!error"
       class="noo-card-search-view__empty"
     >
       <slot name="empty">
@@ -63,6 +63,24 @@
         </div>
       </slot>
     </div>
+    <div
+      v-else
+      class="noo-card-search__error"
+    >
+      <noo-error-block
+        with-image
+        centered
+        :try-again="tryAgain"
+      >
+        <noo-title :size="4">
+          {{
+            error
+              ? `${error.name}: ${error.description}`
+              : 'Не удалось получить результаты поиска'
+          }}
+        </noo-title>
+      </noo-error-block>
+    </div>
     <div class="noo-card-search-view__footer">
       <noo-pagination
         v-model:page="pageModel"
@@ -79,6 +97,7 @@
   generic="T extends ApiEntity<TName>, TName extends string = T['_entityName']"
 >
 import type { ApiEntity } from '@/core/api/api.types'
+import type { ApiError } from '@/core/api/api.utils'
 
 export interface Props<
   T extends ApiEntity<TName>,
@@ -95,6 +114,8 @@ export interface Props<
    * Default is 3.
    */
   perRow?: number
+  error?: ApiError | null
+  tryAgain?: () => void
 }
 
 withDefaults(defineProps<Props<T>>(), {

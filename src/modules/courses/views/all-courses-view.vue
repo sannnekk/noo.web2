@@ -7,6 +7,8 @@
     :is-loading="search.isLoading.value"
     :limit="25"
     :per-row="3"
+    :error="search.error.value"
+    :try-again="search.reload"
   >
     <template #actions>
       <noo-button

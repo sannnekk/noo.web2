@@ -65,7 +65,7 @@
     </tbody>
   </table>
   <div
-    v-else
+    v-else-if="!props.isLoading && !props.error"
     class="noo-entity-table__empty"
   >
     <slot name="empty">
@@ -87,6 +87,26 @@
       </div>
     </slot>
   </div>
+  <div
+    v-else
+    class="noo-entity-table__error"
+  >
+    <slot name="error">
+      <noo-error-block
+        with-image
+        centered
+        :try-again="props.tryAgain"
+      >
+        <noo-title :size="4">
+          {{
+            error
+              ? `${error.name}: ${error.description}`
+              : 'Не удалось получить результаты поиска'
+          }}
+        </noo-title>
+      </noo-error-block>
+    </slot>
+  </div>
 </template>
 
 <script
@@ -97,6 +117,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from './entity-table-helpers'
+import type { ApiError } from '@/core/api/api.utils'
 
 export interface Props<
   T extends ApiEntity<TName>,
@@ -106,6 +127,8 @@ export interface Props<
   isLoading?: boolean
   columns: EntityTableColumnType<T>[]
   rowLink?: (item: T) => RouteLocationAsRelativeGeneric
+  error?: ApiError | null
+  tryAgain?: () => void
 }
 
 const props = defineProps<Props<T>>()

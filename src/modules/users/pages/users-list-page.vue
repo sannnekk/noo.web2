@@ -13,6 +13,8 @@
           params: { userId: item.id }
         })
       "
+      :error="search.error.value"
+      :try-again="search.reload"
     >
       <template #column-avatar="{ item }">
         <noo-user-avatar

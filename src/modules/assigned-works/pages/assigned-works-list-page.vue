@@ -17,6 +17,8 @@
           :works="assignedWorksListStore.allSearch.data"
           :total-count="assignedWorksListStore.allSearch.total"
           :is-loading="assignedWorksListStore.allSearch.isLoading"
+          :error="assignedWorksListStore.allSearch.error"
+          :try-again="assignedWorksListStore.allSearch.reload"
         />
       </template>
       <template #tab-title-not-made>
@@ -31,6 +33,8 @@
           :works="assignedWorksListStore.notMadeSearch.data"
           :total-count="assignedWorksListStore.notMadeSearch.total"
           :is-loading="assignedWorksListStore.notMadeSearch.isLoading"
+          :error="assignedWorksListStore.notMadeSearch.error"
+          :try-again="assignedWorksListStore.notMadeSearch.reload"
         />
       </template>
       <template #tab-title-not-checked>
@@ -45,6 +49,8 @@
           :works="assignedWorksListStore.notCheckedSearch.data"
           :total-count="assignedWorksListStore.notCheckedSearch.total"
           :is-loading="assignedWorksListStore.notCheckedSearch.isLoading"
+          :error="assignedWorksListStore.notCheckedSearch.error"
+          :try-again="assignedWorksListStore.notCheckedSearch.reload"
         />
       </template>
       <template #tab-title-checked>
@@ -59,6 +65,8 @@
           :works="assignedWorksListStore.checkedSearch.data"
           :total-count="assignedWorksListStore.checkedSearch.total"
           :is-loading="assignedWorksListStore.checkedSearch.isLoading"
+          :error="assignedWorksListStore.checkedSearch.error"
+          :try-again="assignedWorksListStore.checkedSearch.reload"
         />
       </template>
     </noo-tabs-layout>

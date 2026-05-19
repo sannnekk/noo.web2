@@ -16,6 +16,8 @@
           :total-count="allSearch.total.value"
           :is-loading="allSearch.isLoading.value"
           :limit="allSearch.pageSize.value"
+          :error="allSearch.error.value"
+          :try-again="allSearch.reload"
         />
       </template>
       <template #tab-title-favourites>
@@ -29,6 +31,8 @@
           :total-count="favouritesSearch.total.value"
           :is-loading="favouritesSearch.isLoading.value"
           :limit="favouritesSearch.pageSize.value"
+          :error="favouritesSearch.error.value"
+          :try-again="favouritesSearch.reload"
         />
       </template>
     </noo-tabs-layout>

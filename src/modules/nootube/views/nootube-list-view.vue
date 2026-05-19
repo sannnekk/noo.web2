@@ -9,6 +9,8 @@
       :is-loading="isLoading"
       :per-row="4"
       gap="0.5em"
+      :error="error"
+      :try-again="tryAgain"
     >
       <template #actions>
         <noo-button> Загрузить видео </noo-button>
@@ -37,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiError } from '@/core/api/api.utils'
 import type { NooTubeVideoEntity } from '../api/nootube.types'
 
 interface Props {
@@ -44,6 +47,8 @@ interface Props {
   totalCount: number
   isLoading?: boolean
   limit?: number
+  error?: ApiError | null
+  tryAgain?: () => void
 }
 
 withDefaults(defineProps<Props>(), {

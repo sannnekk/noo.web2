@@ -13,6 +13,8 @@
       :is-loading="search.isLoading.value"
       :items="search.data.value"
       :total-count="search.total.value"
+      :error="search.error.value"
+      :try-again="search.reload"
     >
       <template #actions>
         <noo-button
