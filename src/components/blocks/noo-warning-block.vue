@@ -1,7 +1,7 @@
 <template>
   <div
     class="noo-warning-block"
-    :class="{ 'warning-block--small': small }"
+    :class="{ 'noo-warning-block--small': small }"
   >
     <div class="noo-warning-block__icon">
       <noo-icon name="attention-yellow" />
@@ -29,7 +29,7 @@ defineProps<Props>()
 
   &--small
     padding: 0.5em
-    font-size: 0.8em
+    font-size: 0.9em
 
   &__icon
     font-size: 40px

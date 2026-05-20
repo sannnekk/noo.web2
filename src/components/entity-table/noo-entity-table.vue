@@ -203,4 +203,7 @@ const getCellData = (item: T, column: EntityTableColumnType<T>) => {
     &__inner
       text-align: center
       width: max(600px, 90%)
+
+      img
+        max-width: 50%
 </style>

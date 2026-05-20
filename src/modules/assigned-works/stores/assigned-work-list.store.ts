@@ -14,6 +14,7 @@ import {
   type UseApiRequestReturn
 } from '@/core/composables/useApiRequest'
 import { useAuthStore } from '@/core/stores/auth.store'
+import type { AssignedWorkListTab } from '../types'
 
 interface AssignedWorkListStore {
   metadata: UseApiRequestReturn<void, AssignedWorksMetadata>
@@ -22,6 +23,7 @@ interface AssignedWorkListStore {
   notMadeSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notCheckedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   checkedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
+  onTabChange: (newTab: AssignedWorkListTab) => void
 }
 
 const useAssignedWorkListStore = defineStore(
@@ -33,6 +35,23 @@ const useAssignedWorkListStore = defineStore(
     const metadata = useApiRequest(() =>
       AssignedWorkService.getMetadata(userId.value)
     )
+
+    function onTabChange(newTab: AssignedWorkListTab) {
+      switch (newTab) {
+        case 'all':
+          allSearch.reloadIfEmpty()
+          break
+        case 'not-made':
+          notMadeSearch.reloadIfEmpty()
+          break
+        case 'not-checked':
+          notCheckedSearch.reloadIfEmpty()
+          break
+        case 'checked':
+          checkedSearch.reloadIfEmpty()
+          break
+      }
+    }
 
     const allSearch = useSearch(
       (pagination) => AssignedWorkService.get(pagination, userId.value),
@@ -80,7 +99,8 @@ const useAssignedWorkListStore = defineStore(
       allSearch,
       notMadeSearch,
       notCheckedSearch,
-      checkedSearch
+      checkedSearch,
+      onTabChange
     }
   }
 )

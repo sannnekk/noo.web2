@@ -13,12 +13,24 @@
         v-else
         name="sun"
       />
+      <span
+        v-if="withName"
+        class="noo-theme-toggle-widget__label"
+      >
+        {{ mode === 'dark' ? 'Тёмная' : 'Светлая' }} тема
+      </span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useTheme } from '@/core/composables/useTheme'
+
+interface Props {
+  withName?: boolean
+}
+
+defineProps<Props>()
 
 const { mode, toggle } = useTheme()
 </script>
@@ -29,7 +41,7 @@ const { mode, toggle } = useTheme()
 
   &__button
     padding: 0.2em
-    font-size: 1.6rem
+    font-size: 1.7em
     display: flex
     justify-content: center
     align-items: center
@@ -44,4 +56,9 @@ const { mode, toggle } = useTheme()
 
     &:hover
       background-color: var(--light)
+
+  &__label
+    margin-left: 0.5em
+    font-size: 0.7em
+    color: var(--text-light)
 </style>

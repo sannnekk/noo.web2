@@ -153,6 +153,7 @@ declare module 'vue' {
     NooSureModal: typeof import('./src/components/modal/noo-sure-modal.vue')['default']
     NooTabCounter: typeof import('./src/components/utils/noo-tab-counter.vue')['default']
     NooTabsLayout: typeof import('./src/components/layout/noo-tabs-layout.vue')['default']
+    NooTelegramLoginButton: typeof import('./src/components/buttons/noo-telegram-login-button.vue')['default']
     NooTextarea: typeof import('./src/components/inputs/noo-textarea.vue')['default']
     NooTextBlock: typeof import('./src/components/text/noo-text-block.vue')['default']
     NooTextFormatIcon: typeof import('./src/components/icons/noo-text-format-icon.vue')['default']

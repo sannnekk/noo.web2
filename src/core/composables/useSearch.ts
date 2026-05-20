@@ -38,6 +38,7 @@ interface UseSearchReturn<T> {
   filters: ShallowRef<IPagination['filters']>
   isLoading: ShallowRef<boolean>
   reload: () => Promise<void>
+  reloadIfEmpty: () => Promise<void>
 }
 
 function useSearch<T>(
@@ -86,6 +87,12 @@ function useSearch<T>(
     }
   }
 
+  async function reloadIfEmpty() {
+    if (data.value.length === 0 && !isLoading.value && !error.value) {
+      fetchData()
+    }
+  }
+
   function combineFilters(
     filters: IPagination['filters'] | undefined,
     initialFilters: IPagination['filters'] | undefined
@@ -117,7 +124,8 @@ function useSearch<T>(
     error,
     sort,
     sortDirection,
-    reload: fetchData
+    reload: fetchData,
+    reloadIfEmpty
   }
 }
 

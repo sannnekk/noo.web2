@@ -4,6 +4,9 @@
       use-route-tabs
       with-padding
       route-param-name="tab"
+      @tab-change="
+        assignedWorksListStore.onTabChange($event as AssignedWorkListTab)
+      "
     >
       <template #tab-title-all>
         <span class="assigned-works-list-page__tab-title">

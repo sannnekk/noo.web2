@@ -72,9 +72,12 @@ interface Props {
   withPadding?: boolean
 }
 
+type Emits = (event: 'tab-change', value: string) => void
+
 const props = withDefaults(defineProps<Props>(), {
   useRouteTabs: false
 })
+const emits = defineEmits<Emits>()
 const slots = defineSlots<Slots>()
 const route = useRoute()
 
@@ -86,6 +89,10 @@ const tabKeys = computed(() => {
 
 const activeTab = defineModel<string>('activeTab', {
   default: ''
+})
+
+watch(activeTab, (newTab) => {
+  emits('tab-change', newTab)
 })
 
 if (props.useRouteTabs) {
