@@ -36,7 +36,7 @@ const module: ApplicationModule = {
             route.params.tab.length > 0
               ? (String(route.params.tab) as AssignedWorkListTab)
               : 'all',
-          userId: String(route.query.userId)
+          userId: route.query.userId ? String(route.query.userId) : undefined
         }
       }
     },

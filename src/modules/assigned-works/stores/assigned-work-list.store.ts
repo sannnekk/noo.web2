@@ -5,12 +5,19 @@ import { shallowRef } from 'vue'
 import { AssignedWorkService } from '../api/assigned-work.service'
 import type {
   AssignedWorkEntity,
+  AssignedWorksMetadata,
   CheckStatus,
   SolveStatus
 } from '../api/assigned-work.types'
+import {
+  useApiRequest,
+  type UseApiRequestReturn
+} from '@/core/composables/useApiRequest'
+import { useAuthStore } from '@/core/stores/auth.store'
 
 interface AssignedWorkListStore {
-  setUserId: (id: string | undefined) => void
+  metadata: UseApiRequestReturn<void, AssignedWorksMetadata>
+  setUserId: (id: string) => void
   allSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notMadeSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notCheckedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
@@ -20,7 +27,12 @@ interface AssignedWorkListStore {
 const useAssignedWorkListStore = defineStore(
   'assigned-works:assigned-work-list',
   (): AssignedWorkListStore => {
-    const userId = shallowRef<string>()
+    const authStore = useAuthStore()
+    const userId = shallowRef<string>(authStore.userInfo!.id!)
+
+    const metadata = useApiRequest(() =>
+      AssignedWorkService.getMetadata(userId.value)
+    )
 
     const allSearch = useSearch(
       (pagination) => AssignedWorkService.get(pagination, userId.value),
@@ -58,11 +70,12 @@ const useAssignedWorkListStore = defineStore(
       }
     )
 
-    function setUserId(id: string | undefined) {
+    function setUserId(id: string) {
       userId.value = id
     }
 
     return {
+      metadata,
       setUserId,
       allSearch,
       notMadeSearch,

@@ -153,6 +153,13 @@ const pageModel = defineModel<number>('page', {
   &__content
     display: grid
 
+  &__is-loading
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 4em 1em
+    font-size: 3em
+
   &__empty
     display: flex
     flex-direction: column

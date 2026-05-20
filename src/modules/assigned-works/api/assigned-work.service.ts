@@ -8,6 +8,7 @@ import type {
   AssignedWorkEntity,
   AssignedWorkProgress,
   AssignedWorkRemakeOptions,
+  AssignedWorksMetadata,
   IdResponseDto,
   ReplaceMainMentorOptions,
   ShiftAssignedWorkDeadlineOptions,
@@ -35,6 +36,12 @@ interface IAssignedWorkService {
     pagination?: IPagination,
     userId?: string
   ): Promise<ApiResponse<AssignedWorkEntity[]>>
+  /**
+   * Fetches the metadata of the assigned works for a current student or mentor
+   *
+   * @returns A promise that resolves to an ApiResponse containing AssignedWorkMetadata
+   */
+  getMetadata(userId: string): Promise<ApiResponse<AssignedWorksMetadata>>
   /**
    * Fetches an assigned work by its ID.
    *
@@ -153,6 +160,12 @@ async function get(
   return await Api.get(BASE_PATH, pagination ? pagination.toQuery() : undefined)
 }
 
+async function getMetadata(
+  userId: string
+): Promise<ApiResponse<AssignedWorksMetadata>> {
+  return await Api.get(`${BASE_PATH}/${userId}/metadata`)
+}
+
 async function getById(id: string): Promise<ApiResponse<AssignedWorkEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
@@ -200,12 +213,10 @@ async function remake(
 }
 
 async function markSolved(id: string): Promise<ApiResponse> {
-  // OpenAPI: POST /assigned-work/{assignedWorkId}/mark-solved
   return await Api.post<void, void>(`${BASE_PATH}/${id}/mark-solved`)
 }
 
 async function markChecked(id: string): Promise<ApiResponse> {
-  // OpenAPI: POST /assigned-work/{assignedWorkId}/mark-checked
   return await Api.post<void, void>(`${BASE_PATH}/${id}/mark-checked`)
 }
 
@@ -275,6 +286,7 @@ async function deleteAssignedWork(id: string): Promise<ApiResponse> {
 export const AssignedWorkService: IAssignedWorkService = {
   createAnswerDraft,
   get,
+  getMetadata,
   getById,
   getProgress,
   create,

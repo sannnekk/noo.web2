@@ -152,10 +152,6 @@ export interface AssignedWorkAnswerEntity extends ApiEntity<'AssignedWorkAnswer'
   status: AssignedWorkAnswerStatus
 }
 
-/**
- * Matches `UpsertAssignedWorkAnswerDTO` in OpenAPI.
- * Used as request payload for POST `/assigned-work/{assignedWorkId}/save-answer`.
- */
 export interface UpsertAssignedWorkAnswerDto {
   id?: string
   richTextContent?: IRichText
@@ -168,10 +164,6 @@ export interface UpsertAssignedWorkAnswerDto {
   taskId: string
 }
 
-/**
- * Matches `UpsertAssignedWorkCommentDTO` in OpenAPI.
- * Used as request payload for POST `/assigned-work/{assignedWorkId}/comment`.
- */
 export interface UpsertAssignedWorkCommentDto {
   id?: string
   content?: IRichText
@@ -179,4 +171,13 @@ export interface UpsertAssignedWorkCommentDto {
 
 export interface IdResponseDto {
   id: string
+}
+
+export interface AssignedWorksMetadata {
+  counts: {
+    all: number
+    notSolved: number
+    notChecked: number
+    checked: number
+  }
 }

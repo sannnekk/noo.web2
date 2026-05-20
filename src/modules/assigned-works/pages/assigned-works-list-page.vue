@@ -7,7 +7,11 @@
     >
       <template #tab-title-all>
         <span class="assigned-works-list-page__tab-title">
-          Все работы ({{ assignedWorksListStore.allSearch.total }})
+          Все работы
+          <noo-tab-counter
+            :count="assignedWorksListStore.metadata.data?.counts.all"
+            :is-loading="assignedWorksListStore.metadata.isLoading"
+          />
         </span>
       </template>
       <template #tab-all>
@@ -23,7 +27,11 @@
       </template>
       <template #tab-title-not-made>
         <span class="assigned-works-list-page__tab-title">
-          Нерешенные ({{ assignedWorksListStore.notMadeSearch.total }})
+          Нерешенные
+          <noo-tab-counter
+            :count="assignedWorksListStore.metadata.data?.counts.notSolved"
+            :is-loading="assignedWorksListStore.metadata.isLoading"
+          />
         </span>
       </template>
       <template #tab-not-made>
@@ -39,7 +47,11 @@
       </template>
       <template #tab-title-not-checked>
         <span class="assigned-works-list-page__tab-title">
-          Непроверенные ({{ assignedWorksListStore.notCheckedSearch.total }})
+          Непроверенные
+          <noo-tab-counter
+            :count="assignedWorksListStore.metadata.data?.counts.notChecked"
+            :is-loading="assignedWorksListStore.metadata.isLoading"
+          />
         </span>
       </template>
       <template #tab-not-checked>
@@ -55,7 +67,11 @@
       </template>
       <template #tab-title-checked>
         <span class="assigned-works-list-page__tab-title">
-          Проверенные ({{ assignedWorksListStore.checkedSearch.total }})
+          Проверенные
+          <noo-tab-counter
+            :count="assignedWorksListStore.metadata.data?.counts.checked"
+            :is-loading="assignedWorksListStore.metadata.isLoading"
+          />
         </span>
       </template>
       <template #tab-checked>
@@ -89,11 +105,12 @@ const assignedWorksListStore = useAssignedWorkListStore()
 
 watch(
   () => props.userId,
-  () => {
-    assignedWorksListStore.setUserId(props.userId)
+  async () => {
+    if (props.userId) {
+      assignedWorksListStore.setUserId(props.userId)
+    }
+    await assignedWorksListStore.metadata.execute()
   },
   { immediate: true }
 )
 </script>
-
-<style scoped lang="sass"></style>

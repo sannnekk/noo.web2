@@ -42,12 +42,14 @@
                       Снять выделение
                     </noo-button>
                     <noo-button
+                      v-if="can(AssignedWorksPermissions.addHelperMentor)"
                       variant="inline"
                       @click="onAddHelperMentor()"
                     >
                       Добавить помогающего куратора
                     </noo-button>
                     <noo-button
+                      v-if="can(AssignedWorksPermissions.archive)"
                       variant="danger"
                       @click="onArchive()"
                     >

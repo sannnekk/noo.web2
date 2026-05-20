@@ -10,7 +10,9 @@ const AssignedWorksPermissions = {
   useStudentMode: 'useStudentMode',
   useMentorMode: 'useMentorMode',
   showStudentInfo: 'showStudentInfo',
-  showMentorInfo: 'showMentorInfo'
+  showMentorInfo: 'showMentorInfo',
+  addHelperMentor: 'canAddHelperMentor',
+  archive: 'canArchive'
 } as const
 
 type AssignedWorksPermission =
@@ -37,6 +39,13 @@ const assignedWorksPermissionMap: RolePermissionsMap<AssignedWorksPermission> =
     [AssignedWorksPermissions.showMentorInfo]: [
       'admin',
       'teacher',
+      'assistant',
+      'student'
+    ],
+    [AssignedWorksPermissions.addHelperMentor]: ['admin', 'teacher', 'mentor'],
+    [AssignedWorksPermissions.archive]: [
+      'admin',
+      'mentor',
       'assistant',
       'student'
     ]

@@ -1,6 +1,6 @@
 <template>
   <table
-    v-if="props.data !== null && props.data?.length"
+    v-if="(props.data !== null && props.data?.length) || props.isLoading"
     class="noo-entity-table"
   >
     <thead class="noo-entity-table__head">
