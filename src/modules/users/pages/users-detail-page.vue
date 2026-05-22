@@ -19,9 +19,11 @@
                 size="small"
                 dimmed
               >
-                {{ user.email }}
+                Email:
+                <b>{{ user.email }}</b>
                 <br />
-                @{{ user.username }}
+                Никнейм:
+                <b>{{ user.username }}</b>
               </noo-text-block>
             </div>
             <user-blocked-banner :user="user" />
@@ -43,8 +45,9 @@
             v-else
             centered
             no-margin
+            :try-again="() => userDetailStore.init(userId)"
           >
-            Не удалось загрузить пользователя
+            <noo-title :size="5">Не удалось загрузить пользователя</noo-title>
           </noo-error-block>
         </div>
       </template>
@@ -109,6 +112,7 @@ import generalInfoView from '../views/general-info-view.vue'
 import historyView from '../views/history-view.vue'
 import pollsView from '../views/polls-view.vue'
 import statisticsView from '../views/statistics-view.vue'
+import { useAuthStore } from '@/core/stores/auth.store'
 
 export interface UsersDetailPageProps {
   tabId: UserDetailTab
@@ -118,11 +122,14 @@ export interface UsersDetailPageProps {
 defineProps<UsersDetailPageProps>()
 
 const userDetailStore = useUserDetailStore()
+const authStore = useAuthStore()
 const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
 
-const canSeeDangerZone = can(UsersPermissions.viewDangerZone)
+const canSeeDangerZone =
+  can(UsersPermissions.viewDangerZone) &&
+  user.value?.id !== authStore.userInfo?.id
 </script>
 
 <style scoped lang="sass">

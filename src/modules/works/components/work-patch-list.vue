@@ -19,7 +19,7 @@
       </template>
       <template #path--type="{ value }">
         <noo-work-type-select
-          :model-value="(value as string | null) ?? null"
+          :model-value="(value as WorkType | null) ?? null"
           label=""
           readonly
         />
@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
+import type { WorkType } from '../api/work.types'
 import { taskCheckStrategies, taskTypes, workPathLabels } from '../constants'
 import type { PossiblyUnsavedWork } from '../types'
 

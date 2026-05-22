@@ -1,7 +1,15 @@
 <template>
-  <div class="statistics-view">Статистика</div>
+  <statistics-panel
+    :user-id="user?.id ?? null"
+    :user-role="user?.role ?? null"
+  />
 </template>
 
-<script setup lang="ts"></script>
+<script lang="ts" setup>
+import { computed } from 'vue'
+import StatisticsPanel from '../components/statistics-panel.vue'
+import { useUserDetailStore } from '../stores/user-detail.store'
 
-<style scoped lang="sass"></style>
+const userDetailStore = useUserDetailStore()
+const user = computed(() => userDetailStore.user.data)
+</script>

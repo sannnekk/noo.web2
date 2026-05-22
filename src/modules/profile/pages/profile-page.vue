@@ -29,24 +29,52 @@
           use-route-tabs
           route-param-name="tabId"
         >
-          <template #tab-title-info>
+          <template
+            v-if="canViewInfo"
+            #tab-title-info
+          >
             <span>Общая информация</span>
           </template>
-          <template #tab-info>
+          <template
+            v-if="canViewInfo"
+            #tab-info
+          >
             <general-info-view />
           </template>
-          <template #tab-title-statistics>
+          <template
+            v-if="canViewStatistics"
+            #tab-title-statistics
+          >
             <span>Статистика</span>
           </template>
-          <template #tab-statistics>
+          <template
+            v-if="canViewStatistics"
+            #tab-statistics
+          >
             <statistics-view />
           </template>
-          <template #tab-title-polls>Опросы</template>
-          <template #tab-polls>
+          <template
+            v-if="canViewPolls"
+            #tab-title-polls
+          >
+            Опросы
+          </template>
+          <template
+            v-if="canViewPolls"
+            #tab-polls
+          >
             <polls-view />
           </template>
-          <template #tab-title-payments>Оплата</template>
-          <template #tab-payments>
+          <template
+            v-if="canViewPayments"
+            #tab-title-payments
+          >
+            Оплата
+          </template>
+          <template
+            v-if="canViewPayments"
+            #tab-payments
+          >
             <payments-view />
           </template>
         </noo-tabs-layout>
@@ -62,6 +90,7 @@ import PaymentsView from '../views/payments-view.vue'
 import GeneralInfoView from '../views/general-info-view.vue'
 import type { ProfilePageTab } from '../types'
 import { useAuthStore } from '@/core/stores/auth.store'
+import { ProfilePermissions, useProfilePermissions } from '../permissions'
 
 export interface ProfilePageProps {
   tabId?: ProfilePageTab
@@ -70,6 +99,12 @@ export interface ProfilePageProps {
 defineProps<ProfilePageProps>()
 
 const authStore = useAuthStore()
+const { can } = useProfilePermissions()
+
+const canViewInfo = can(ProfilePermissions.viewInfoTab)
+const canViewStatistics = can(ProfilePermissions.viewStatisticsTab)
+const canViewPolls = can(ProfilePermissions.viewPollsTab)
+const canViewPayments = can(ProfilePermissions.viewPaymentsTab)
 </script>
 
 <style scoped lang="sass">
