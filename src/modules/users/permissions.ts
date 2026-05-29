@@ -14,7 +14,8 @@ const UsersPermissions = {
   deleteUser: 'deleteUser',
   manageMentorAssignments: 'manageMentorAssignments',
   selfAssignAsMentor: 'selfAssignAsMentor',
-  viewMentorAssignments: 'viewMentorAssignments'
+  viewMentorAssignments: 'viewMentorAssignments',
+  manageCourseMemberships: 'manageCourseMemberships'
 } as const
 
 type UsersPermission = (typeof UsersPermissions)[keyof typeof UsersPermissions]
@@ -39,7 +40,8 @@ const usersPermissionMap: RolePermissionsMap<UsersPermission> = {
     'teacher',
     'assistant',
     'mentor'
-  ]
+  ],
+  [UsersPermissions.manageCourseMemberships]: ['admin', 'teacher']
 }
 
 const usersPermissionPolicy =

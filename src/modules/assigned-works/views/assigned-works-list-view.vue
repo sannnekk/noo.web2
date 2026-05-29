@@ -63,12 +63,14 @@
         </template>
         <template #actions>
           <noo-button
+            v-if="can(AssignedWorksPermissions.seeStatisticsButton)"
             variant="secondary"
             :to="{ name: 'profile', params: { tabId: 'statistics' } }"
           >
             Моя статистика
           </noo-button>
           <noo-button
+            v-if="can(AssignedWorksPermissions.seeTaskCardsButton)"
             variant="primary"
             :to="{ name: 'task-cards.list' }"
           >
@@ -86,7 +88,7 @@
               </noo-text-block>
             </div>
             <div
-              v-if="showStudent"
+              v-if="item.student"
               class="assigned-works-list-view__content__work-cell__user"
             >
               <span
@@ -97,7 +99,7 @@
               <noo-inline-user-card :user="item.student" />
             </div>
             <div
-              v-if="showMentors && item.mainMentor"
+              v-if="item.mainMentor"
               class="assigned-works-list-view__content__work-cell__user"
             >
               <span
@@ -108,7 +110,7 @@
               <noo-inline-user-card :user="item.mainMentor" />
             </div>
             <div
-              v-if="showMentors && item.helperMentor"
+              v-if="item.helperMentor"
               class="assigned-works-list-view__content__work-cell__user"
             >
               <span
@@ -207,10 +209,6 @@ const selectedCount = computed(() => {
 })
 
 const { can } = useAssignedWorksPermissions()
-
-const showStudent = can(AssignedWorksPermissions.showStudentInfo)
-
-const showMentors = can(AssignedWorksPermissions.showMentorInfo)
 
 const columns: EntityTableColumnType<AssignedWorkEntity>[] = [
   {

@@ -69,7 +69,7 @@
 
       <template #column-type="{ item }">
         <noo-text-block>
-          {{ membershipTypeLabels[item.type] }}
+          {{ membershipTypeLabel(item.type) }}
         </noo-text-block>
       </template>
 
@@ -121,6 +121,7 @@ import type {
   CourseMembershipEntity,
   CourseMembershipType
 } from '../api/course.types'
+import { courseMembershipTypes } from '../constants'
 
 export interface CourseStudentsPageProps {
   courseId: string
@@ -135,10 +136,10 @@ const notifyStudent = ref(true)
 const isAssigning = ref(false)
 const deletingMembershipIds = ref<string[]>([])
 
-const membershipTypeLabels: Record<CourseMembershipType, string> = {
-  'manual-assigned': 'Назначен вручную',
-  'external-assigned': 'Назначен внешней системой',
-  subscription: 'Подписка'
+function membershipTypeLabel(type: CourseMembershipType): string {
+  return (
+    courseMembershipTypes.find((entry) => entry.value === type)?.label ?? type
+  )
 }
 
 const search = useSearch<CourseMembershipEntity>(CourseService.getMemberships, {

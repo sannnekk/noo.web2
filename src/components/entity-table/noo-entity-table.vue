@@ -6,7 +6,7 @@
     <thead class="noo-entity-table__head">
       <tr>
         <th
-          v-for="column in props.columns"
+          v-for="column in filteredColumns"
           :key="column.key"
         >
           {{ column.title }}
@@ -24,7 +24,7 @@
         :class="{ 'noo-entity-table__content__row--is-link': props.rowLink }"
       >
         <td
-          v-for="column in props.columns"
+          v-for="column in filteredColumns"
           :key="column.key"
           :style="column.width ? { width: column.width } : {}"
           class="noo-entity-table__content__row__cell"
@@ -114,6 +114,7 @@
   lang="ts"
   generic="T extends ApiEntity<TName>, TName extends string = T['_entityName']"
 >
+import { computed } from 'vue'
 import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from './entity-table-helpers'
@@ -132,6 +133,10 @@ export interface Props<
 }
 
 const props = defineProps<Props<T>>()
+
+const filteredColumns = computed(() => {
+  return props.columns.filter((column) => (column.if ? column.if() : true))
+})
 
 const getCellData = (item: T, column: EntityTableColumnType<T>) => {
   const value = item[column.key as keyof T]

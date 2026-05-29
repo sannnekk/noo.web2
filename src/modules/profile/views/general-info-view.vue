@@ -4,11 +4,10 @@
       v-if="profileStore.isStudent"
       title="Мои кураторы"
     >
-      <mentor-assignment-list
+      <student-mentors-list
         :assignments="profileStore.mentorAssignments.data ?? []"
         :is-loading="profileStore.mentorAssignments.isLoading"
-        :has-error="!!profileStore.mentorAssignments.error"
-        user-side="mentor"
+        :error="profileStore.mentorAssignments.error"
         empty-text="У вас пока нет кураторов."
         @retry="profileStore.mentorAssignments.execute(undefined)"
       />
@@ -17,11 +16,10 @@
       v-else-if="profileStore.isMentor"
       title="Мои ученики"
     >
-      <mentor-assignment-list
+      <mentor-students-list
         :assignments="profileStore.studentAssignments.data ?? []"
         :is-loading="profileStore.studentAssignments.isLoading"
-        :has-error="!!profileStore.studentAssignments.error"
-        user-side="student"
+        :error="profileStore.studentAssignments.error"
         empty-text="У вас пока нет учеников."
         @retry="profileStore.studentAssignments.execute(undefined)"
       />
@@ -31,7 +29,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import MentorAssignmentList from '@/modules/users/components/mentor-assignment-list.vue'
+import MentorStudentsList from '@/modules/users/components/mentor-students-list.vue'
+import StudentMentorsList from '@/modules/users/components/student-mentors-list.vue'
 import { useProfileStore } from '../stores/profile.store'
 
 const profileStore = useProfileStore()

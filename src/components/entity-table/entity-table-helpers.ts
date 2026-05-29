@@ -8,5 +8,6 @@ export interface EntityTableColumnType<
   key: keyof T | string
   disableLink?: boolean
   width?: string
+  if?: () => boolean
   converter?: (value: T[keyof T]) => string
 }

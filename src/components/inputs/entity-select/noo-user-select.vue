@@ -15,7 +15,12 @@
       <span class="noo-user-select__suggestion-title">
         {{ toLabel(entity) }}
       </span>
-      <noo-user-role-tag :role="entity.role" />
+      <slot
+        name="tags"
+        :entity="entity"
+      >
+        <noo-user-role-tag :role="entity.role" />
+      </slot>
     </template>
   </noo-entity-select>
 </template>

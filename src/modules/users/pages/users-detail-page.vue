@@ -1,6 +1,6 @@
 <template>
   <div class="users-detail-page">
-    <noo-sidebar-layout>
+    <noo-sidebar-layout collapsible>
       <template #sidebar>
         <div class="users-detail-page__sidebar">
           <noo-back-button :route="{ name: 'users.list' }">
@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import UserBlockedBanner from '../components/user-blocked-banner.vue'
 import UserUnverifiedBanner from '../components/user-unverified-banner.vue'
 import { UsersPermissions, useUsersPermissions } from '../permissions'
@@ -119,7 +119,7 @@ export interface UsersDetailPageProps {
   userId: string
 }
 
-defineProps<UsersDetailPageProps>()
+const props = defineProps<UsersDetailPageProps>()
 
 const userDetailStore = useUserDetailStore()
 const authStore = useAuthStore()
@@ -127,9 +127,16 @@ const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
 
-const canSeeDangerZone =
-  can(UsersPermissions.viewDangerZone) &&
-  user.value?.id !== authStore.userInfo?.id
+const canSeeDangerZone = computed(
+  () =>
+    can(UsersPermissions.viewDangerZone) &&
+    user.value?.id !== authStore.userInfo?.id
+)
+
+watch(
+  () => props.userId,
+  (userId) => userDetailStore.init(userId)
+)
 </script>
 
 <style scoped lang="sass">

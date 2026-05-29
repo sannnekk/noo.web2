@@ -94,26 +94,18 @@
 
 <script setup lang="ts">
 import assignedWorksListView from '../views/assigned-works-list-view.vue'
-import { watch } from 'vue'
+import { onMounted } from 'vue'
 import { useAssignedWorkListStore } from '../stores/assigned-work-list.store'
 import type { AssignedWorkListTab } from '../types'
 
 export interface AssignedWorkListPageProps {
   tabId?: AssignedWorkListTab
-  userId?: string
 }
 
-const props = defineProps<AssignedWorkListPageProps>()
+defineProps<AssignedWorkListPageProps>()
 const assignedWorksListStore = useAssignedWorkListStore()
 
-watch(
-  () => props.userId,
-  async () => {
-    if (props.userId) {
-      assignedWorksListStore.setUserId(props.userId)
-    }
-    await assignedWorksListStore.metadata.execute()
-  },
-  { immediate: true }
-)
+onMounted(async () => {
+  await assignedWorksListStore.metadata.execute()
+})
 </script>

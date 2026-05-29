@@ -5,10 +5,16 @@ import {
 } from '@/core/composables/useApiRequest'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
-import type { IPagination } from '@/core/utils/pagination.utils'
+import {
+  EqualsFilter,
+  Pagination,
+  type IPagination
+} from '@/core/utils/pagination.utils'
 import { defineStore } from 'pinia'
 import { computed, type ComputedRef } from 'vue'
 import { useRouter } from 'vue-router'
+import { CourseService } from '@/modules/courses/api/course.service'
+import type { CourseMembershipEntity } from '@/modules/courses/api/course.types'
 import { UserService } from '../api/user.service'
 import type {
   CreateMentorAssignmentPayload,
@@ -35,6 +41,10 @@ interface UserDetailStore {
     IPagination | undefined,
     MentorAssignmentEntity[]
   >
+  /**
+   * Course memberships of the user (relevant when the user is a student).
+   */
+  courseMemberships: UseApiRequestReturn<void, CourseMembershipEntity[]>
   /**
    * Whether the loaded user is a student.
    */
@@ -84,6 +94,10 @@ interface UserDetailStore {
    * Removes a single mentor assignment by id.
    */
   unassignMentor: UseApiRequestReturn<string>
+  /**
+   * Removes a course membership by id. Reloads the membership list on success.
+   */
+  unassignCourseMembership: UseApiRequestReturn<string>
 }
 
 const useUserDetailStore = defineStore(
@@ -132,9 +146,24 @@ const useUserDetailStore = defineStore(
         uiStore.createApiErrorToast('Не удалось загрузить учеников', error)
     )
 
+    const courseMemberships = useApiRequest<void, CourseMembershipEntity[]>(
+      () =>
+        CourseService.getMemberships(
+          new Pagination(undefined, undefined, undefined, undefined, [
+            new EqualsFilter('StudentId', getUserId())
+          ])
+        ),
+      undefined,
+      (error) =>
+        uiStore.createApiErrorToast('Не удалось загрузить курсы', error)
+    )
+
     async function loadAssignmentsForRole(): Promise<void> {
       if (isStudent.value) {
-        await mentorAssignments.execute(undefined)
+        await Promise.all([
+          mentorAssignments.execute(undefined),
+          courseMemberships.execute()
+        ])
       } else if (isMentor.value) {
         await studentAssignments.execute(undefined)
       }
@@ -240,10 +269,24 @@ const useUserDetailStore = defineStore(
       (error) => uiStore.createApiErrorToast('Не удалось снять куратора', error)
     )
 
+    const unassignCourseMembership = useApiRequest<string>(
+      (membershipId) => CourseService.deleteMembership(membershipId),
+      async () => {
+        uiStore.createSuccessToast('Ученик удалён из курса')
+        await courseMemberships.execute()
+      },
+      (error) =>
+        uiStore.createApiErrorToast(
+          'Не удалось удалить ученика из курса',
+          error
+        )
+    )
+
     return {
       user,
       mentorAssignments,
       studentAssignments,
+      courseMemberships,
       isStudent,
       isMentor,
       init,
@@ -254,7 +297,8 @@ const useUserDetailStore = defineStore(
       verifyManual,
       deleteUser,
       assignMentor,
-      unassignMentor
+      unassignMentor,
+      unassignCourseMembership
     }
   }
 )

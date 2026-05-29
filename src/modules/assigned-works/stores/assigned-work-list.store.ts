@@ -1,7 +1,7 @@
 import { useSearch } from '@/core/composables/useSearch'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { defineStore } from 'pinia'
-import { shallowRef } from 'vue'
+import { computed } from 'vue'
 import { AssignedWorkService } from '../api/assigned-work.service'
 import type {
   AssignedWorkEntity,
@@ -18,7 +18,6 @@ import type { AssignedWorkListTab } from '../types'
 
 interface AssignedWorkListStore {
   metadata: UseApiRequestReturn<void, AssignedWorksMetadata>
-  setUserId: (id: string) => void
   allSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notMadeSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notCheckedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
@@ -30,7 +29,7 @@ const useAssignedWorkListStore = defineStore(
   'assigned-works:assigned-work-list',
   (): AssignedWorkListStore => {
     const authStore = useAuthStore()
-    const userId = shallowRef<string>(authStore.userInfo!.id!)
+    const userId = computed(() => authStore.userInfo!.id!)
 
     const metadata = useApiRequest(() =>
       AssignedWorkService.getMetadata(userId.value)
@@ -54,12 +53,12 @@ const useAssignedWorkListStore = defineStore(
     }
 
     const allSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination, userId.value),
+      (pagination) => AssignedWorkService.get(pagination),
       { immediate: true }
     )
 
     const notMadeSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination, userId.value),
+      (pagination) => AssignedWorkService.get(pagination),
       {
         immediate: false,
         initialFilters: [
@@ -69,7 +68,7 @@ const useAssignedWorkListStore = defineStore(
     )
 
     const notCheckedSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination, userId.value),
+      (pagination) => AssignedWorkService.get(pagination),
       {
         immediate: false,
         initialFilters: [
@@ -80,7 +79,7 @@ const useAssignedWorkListStore = defineStore(
     )
 
     const checkedSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination, userId.value),
+      (pagination) => AssignedWorkService.get(pagination),
       {
         immediate: false,
         initialFilters: [
@@ -89,13 +88,8 @@ const useAssignedWorkListStore = defineStore(
       }
     )
 
-    function setUserId(id: string) {
-      userId.value = id
-    }
-
     return {
       metadata,
-      setUserId,
       allSearch,
       notMadeSearch,
       notCheckedSearch,

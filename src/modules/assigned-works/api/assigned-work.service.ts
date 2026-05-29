@@ -32,10 +32,7 @@ interface IAssignedWorkService {
    * @param userId The ID of the user to get assigned works for. If not provided, the current user will be used.
    * @returns A promise that resolves to an ApiResponse containing an array of AssignedWorkEntity objects.
    */
-  get(
-    pagination?: IPagination,
-    userId?: string
-  ): Promise<ApiResponse<AssignedWorkEntity[]>>
+  get(pagination?: IPagination): Promise<ApiResponse<AssignedWorkEntity[]>>
   /**
    * Fetches the metadata of the assigned works for a current student or mentor
    *

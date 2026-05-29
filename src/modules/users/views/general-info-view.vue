@@ -6,244 +6,111 @@
     >
       <noo-loader-icon contrast />
     </div>
-    <noo-section
-      v-else-if="userDetailStore.isStudent"
-      title="Кураторы"
-    >
-      <div class="general-info-view__assignments">
-        <mentor-assignment-list
-          :assignments="userDetailStore.mentorAssignments.data ?? []"
-          :is-loading="userDetailStore.mentorAssignments.isLoading"
-          :has-error="!!userDetailStore.mentorAssignments.error"
-          :user-side="'mentor'"
-          empty-text="У ученика пока нет кураторов."
-          :can-change="canManageAll"
-          :can-manage-all="canManageAll"
-          :current-user-id="currentUserId"
-          :busy-assignment-id="busyAssignmentId"
-          @retry="userDetailStore.mentorAssignments.execute(undefined)"
-          @change="onChangeMentor"
-          @unassign="onUnassign"
-        />
-        <div
-          v-if="canAddOnStudent"
-          class="general-info-view__assignments__actions"
-        >
-          <noo-button
-            v-if="canManageAll"
-            variant="secondary"
-            size="medium"
-            @click="openAssignModal('manage')"
+    <template v-else-if="userDetailStore.user.data">
+      <student-mentor-assignments
+        v-if="userDetailStore.isStudent"
+        :student="userDetailStore.user.data"
+      />
+      <mentor-student-assignments
+        v-else-if="userDetailStore.isMentor"
+        :mentor="userDetailStore.user.data"
+      />
+      <noo-section
+        v-if="userDetailStore.isStudent"
+        title="Курсы"
+        description="Здесь отображаются курсы, на которые ученик был добавлен вручную или через подписку. Прогресс по курсам сохраняется, даже если ученик будет удалён из курса"
+      >
+        <div class="general-info-view__memberships">
+          <course-membership-list
+            :memberships="userDetailStore.courseMemberships.data ?? []"
+            :is-loading="userDetailStore.courseMemberships.isLoading"
+            :has-error="!!userDetailStore.courseMemberships.error"
+            :can-manage="canManageCourseMemberships"
+            :busy-membership-id="busyMembershipId"
+            empty-text="У ученика пока нет курсов"
+            @retry="userDetailStore.courseMemberships.execute()"
+            @remove="onRemoveMembership"
+          />
+          <div
+            v-if="canManageCourseMemberships"
+            class="general-info-view__memberships__actions"
           >
-            Назначить куратора
-          </noo-button>
-          <noo-button
-            v-if="canSelfAssign && !canManageAll"
-            variant="secondary"
-            size="medium"
-            @click="openAssignModal('self')"
-          >
-            Назначить себя
-          </noo-button>
+            <noo-button
+              variant="secondary"
+              size="medium"
+              @click="onAddMembership"
+            >
+              Добавить на курс
+            </noo-button>
+          </div>
         </div>
-      </div>
-    </noo-section>
-    <noo-section
-      v-else-if="userDetailStore.isMentor"
-      title="Ученики"
-    >
-      <div class="general-info-view__assignments">
-        <mentor-assignment-list
-          :assignments="userDetailStore.studentAssignments.data ?? []"
-          :is-loading="userDetailStore.studentAssignments.isLoading"
-          :has-error="!!userDetailStore.studentAssignments.error"
-          :user-side="'student'"
-          empty-text="У куратора пока нет учеников."
-          :can-manage-all="canManageAll"
-          :current-user-id="currentUserId"
-          :busy-assignment-id="busyAssignmentId"
-          @retry="userDetailStore.studentAssignments.execute(undefined)"
-          @unassign="onUnassign"
-        />
-        <div
-          v-if="canAddOnMentor"
-          class="general-info-view__assignments__actions"
-        >
-          <noo-button
-            variant="secondary"
-            size="medium"
-            @click="openAssignModal('add-student')"
-          >
-            Добавить ученика
-          </noo-button>
-        </div>
-      </div>
-    </noo-section>
-    <noo-text-block
-      v-else
-      dimmed
-    >
-      Для этой роли нет дополнительной информации.
-    </noo-text-block>
+      </noo-section>
+    </template>
   </div>
 
-  <mentor-assignment-modal
-    v-if="user && assignModal.isOpen.value"
-    v-model:is-open="assignModal.isOpen.value"
-    :mode="
-      assignModal.mode.value === 'add-student' ? 'pick-student' : 'pick-mentor'
-    "
-    :anchor-user="user"
-    :fixed-mentor-id="assignModal.fixedMentorId.value"
-    :title="assignModalTitle"
-    :description="assignModalDescription"
-    :submit-label="assignModalSubmitLabel"
-    :is-loading="userDetailStore.assignMentor.isLoading"
-    @submit="onAssignSubmit"
-  />
-
   <noo-sure-modal
-    v-model:is-open="unassignModal.isOpen.value"
-    @confirm="confirmUnassign"
+    v-model:is-open="removeMembershipModal.isOpen.value"
+    @confirm="confirmRemoveMembership"
   >
     <template #title>
-      <noo-title :size="2">Снять куратора?</noo-title>
+      <noo-title :size="2">Удалить ученика из курса?</noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
-        Назначение по предмету «{{ unassignModal.subjectName.value }}» будет
-        удалено. Это действие можно отменить, повторно назначив куратора.
+        Ученик будет удалён из курса «{{
+          removeMembershipModal.courseName.value
+        }}». Прогресс по курсу будет сохранён, но доступ к материалам пропадёт.
       </noo-text-block>
     </template>
-    <template #confirm-action-text> Снять </template>
+    <template #confirm-action-text> Удалить </template>
   </noo-sure-modal>
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/core/stores/auth.store'
 import { computed, shallowRef } from 'vue'
-import type {
-  CreateMentorAssignmentPayload,
-  MentorAssignmentEntity
-} from '../api/user.types'
-import MentorAssignmentList from '../components/mentor-assignment-list.vue'
-import MentorAssignmentModal from '../components/mentor-assignment-modal.vue'
+import type { CourseMembershipEntity } from '@/modules/courses/api/course.types'
+import CourseMembershipList from '../components/course-membership-list.vue'
+import MentorStudentAssignments from '../components/mentor-student-assignments.vue'
+import StudentMentorAssignments from '../components/student-mentor-assignments.vue'
 import { UsersPermissions, useUsersPermissions } from '../permissions'
 import { useUserDetailStore } from '../stores/user-detail.store'
 
 const userDetailStore = useUserDetailStore()
-const authStore = useAuthStore()
 const { can } = useUsersPermissions()
 
-const user = computed(() => userDetailStore.user.data)
-const currentUserId = computed(() => authStore.userInfo?.id ?? null)
-const currentUser = computed(() => authStore.userInfo ?? null)
+const canManageCourseMemberships = can(UsersPermissions.manageCourseMemberships)
 
-const canManageAll = can(UsersPermissions.manageMentorAssignments)
-const canSelfAssignRole = can(UsersPermissions.selfAssignAsMentor)
-
-const isCurrentUserMentor = computed(() => currentUser.value?.role === 'mentor')
-
-const canSelfAssign = computed(
-  () => canSelfAssignRole && isCurrentUserMentor.value
-)
-
-const canAddOnStudent = computed(() => canManageAll || canSelfAssign.value)
-
-const canAddOnMentor = computed(() => {
-  if (canManageAll) {
-    return true
-  }
-
-  // Mentor on their own profile can add students.
-  return canSelfAssign.value && user.value?.id === currentUserId.value
-})
-
-type AssignMode = 'manage' | 'self' | 'add-student'
-
-const assignModal = {
+const removeMembershipModal = {
   isOpen: shallowRef(false),
-  mode: shallowRef<AssignMode>('manage'),
-  fixedMentorId: shallowRef<string | null>(null),
-  changingAssignmentId: shallowRef<string | null>(null)
+  membershipId: shallowRef<string | null>(null),
+  courseName: shallowRef<string>('')
 }
 
-const assignModalTitle = computed(() => {
-  switch (assignModal.mode.value) {
-    case 'self':
-      return 'Назначить себя куратором'
-    case 'add-student':
-      return 'Добавить ученика'
-    case 'manage':
-    default:
-      return assignModal.changingAssignmentId.value
-        ? 'Сменить куратора'
-        : 'Назначить куратора'
-  }
-})
-
-const assignModalDescription = computed(() => {
-  if (assignModal.mode.value === 'add-student') {
-    return 'Выберите ученика и предмет, по которому вы будете его курировать.'
-  }
-
-  return 'Если по выбранному предмету уже есть куратор, он будет заменён.'
-})
-
-const assignModalSubmitLabel = computed(() =>
-  assignModal.changingAssignmentId.value ? 'Сменить' : 'Назначить'
-)
-
-function openAssignModal(mode: AssignMode): void {
-  assignModal.mode.value = mode
-  assignModal.changingAssignmentId.value = null
-  assignModal.fixedMentorId.value =
-    mode === 'self' ? (currentUserId.value ?? null) : null
-  assignModal.isOpen.value = true
-}
-
-function onChangeMentor(assignment: MentorAssignmentEntity): void {
-  assignModal.mode.value = 'manage'
-  assignModal.changingAssignmentId.value = assignment.id
-  assignModal.fixedMentorId.value = null
-  assignModal.isOpen.value = true
-}
-
-async function onAssignSubmit(
-  payload: CreateMentorAssignmentPayload
-): Promise<void> {
-  await userDetailStore.assignMentor.execute(payload)
-
-  if (!userDetailStore.assignMentor.error) {
-    assignModal.isOpen.value = false
-    assignModal.changingAssignmentId.value = null
-  }
-}
-
-const unassignModal = {
-  isOpen: shallowRef(false),
-  assignmentId: shallowRef<string | null>(null),
-  subjectName: shallowRef<string>('')
-}
-
-const busyAssignmentId = computed(() =>
-  userDetailStore.unassignMentor.isLoading
-    ? unassignModal.assignmentId.value
+const busyMembershipId = computed(() =>
+  userDetailStore.unassignCourseMembership.isLoading
+    ? removeMembershipModal.membershipId.value
     : null
 )
 
-function onUnassign(assignment: MentorAssignmentEntity): void {
-  unassignModal.assignmentId.value = assignment.id
-  unassignModal.subjectName.value = assignment.subject?.name ?? '—'
-  unassignModal.isOpen.value = true
+function onRemoveMembership(membership: CourseMembershipEntity): void {
+  removeMembershipModal.membershipId.value = membership.id
+  removeMembershipModal.courseName.value =
+    membership.course?.name ?? membership.courseId
+  removeMembershipModal.isOpen.value = true
 }
 
-async function confirmUnassign(): Promise<void> {
-  if (!unassignModal.assignmentId.value) {
+async function confirmRemoveMembership(): Promise<void> {
+  if (!removeMembershipModal.membershipId.value) {
     return
   }
 
-  await userDetailStore.unassignMentor.execute(unassignModal.assignmentId.value)
+  await userDetailStore.unassignCourseMembership.execute(
+    removeMembershipModal.membershipId.value
+  )
+}
+
+function onAddMembership(): void {
+  // TODO: open a course-pick modal and call CourseService.createMembership.
 }
 </script>
 
@@ -258,7 +125,7 @@ async function confirmUnassign(): Promise<void> {
     justify-content: center
     font-size: 2em
 
-  &__assignments
+  &__memberships
     display: flex
     flex-direction: column
     gap: 1em

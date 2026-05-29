@@ -22,7 +22,7 @@ defineProps<Props>()
 .noo-active-tag
   font-size: 0.75em
   padding: 0.15em 0.5em
-  border-radius: 0.25rem
+  border-radius: var(--border-radius)
   white-space: nowrap
   display: inline-block
   font-weight: bold

@@ -6,6 +6,8 @@ import { useAuthStore } from '@/core/stores/auth.store'
 
 const AssignedWorksPermissions = {
   viewListPage: 'viewListPage',
+  seeTaskCardsButton: 'seeTaskCardsButton',
+  seeStatisticsButton: 'seeStatisticsButton',
   viewDetailPage: 'viewDetailPage',
   useStudentMode: 'useStudentMode',
   useMentorMode: 'useMentorMode',
@@ -21,6 +23,8 @@ type AssignedWorksPermission =
 const assignedWorksPermissionMap: RolePermissionsMap<AssignedWorksPermission> =
   {
     [AssignedWorksPermissions.viewListPage]: ['mentor', 'student'],
+    [AssignedWorksPermissions.seeTaskCardsButton]: ['student'],
+    [AssignedWorksPermissions.seeStatisticsButton]: ['student'],
     [AssignedWorksPermissions.viewDetailPage]: [
       'admin',
       'teacher',
