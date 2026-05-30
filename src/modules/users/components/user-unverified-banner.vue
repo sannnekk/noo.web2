@@ -7,7 +7,7 @@
       Пользователь ещё не подтвердил свой email.
     </noo-warning-block>
     <noo-button
-      v-if="canVerify"
+      v-if="can(UsersPermissions.verifyUser, { target: user })"
       class="user-unverified-banner__action"
       variant="secondary"
       size="small"
@@ -50,7 +50,6 @@ defineProps<Props>()
 const userDetailStore = useUserDetailStore()
 const { can } = useUsersPermissions()
 
-const canVerify = can(UsersPermissions.verifyUser)
 const isConfirmOpen = shallowRef<boolean>(false)
 </script>
 

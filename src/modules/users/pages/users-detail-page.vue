@@ -81,13 +81,13 @@
             <history-view />
           </template>
           <template
-            v-if="canSeeDangerZone"
+            v-if="can(UsersPermissions.viewDangerZone, { target: user })"
             #tab-title-danger-zone
           >
             Опасная зона
           </template>
           <template
-            v-if="canSeeDangerZone"
+            v-if="can(UsersPermissions.viewDangerZone, { target: user })"
             #tab-danger-zone
           >
             <danger-zone-view />
@@ -112,7 +112,6 @@ import generalInfoView from '../views/general-info-view.vue'
 import historyView from '../views/history-view.vue'
 import pollsView from '../views/polls-view.vue'
 import statisticsView from '../views/statistics-view.vue'
-import { useAuthStore } from '@/core/stores/auth.store'
 
 export interface UsersDetailPageProps {
   tabId: UserDetailTab
@@ -122,16 +121,9 @@ export interface UsersDetailPageProps {
 const props = defineProps<UsersDetailPageProps>()
 
 const userDetailStore = useUserDetailStore()
-const authStore = useAuthStore()
 const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
-
-const canSeeDangerZone = computed(
-  () =>
-    can(UsersPermissions.viewDangerZone) &&
-    user.value?.id !== authStore.userInfo?.id
-)
 
 watch(
   () => props.userId,

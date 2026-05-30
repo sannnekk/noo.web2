@@ -4,7 +4,7 @@
     class="danger-zone-view"
   >
     <noo-section
-      v-if="canBlock"
+      v-if="can(UsersPermissions.blockUser, { target: user })"
       :title="
         user.isBlocked
           ? 'Разблокировка пользователя'
@@ -29,7 +29,7 @@
     </noo-section>
 
     <noo-section
-      v-if="canChangeRole"
+      v-if="can(UsersPermissions.changeUserRole, { target: user })"
       title="Смена роли"
       description="Изменение роли влияет на доступные пользователю разделы и действия. Будьте внимательны."
     >
@@ -52,7 +52,7 @@
     </noo-section>
 
     <noo-section
-      v-if="canDelete"
+      v-if="can(UsersPermissions.deleteUser, { target: user })"
       title="Удаление аккаунта"
       description="Удаление аккаунта приведёт к безвозвратной потере всех связанных с ним данных. Это действие нельзя отменить."
     >
@@ -67,7 +67,11 @@
     </noo-section>
 
     <noo-text-block
-      v-if="!canBlock && !canChangeRole && !canDelete"
+      v-if="
+        !can(UsersPermissions.blockUser, { target: user }) &&
+        !can(UsersPermissions.changeUserRole, { target: user }) &&
+        !can(UsersPermissions.deleteUser, { target: user })
+      "
       dimmed
     >
       У вас нет прав на действия в этой зоне.
@@ -149,10 +153,6 @@ const userDetailStore = useUserDetailStore()
 const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
-
-const canBlock = can(UsersPermissions.blockUser)
-const canChangeRole = can(UsersPermissions.changeUserRole)
-const canDelete = can(UsersPermissions.deleteUser)
 
 const selectedRole = shallowRef<UserRole | null>(user.value?.role ?? null)
 

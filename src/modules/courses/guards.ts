@@ -1,4 +1,3 @@
-import { useAuthStore } from '@/core/stores/auth.store'
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 import { CoursePermissions, coursePermissionPolicy } from './permissions'
 import { useCourseDetailStore } from './stores/course-detail.store'
@@ -31,7 +30,6 @@ function courseListTabAccessGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
   const tabId = to.params.tabId as string
-  const authStore = useAuthStore()
 
   if (tabId === 'own' || tabId === 'archived') {
     const permission =
@@ -39,7 +37,7 @@ function courseListTabAccessGuard(
         ? CoursePermissions.viewOwnTab
         : CoursePermissions.viewArchivedTab
 
-    if (!coursePermissionPolicy.can(permission, authStore.userInfo?.role)) {
+    if (!coursePermissionPolicy.can(permission)) {
       return { name: 'courses.list', params: { tabId: 'all' } }
     }
   }

@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const PollsPermissions = {
   viewListPage: 'viewListPage',
@@ -11,25 +7,18 @@ const PollsPermissions = {
 
 type PollsPermission = (typeof PollsPermissions)[keyof typeof PollsPermissions]
 
-const pollsPermissionMap: RolePermissionsMap<PollsPermission> = {
-  [PollsPermissions.viewListPage]: ['admin', 'teacher', 'student'],
-  [PollsPermissions.viewEditPage]: ['admin', 'teacher', 'student']
-}
+const pollsPermissionPolicy = definePermissions({
+  [PollsPermissions.viewListPage]: roles('admin', 'teacher', 'student'),
+  [PollsPermissions.viewEditPage]: roles('admin', 'teacher', 'student')
+})
 
-const pollsPermissionPolicy =
-  createRolePermissionPolicy<PollsPermission>(pollsPermissionMap)
-
-function usePollsPermissions(): {
-  can: (permission: PollsPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: PollsPermission): boolean {
-    return pollsPermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function usePollsPermissions(): Pick<
+  typeof pollsPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: pollsPermissionPolicy.can,
+    cannot: pollsPermissionPolicy.cannot
   }
 }
 

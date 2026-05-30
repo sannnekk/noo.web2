@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { useCurrentPrincipal } from '@/core/permissions/principal'
 import type {
   CreateMentorAssignmentPayload,
   MentorAssignmentEntity,
@@ -78,24 +78,18 @@ interface Props {
 const props = defineProps<Props>()
 
 const userDetailStore = useUserDetailStore()
-const authStore = useAuthStore()
 const { can } = useUsersPermissions()
+const principal = useCurrentPrincipal()
 
 const canManageAll = can(UsersPermissions.manageMentorAssignments)
-const canSelfAssignRole = can(UsersPermissions.selfAssignAsMentor)
-
-const currentUser = computed(() => authStore.userInfo ?? null)
-const currentUserId = computed(() => currentUser.value?.id ?? null)
-const isCurrentUserMentor = computed(() => currentUser.value?.role === 'mentor')
-const canSelfAssign = computed(
-  () => canSelfAssignRole && isCurrentUserMentor.value
-)
 
 function isOwnAssignment(assignment: MentorAssignmentEntity): boolean {
-  return !!currentUserId.value && assignment.mentorId === currentUserId.value
+  return assignment.mentorId === principal.value?.id
 }
 
-const canAdd = computed(() => canManageAll || canSelfAssign.value)
+const canAdd = computed(
+  () => canManageAll || can(UsersPermissions.selfAssignAsMentor)
+)
 const addLabel = computed(() =>
   canManageAll ? 'Назначить куратора' : 'Стать куратором этого ученика'
 )

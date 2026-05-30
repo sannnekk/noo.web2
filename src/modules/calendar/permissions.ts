@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const CalendarPermissions = {
   viewPage: 'viewPage'
@@ -11,31 +7,23 @@ const CalendarPermissions = {
 type CalendarPermission =
   (typeof CalendarPermissions)[keyof typeof CalendarPermissions]
 
-const calendarPermissionMap: RolePermissionsMap<CalendarPermission> = {
-  [CalendarPermissions.viewPage]: [
+const calendarPermissionPolicy = definePermissions({
+  [CalendarPermissions.viewPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ]
-}
+  )
+})
 
-const calendarPermissionPolicy = createRolePermissionPolicy<CalendarPermission>(
-  calendarPermissionMap
-)
-
-function useCalendarPermissions(): {
-  can: (permission: CalendarPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: CalendarPermission): boolean {
-    return calendarPermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useCalendarPermissions(): Pick<
+  typeof calendarPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: calendarPermissionPolicy.can,
+    cannot: calendarPermissionPolicy.cannot
   }
 }
 

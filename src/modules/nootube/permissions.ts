@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const NooTubePermissions = {
   viewListPage: 'viewListPage'
@@ -11,30 +7,23 @@ const NooTubePermissions = {
 type NooTubePermission =
   (typeof NooTubePermissions)[keyof typeof NooTubePermissions]
 
-const nooTubePermissionMap: RolePermissionsMap<NooTubePermission> = {
-  [NooTubePermissions.viewListPage]: [
+const nooTubePermissionPolicy = definePermissions({
+  [NooTubePermissions.viewListPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ]
-}
+  )
+})
 
-const nooTubePermissionPolicy =
-  createRolePermissionPolicy<NooTubePermission>(nooTubePermissionMap)
-
-function useNooTubePermissions(): {
-  can: (permission: NooTubePermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: NooTubePermission): boolean {
-    return nooTubePermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useNooTubePermissions(): Pick<
+  typeof nooTubePermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: nooTubePermissionPolicy.can,
+    cannot: nooTubePermissionPolicy.cannot
   }
 }
 

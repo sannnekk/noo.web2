@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const SettingsPermissions = {
   manageAccountSettings: 'manageAccountSettings',
@@ -19,57 +15,49 @@ const SettingsPermissions = {
 type SettingsPermission =
   (typeof SettingsPermissions)[keyof typeof SettingsPermissions]
 
-const settingsPermissionMap: RolePermissionsMap<SettingsPermission> = {
-  [SettingsPermissions.manageAccountSettings]: [
+const settingsPermissionPolicy = definePermissions({
+  [SettingsPermissions.manageAccountSettings]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [SettingsPermissions.manageTelegramSettings]: [
+  ),
+  [SettingsPermissions.manageTelegramSettings]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [SettingsPermissions.managePaymentSettings]: ['student'],
-  [SettingsPermissions.managePersonalizationSettings]: [
+  ),
+  [SettingsPermissions.managePaymentSettings]: roles('student'),
+  [SettingsPermissions.managePersonalizationSettings]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [SettingsPermissions.manageNotifications]: ['admin', 'teacher'],
-  [SettingsPermissions.manageGoogleSheets]: ['admin', 'teacher'],
-  [SettingsPermissions.manageSubjects]: ['admin'],
-  [SettingsPermissions.manageSnippets]: ['mentor'],
-  [SettingsPermissions.viewChangelog]: [
+  ),
+  [SettingsPermissions.manageNotifications]: roles('admin', 'teacher'),
+  [SettingsPermissions.manageGoogleSheets]: roles('admin', 'teacher'),
+  [SettingsPermissions.manageSubjects]: roles('admin'),
+  [SettingsPermissions.manageSnippets]: roles('mentor'),
+  [SettingsPermissions.viewChangelog]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ]
-}
+  )
+})
 
-const settingsPermissionPolicy = createRolePermissionPolicy<SettingsPermission>(
-  settingsPermissionMap
-)
-
-function useSettingsPermissions(): {
-  can: (permission: SettingsPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: SettingsPermission): boolean {
-    return settingsPermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useSettingsPermissions(): Pick<
+  typeof settingsPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: settingsPermissionPolicy.can,
+    cannot: settingsPermissionPolicy.cannot
   }
 }
 

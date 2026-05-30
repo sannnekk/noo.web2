@@ -25,14 +25,14 @@
             :memberships="userDetailStore.courseMemberships.data ?? []"
             :is-loading="userDetailStore.courseMemberships.isLoading"
             :has-error="!!userDetailStore.courseMemberships.error"
-            :can-manage="canManageCourseMemberships"
+            :can-manage="can(UsersPermissions.manageCourseMemberships)"
             :busy-membership-id="busyMembershipId"
             empty-text="У ученика пока нет курсов"
             @retry="userDetailStore.courseMemberships.execute()"
             @remove="onRemoveMembership"
           />
           <div
-            v-if="canManageCourseMemberships"
+            v-if="can(UsersPermissions.manageCourseMemberships)"
             class="general-info-view__memberships__actions"
           >
             <noo-button
@@ -77,8 +77,6 @@ import { useUserDetailStore } from '../stores/user-detail.store'
 
 const userDetailStore = useUserDetailStore()
 const { can } = useUsersPermissions()
-
-const canManageCourseMemberships = can(UsersPermissions.manageCourseMemberships)
 
 const removeMembershipModal = {
   isOpen: shallowRef(false),

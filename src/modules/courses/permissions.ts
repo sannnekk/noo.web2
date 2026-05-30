@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const CoursePermissions = {
   viewListPage: 'viewListPage',
@@ -21,46 +17,39 @@ const CoursePermissions = {
 type CoursePermission =
   (typeof CoursePermissions)[keyof typeof CoursePermissions]
 
-const coursePermissionMap: RolePermissionsMap<CoursePermission> = {
-  [CoursePermissions.viewListPage]: [
+const coursePermissionPolicy = definePermissions({
+  [CoursePermissions.viewListPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [CoursePermissions.viewDetailPage]: [
+  ),
+  [CoursePermissions.viewDetailPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [CoursePermissions.viewStudentsPage]: ['admin', 'teacher'],
-  [CoursePermissions.viewEditPage]: ['admin', 'teacher'],
-  [CoursePermissions.viewOwnTab]: ['teacher', 'student'],
-  [CoursePermissions.viewArchivedTab]: ['teacher', 'student'],
-  [CoursePermissions.createCourse]: ['admin', 'teacher'],
-  [CoursePermissions.manageCourse]: ['admin', 'teacher'],
-  [CoursePermissions.viewCourseShop]: ['student'],
-  [CoursePermissions.useStudentOwnershipFilter]: ['student'],
-  [CoursePermissions.solveWork]: ['student']
-}
+  ),
+  [CoursePermissions.viewStudentsPage]: roles('admin', 'teacher'),
+  [CoursePermissions.viewEditPage]: roles('admin', 'teacher'),
+  [CoursePermissions.viewOwnTab]: roles('teacher', 'student'),
+  [CoursePermissions.viewArchivedTab]: roles('teacher', 'student'),
+  [CoursePermissions.createCourse]: roles('admin', 'teacher'),
+  [CoursePermissions.manageCourse]: roles('admin', 'teacher'),
+  [CoursePermissions.viewCourseShop]: roles('student'),
+  [CoursePermissions.useStudentOwnershipFilter]: roles('student'),
+  [CoursePermissions.solveWork]: roles('student')
+})
 
-const coursePermissionPolicy =
-  createRolePermissionPolicy<CoursePermission>(coursePermissionMap)
-
-function useCoursePermissions(): {
-  can: (permission: CoursePermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: CoursePermission): boolean {
-    return coursePermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useCoursePermissions(): Pick<
+  typeof coursePermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: coursePermissionPolicy.can,
+    cannot: coursePermissionPolicy.cannot
   }
 }
 

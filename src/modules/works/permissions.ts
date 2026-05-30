@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const WorksPermissions = {
   viewListPage: 'viewListPage',
@@ -11,25 +7,18 @@ const WorksPermissions = {
 
 type WorksPermission = (typeof WorksPermissions)[keyof typeof WorksPermissions]
 
-const worksPermissionMap: RolePermissionsMap<WorksPermission> = {
-  [WorksPermissions.viewListPage]: ['admin', 'teacher', 'student'],
-  [WorksPermissions.viewEditPage]: ['admin', 'teacher', 'student']
-}
+const worksPermissionPolicy = definePermissions({
+  [WorksPermissions.viewListPage]: roles('admin', 'teacher', 'student'),
+  [WorksPermissions.viewEditPage]: roles('admin', 'teacher', 'student')
+})
 
-const worksPermissionPolicy =
-  createRolePermissionPolicy<WorksPermission>(worksPermissionMap)
-
-function useWorksPermissions(): {
-  can: (permission: WorksPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: WorksPermission): boolean {
-    return worksPermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useWorksPermissions(): Pick<
+  typeof worksPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: worksPermissionPolicy.can,
+    cannot: worksPermissionPolicy.cannot
   }
 }
 

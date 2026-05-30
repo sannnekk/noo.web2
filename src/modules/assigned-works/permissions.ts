@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const AssignedWorksPermissions = {
   viewListPage: 'viewListPage',
@@ -20,60 +16,51 @@ const AssignedWorksPermissions = {
 type AssignedWorksPermission =
   (typeof AssignedWorksPermissions)[keyof typeof AssignedWorksPermissions]
 
-const assignedWorksPermissionMap: RolePermissionsMap<AssignedWorksPermission> =
-  {
-    [AssignedWorksPermissions.viewListPage]: ['mentor', 'student'],
-    [AssignedWorksPermissions.seeTaskCardsButton]: ['student'],
-    [AssignedWorksPermissions.seeStatisticsButton]: ['student'],
-    [AssignedWorksPermissions.viewDetailPage]: [
-      'admin',
-      'teacher',
-      'assistant',
-      'mentor',
-      'student'
-    ],
-    [AssignedWorksPermissions.useStudentMode]: ['student'],
-    [AssignedWorksPermissions.useMentorMode]: ['mentor'],
-    [AssignedWorksPermissions.showStudentInfo]: [
-      'admin',
-      'teacher',
-      'assistant',
-      'mentor'
-    ],
-    [AssignedWorksPermissions.showMentorInfo]: [
-      'admin',
-      'teacher',
-      'assistant',
-      'student'
-    ],
-    [AssignedWorksPermissions.addHelperMentor]: ['admin', 'teacher', 'mentor'],
-    [AssignedWorksPermissions.archive]: [
-      'admin',
-      'mentor',
-      'assistant',
-      'student'
-    ]
-  }
-
-const assignedWorksPermissionPolicy =
-  createRolePermissionPolicy<AssignedWorksPermission>(
-    assignedWorksPermissionMap
+const assignedWorksPermissionPolicy = definePermissions({
+  [AssignedWorksPermissions.viewListPage]: roles('mentor', 'student'),
+  [AssignedWorksPermissions.seeTaskCardsButton]: roles('student'),
+  [AssignedWorksPermissions.seeStatisticsButton]: roles('student'),
+  [AssignedWorksPermissions.viewDetailPage]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor',
+    'student'
+  ),
+  [AssignedWorksPermissions.useStudentMode]: roles('student'),
+  [AssignedWorksPermissions.useMentorMode]: roles('mentor'),
+  [AssignedWorksPermissions.showStudentInfo]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor'
+  ),
+  [AssignedWorksPermissions.showMentorInfo]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'student'
+  ),
+  [AssignedWorksPermissions.addHelperMentor]: roles(
+    'admin',
+    'teacher',
+    'mentor'
+  ),
+  [AssignedWorksPermissions.archive]: roles(
+    'admin',
+    'mentor',
+    'assistant',
+    'student'
   )
+})
 
-function useAssignedWorksPermissions(): {
-  can: (permission: AssignedWorksPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: AssignedWorksPermission): boolean {
-    return assignedWorksPermissionPolicy.can(
-      permission,
-      authStore.userInfo?.role
-    )
-  }
-
+function useAssignedWorksPermissions(): Pick<
+  typeof assignedWorksPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: assignedWorksPermissionPolicy.can,
+    cannot: assignedWorksPermissionPolicy.cannot
   }
 }
 

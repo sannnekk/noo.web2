@@ -55,7 +55,6 @@
 
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
-import { useAuthStore } from '@/core/stores/auth.store'
 import type {
   CreateMentorAssignmentPayload,
   MentorAssignmentEntity,
@@ -73,23 +72,15 @@ interface Props {
 const props = defineProps<Props>()
 
 const userDetailStore = useUserDetailStore()
-const authStore = useAuthStore()
 const { can } = useUsersPermissions()
 
-const canManageAll = can(UsersPermissions.manageMentorAssignments)
-const canSelfAssignRole = can(UsersPermissions.selfAssignAsMentor)
-
-const isCurrentUserMentor = computed(
-  () => authStore.userInfo?.role === 'mentor'
+// Admins/teachers manage every mentor's students; a mentor manages only the
+// students on their own profile.
+const canAct = computed(
+  () =>
+    can(UsersPermissions.manageMentorAssignments) ||
+    can(UsersPermissions.manageOwnStudents, { target: props.mentor })
 )
-const isOwnProfile = computed(
-  () => !!authStore.userInfo && authStore.userInfo.id === props.mentor.id
-)
-const canSelfAssign = computed(
-  () => canSelfAssignRole && isCurrentUserMentor.value && isOwnProfile.value
-)
-
-const canAct = computed(() => canManageAll || canSelfAssign.value)
 
 function canUnassign(): boolean {
   return canAct.value

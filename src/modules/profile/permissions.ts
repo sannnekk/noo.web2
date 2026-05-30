@@ -1,8 +1,4 @@
-import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const ProfilePermissions = {
   viewInfoTab: 'viewInfoTab',
@@ -14,39 +10,32 @@ const ProfilePermissions = {
 type ProfilePermission =
   (typeof ProfilePermissions)[keyof typeof ProfilePermissions]
 
-const profilePermissionMap: RolePermissionsMap<ProfilePermission> = {
-  [ProfilePermissions.viewInfoTab]: ['student', 'mentor'],
-  [ProfilePermissions.viewStatisticsTab]: [
+const profilePermissionPolicy = definePermissions({
+  [ProfilePermissions.viewInfoTab]: roles('student', 'mentor'),
+  [ProfilePermissions.viewStatisticsTab]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [ProfilePermissions.viewPollsTab]: [
+  ),
+  [ProfilePermissions.viewPollsTab]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  ],
-  [ProfilePermissions.viewPaymentsTab]: ['student']
-}
+  ),
+  [ProfilePermissions.viewPaymentsTab]: roles('student')
+})
 
-const profilePermissionPolicy =
-  createRolePermissionPolicy<ProfilePermission>(profilePermissionMap)
-
-function useProfilePermissions(): {
-  can: (permission: ProfilePermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: ProfilePermission): boolean {
-    return profilePermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useProfilePermissions(): Pick<
+  typeof profilePermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: profilePermissionPolicy.can,
+    cannot: profilePermissionPolicy.cannot
   }
 }
 

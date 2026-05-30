@@ -10,7 +10,7 @@
       Пользователь заблокирован и не может пользоваться платформой.
     </noo-error-block>
     <noo-button
-      v-if="canBlock"
+      v-if="can(UsersPermissions.blockUser, { target: user })"
       class="user-blocked-banner__action"
       variant="secondary"
       size="small"
@@ -51,7 +51,6 @@ defineProps<Props>()
 const userDetailStore = useUserDetailStore()
 const { can } = useUsersPermissions()
 
-const canBlock = can(UsersPermissions.blockUser)
 const isConfirmOpen = shallowRef<boolean>(false)
 </script>
 

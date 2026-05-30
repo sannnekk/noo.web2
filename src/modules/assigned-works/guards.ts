@@ -1,4 +1,3 @@
-import { useAuthStore } from '@/core/stores/auth.store'
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
 import {
   AssignedWorksPermissions,
@@ -26,7 +25,6 @@ async function assignedWorkDetailInitGuard(
 function assignedWorkModeGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
-  const authStore = useAuthStore()
   const assignedWorkStore = useAssignedWorkDetailStore()
 
   const assignedWorkId = String(to.params.assignedWorkId)
@@ -41,14 +39,11 @@ function assignedWorkModeGuard(
     return true // still allow navigation to show the error
   }
 
-  const role = authStore.userInfo?.role
   const isStudent = assignedWorksPermissionPolicy.can(
-    AssignedWorksPermissions.useStudentMode,
-    role
+    AssignedWorksPermissions.useStudentMode
   )
   const isMentor = assignedWorksPermissionPolicy.can(
-    AssignedWorksPermissions.useMentorMode,
-    role
+    AssignedWorksPermissions.useMentorMode
   )
 
   // if not student or mentor, redirect to read mode

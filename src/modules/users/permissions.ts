@@ -1,8 +1,14 @@
 import {
-  createRolePermissionPolicy,
-  type RolePermissionsMap
-} from '@/core/permissions/role-permissions.utils'
-import { useAuthStore } from '@/core/stores/auth.store'
+  definePermissions,
+  roles,
+  rule
+} from '@/core/permissions/permission-policy'
+import {
+  targetIsNotSelf,
+  targetIsSelf,
+  type TargetContext
+} from '@/core/permissions/predicates'
+import type { UserEntity } from './api/user.types'
 
 const UsersPermissions = {
   viewListPage: 'viewListPage',
@@ -14,50 +20,71 @@ const UsersPermissions = {
   deleteUser: 'deleteUser',
   manageMentorAssignments: 'manageMentorAssignments',
   selfAssignAsMentor: 'selfAssignAsMentor',
+  manageOwnStudents: 'manageOwnStudents',
   viewMentorAssignments: 'viewMentorAssignments',
   manageCourseMemberships: 'manageCourseMemberships'
 } as const
 
 type UsersPermission = (typeof UsersPermissions)[keyof typeof UsersPermissions]
 
-const usersPermissionMap: RolePermissionsMap<UsersPermission> = {
-  [UsersPermissions.viewListPage]: ['admin', 'teacher', 'assistant', 'mentor'],
-  [UsersPermissions.viewDetailPage]: [
+/** Context for rules acting on a single user (the one being viewed). */
+type UserContext = TargetContext<UserEntity>
+
+const usersPermissionPolicy = definePermissions({
+  [UsersPermissions.viewListPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor'
-  ],
-  [UsersPermissions.viewDangerZone]: ['admin', 'teacher'],
-  [UsersPermissions.blockUser]: ['admin', 'teacher'],
-  [UsersPermissions.verifyUser]: ['admin', 'teacher'],
-  [UsersPermissions.changeUserRole]: ['admin', 'teacher'],
-  [UsersPermissions.deleteUser]: ['admin'],
-  [UsersPermissions.manageMentorAssignments]: ['admin', 'teacher'],
-  [UsersPermissions.selfAssignAsMentor]: ['admin', 'teacher', 'mentor'],
-  [UsersPermissions.viewMentorAssignments]: [
+  ),
+  [UsersPermissions.viewDetailPage]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor'
-  ],
-  [UsersPermissions.manageCourseMemberships]: ['admin', 'teacher']
-}
+  ),
+  // Destructive/administrative actions: never on your own account.
+  [UsersPermissions.viewDangerZone]: rule<UserContext>(
+    ['admin', 'teacher'],
+    targetIsNotSelf
+  ),
+  [UsersPermissions.blockUser]: rule<UserContext>(
+    ['admin', 'teacher'],
+    targetIsNotSelf
+  ),
+  [UsersPermissions.verifyUser]: rule<UserContext>(
+    ['admin', 'teacher'],
+    targetIsNotSelf
+  ),
+  [UsersPermissions.changeUserRole]: rule<UserContext>(
+    ['admin', 'teacher'],
+    targetIsNotSelf
+  ),
+  [UsersPermissions.deleteUser]: rule<UserContext>(['admin'], targetIsNotSelf),
+  [UsersPermissions.manageMentorAssignments]: roles('admin', 'teacher'),
+  // A mentor adding themselves as a mentor to the student being viewed.
+  [UsersPermissions.selfAssignAsMentor]: roles('mentor'),
+  // A mentor managing the students attached to their own profile.
+  [UsersPermissions.manageOwnStudents]: rule<UserContext>(
+    ['mentor'],
+    targetIsSelf
+  ),
+  [UsersPermissions.viewMentorAssignments]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor'
+  ),
+  [UsersPermissions.manageCourseMemberships]: roles('admin', 'teacher')
+})
 
-const usersPermissionPolicy =
-  createRolePermissionPolicy<UsersPermission>(usersPermissionMap)
-
-function useUsersPermissions(): {
-  can: (permission: UsersPermission) => boolean
-} {
-  const authStore = useAuthStore()
-
-  function can(permission: UsersPermission): boolean {
-    return usersPermissionPolicy.can(permission, authStore.userInfo?.role)
-  }
-
+function useUsersPermissions(): Pick<
+  typeof usersPermissionPolicy,
+  'can' | 'cannot'
+> {
   return {
-    can
+    can: usersPermissionPolicy.can,
+    cannot: usersPermissionPolicy.cannot
   }
 }
 
