@@ -70,6 +70,7 @@
           <div class="course-edit-sidebar__dates">
             <noo-date-input
               v-model="editCourseStore.course.startDate"
+              type="datetime-local"
               label="Дата начала"
               resettable
             >
@@ -79,6 +80,7 @@
             </noo-date-input>
             <noo-date-input
               v-model="editCourseStore.course.endDate"
+              type="datetime-local"
               label="Дата окончания"
               resettable
             />

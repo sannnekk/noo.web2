@@ -76,12 +76,14 @@
                       v-model="assignment.solveDeadlineAt"
                       label="Дедлайн сдачи"
                       :readonly="readonly"
+                      end-of-day
                       resettable
                     />
                     <noo-date-input
                       v-model="assignment.checkDeadlineAt"
                       label="Дедлайн проверки"
                       :readonly="readonly"
+                      end-of-day
                       resettable
                     />
                   </div>

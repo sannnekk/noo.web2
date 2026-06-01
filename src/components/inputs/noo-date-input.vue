@@ -14,35 +14,24 @@
       </span>
     </div>
     <div class="noo-input__input-container">
-      <div class="noo-input__input-before">
-        <slot name="before" />
-      </div>
-      <input
-        v-model="inputModel"
-        class="noo-input__input"
-        :class="{
-          'noo-input__input--error': allErrors.length,
-          'noo-input__input--readonly': readonly,
-          'noo-date-input__input--with-reset': resettable === true
-        }"
-        :type="type || 'date'"
-        :placeholder="placeholder"
+      <vue-date-picker
+        v-model="pickerModel"
+        class="noo-date-input__picker"
+        :class="{ 'noo-date-input__picker--error': allErrors.length }"
+        :time-config="timeConfig"
+        :month-picker="isMonth"
+        :week-picker="isWeek"
+        :formats="formats"
+        :input-attrs="inputAttrs"
+        :ui="{ menu: 'noo-date-input__menu' }"
         :disabled="readonly"
-        @keypress.enter="$emit('enter-press')"
+        :teleport="true"
+        :week-start="1"
+        :locale="locale"
+        text-input
+        auto-apply
+        :placeholder="placeholder"
       />
-      <div class="noo-input__input-after">
-        <slot name="after" />
-        <button
-          v-if="resettable === true && !readonly && model"
-          type="button"
-          class="noo-date-input__reset-button"
-          title="Сбросить дату"
-          aria-label="Сбросить дату"
-          @click="resetValue"
-        >
-          <noo-icon name="close" />
-        </button>
-      </div>
     </div>
     <noo-input-error-list :errors="allErrors" />
   </div>
@@ -53,24 +42,37 @@ import type {
   InputValidator,
   ValidationError
 } from '@/core/validators/validation-helpers.utils'
+import { DateHelpers, type DateParts } from '@/core/utils/dates'
+import { ruLocale } from '@/core/utils/dates.ru-locale'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 import { computed, ref, watch } from 'vue'
+
+// `date-fns` is not a direct dependency, so borrow the picker's own `locale`
+// prop type and feed it our Intl-built Russian locale.
+type DatePickerLocale = InstanceType<typeof VueDatePicker>['$props']['locale']
+const props = defineProps<Props>()
+
+defineEmits<Emits>()
+
+const locale = ruLocale as unknown as DatePickerLocale
 
 interface Props {
   label?: string
   placeholder?: string
   readonly?: boolean
-  copyButton?: boolean
   type?: 'date' | 'datetime-local' | 'month' | 'week'
   validators?: InputValidator<Date | undefined | null>[]
   errors?: ValidationError[]
   resettable?: boolean
+  /**
+   * For a date-only input, default the picked day to the very end of the day
+   * (23:59:59 Moscow time) instead of midnight. Useful for deadlines.
+   */
+  endOfDay?: boolean
 }
 
 type Emits = (e: 'enter-press') => void
-
-const props = defineProps<Props>()
-
-defineEmits<Emits>()
 
 const validationErrors = ref<ValidationError[]>([])
 const allErrors = computed(() => [
@@ -88,18 +90,102 @@ const isValidModel = defineModel<true | ValidationError[]>('isValid', {
   required: false
 })
 
-const inputModel = computed<string>({
-  get: () => formatForInput(model.value ?? null, props.type ?? 'date'),
-  set: (value) => {
-    model.value = value ? parseFromInput(value, props.type ?? 'date') : null
+const resolvedType = computed(() => props.type ?? 'date')
+const isDateTime = computed(() => resolvedType.value === 'datetime-local')
+const isMonth = computed(() => resolvedType.value === 'month')
+const isWeek = computed(() => resolvedType.value === 'week')
+
+const displayFormat = computed(() => {
+  switch (resolvedType.value) {
+    case 'datetime-local':
+      return 'dd.MM.yyyy, HH:mm'
+    case 'month':
+      return 'LLLL yyyy'
+    default:
+      return 'dd.MM.yyyy'
   }
 })
 
-watch(() => model.value, validateInput)
+const formats = computed(() => ({ input: displayFormat.value }))
 
-function resetValue() {
-  model.value = null
+const timeConfig = computed(() => ({
+  enableTimePicker: isDateTime.value,
+  enableSeconds: false,
+  is24: true
+}))
+
+const inputAttrs = computed(() => ({ clearable: props.resettable === true }))
+
+/**
+ * The datepicker speaks plain `Date` objects (and `{ month, year }` for the
+ * month picker) read through their local getters. We mediate so the wall-clock
+ * the user sees and edits is always Moscow time, matching how the backend
+ * stores and renders the value.
+ */
+type PickerValue = Date | Date[] | { month: number; year: number } | null
+
+const pickerModel = computed<PickerValue>({
+  get: () => {
+    if (!model.value) {
+      return null
+    }
+
+    const parts = DateHelpers.toMoscowParts(model.value)
+
+    if (isMonth.value) {
+      return { month: parts.month - 1, year: parts.year }
+    }
+
+    // Naive local Date whose local fields equal the Moscow wall-clock fields.
+    return new Date(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second
+    )
+  },
+  set: (value) => {
+    model.value = toInstant(value)
+  }
+})
+
+function toInstant(value: PickerValue): Date | null {
+  if (!value) {
+    return null
+  }
+
+  const source = Array.isArray(value) ? value[0] : value
+  const parts: DateParts =
+    source instanceof Date
+      ? {
+          year: source.getFullYear(),
+          month: source.getMonth() + 1,
+          day: source.getDate(),
+          hour: source.getHours(),
+          minute: source.getMinutes(),
+          second: source.getSeconds()
+        }
+      : {
+          year: source.year,
+          month: source.month + 1,
+          day: 1,
+          hour: 0,
+          minute: 0,
+          second: 0
+        }
+
+  if (props.endOfDay && resolvedType.value === 'date') {
+    parts.hour = 23
+    parts.minute = 59
+    parts.second = 59
+  }
+
+  return DateHelpers.fromMoscowParts(parts)
 }
+
+watch(() => model.value, validateInput)
 
 function validateInput(value: Date | undefined | null) {
   validationErrors.value = []
@@ -118,106 +204,59 @@ function validateInput(value: Date | undefined | null) {
   isValidModel.value =
     validationErrors.value.length === 0 ? true : validationErrors.value
 }
-
-function formatForInput(value: Date | null, type: Props['type']): string {
-  if (!value) {
-    return ''
-  }
-
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, '0')
-  const day = String(value.getDate()).padStart(2, '0')
-  const hours = String(value.getHours()).padStart(2, '0')
-  const minutes = String(value.getMinutes()).padStart(2, '0')
-
-  switch (type) {
-    case 'datetime-local':
-      return `${year}-${month}-${day}T${hours}:${minutes}`
-    case 'month':
-      return `${year}-${month}`
-    case 'week':
-      return formatWeek(value)
-    case 'date':
-    default:
-      return `${year}-${month}-${day}`
-  }
-}
-
-function parseFromInput(value: string, type: Props['type']): Date {
-  switch (type) {
-    case 'datetime-local':
-      return new Date(value)
-    case 'month':
-      return new Date(`${value}-01T00:00:00`)
-    case 'week':
-      return parseWeek(value)
-    case 'date':
-    default:
-      return new Date(`${value}T00:00:00`)
-  }
-}
-
-function formatWeek(date: Date): string {
-  const tmp = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  )
-  const dayNumber = tmp.getUTCDay() || 7
-
-  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNumber)
-  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1))
-  const weekNumber = Math.ceil(
-    ((tmp.getTime() - yearStart.getTime()) / 86400000 + 1) / 7
-  )
-
-  return `${tmp.getUTCFullYear()}-W${String(weekNumber).padStart(2, '0')}`
-}
-
-function parseWeek(value: string): Date {
-  const [yearPart, weekPart] = value.split('-W')
-  const year = Number(yearPart)
-  const week = Number(weekPart)
-  const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7))
-  const dayOfWeek = simple.getUTCDay()
-  const isoWeekStart =
-    dayOfWeek <= 4
-      ? new Date(simple.setUTCDate(simple.getUTCDate() - dayOfWeek + 1))
-      : new Date(simple.setUTCDate(simple.getUTCDate() + 8 - dayOfWeek))
-
-  return new Date(
-    isoWeekStart.getUTCFullYear(),
-    isoWeekStart.getUTCMonth(),
-    isoWeekStart.getUTCDate()
-  )
-}
 </script>
 
 <style scoped lang="sass" src="./noo-input.sass"></style>
 <style scoped lang="sass">
 .noo-date-input
-  .noo-input__input-after
-    position: absolute
-    top: 50%
-    right: 0.4em
-    transform: translateY(-50%)
-    display: flex
-    align-items: center
+  :deep(.dp--main)
+    width: 100%
 
-  &__input--with-reset
-    padding-right: 2.1em
+  :deep(.dp--input)
+    min-height: 2.4em
 
-  &__reset-button
-    border: none
-    background: transparent
-    color: var(--text-light)
-    display: inline-flex
-    align-items: center
-    justify-content: center
-    cursor: pointer
-    font-size: 1.6em
-    line-height: 1
-    padding: 0
-    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out
+  &__picker--error
+    :deep(.dp--input)
+      border-color: var(--danger)
+</style>
 
-    &:hover
-      --form-text-color: var(--danger)
+<!--
+  Global theming for the datepicker. The menu is teleported to <body>, so the
+  variables are defined globally (and namespaced under `--dp-*`, owned by the
+  library) rather than scoped. They reference the app design tokens, so light
+  and dark themes follow `html.dark` automatically.
+-->
+<style lang="sass">
+.dp--theme-light,
+.dp--theme-dark
+  --dp-font-family: var(--font-family)
+  --dp-font-size: 0.9rem
+  --dp-input-padding: 0.55em 0.8em
+  --dp-border-radius: var(--border-radius)
+  --dp-cell-border-radius: var(--border-radius)
+  --dp-background-color: var(--form-background)
+  --dp-text-color: var(--form-text-color)
+  --dp-hover-color: var(--light)
+  --dp-hover-text-color: var(--form-text-color)
+  --dp-hover-icon-color: var(--form-text-color)
+  --dp-primary-color: var(--primary)
+  --dp-primary-text-color: var(--dark)
+  --dp-primary-disabled-color: var(--border-color)
+  --dp-secondary-color: var(--text-light)
+  --dp-border-color: var(--border-color)
+  --dp-menu-border-color: var(--border-color)
+  --dp-border-color-hover: var(--text-light)
+  --dp-border-color-focus: var(--primary)
+  --dp-disabled-color: var(--light)
+  --dp-disabled-color-text: var(--text-light)
+  --dp-icon-color: var(--text-light)
+  --dp-danger-color: var(--danger)
+  --dp-success-color: var(--success)
+  --dp-marker-color: var(--danger)
+  --dp-tooltip-color: var(--form-background)
+  --dp-range-between-dates-background-color: var(--light)
+  --dp-range-between-dates-text-color: var(--form-text-color)
+
+.noo-date-input__menu
+  box-shadow: var(--block-shadow)
 </style>

@@ -76,6 +76,7 @@
               <noo-date-input
                 v-if="pollEditStore.poll.isActive"
                 v-model="pollEditStore.poll.expiresAt"
+                type="datetime-local"
                 label="Дата истечения опроса"
                 resettable
               />
