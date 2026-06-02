@@ -1,3 +1,4 @@
+import type { UserRole } from '../api/endpoints/auth.types'
 import type { Principal } from './principal'
 
 /**
@@ -58,5 +59,15 @@ const targetIsNotSelf: PermissionPredicate<TargetContext<{ id: string }>> = (
   { target }
 ) => !!target && target.id !== principal.id
 
+/**
+ * Wether target has one of the specified roles.
+ */
+const targetHasRole =
+  (
+    ...roles: UserRole[]
+  ): PermissionPredicate<TargetContext<{ role: UserRole }>> =>
+  (_, { target }) =>
+    !!target && roles.includes(target.role)
+
 export type { PermissionPredicate, TargetContext }
-export { not, allOf, anyOf, targetIsSelf, targetIsNotSelf }
+export { not, allOf, anyOf, targetIsSelf, targetIsNotSelf, targetHasRole }

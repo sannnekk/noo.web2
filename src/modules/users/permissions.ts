@@ -4,6 +4,7 @@ import {
   rule
 } from '@/core/permissions/permission-policy'
 import {
+  targetHasRole,
   targetIsNotSelf,
   targetIsSelf,
   type TargetContext
@@ -13,6 +14,11 @@ import type { UserEntity } from './api/user.types'
 const UsersPermissions = {
   viewListPage: 'viewListPage',
   viewDetailPage: 'viewDetailPage',
+  viewCalendarTab: 'viewCalendarTab',
+  viewPollsTab: 'viewPollsTab',
+  viewAssignedWorksTab: 'viewAssignedWorksTab',
+  viewHistoryTab: 'viewHistoryTab',
+  viewStatisticsTab: 'viewStatisticsTab',
   viewDangerZone: 'viewDangerZone',
   blockUser: 'blockUser',
   verifyUser: 'verifyUser',
@@ -42,6 +48,22 @@ const usersPermissionPolicy = definePermissions({
     'teacher',
     'assistant',
     'mentor'
+  ),
+  [UsersPermissions.viewCalendarTab]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor'
+  ),
+  [UsersPermissions.viewPollsTab]: rule<UserContext>(['admin', 'teacher']),
+  [UsersPermissions.viewAssignedWorksTab]: rule<UserContext>(
+    ['admin', 'teacher', 'assistant', 'mentor'],
+    targetHasRole('student', 'mentor')
+  ),
+  [UsersPermissions.viewHistoryTab]: roles('admin', 'teacher', 'assistant'),
+  [UsersPermissions.viewStatisticsTab]: rule<UserContext>(
+    ['admin', 'teacher', 'assistant', 'mentor']
+    // If current user is a mentor, only allow if the target user is a student assigned to them
   ),
   // Destructive/administrative actions: never on your own account.
   [UsersPermissions.viewDangerZone]: rule<UserContext>(

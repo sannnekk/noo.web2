@@ -60,15 +60,10 @@
         <noo-text-block
           dimmed
           class="works-list-page__created-at"
+          align="right"
         >
           <noo-date
             :value="item.createdAt"
-            timezones="both"
-            include-time
-          />
-          <br />
-          <noo-date
-            :value="item.updatedAt"
             timezones="both"
             include-time
           />
@@ -102,7 +97,7 @@ const columns: EntityTableColumnType<WorkEntity>[] = [
   },
   {
     key: 'createdAt',
-    title: 'Дата создания / изменения'
+    title: 'Дата создания'
   },
   {
     key: 'actions',

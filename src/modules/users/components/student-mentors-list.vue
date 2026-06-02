@@ -28,13 +28,6 @@
           timezones="both"
         />
       </template>
-      <template #column-updatedAt="{ item }">
-        <noo-date
-          :value="item.updatedAt"
-          include-time
-          timezones="both"
-        />
-      </template>
       <template #column-actions="{ item }">
         <div
           v-if="canChange(item) || canUnassign(item)"
@@ -116,8 +109,7 @@ interface Emits {
 const columns: EntityTableColumnType<MentorAssignmentEntity>[] = [
   { title: 'Предмет', key: 'subject' },
   { title: 'Куратор', key: 'mentor' },
-  { title: 'Дата присвоения', key: 'createdAt', width: '150px' },
-  { title: 'Дата изменения', key: 'updatedAt', width: '150px' },
+  { title: 'Дата присвоения', key: 'createdAt' },
   { title: '', key: 'actions' }
 ]
 </script>

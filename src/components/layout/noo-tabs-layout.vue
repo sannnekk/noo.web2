@@ -6,7 +6,7 @@
     >
       <div class="noo-tabs-view__titles__row">
         <template
-          v-for="tab in tabKeys"
+          v-for="tab in tabKeys()"
           :key="tab"
         >
           <component
@@ -35,7 +35,7 @@
     </div>
     <div class="noo-tabs-view__tabs">
       <template
-        v-for="tab in tabKeys"
+        v-for="tab in tabKeys()"
         :key="tab"
       >
         <div
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch, type VNode } from 'vue'
+import { onMounted, watch, type VNode } from 'vue'
 import { useRoute } from 'vue-router'
 
 interface Slots {
@@ -81,11 +81,11 @@ const emits = defineEmits<Emits>()
 const slots = defineSlots<Slots>()
 const route = useRoute()
 
-const tabKeys = computed(() => {
+function tabKeys(): string[] {
   return Object.keys(slots)
     .filter((key) => key.startsWith('tab-') && !key.startsWith('tab-title-'))
     .map((key) => key.slice(4))
-})
+}
 
 const activeTab = defineModel<string>('activeTab', {
   default: ''
@@ -99,10 +99,12 @@ if (props.useRouteTabs) {
   watch(
     () => route.params[props.routeParamName!],
     (newTab) => {
-      if (newTab && tabKeys.value.includes(newTab as string)) {
+      const keys = tabKeys()
+
+      if (newTab && keys.includes(newTab as string)) {
         activeTab.value = newTab as string
-      } else if (tabKeys.value.length > 0) {
-        activeTab.value = tabKeys.value[0]
+      } else if (keys.length > 0) {
+        activeTab.value = keys[0]
       }
     },
     { immediate: true }
@@ -110,8 +112,10 @@ if (props.useRouteTabs) {
 }
 
 onMounted(() => {
-  if (!activeTab.value && tabKeys.value.length > 0) {
-    activeTab.value = tabKeys.value[0]
+  const keys = tabKeys()
+
+  if (!activeTab.value && keys.length > 0) {
+    activeTab.value = keys[0]
   }
 })
 

@@ -17,50 +17,25 @@
         :value="courseDetailStore.materialContent.data.content"
       />
     </div>
-    <div
+    <noo-section
       v-if="courseDetailStore.materialContent.data.workAssignments?.length"
-      class="course-material-content-view__work-assignments"
+      title="Прикрепленные работы"
+      description='Если одна из работ ниже уже была начата, то нажатие кнопки "К работе" откроет уже начатую работу, а не создаст новую. Если попыток несколько, будет открыта последняя из них. Ниже, под работой, будет отображаться прогресс по работам и всем попыткам, к отдельной попытке можно перейти, нажав кнопку "Перейти" в таблице прогресса.'
     >
-      <noo-title
-        :size="3"
-        no-margin
-      >
-        Прикрепленные работы:
-      </noo-title>
-      <noo-text-block
-        dimmed
-        size="small"
-      >
-        Если одна из работ ниже уже была начата, то нажатие кнопки "К работе"
-        откроет уже начатую работу, а не создаст новую. Если попыток было
-        несколько, будет открыта последняя из них. Ниже, под работой, будет
-        отображаться прогресс по работам и всем попыткам, к отдельной попытке
-        можно перейти, нажав кнопку "Перейти" в таблице прогресса.
-      </noo-text-block>
-      <work-assignment
-        v-for="assignment in courseDetailStore.materialContent.data
-          .workAssignments"
-        :key="assignment.id"
-        :work-assignment="assignment"
-      />
-    </div>
-    <div
+      <div class="course-material-content-view__work-assignments__list">
+        <work-assignment
+          v-for="assignment in courseDetailStore.materialContent.data
+            .workAssignments"
+          :key="assignment.id"
+          :work-assignment="assignment"
+        />
+      </div>
+    </noo-section>
+    <noo-section
       v-if="courseDetailStore.materialContent.data.medias?.length"
-      class="course-material-content-view__files"
+      title="Прикрепленные файлы"
+      description="Ниже представлены файлы, прикрепленные к этому материалу. Их можно скачать, нажав на нужный файл"
     >
-      <noo-title
-        :size="3"
-        no-margin
-      >
-        Файлы:
-      </noo-title>
-      <noo-text-block
-        dimmed
-        size="small"
-      >
-        Ниже представлены файлы, прикрепленные к этому материалу. Их можно
-        скачать, нажав на нужный файл
-      </noo-text-block>
       <div class="course-material-content-view__files__list">
         <noo-file-card
           v-for="media in courseDetailStore.materialContent.data.medias"
@@ -73,7 +48,7 @@
           downloadable
         />
       </div>
-    </div>
+    </noo-section>
   </div>
   <div
     v-else-if="courseDetailStore.materialContent.isLoading"
@@ -135,17 +110,8 @@ watch(
     &__icon
       font-size: 4em
 
-  &__work-assignments
-    margin-top: 2em
-    display: flex
-    flex-direction: column
-
+  &__work-assignments,
   &__files
-    margin-top: 2em
-    display: flex
-    flex-direction: column
-    gap: 0.5em
-
     &__list
       display: flex
       flex-direction: column

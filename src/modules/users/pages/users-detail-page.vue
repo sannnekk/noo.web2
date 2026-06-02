@@ -22,6 +22,7 @@
                 Email:
                 <b>{{ user.email }}</b>
                 <br />
+                <br />
                 Никнейм:
                 <b>{{ user.username }}</b>
               </noo-text-block>
@@ -60,24 +61,64 @@
           <template #tab-general-info>
             <general-info-view />
           </template>
-          <template #tab-title-calendar>Календарь</template>
-          <template #tab-calendar>
+          <template
+            v-if="can(UsersPermissions.viewCalendarTab)"
+            #tab-title-calendar
+          >
+            Календарь
+          </template>
+          <template
+            v-if="can(UsersPermissions.viewCalendarTab)"
+            #tab-calendar
+          >
             <calendar-view />
           </template>
-          <template #tab-title-statistics>Статистика</template>
-          <template #tab-statistics>
+          <template
+            v-if="can(UsersPermissions.viewStatisticsTab, { target: user })"
+            #tab-title-statistics
+          >
+            Статистика
+          </template>
+          <template
+            v-if="can(UsersPermissions.viewStatisticsTab, { target: user })"
+            #tab-statistics
+          >
             <statistics-view />
           </template>
-          <template #tab-title-assigned-works>Работы</template>
-          <template #tab-assigned-works>
+          <template
+            v-if="can(UsersPermissions.viewAssignedWorksTab, { target: user })"
+            #tab-title-assigned-works
+          >
+            Работы
+          </template>
+          <template
+            v-if="can(UsersPermissions.viewAssignedWorksTab, { target: user })"
+            #tab-assigned-works
+          >
             <assigned-works-view />
           </template>
-          <template #tab-title-polls>Опросы</template>
-          <template #tab-polls>
+          <template
+            v-if="can(UsersPermissions.viewPollsTab, { target: user })"
+            #tab-title-polls
+          >
+            Опросы
+          </template>
+          <template
+            v-if="can(UsersPermissions.viewPollsTab, { target: user })"
+            #tab-polls
+          >
             <polls-view />
           </template>
-          <template #tab-title-history>История</template>
-          <template #tab-history>
+          <template
+            v-if="can(UsersPermissions.viewHistoryTab)"
+            #tab-title-history
+          >
+            История
+          </template>
+          <template
+            v-if="can(UsersPermissions.viewHistoryTab)"
+            #tab-history
+          >
             <history-view />
           </template>
           <template

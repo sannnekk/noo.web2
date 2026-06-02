@@ -9,6 +9,18 @@
         >
           {{ workAssignment.work?.title }}
         </noo-title>
+
+        <noo-inline-link
+          v-if="workAssignment.work && can(CoursePermissions.manageCourse)"
+          :to="{
+            name: 'works.edit',
+            params: { workId: workAssignment.work?.id }
+          }"
+          new-tab
+          size="small"
+        >
+          Перейти к работе
+        </noo-inline-link>
       </div>
       <div
         v-if="can(CoursePermissions.solveWork)"

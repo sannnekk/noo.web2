@@ -27,7 +27,9 @@
         </div>
       </div>
     </noo-scrollable-block>
-    <noo-legend :items="legend" />
+    <div class="task-grid__legend">
+      <noo-legend :items="legend" />
+    </div>
   </div>
 </template>
 
@@ -78,6 +80,9 @@ const taskTypeColors = taskTypes.reduce(
 
 <style scoped lang="sass">
 .task-grid
+  &__legend
+    margin-top: 0.5em
+
   &__grid
     display: grid
     grid-template-columns: repeat(6, 1fr)

@@ -37,9 +37,12 @@ defineProps<Props>()
 
 <style scoped lang="sass">
 .noo-inline-user-block
-  display: inline-block
+  display: inline-flex
+  align-items: center
   font-size: 1em
   font-weight: normal
+  position: relative
+  top: 0.2em
 
   &__avatar
     display: inline-block
@@ -52,6 +55,5 @@ defineProps<Props>()
     text-decoration: none
     color: var(--lila)
     font-weight: 200
-    line-height: 1.5em
     margin-left: 0.5em
 </style>
