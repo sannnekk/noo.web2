@@ -1,28 +1,32 @@
-import {
-  useApiRequest,
-  type UseApiRequestReturn
-} from '@/core/composables/useApiRequest'
-import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import _ from 'lodash'
 import { defineStore } from 'pinia'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import { UserSettingsService } from '../api/user-settings.service'
+import { UserSettingsService } from '../api/endpoints/user-settings.service'
 import type {
-  UpdateUserSettingsDto,
-  UserSettingsDto
-} from '../api/user-settings.types'
-import { defaultFontSize, defaultUserTheme } from '../constants'
+  FontSize,
+  UserSettings,
+  UserSettingsUpdate,
+  UserTheme
+} from '../api/endpoints/user-settings.types'
+import {
+  useApiRequest,
+  type UseApiRequestReturn
+} from '../composables/useApiRequest'
+import { useGlobalUIStore } from './global-ui.store'
+
+export const defaultUserTheme: UserTheme = 'system'
+export const defaultFontSize: FontSize = 'normal'
 
 interface PersonalizationSettingsStore {
   /**
    * The current user's personalization settings as loaded from the backend.
    */
-  settings: UseApiRequestReturn<void, UserSettingsDto>
+  settings: UseApiRequestReturn<void, UserSettings>
   /**
    * Editable copy of the settings used by the form. Mutating this
    * draft does not affect the persisted values until `save()` succeeds.
    */
-  draft: Ref<UserSettingsDto>
+  draft: Ref<UserSettings>
   /**
    * Persists the current draft. Refreshes settings on success.
    */
@@ -41,10 +45,11 @@ interface PersonalizationSettingsStore {
   resetDraft: () => void
 }
 
-function getDefaults(): UserSettingsDto {
+function getDefaults(): UserSettings {
   return {
     theme: defaultUserTheme,
-    fontSize: defaultFontSize
+    fontSize: defaultFontSize,
+    backgroundImage: null
   }
 }
 
@@ -53,16 +58,17 @@ const usePersonalizationSettingsStore = defineStore(
   (): PersonalizationSettingsStore => {
     const uiStore = useGlobalUIStore()
 
-    const draft = ref<UserSettingsDto>(getDefaults())
+    const draft = ref<UserSettings>(getDefaults())
 
-    function bindDraft(value: UserSettingsDto): void {
+    function bindDraft(value: UserSettings): void {
       draft.value = {
         theme: value.theme ?? defaultUserTheme,
-        fontSize: value.fontSize ?? defaultFontSize
+        fontSize: value.fontSize ?? defaultFontSize,
+        backgroundImage: value.backgroundImage ?? null
       }
     }
 
-    const settings = useApiRequest<void, UserSettingsDto>(
+    const settings = useApiRequest<void, UserSettings>(
       UserSettingsService.get,
       (response) => {
         bindDraft(response.data)
@@ -77,9 +83,10 @@ const usePersonalizationSettingsStore = defineStore(
 
     const save = useApiRequest(
       () => {
-        const dto: UpdateUserSettingsDto = {
+        const dto: UserSettingsUpdate = {
           theme: draft.value.theme,
-          fontSize: draft.value.fontSize
+          fontSize: draft.value.fontSize,
+          backgroundImageId: draft.value.backgroundImage?.id ?? null
         }
 
         return UserSettingsService.update(dto)
@@ -103,7 +110,8 @@ const usePersonalizationSettingsStore = defineStore(
       return !_.isEqual(
         {
           theme: loaded.theme ?? defaultUserTheme,
-          fontSize: loaded.fontSize ?? defaultFontSize
+          fontSize: loaded.fontSize ?? defaultFontSize,
+          backgroundImage: loaded.backgroundImage ?? null
         },
         draft.value
       )

@@ -2,12 +2,12 @@ import { useColorMode } from '@vueuse/core'
 import type { Ref } from 'vue'
 import { CookieStorage } from '../utils/cookies.utils'
 
-export type Theme = 'light' | 'dark'
+export type Theme = 'light' | 'dark' | 'system'
 
 interface UseThemeReturn {
   mode: Ref<Theme>
   toggle: () => void
-  setTheme: (theme: Theme) => void
+  setTheme: (theme?: Theme | null) => void
 }
 
 function useTheme(): UseThemeReturn {
@@ -20,8 +20,8 @@ function useTheme(): UseThemeReturn {
     mode.value = mode.value === 'light' ? 'dark' : 'light'
   }
 
-  function setTheme(theme: Theme) {
-    mode.value = theme
+  function setTheme(theme?: Theme | null) {
+    mode.value = theme === 'system' || !theme ? 'auto' : theme
   }
 
   return {

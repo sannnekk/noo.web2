@@ -59,7 +59,6 @@
               :max-count="1"
               category="profile-background"
             />
-            TODO: add backgroundImage: MediaEntity to UserSettingsEntity
           </noo-grid-layout-item>
         </noo-grid-layout>
         <div class="personalization-settings-view__actions">
@@ -91,16 +90,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useTheme, type Theme } from '@/core/composables/useTheme'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { fontSizeOptions, userThemeOptions } from '../constants'
-import { usePersonalizationSettingsStore } from '../stores/personalization-settings.store'
+import { usePersonalizationSettingsStore } from '@/core/stores/personalization-settings.store'
 
 const store = usePersonalizationSettingsStore()
 const { setTheme } = useTheme()
 
-const backgroundImage = ref<MediaEntity[]>([])
+const backgroundImage = computed({
+  get: () => (store.draft.backgroundImage ? [store.draft.backgroundImage] : []),
+  set: (value: MediaEntity[]) =>
+    (store.draft.backgroundImage = value[0] ?? null)
+})
 
 const isInitialLoading = computed(
   () => !store.settings.data && store.settings.isLoading
@@ -125,7 +128,7 @@ watch(
       return
     }
 
-    setTheme(theme === 'system-default' ? resolveSystemTheme() : theme)
+    setTheme(theme === 'system' ? resolveSystemTheme() : theme)
   }
 )
 

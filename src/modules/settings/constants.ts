@@ -2,7 +2,10 @@ import type {
   GoogleSheetsIntegrationStatus,
   GoogleSheetsIntegrationType
 } from './api/google-sheets.types'
-import type { FontSize, UserTheme } from './api/user-settings.types'
+import type {
+  FontSize,
+  UserTheme
+} from '@/core/api/endpoints/user-settings.types'
 
 const googleSheetsIntegrationTypes: {
   label: string
@@ -60,13 +63,13 @@ const defaultGoogleSheetsCronPattern = '0 */6 * * *'
 const userThemeOptions: { label: string; value: UserTheme }[] = [
   { label: 'Светлая', value: 'light' },
   { label: 'Тёмная', value: 'dark' },
-  { label: 'Системная', value: 'system-default' }
+  { label: 'Системная', value: 'system' }
 ]
 
 const userThemeLabels: Record<UserTheme, string> = {
   light: 'Светлая',
   dark: 'Тёмная',
-  'system-default': 'Системная'
+  system: 'Системная'
 }
 
 const fontSizeOptions: { label: string; value: FontSize }[] = [
@@ -81,13 +84,8 @@ const fontSizeLabels: Record<FontSize, string> = {
   large: 'Крупный'
 }
 
-const defaultUserTheme: UserTheme = 'system-default'
-const defaultFontSize: FontSize = 'normal'
-
 export {
-  defaultFontSize,
   defaultGoogleSheetsCronPattern,
-  defaultUserTheme,
   fontSizeLabels,
   fontSizeOptions,
   googleSheetsIntegrationSelectorMeta,

@@ -1,6 +1,17 @@
+import type { MediaEntity } from '@/modules/media/api/media.types'
+
+export type UserTheme = 'light' | 'dark' | 'system'
+
+export type FontSize = 'small' | 'normal' | 'large'
+
 export interface UserSettings {
-  theme: 'light' | 'dark' | 'system-default'
-  fontSize: 'small' | 'normal' | 'large'
+  theme: UserTheme | null
+  fontSize: FontSize | null
+  backgroundImage: MediaEntity | null
 }
 
-export type UserSettingsUpdate = Pick<UserSettings, 'theme' | 'fontSize'>
+export interface UserSettingsUpdate {
+  theme?: UserTheme | null
+  fontSize?: FontSize | null
+  backgroundImageId?: string | null
+}

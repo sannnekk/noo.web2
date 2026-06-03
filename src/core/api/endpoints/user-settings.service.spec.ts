@@ -11,27 +11,27 @@ vi.mock('../api.utils', () => ({
 }))
 
 describe('UserSettingsService', () => {
-  describe('getSettings', () => {
+  describe('get', () => {
     it('should call Api.get with the correct endpoint and return the response', async () => {
       const mockResponse = { data: { theme: 'dark' } }
 
       vi.mocked(Api.get).mockResolvedValue(mockResponse)
 
-      const response = await UserSettingsService.getSettings()
+      const response = await UserSettingsService.get()
 
       expect(Api.get).toHaveBeenCalledWith('/user-settings')
       expect(response).toEqual(mockResponse)
     })
   })
 
-  describe('updateSettings', () => {
+  describe('update', () => {
     it('should call Api.patch with the correct endpoint and payload and return the response', async () => {
       const mockSettings: UserSettingsUpdate = {
         theme: 'light',
         fontSize: 'small'
       }
 
-      await UserSettingsService.updateSettings(mockSettings)
+      await UserSettingsService.update(mockSettings)
 
       expect(Api.patch).toHaveBeenCalledWith('/user-settings', mockSettings)
     })

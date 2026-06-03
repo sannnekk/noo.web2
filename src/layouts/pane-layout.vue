@@ -1,5 +1,8 @@
 <template>
-  <div class="pane-layout">
+  <div
+    class="pane-layout"
+    :style="{ backgroundImage: `url(${backgroundImage})` }"
+  >
     <noo-pane
       v-model:is-open="isPaneOpen"
       :nav-entries="navEntries"
@@ -24,9 +27,15 @@
 <script lang="ts" setup>
 import type { NavEntry } from '@/components/layout/noo-pane.vue'
 import { useAuthStore } from '@/core/stores/auth.store'
+import { usePersonalizationSettingsStore } from '@/core/stores/personalization-settings.store'
 import { computed, shallowRef } from 'vue'
 
 const authStore = useAuthStore()
+const userSettings = usePersonalizationSettingsStore()
+
+const backgroundImage = computed(
+  () => userSettings.settings.data?.backgroundImage?.url ?? ''
+)
 
 const isPaneOpen = shallowRef(false)
 
@@ -105,6 +114,9 @@ const navEntries = computed<NavEntry[]>(() => {
   background-position: center
   background-repeat: no-repeat
   background-attachment: fixed
+  min-height: 100vh
+  max-width: 100vw
+  overflow-x: hidden
 
   &__slot
     background-color: var(--lightest)
