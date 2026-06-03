@@ -11,11 +11,13 @@
     />
   </div>
   <noo-toast-area />
+  <retry-login-modal />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import RetryLoginModal from './core/components/retry-login-modal.vue'
 import { useGlobalUIStore } from './core/stores/global-ui.store'
 import noLayout from './layouts/no-layout.vue'
 

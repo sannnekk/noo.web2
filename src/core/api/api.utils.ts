@@ -1,9 +1,21 @@
-import axios from 'axios'
+import axios, { type InternalAxiosRequestConfig } from 'axios'
 import { appConfig } from '../config/app.config'
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
+import type { LoginResponse } from './endpoints/auth.types'
 import { ApiErrorCodes } from './api-error-codes.data'
 import { reviveDates, serialize } from './serialization.utils'
+
+const REFRESH_PATH = '/auth/refresh'
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    /** Set on the original request once we've already retried it after a refresh. */
+    _retry?: boolean
+    /** Set on the refresh request itself so a failed refresh never triggers another. */
+    skipAuthRefresh?: boolean
+  }
+}
 
 export type ApiResponse<T = void> =
   | ApiSuccessResponse<T>
@@ -64,6 +76,8 @@ export function isApiError<T>(
 
 const api = axios.create({
   baseURL: appConfig.apiUrl,
+  // Send/receive the httpOnly refresh-token cookie on cross-origin auth requests.
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json'
@@ -120,56 +134,124 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      if (error.response.status === 401) {
-        if (CookieStorage.isSet(CookieStorage.StorageAliases.apiToken)) {
-          GlobalEventBus.emit('auth:login-expired', undefined)
-        }
-      }
+function toApiError(error: {
+  response?: { status: number; data?: unknown }
+}): ApiError {
+  if (error.response) {
+    const responseBody = error.response.data as unknown
+    const exception = (
+      typeof responseBody === 'object' && responseBody !== null
+        ? ((responseBody as Record<string, unknown>).error ?? responseBody)
+        : responseBody
+    ) as Record<string, unknown> | null
 
-      const responseBody = error.response.data as unknown
-      const exception = (
-        typeof responseBody === 'object' && responseBody !== null
-          ? ((responseBody as Record<string, unknown>).error ?? responseBody)
-          : responseBody
-      ) as Record<string, unknown> | null
+    const errorId = (exception?.id as string | undefined) ?? 'UNKNOWN_ERROR'
+    const logId = exception?.logId as string | undefined
+    const message = exception?.message as string | undefined
+    const payload = (exception?.payload as unknown) ?? null
 
-      const errorId = (exception?.id as string | undefined) ?? 'UNKNOWN_ERROR'
-      const logId = exception?.logId as string | undefined
-      const message = exception?.message as string | undefined
-      const payload = (exception?.payload as unknown) ?? null
+    const known = ApiErrorCodes[errorId]
+    let description = known?.description ?? ApiErrorCodes.fallback.description
 
-      const known = ApiErrorCodes[errorId]
-      let description = known?.description ?? ApiErrorCodes.fallback.description
-
-      if (!known && message) {
-        description = message
-      }
-
-      if (logId) {
-        description += `. Обратитесь, пожалуйста, в службу поддержки, указав код ошибки: ${logId}`
-      }
-
-      return Promise.reject({
-        id: errorId,
-        logId,
-        statusCode: error.response.status,
-        name: known?.name ?? ApiErrorCodes.fallback.name,
-        description,
-        payload
-      } as ApiError)
+    if (!known && message) {
+      description = message
     }
 
-    return Promise.reject({
-      id: 'NETWORK_ERROR',
-      statusCode: 0,
-      name: ApiErrorCodes.NETWORK_ERROR.name,
-      description: ApiErrorCodes.NETWORK_ERROR.description,
-      payload: error
-    } as ApiError)
+    if (logId) {
+      description += `. Обратитесь, пожалуйста, в службу поддержки, указав код ошибки: ${logId}`
+    }
+
+    return {
+      id: errorId,
+      logId,
+      statusCode: error.response.status,
+      name: known?.name ?? ApiErrorCodes.fallback.name,
+      description,
+      payload
+    }
+  }
+
+  return {
+    id: 'NETWORK_ERROR',
+    statusCode: 0,
+    name: ApiErrorCodes.NETWORK_ERROR.name,
+    description: ApiErrorCodes.NETWORK_ERROR.description,
+    payload: error
+  }
+}
+
+/**
+ * Single-flight access-token refresh. Concurrent 401s all await the same
+ * in-flight refresh instead of each hitting `/auth/refresh`. Resolves to `true`
+ * when a new access token was obtained, `false` otherwise.
+ */
+let refreshPromise: Promise<boolean> | null = null
+
+function refreshAccessToken(): Promise<boolean> {
+  // The refresh token rides along in the httpOnly cookie. Mark the request so the
+  // interceptor below never tries to refresh a failed refresh (no loop).
+  refreshPromise ??= api
+    .post(REFRESH_PATH, undefined, { skipAuthRefresh: true })
+    .then((response) => {
+      const normalized = normalizeSuccessResponse<LoginResponse>(response.data)
+
+      if (isApiError(normalized) || !normalized.data?.accessToken) {
+        return false
+      }
+
+      CookieStorage.set(
+        CookieStorage.StorageAliases.apiToken,
+        normalized.data.accessToken
+      )
+      CookieStorage.set(
+        CookieStorage.StorageAliases.user,
+        normalized.data.userInfo
+      )
+
+      return true
+    })
+    .catch(() => false)
+    .finally(() => {
+      refreshPromise = null
+    })
+
+  return refreshPromise
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & {
+          _retry?: boolean
+          skipAuthRefresh?: boolean
+        })
+      | undefined
+
+    const isUnauthorized = error.response?.status === 401
+    const canRefresh =
+      isUnauthorized &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !originalRequest.skipAuthRefresh &&
+      CookieStorage.isSet(CookieStorage.StorageAliases.apiToken)
+
+    if (canRefresh) {
+      originalRequest._retry = true
+
+      const refreshed = await refreshAccessToken()
+
+      if (refreshed) {
+        // The request interceptor re-attaches the fresh token from the cookie.
+        return api(originalRequest)
+      }
+
+      // Refresh failed (session revoked / refresh token expired or reused):
+      // fall back to the forced re-login modal.
+      GlobalEventBus.emit('auth:login-expired', undefined)
+    }
+
+    return Promise.reject(toApiError(error))
   }
 )
 

@@ -87,9 +87,21 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
       isRetryLoginModalVisible.value = false
 
       CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)
+      CookieStorage.set(
+        CookieStorage.StorageAliases.apiToken,
+        response.data.accessToken
+      )
       globalUiStore.createSuccessToast('Вы снова в системе')
     }
   )
+
+  function clearSession(): void {
+    globalUiStore.setLoading(false)
+    userInfo.value = undefined
+    isRetryLoginModalVisible.value = false
+    CookieStorage.clear()
+    router.push({ name: 'auth.login' })
+  }
 
   const logout = useApiRequest(
     () => {
@@ -97,18 +109,8 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
 
       return AuthService.removeCurrentSession()
     },
-    () => {
-      globalUiStore.setLoading(false)
-      userInfo.value = undefined
-      CookieStorage.clear()
-      router.push({ name: 'auth.login' })
-    },
-    () => {
-      globalUiStore.setLoading(false)
-      userInfo.value = undefined
-      CookieStorage.clear()
-      router.push({ name: 'auth.login' })
-    }
+    clearSession,
+    clearSession
   )
 
   const register = useApiRequest<RegisterPayload>(
