@@ -9,3 +9,8 @@ export interface SessionEntity extends ApiEntity<'Session'> {
   browser: string | null
   deviceType: DeviceType
 }
+
+export interface OnlineInfo {
+  isOnline: boolean
+  lastOnlineAt: Date | null
+}

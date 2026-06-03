@@ -33,7 +33,10 @@
       title="Смена роли"
       description="Изменение роли влияет на доступные пользователю разделы и действия. Будьте внимательны."
     >
-      <div class="danger-zone-view__role">
+      <div
+        v-if="user.role == 'student'"
+        class="danger-zone-view__role"
+      >
         <noo-select-input
           v-model="selectedRole"
           label="Роль"
@@ -48,6 +51,15 @@
         >
           Сменить роль
         </noo-button>
+      </div>
+      <div
+        v-else
+        class="danger-zone-view__cant-change-role"
+      >
+        <noo-warning-block>
+          Роль можно изменить только если пользователь является учеником. В ином
+          случае, чтобы сменить роль, необходимо создать новый аккаунт.
+        </noo-warning-block>
       </div>
     </noo-section>
 

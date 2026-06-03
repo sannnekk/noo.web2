@@ -16,17 +16,23 @@ import { useRouter } from 'vue-router'
 import { CourseService } from '@/modules/courses/api/course.service'
 import type { CourseMembershipEntity } from '@/modules/courses/api/course.types'
 import { UserService } from '../api/user.service'
+import { SessionService } from '@/modules/settings/api/session.service'
 import type {
   CreateMentorAssignmentPayload,
   MentorAssignmentEntity,
   UserEntity
 } from '../api/user.types'
+import type { OnlineInfo } from '@/modules/settings/api/session.types'
 
 interface UserDetailStore {
   /**
    * The user being viewed.
    */
   user: UseApiRequestReturn<string, UserEntity>
+  /**
+   * User's online info
+   */
+  onlineInfo: UseApiRequestReturn<void, OnlineInfo>
   /**
    * Mentor assignments of the user (relevant when the user is a student).
    */
@@ -110,6 +116,13 @@ const useUserDetailStore = defineStore(
       uiStore.createApiErrorToast('Не удалось загрузить пользователя', error)
     )
 
+    const onlineInfo = useApiRequest(
+      () => SessionService.getOnlineInfo(getUserId()),
+      undefined,
+      (error) =>
+        uiStore.createApiErrorToast('Не удалось загрузить онлайн-статус', error)
+    )
+
     const isStudent = computed<boolean>(
       () => user.data.value?.role === 'student'
     )
@@ -176,6 +189,7 @@ const useUserDetailStore = defineStore(
         return
       }
 
+      await onlineInfo.execute()
       await loadAssignmentsForRole()
     }
 
@@ -284,6 +298,7 @@ const useUserDetailStore = defineStore(
 
     return {
       user,
+      onlineInfo,
       mentorAssignments,
       studentAssignments,
       courseMemberships,

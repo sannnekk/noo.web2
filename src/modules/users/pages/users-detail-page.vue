@@ -10,6 +10,15 @@
             <div class="users-detail-page__sidebar__avatar">
               <noo-user-avatar :name="user.name" />
             </div>
+            <div
+              v-if="onlineInfo"
+              class="users-detail-page__sidebar__avatar__online"
+            >
+              <online-status
+                :is-online="onlineInfo.isOnline"
+                :last-online-at="onlineInfo.lastOnlineAt"
+              />
+            </div>
             <div class="users-detail-page__sidebar__info">
               <noo-title :size="3">
                 {{ user.name }}
@@ -141,6 +150,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import OnlineStatus from '../components/online-status.vue'
 import UserBlockedBanner from '../components/user-blocked-banner.vue'
 import UserUnverifiedBanner from '../components/user-unverified-banner.vue'
 import { UsersPermissions, useUsersPermissions } from '../permissions'
@@ -165,6 +175,7 @@ const userDetailStore = useUserDetailStore()
 const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
+const onlineInfo = computed(() => userDetailStore.onlineInfo.data)
 
 watch(
   () => props.userId,
