@@ -1,28 +1,44 @@
 import { type ApiResponse, Api } from '@/core/api/api.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
+import { uid } from '@/core/utils/id.utils'
+import type { IPagination } from '@/core/utils/pagination.utils'
+import { emptyRichText } from '@/core/utils/richtext.utils'
 import type {
-  CreateSupportArticlePayload,
-  CreateSupportCategoryPayload,
+  PossiblyUnsavedSupportArticle,
   SupportArticleEntity,
-  SupportCategoryEntity
+  SupportCategory
 } from './support.types'
 
 const BASE_PATH = '/support'
 
 interface ISupportService {
   /**
-   * Retrieves a tree of support categories
+   * Creates a local draft for a new support article in the given category.
    *
-   * @returns A promise that resolves to an ApiResponse containing an array of SupportCategoryEntity objects.
+   * @param category The category the new article belongs to.
    */
-  getCategories(): Promise<ApiResponse<SupportCategoryEntity[]>>
+  createDraft(category: SupportCategory): PossiblyUnsavedSupportArticle
   /**
-   * Retrieves a support article by its ID
+   * Retrieves support articles by category. Shaped for `useSearch`: the
+   * pagination it passes is merged with the category filter.
    *
-   * @param articleId The ID of the article to fetch.
+   * @param category The category of articles to fetch.
+   * @param pagination Pagination passed by `useSearch`.
+   * @returns A promise that resolves to an ApiResponse containing an array of SupportArticleEntity objects.
+   */
+  getArticlesByCategory(
+    category: SupportCategory,
+    pagination?: IPagination
+  ): Promise<ApiResponse<SupportArticleEntity[]>>
+  /**
+   * Retrieves a support article by its slug
+   *
+   * @param articleSlug The slug of the article to fetch.
    * @returns A promise that resolves to an ApiResponse containing the SupportArticleEntity object.
    */
-  getArticleById(articleId: string): Promise<ApiResponse<SupportArticleEntity>>
+  getArticleBySlug(
+    articleSlug: string
+  ): Promise<ApiResponse<SupportArticleEntity>>
   /**
    * Creates a new support article
    *
@@ -30,7 +46,7 @@ interface ISupportService {
    * @returns ID of the article created, in a Promise
    */
   createArticle(
-    article: CreateSupportArticlePayload
+    article: PossiblyUnsavedSupportArticle
   ): Promise<ApiResponse<{ id: string }>>
   /**
    * Updates a support article using JSONPatchDocument
@@ -40,7 +56,7 @@ interface ISupportService {
    */
   updateArticle(
     articleId: string,
-    patch: JsonPatchDocument<SupportArticleEntity>
+    patch: JsonPatchDocument<PossiblyUnsavedSupportArticle>
   ): Promise<ApiResponse>
   /**
    * Deletes a support article
@@ -48,52 +64,46 @@ interface ISupportService {
    * @param articleId The ID of the article to delete.
    */
   deleteArticle(articleId: string): Promise<ApiResponse>
-  /**
-   * Creates a new support category
-   *
-   * @param category The category object to create
-   * @returns ID of the category created, in a Promise
-   */
-  createCategory(
-    category: CreateSupportCategoryPayload
-  ): Promise<ApiResponse<{ id: string }>>
-  /**
-   * Updates a support category using JSONPatchDocument
-   *
-   * @param categoryId ID of the category to update
-   * @param patch A JSONPatchDocument to use for update
-   */
-  updateCategory(
-    categoryId: string,
-    patch: JsonPatchDocument<SupportCategoryEntity>
-  ): Promise<ApiResponse>
-  /**
-   * Deletes a support category
-   *
-   * @param categoryId The ID of the category to delete.
-   */
-  deleteCategory(categoryId: string): Promise<ApiResponse>
 }
 
-async function getCategories(): Promise<ApiResponse<SupportCategoryEntity[]>> {
-  return await Api.get(BASE_PATH)
+function createDraft(category: SupportCategory): PossiblyUnsavedSupportArticle {
+  return {
+    _entityName: 'SupportArticle',
+    _key: uid(),
+    slug: '',
+    title: 'Новая статья',
+    content: emptyRichText(),
+    isActive: true,
+    category
+  }
 }
 
-async function getArticleById(
-  articleId: string
+async function getArticlesByCategory(
+  category: SupportCategory,
+  pagination?: IPagination
+): Promise<ApiResponse<SupportArticleEntity[]>> {
+  const query = pagination?.toQuery() ?? new URLSearchParams()
+
+  query.set('category', category)
+
+  return await Api.get(`${BASE_PATH}/article`, query)
+}
+
+async function getArticleBySlug(
+  articleSlug: string
 ): Promise<ApiResponse<SupportArticleEntity>> {
-  return await Api.get(`${BASE_PATH}/article/${articleId}`)
+  return await Api.get(`${BASE_PATH}/article/${articleSlug}`)
 }
 
 async function createArticle(
-  article: CreateSupportArticlePayload
+  article: PossiblyUnsavedSupportArticle
 ): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(`${BASE_PATH}/article`, article)
 }
 
 async function updateArticle(
   articleId: string,
-  patch: JsonPatchDocument<SupportArticleEntity>
+  patch: JsonPatchDocument<PossiblyUnsavedSupportArticle>
 ): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/article/${articleId}`, patch)
 }
@@ -102,30 +112,11 @@ async function deleteArticle(articleId: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/article/${articleId}`)
 }
 
-async function createCategory(
-  category: CreateSupportCategoryPayload
-): Promise<ApiResponse<{ id: string }>> {
-  return await Api.post(`${BASE_PATH}/category`, category)
-}
-
-async function updateCategory(
-  categoryId: string,
-  patch: JsonPatchDocument<SupportCategoryEntity>
-): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/category/${categoryId}`, patch)
-}
-
-async function deleteCategory(categoryId: string): Promise<ApiResponse> {
-  return await Api.delete(`${BASE_PATH}/category/${categoryId}`)
-}
-
 export const SupportService: ISupportService = {
-  getCategories,
-  getArticleById,
+  createDraft,
+  getArticlesByCategory,
+  getArticleBySlug,
   createArticle,
   updateArticle,
-  deleteArticle,
-  createCategory,
-  updateCategory,
-  deleteCategory
+  deleteArticle
 }

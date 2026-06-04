@@ -1,5 +1,6 @@
 import HelpLayout from '@/layouts/help-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
+import type { SupportCategory } from './api/support.types'
 
 const module: ApplicationModule = {
   name: 'help',
@@ -16,37 +17,32 @@ const module: ApplicationModule = {
       component: () => import('./pages/help-home-page.vue')
     },
     {
-      name: 'help.courses',
-      path: '/help/courses',
+      name: 'help.articles',
+      path: '/help/:category',
       meta: {
-        pageTitle: 'НОО - Помощь по курсам',
-        tabTitle: 'НОО - Помощь по курсам',
+        pageTitle: 'НОО - Помощь',
+        tabTitle: 'НОО - Помощь',
         layout: HelpLayout,
         noAuth: true
       },
-      component: () => import('./pages/help-courses-page.vue')
-    },
-    {
-      name: 'help.payment',
-      path: '/help/payment',
-      meta: {
-        pageTitle: 'НОО - Помощь по оплате',
-        tabTitle: 'НОО - Помощь по оплате',
-        layout: HelpLayout,
-        noAuth: true
-      },
-      component: () => import('./pages/help-payment-page.vue')
-    },
-    {
-      name: 'help.works',
-      path: '/help/works',
-      meta: {
-        pageTitle: 'НОО - Помощь по работам',
-        tabTitle: 'НОО - Помощь по работам',
-        layout: HelpLayout,
-        noAuth: true
-      },
-      component: () => import('./pages/help-works-page.vue')
+      component: () => import('./pages/help-articles-page.vue'),
+      props: (route) => ({
+        category: String(route.params.category ?? 'courses') as SupportCategory
+      }),
+      children: [
+        {
+          name: 'help.articles.detail',
+          path: ':articleSlug',
+          meta: {
+            pageTitle: 'НОО - Помощь',
+            tabTitle: 'НОО - Помощь',
+            layout: HelpLayout,
+            noAuth: true
+          },
+          component: () => import('./pages/help-article-detail-page.vue'),
+          props: (route) => ({ articleSlug: String(route.params.articleSlug) })
+        }
+      ]
     }
   ]
 }

@@ -33,7 +33,10 @@
               </li>
               <li>
                 <router-link
-                  :to="{ name: 'help.courses' }"
+                  :to="{
+                    name: 'help.articles',
+                    params: { category: 'courses' }
+                  }"
                   class="help-layout__header__inner__menu__link"
                 >
                   Курсы
@@ -41,7 +44,10 @@
               </li>
               <li>
                 <router-link
-                  :to="{ name: 'help.payment' }"
+                  :to="{
+                    name: 'help.articles',
+                    params: { category: 'payment' }
+                  }"
                   class="help-layout__header__inner__menu__link"
                 >
                   Оплата
@@ -49,7 +55,7 @@
               </li>
               <li>
                 <router-link
-                  :to="{ name: 'help.works' }"
+                  :to="{ name: 'help.articles', params: { category: 'works' } }"
                   class="help-layout__header__inner__menu__link"
                 >
                   Работы

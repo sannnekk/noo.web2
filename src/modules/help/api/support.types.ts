@@ -1,34 +1,18 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { IRichText } from '@/core/utils/richtext.utils'
-
-export interface SupportCategoryEntity extends ApiEntity<'SupportCategory'> {
-  name: string
-  isPinned: boolean
-  isActive: boolean
-  parentId?: string
-  children: SupportCategoryEntity[]
-  articles: SupportArticleEntity[]
-}
+import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
 
 export interface SupportArticleEntity extends ApiEntity<'SupportArticle'> {
+  slug: string
   title: string
   content: IRichText
   isActive: boolean
-  categoryId: string
+  category: SupportCategory
 }
 
-export interface CreateSupportArticlePayload {
-  title: string
-  order: number
-  content?: IRichText
-  isActive?: boolean
-  categoryId?: string
-}
+export type SupportCategory = 'courses' | 'payment' | 'works'
 
-export interface CreateSupportCategoryPayload {
-  name: string
-  order: number
-  isPinned?: boolean
-  isActive?: boolean
-  parentId?: string
-}
+export type PossiblyUnsavedSupportArticle = PossiblyUnsavedEntity<
+  SupportArticleEntity,
+  'SupportArticle'
+>
