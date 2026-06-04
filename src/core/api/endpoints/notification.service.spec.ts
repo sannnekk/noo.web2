@@ -76,30 +76,12 @@ describe('NotificationService', () => {
   })
 
   describe('markAllAsRead', () => {
-    it('should mark all notifications as read', async () => {
-      vi.mocked(Api.get).mockResolvedValue({
-        data: [
-          {
-            _entityName: 'Notification',
-            id: '1',
-            title: 't',
-            message: null,
-            isRead: false,
-            type: 'info',
-            isBanner: false,
-            link: null,
-            linkText: null,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ]
-      } as ApiResponse<NotificationEntity[]>)
+    it('should mark all notifications as read via the bulk endpoint', async () => {
       vi.mocked(Api.patch).mockResolvedValue({ data: undefined } as ApiResponse)
 
       await NotificationService.markAllAsRead()
 
-      expect(Api.get).toHaveBeenCalledWith('/notification', { IsRead: false })
-      expect(Api.patch).toHaveBeenCalledWith('/notification/1/mark-read')
+      expect(Api.patch).toHaveBeenCalledWith('/notification/mark-all-read')
     })
   })
 

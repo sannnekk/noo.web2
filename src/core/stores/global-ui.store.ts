@@ -23,6 +23,7 @@ interface GlobalUIStore {
     loadingText?: string
   ) => void
   toasts: ShallowRef<Toast[]>
+  createToast: (toast: Omit<Toast, 'id'>) => void
   createErrorToast: (title: string, text?: string) => void
   createApiErrorToast: (title: string, error?: ApiError) => void
   createWarningToast: (title: string, text?: string) => void
@@ -49,6 +50,18 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
 
   const toasts = shallowRef<Toast[]>([])
 
+  const TOAST_LIFETIME_MS = 4000
+
+  function createToast(toast: Omit<Toast, 'id'>) {
+    const id = uid()
+
+    toasts.value = [{ id, ...toast }, ...toasts.value]
+
+    setTimeout(() => {
+      removeToast(id)
+    }, TOAST_LIFETIME_MS)
+  }
+
   function createErrorToast(title: string, textOrError?: string | ApiError) {
     let text = textOrError
 
@@ -60,81 +73,23 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
       }
     }
 
-    const id = uid()
-
-    toasts.value = [
-      {
-        id,
-        title,
-        type: 'error',
-        text: text as string
-      },
-      ...toasts.value
-    ]
-
-    setTimeout(() => {
-      removeToast(id)
-    }, 4000)
+    createToast({ title, type: 'error', text: text as string })
   }
 
   function createWarningToast(title: string, text?: string) {
-    const id = uid()
-
-    toasts.value = [
-      {
-        id,
-        title,
-        type: 'warning',
-        text
-      },
-      ...toasts.value
-    ]
-
-    setTimeout(() => {
-      removeToast(id)
-    }, 4000)
+    createToast({ title, type: 'warning', text })
   }
 
   function createApiErrorToast(title: string, error?: ApiError) {
-    const id = uid()
+    const errorText = error
+      ? `${error.name}: ${error.description}`
+      : 'Неизвестная ошибка'
 
-    let errorText: string | undefined
-
-    if (error) {
-      errorText = `${error.name}: ${error.description}`
-    }
-
-    toasts.value = [
-      {
-        id,
-        title,
-        type: 'error',
-        text: errorText ?? 'Неизвестная ошибка'
-      },
-      ...toasts.value
-    ]
-
-    setTimeout(() => {
-      removeToast(id)
-    }, 4000)
+    createToast({ title, type: 'error', text: errorText })
   }
 
   function createSuccessToast(title: string, text?: string) {
-    const id = uid()
-
-    toasts.value = [
-      {
-        id,
-        title,
-        type: 'success',
-        text
-      },
-      ...toasts.value
-    ]
-
-    setTimeout(() => {
-      removeToast(id)
-    }, 4000)
+    createToast({ title, type: 'success', text })
   }
 
   function removeToast(id: string) {
@@ -149,6 +104,7 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
     loadingText,
     setLoading,
     toasts,
+    createToast,
     createApiErrorToast,
     createErrorToast,
     createWarningToast,

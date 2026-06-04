@@ -41,7 +41,7 @@ const module: ApplicationModule = {
     },
     {
       name: 'assigned-works.detail',
-      path: '/assigned-work/:assignedWorkId/:mode',
+      path: '/assigned-work/:assignedWorkId/:mode?',
       meta: {
         pageTitle: 'Работа',
         tabTitle: 'Работа',
@@ -55,7 +55,7 @@ const module: ApplicationModule = {
       beforeEnter: [assignedWorkDetailInitGuard, assignedWorkModeGuard],
       props: (route): AssignedWorkDetailPageProps => {
         return {
-          mode: String(route.params.mode) as AssignedWorkViewMode,
+          mode: String(route.params.mode ?? 'read') as AssignedWorkViewMode,
           assignedWorkId: String(route.params.assignedWorkId)
         }
       },

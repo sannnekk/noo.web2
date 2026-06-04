@@ -116,6 +116,7 @@ declare module 'vue' {
     NooMultiSelect: typeof import('./src/components/inputs/noo-multi-select.vue')['default']
     NooNewTag: typeof import('./src/components/tags/noo-new-tag.vue')['default']
     NooNotFoundImage: typeof import('./src/components/images/noo-not-found-image.vue')['default']
+    NooNotificationItem: typeof import('./src/components/notifications/noo-notification-item.vue')['default']
     NooNotificationsPane: typeof import('./src/components/layout/noo-notifications-pane.vue')['default']
     NooNotificationsWidget: typeof import('./src/components/widgets/noo-notifications-widget.vue')['default']
     NooNumberInput: typeof import('./src/components/inputs/noo-number-input.vue')['default']

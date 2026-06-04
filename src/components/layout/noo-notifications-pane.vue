@@ -18,15 +18,76 @@
         <noo-tabs-layout
           v-model:active-tab="currentTab"
           with-padding
+          @tab-change="onTabChange"
         >
           <template #tab-title-unread>
             <span>Непрочитанные</span>
           </template>
-          <template #tab-unread> Read... </template>
+          <template #tab-unread>
+            <div
+              v-if="
+                notificationStore.unreadNotifications.isLoading &&
+                unreadNotifications.length === 0
+              "
+              class="noo-notifications-pane__state"
+            >
+              <noo-loader-icon />
+            </div>
+            <noo-text-block
+              v-else-if="unreadNotifications.length === 0"
+              dimmed
+              size="small"
+              class="noo-notifications-pane__state"
+            >
+              Нет непрочитанных уведомлений
+            </noo-text-block>
+            <noo-list-transition
+              v-else
+              class="noo-notifications-pane__list"
+            >
+              <noo-notification-item
+                v-for="notification in unreadNotifications"
+                :key="notification.id"
+                :notification="notification"
+                @delete="onDelete"
+                @navigate="notificationStore.isPaneOpen = false"
+              />
+            </noo-list-transition>
+          </template>
           <template #tab-title-read>
             <span>Прочитанные</span>
           </template>
-          <template #tab-read> Unread... </template>
+          <template #tab-read>
+            <div
+              v-if="
+                notificationStore.readNotifications.isLoading &&
+                readNotifications.length === 0
+              "
+              class="noo-notifications-pane__state"
+            >
+              <noo-loader-icon />
+            </div>
+            <noo-text-block
+              v-else-if="readNotifications.length === 0"
+              dimmed
+              size="small"
+              class="noo-notifications-pane__state"
+            >
+              Нет прочитанных уведомлений
+            </noo-text-block>
+            <noo-list-transition
+              v-else
+              class="noo-notifications-pane__list"
+            >
+              <noo-notification-item
+                v-for="notification in readNotifications"
+                :key="notification.id"
+                :notification="notification"
+                @delete="onDelete"
+                @navigate="notificationStore.isPaneOpen = false"
+              />
+            </noo-list-transition>
+          </template>
         </noo-tabs-layout>
       </div>
     </div>
@@ -41,8 +102,9 @@
 </template>
 
 <script setup lang="ts">
+import type { NotificationEntity } from '@/core/api/endpoints/notification.types'
 import { useNotificationsStore } from '@/core/stores/notifications.store'
-import { shallowRef } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 
 export type NotificationsPaneTab = 'unread' | 'read'
 
@@ -50,22 +112,41 @@ const currentTab = shallowRef<NotificationsPaneTab>('unread')
 
 const notificationStore = useNotificationsStore()
 
-/* const readNotifications = computed<NotificationEntity[]>(
-  () => notificationStore.readNotifications.data ?? []
-)
 const unreadNotifications = computed<NotificationEntity[]>(
   () => notificationStore.unreadNotifications.data ?? []
 )
+const readNotifications = computed<NotificationEntity[]>(
+  () => notificationStore.readNotifications.data ?? []
+)
 
-const readNotificationsDatedList = useDatedList<NotificationEntity>({
-  list: readNotifications,
-  getDate: (item) => item.createdAt
-})
+let readLoaded = false
 
-const unreadNotificationsDatedList = useDatedList<NotificationEntity>({
-  list: unreadNotifications,
-  getDate: (item) => item.createdAt
-}) */
+function onTabChange(tab: string): void {
+  if (tab === 'read' && !readLoaded) {
+    readLoaded = true
+    notificationStore.loadRead()
+  }
+}
+
+watch(
+  () => notificationStore.isPaneOpen,
+  (isOpen, wasOpen) => {
+    if (isOpen) {
+      readLoaded = false
+      notificationStore.unreadNotifications.execute()
+
+      return
+    }
+
+    if (wasOpen) {
+      notificationStore.markAllAsRead.execute()
+    }
+  }
+)
+
+function onDelete(id: string): void {
+  notificationStore.deleteNotification.execute(id)
+}
 </script>
 
 <style scoped lang="sass">
@@ -103,6 +184,13 @@ const unreadNotificationsDatedList = useDatedList<NotificationEntity>({
       padding: 2em 0.5em 0.75em 0.5em
       margin: 0
 
+  &__state
+    text-align: center
+    padding: 2em 1em
+
   &__list
+    display: flex
+    flex-direction: column
+    gap: 0.3em
     padding: 0.5em
 </style>
