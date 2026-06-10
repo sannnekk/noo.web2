@@ -13,7 +13,7 @@
         class="noo-assigned-work-score__value__main"
         :size="3"
       >
-        {{ scorePercentageText }}
+        {{ scorePercentage }}%
       </noo-title>
       <noo-text-block
         class="noo-assigned-work-score__value__secondary"
@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { percentageScore } from '@/modules/assigned-works/utils'
 import { computed } from 'vue'
 
 interface Props {
@@ -37,16 +38,9 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const scorePercentageText = computed(() => {
-  if (props.maxScore === 0) {
-    return '0%'
-  }
-  if (props.score === null) {
-    return '- %'
-  }
-
-  return String(Math.round((props.score / props.maxScore) * 100)) + '%'
-})
+const scorePercentage = computed(() =>
+  percentageScore(props.score, props.maxScore)
+)
 
 const scoreText = computed(() => {
   return `${props.score ?? '-'} / ${props.maxScore.toString()}`

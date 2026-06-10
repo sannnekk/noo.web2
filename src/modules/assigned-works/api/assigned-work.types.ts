@@ -3,40 +3,18 @@ import type { IRichText } from '@/core/utils/richtext.utils'
 import type { UserEntity } from '@/modules/users/api/user.types'
 import type { WorkEntity, WorkType } from '@/modules/works/api/work.types'
 
-/**
- * Represents the solve status of an assigned work.
- */
 export type SolveStatus = 'not-solved' | 'in-progress' | 'solved'
 
-/**
- * Represents the check status of an assigned work.
- */
 export type CheckStatus = 'not-checked' | 'in-progress' | 'checked'
 
-/**
- * Detailed information about deadline shifts for an assigned work.
- */
 export interface DeadlineShiftHistory {
   shiftedAt: Date
   shiftedBy: 'student' | 'mentor'
   reason: string
 }
 
-/**
- * Used to give points for parts of the taks.
- * For example:
- * ```json
- * {
- *  "spellcheck": 5,
- *  "grammar": 10
- * }
- * ```
- */
 export type DetailedScore = Record<string, number>
 
-/**
- * Shows all the information about the progress of the assigned work.
- */
 export interface AssignedWorkProgress {
   assignedWorkId: string
   solveStatus: SolveStatus
@@ -49,34 +27,22 @@ export interface AssignedWorkProgress {
   createdAt: Date
 }
 
-/**
- * Options to remake an assigned work.
- */
 export interface AssignedWorkRemakeOptions {
   includeOnlyWrongTasks?: boolean
 }
 
-/**
- * Options to add a mentor to an assigned work.
- */
 export interface AddHelperMentorOptions {
   mentorId: string
   notifyMentor?: boolean
   notifyStudent?: boolean
 }
 
-/**
- * Matches `ReplaceMainMentorOptionsDTO` in OpenAPI.
- */
 export interface ReplaceMainMentorOptions {
   mentorId: string
   notifyMentor?: boolean
   notifyStudent?: boolean
 }
 
-/**
- * Matches `ShiftAssignedWorkDeadlineOptionsDTO` in OpenAPI.
- */
 export interface ShiftAssignedWorkDeadlineOptions {
   newDeadline: Date
   notifyOthers?: boolean
@@ -95,9 +61,10 @@ export type AssignedWorkStatusHistoryType =
   | 'sent-on-recheck'
   | 'sent-on-resolve'
 
-export interface AssignedWorkStatusHistoryEntity extends ApiEntity<'AssignedWorkStatusHistory'> {
-  status: AssignedWorkStatusHistoryType
+export interface AssignedWorkHistoryEntity extends ApiEntity<'AssignedWorkStatusHistory'> {
+  type: AssignedWorkStatusHistoryType
   value: Record<string, string> | null
+  changedAt: Date
   changedById: string
   changedBy?: UserEntity | null
   assignedWorkId: string
@@ -113,7 +80,7 @@ export interface AssignedWorkEntity extends ApiEntity<'AssignedWork'> {
   checkStatus: CheckStatus
   checkDeadlineAt: Date | null
   checkedAt: Date | null
-  statusHistory: AssignedWorkStatusHistoryEntity[]
+  statusHistory: AssignedWorkHistoryEntity[]
   score: number | null
   maxScore: number
   isArchivedByStudent: boolean

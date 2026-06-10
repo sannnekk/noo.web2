@@ -25,10 +25,10 @@
         >
           <template #column-status="{ item }">
             <noo-text-block>
-              {{ readableHistoryStatus(item.status) }}
+              {{ historyStatus[item.type] }}
             </noo-text-block>
           </template>
-          <template #column-createdAt="{ item }">
+          <template #column-changedAt="{ item }">
             <noo-text-block dimmed>
               <noo-date
                 :value="item.createdAt"
@@ -69,8 +69,9 @@
 import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
 import { useApiRequest } from '@/core/composables/useApiRequest'
 import { watch } from 'vue'
-import type { AssignedWorkStatusHistoryEntity } from '../api/assigned-work.types'
-import { readableHistoryStatus } from '../utils'
+import type { AssignedWorkHistoryEntity } from '../api/assigned-work.types'
+import { AssignedWorkService } from '../api/assigned-work.service'
+import { historyStatus } from '../constants'
 
 interface Props {
   assignedWorkId: string
@@ -82,39 +83,28 @@ const isOpen = defineModel<boolean>('is-open', {
   default: false
 })
 
-const history = useApiRequest<void, AssignedWorkStatusHistoryEntity[]>(() => {
-  /* AssignedWorkService.getHistory(props.assignedWorkId) */
-  return Promise.resolve({
-    data: [] as AssignedWorkStatusHistoryEntity[]
-  })
-})
+const history = useApiRequest<void, AssignedWorkHistoryEntity[]>(() =>
+  AssignedWorkService.getHistory(props.assignedWorkId)
+)
 
 watch(
   isOpen,
   () => {
-    if (isOpen.value && !history.isLoading.value && shouldLoadHistory()) {
+    if (isOpen.value && !history.isLoading.value) {
       history.execute()
     }
   },
   { immediate: true }
 )
 
-function shouldLoadHistory(): boolean {
-  return (
-    history.data.value === null ||
-    history.data.value.length === 0 ||
-    history.data.value[0].assignedWorkId !== props.assignedWorkId
-  )
-}
-
-const columns: EntityTableColumnType<AssignedWorkStatusHistoryEntity>[] = [
+const columns: EntityTableColumnType<AssignedWorkHistoryEntity>[] = [
   {
     key: 'status',
     title: 'Статус'
   },
   {
-    key: 'createdAt',
-    title: 'Дата создания'
+    key: 'changedAt',
+    title: 'Дата'
   },
   {
     key: 'changedBy',

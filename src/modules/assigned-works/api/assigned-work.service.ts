@@ -6,6 +6,7 @@ import type { PossiblyUnsavedAnswer } from '../types'
 import type {
   AddHelperMentorOptions,
   AssignedWorkEntity,
+  AssignedWorkHistoryEntity,
   AssignedWorkProgress,
   AssignedWorkRemakeOptions,
   AssignedWorksMetadata,
@@ -54,6 +55,13 @@ interface IAssignedWorkService {
    * @returns A promise that resolves to an ApiResponse containing the AssignedWorkProgress array.
    */
   getProgress(id: string): Promise<ApiResponse<AssignedWorkProgress[]>>
+  /**
+   * Gets the history of an assigned work by the id of the assigned work.
+   *
+   * @param id The ID of the assigned work to get the history for.
+   * @returns A promise that resolves to an ApiResponse containing the AssignedWorkHistory array.
+   */
+  getHistory(id: string): Promise<ApiResponse<AssignedWorkHistoryEntity[]>>
   /**
    * Creates a new assigned work from a course work assignment id.
    *
@@ -167,6 +175,12 @@ async function getById(id: string): Promise<ApiResponse<AssignedWorkEntity>> {
   return await Api.get(`${BASE_PATH}/${id}`)
 }
 
+async function getHistory(
+  id: string
+): Promise<ApiResponse<AssignedWorkHistoryEntity[]>> {
+  return await Api.get(`${BASE_PATH}/${id}/history`)
+}
+
 function createAnswerDraft(
   task: Pick<WorkTaskEntity, 'id' | 'maxScore'>
 ): PossiblyUnsavedAnswer {
@@ -267,12 +281,10 @@ async function shiftDeadline(
 }
 
 async function markUnsolved(id: string): Promise<ApiResponse> {
-  // OpenAPI: PATCH /assigned-work/{assignedWorkId}/return-to-solve
   return await Api.patch<void, void>(`${BASE_PATH}/${id}/return-to-solve`)
 }
 
 async function markUnchecked(id: string): Promise<ApiResponse> {
-  // OpenAPI: PATCH /assigned-work/{assignedWorkId}/return-to-check
   return await Api.patch<void, void>(`${BASE_PATH}/${id}/return-to-check`)
 }
 
@@ -286,6 +298,7 @@ export const AssignedWorkService: IAssignedWorkService = {
   getMetadata,
   getById,
   getProgress,
+  getHistory,
   create,
   remake,
   markSolved,

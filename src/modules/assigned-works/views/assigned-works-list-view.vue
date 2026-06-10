@@ -159,6 +159,19 @@
             />
           </div>
         </template>
+        <template #column-score="{ item }">
+          <div class="assigned-works-list-view__content__score-cell">
+            <noo-text-block>
+              {{ item.score !== null ? item.score : '-' }}/{{
+                item.maxScore !== null ? item.maxScore : '-'
+              }}
+              <br />
+              <small v-if="item.score !== null">
+                {{ percentageScore(item.score, item.maxScore) }}%
+              </small>
+            </noo-text-block>
+          </div>
+        </template>
         <template #column-select="{ item }">
           <div class="assigned-works-list-view__content__select-cell">
             <noo-checkbox v-model="selectedItems[item.id]" />
@@ -178,6 +191,7 @@ import {
   useAssignedWorksPermissions
 } from '../permissions'
 import type { ApiError } from '@/core/api/api.utils'
+import { percentageScore } from '../utils'
 
 interface Props {
   works: AssignedWorkEntity[]
@@ -226,6 +240,10 @@ const columns: EntityTableColumnType<AssignedWorkEntity>[] = [
   {
     title: 'Статус',
     key: 'status'
+  },
+  {
+    title: 'Балл',
+    key: 'score'
   },
   {
     title: 'Выбрать',
@@ -309,6 +327,10 @@ function getSelectedWorks() {
     &__date-cell
       font-size: 0.8em
       color: var(--text-light)
+
+    &__score-cell
+      small
+        color: var(--text-light)
 
     &__select-cell
       display: flex

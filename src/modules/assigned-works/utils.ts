@@ -1,9 +1,6 @@
 import { richTextIsEmpty, richTextsAreEqual } from '@/core/utils/richtext.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
-import type {
-  AssignedWorkAnswerEntity,
-  AssignedWorkStatusHistoryType
-} from './api/assigned-work.types'
+import type { AssignedWorkAnswerEntity } from './api/assigned-work.types'
 import type { PossiblyUnsavedAnswer } from './types'
 
 function answersAreEqual(
@@ -40,29 +37,15 @@ function answerIsNotEmpty(
   return !!answer.wordContent?.trim().length
 }
 
-function readableHistoryStatus(status: AssignedWorkStatusHistoryType): string {
-  switch (status) {
-    case 'created':
-      return 'Работа присвояна'
-    case 'started-solving':
-      return 'Работа начата'
-    case 'solve-deadline-shifted':
-      return 'Дедлайн решения сдвинут'
-    case 'solved':
-      return 'Работа сдана на проверку'
-    case 'started-checking':
-      return 'Проверка работы начата'
-    case 'check-deadline-shifted':
-      return 'Дедлайн проверки сдвинут'
-    case 'checked':
-      return 'Работа проверена'
-    case 'sent-on-recheck':
-      return 'Проверка отправлена на доработку'
-    case 'sent-on-resolve':
-      return 'Решение отправлено на доработку'
-    default:
-      return '-'
+function percentageScore(
+  score: number | null,
+  maxScore: number | null
+): number {
+  if (score === null || maxScore === null || maxScore === 0) {
+    return 0
   }
+
+  return Math.round((score / maxScore) * 100)
 }
 
-export { answerIsNotEmpty, answersAreEqual, readableHistoryStatus }
+export { answerIsNotEmpty, answersAreEqual, percentageScore }
