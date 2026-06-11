@@ -31,10 +31,10 @@
         <noo-tiptap-video-menu :editor="editor" />
         <noo-tiptap-table-menu :editor="editor" />
         <noo-tiptap-latex-menu :editor="editor" />
-        <noo-tiptap-toolbar-button
-          icon="image"
-          title="Изображение"
-          disabled
+        <noo-tiptap-image-modal
+          :editor="editor"
+          :category="mediaCategory"
+          :entity-id="mediaEntityId"
         />
       </div>
     </div>
@@ -60,6 +60,7 @@ import {
   type IRichText,
   type ITiptapRichText
 } from '@/core/utils/richtext.utils'
+import type { MediaCategory } from '@/modules/media/api/media.types'
 import { Mathematics } from '@tiptap/extension-mathematics'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
@@ -71,6 +72,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import { computed, ref, watch } from 'vue'
 import { Iframe } from './extensions/iframe'
+import { Image } from './extensions/image'
 import type { MathEditTarget } from './noo-tiptap-math-edit.vue'
 import 'katex/dist/katex.min.css'
 
@@ -85,6 +87,10 @@ interface ToolbarItem {
 interface Props {
   readonly?: boolean
   placeholder?: string
+  /** Media category for image uploads; without it the image tool is disabled. */
+  mediaCategory?: MediaCategory
+  /** Entity the uploaded media belongs to (passed through to the upload). */
+  mediaEntityId?: string
 }
 
 const props = defineProps<Props>()
@@ -108,7 +114,8 @@ const editor = useEditor({
       inlineOptions: { onClick: openMathEditor },
       blockOptions: { onClick: openMathEditor }
     }),
-    Iframe
+    Iframe,
+    Image
   ],
   onUpdate: ({ editor }) => {
     model.value = editor.isEmpty ? null : tiptapToRichText(editor.getJSON())
@@ -303,6 +310,13 @@ watch(
         width: 100%
         height: 100%
         border: none
+        border-radius: var(--border-radius)
+
+      .noo-richtext-image
+        display: block
+        max-width: 100%
+        height: auto
+        margin: 0.5em 0
         border-radius: var(--border-radius)
 
       table

@@ -166,6 +166,7 @@ declare module 'vue' {
     NooTiptapColorMenu: typeof import('./src/components/richtext/tiptap/noo-tiptap-color-menu.vue')['default']
     NooTiptapComponent: typeof import('./src/components/richtext/tiptap/noo-tiptap-component.vue')['default']
     NooTiptapImageModal: typeof import('./src/components/richtext/tiptap/noo-tiptap-image-modal.vue')['default']
+    NooTiptapImageView: typeof import('./src/components/richtext/tiptap/noo-tiptap-image-view.vue')['default']
     NooTiptapLatexMenu: typeof import('./src/components/richtext/tiptap/noo-tiptap-latex-menu.vue')['default']
     NooTiptapLinkMenu: typeof import('./src/components/richtext/tiptap/noo-tiptap-link-menu.vue')['default']
     NooTiptapMathEdit: typeof import('./src/components/richtext/tiptap/noo-tiptap-math-edit.vue')['default']

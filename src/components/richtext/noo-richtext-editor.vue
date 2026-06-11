@@ -21,6 +21,7 @@
       :placeholder="placeholder"
       :readonly="readonly"
       :class="{ 'noo-richtext-editor__has-error': errors?.length }"
+      :media-category="mediaCategory"
     />
     <noo-input-error-list :errors="errors" />
   </div>
@@ -31,12 +32,14 @@ import { richTextIsEmpty, type IRichText } from '@/core/utils/richtext.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { Delta } from 'quill/core'
 import { computed } from 'vue'
+import type { MediaCategory } from '@/modules/media/api/media.types'
 
 interface Props {
   modelValue?: IRichText | null
   placeholder?: string
   readonly?: boolean
   label?: string
+  mediaCategory?: MediaCategory
   errors?: ValidationError[]
 }
 

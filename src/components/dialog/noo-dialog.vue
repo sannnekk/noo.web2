@@ -15,8 +15,13 @@
     <transition name="noo-dialog-pop">
       <div
         v-if="isOpen"
+        ref="panel"
         class="noo-dialog__panel"
-        :class="`noo-dialog__panel--${align}`"
+        :class="[
+          `noo-dialog__panel--${align}`,
+          `noo-dialog__panel--${placement}`
+        ]"
+        :style="panelStyle"
         role="dialog"
       >
         <div
@@ -37,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 interface Props {
   /** Which edge of the trigger the panel is anchored to. */
@@ -57,6 +62,54 @@ const isOpen = defineModel<boolean>('isOpen', {
 })
 
 const root = ref<HTMLElement | null>(null)
+const panel = ref<HTMLElement | null>(null)
+
+// Viewport-edge correction applied after the panel is measured.
+const shiftX = ref(0)
+const placement = ref<'bottom' | 'top'>('bottom')
+
+const panelStyle = computed(() => ({ marginLeft: `${shiftX.value}px` }))
+
+const VIEWPORT_MARGIN = 8
+
+// Nudge the panel back on-screen horizontally, and flip it above the trigger
+// when it would overflow the bottom edge.
+async function updatePosition() {
+  if (!isOpen.value) {
+    return
+  }
+
+  shiftX.value = 0
+  placement.value = 'bottom'
+
+  await nextTick()
+
+  const panelEl = panel.value
+  const anchorEl = root.value
+
+  if (!panelEl || !anchorEl) {
+    return
+  }
+
+  const rect = panelEl.getBoundingClientRect()
+  const anchorRect = anchorEl.getBoundingClientRect()
+
+  const overflowRight = rect.right - (window.innerWidth - VIEWPORT_MARGIN)
+  const overflowLeft = VIEWPORT_MARGIN - rect.left
+
+  if (overflowRight > 0) {
+    shiftX.value = -overflowRight
+  } else if (overflowLeft > 0) {
+    shiftX.value = overflowLeft
+  }
+
+  const overflowsBottom = rect.bottom > window.innerHeight - VIEWPORT_MARGIN
+  const fitsAbove = anchorRect.top - rect.height - VIEWPORT_MARGIN > 0
+
+  if (overflowsBottom && fitsAbove) {
+    placement.value = 'top'
+  }
+}
 
 function open() {
   isOpen.value = true
@@ -86,26 +139,36 @@ function onDocumentKeydown(event: KeyboardEvent) {
   }
 }
 
+function addListeners() {
+  document.addEventListener('pointerdown', onDocumentPointerDown)
+  document.addEventListener('keydown', onDocumentKeydown)
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
+}
+
+function removeListeners() {
+  document.removeEventListener('pointerdown', onDocumentPointerDown)
+  document.removeEventListener('keydown', onDocumentKeydown)
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
+}
+
 // Only listen while open to avoid leaking global handlers for every dialog.
 // `immediate` covers dialogs that are mounted already open (e.g. anchored popovers).
 watch(
   isOpen,
   (opened) => {
     if (opened) {
-      document.addEventListener('pointerdown', onDocumentPointerDown)
-      document.addEventListener('keydown', onDocumentKeydown)
+      addListeners()
+      updatePosition()
     } else {
-      document.removeEventListener('pointerdown', onDocumentPointerDown)
-      document.removeEventListener('keydown', onDocumentKeydown)
+      removeListeners()
     }
   },
   { immediate: true }
 )
 
-onBeforeUnmount(() => {
-  document.removeEventListener('pointerdown', onDocumentPointerDown)
-  document.removeEventListener('keydown', onDocumentKeydown)
-})
+onBeforeUnmount(removeListeners)
 
 defineExpose({ open, close, toggle })
 </script>
@@ -120,7 +183,6 @@ defineExpose({ open, close, toggle })
 
   &__panel
     position: absolute
-    top: calc(100% + 0.4em)
     z-index: 100
     min-width: 16em
     max-width: min(90vw, 24em)
@@ -135,6 +197,12 @@ defineExpose({ open, close, toggle })
 
     &--right
       right: 0
+
+    &--bottom
+      top: calc(100% + 0.4em)
+
+    &--top
+      bottom: calc(100% + 0.4em)
 
     &__title
       font-weight: 500

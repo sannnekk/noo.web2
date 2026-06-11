@@ -61,6 +61,7 @@
         <noo-richtext-editor
           v-model="currentContent.content"
           label="Текст материала"
+          media-category="course-rich-text"
         />
       </noo-grid-layout-item>
     </noo-grid-layout>

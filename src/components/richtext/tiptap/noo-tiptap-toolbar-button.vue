@@ -4,12 +4,16 @@
     class="noo-tiptap-toolbar-button"
     :class="{
       'noo-tiptap-toolbar-button--active': active,
-      'noo-tiptap-toolbar-button--disabled': disabled
+      'noo-tiptap-toolbar-button--disabled': disabled || isLoading
     }"
     :title="title"
-    :disabled="disabled"
+    :disabled="disabled || isLoading"
   >
-    <noo-richtext-icon :icon="icon" />
+    <noo-loader-icon v-if="isLoading" />
+    <noo-richtext-icon
+      v-else
+      :icon="icon"
+    />
   </button>
 </template>
 
@@ -21,6 +25,7 @@ interface Props {
   title?: string
   active?: boolean
   disabled?: boolean
+  isLoading?: boolean
 }
 
 defineProps<Props>()
