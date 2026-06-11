@@ -83,6 +83,7 @@
         "
         :readonly="isCommentReadonly"
       />
+      <snippets-block v-if="!isCommentReadonly" />
     </div>
     <div class="assigned-works-task-view__detailed-score" />
     <div
@@ -107,6 +108,7 @@
 </template>
 
 <script setup lang="ts">
+import snippetsBlock from '../components/snippets-block.vue'
 import textTaskContainer from '../components/text-task-container.vue'
 import wordTaskContainer from '../components/word-task-container.vue'
 import essayTaskContainer from '../components/essay-task-container.vue'

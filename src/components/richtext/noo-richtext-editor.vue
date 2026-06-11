@@ -9,7 +9,15 @@
       {{ label }}
     </noo-text-block>
     <noo-quill-component
-      v-model="model"
+      v-if="isDelta"
+      v-model="deltaModel"
+      :placeholder="placeholder"
+      :readonly="readonly"
+      :class="{ 'noo-richtext-editor__has-error': errors?.length }"
+    />
+    <noo-tiptap-component
+      v-else
+      v-model="tiptapModel"
       :placeholder="placeholder"
       :readonly="readonly"
       :class="{ 'noo-richtext-editor__has-error': errors?.length }"
@@ -37,7 +45,10 @@ type Emits = (event: 'update:modelValue', value: IRichText | null) => void
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
 
-const model = computed<Delta | null>({
+// tiptap is the default editor; quill is only used for existing delta content
+const isDelta = computed(() => props.modelValue?.$type === 'delta')
+
+const deltaModel = computed<Delta | null>({
   get: () => toDelta(props.modelValue),
   set: (value) => {
     emits(
@@ -45,6 +56,12 @@ const model = computed<Delta | null>({
       richTextIsEmpty(value as unknown as IRichText) ? null : toRichText(value)
     )
   }
+})
+
+const tiptapModel = computed<IRichText | null>({
+  // the tiptap component already emits null for empty content
+  get: () => props.modelValue ?? null,
+  set: (value) => emits('update:modelValue', value)
 })
 
 function toRichText(delta: Delta | undefined | null): IRichText {
@@ -55,7 +72,10 @@ function toRichText(delta: Delta | undefined | null): IRichText {
 }
 
 function toDelta(richText: IRichText | undefined | null): Delta {
-  return richText ? new Delta(richText) : new Delta().insert('')
+  // this editor wraps quill, which only understands delta content
+  return richText?.$type === 'delta'
+    ? new Delta(richText)
+    : new Delta().insert('')
 }
 </script>
 

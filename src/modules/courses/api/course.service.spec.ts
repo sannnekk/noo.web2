@@ -84,8 +84,8 @@ describe('CourseService', () => {
         workAssignments: []
       })
       expect(content._key).toEqual(expect.any(String))
-      expect(content.content.$type).toBe('delta')
-      expect(Array.isArray(content.content.ops)).toBe(true)
+      expect(content.content.$type).toBe('tiptap')
+      expect((content.content as { type: string }).type).toBe('doc')
     })
 
     test('createWorkAssignmentDraft should attach selected work', () => {
