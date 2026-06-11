@@ -40,6 +40,7 @@ watch(
   () => authStore.isAuthenticated,
   (isAuthenticated) => {
     if (isAuthenticated) {
+      authStore.loadCurrentUser()
       settingsStore.init()
     }
   },

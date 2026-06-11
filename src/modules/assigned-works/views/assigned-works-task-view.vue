@@ -82,6 +82,7 @@
             : 'Введите комментарий куратора здесь...'
         "
         :readonly="isCommentReadonly"
+        media-category="assigned-work-mentor-rich-text"
       />
       <snippets-block v-if="!isCommentReadonly" />
     </div>

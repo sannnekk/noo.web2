@@ -89,7 +89,7 @@ const useAccountSettingsStore = defineStore(
     const changesCount = ref(0)
 
     function getCurrentUserId(): string {
-      const userId = authStore.userInfo?.id
+      const userId = authStore.userId
 
       if (!userId) {
         throw new Error('No authenticated user is available')
@@ -154,7 +154,7 @@ const useAccountSettingsStore = defineStore(
 
     const requestPasswordChange = useApiRequest(
       () => {
-        const email = authStore.userInfo?.email
+        const email = authStore.currentUser.data?.email
 
         if (!email) {
           throw new Error('Authenticated user has no email')

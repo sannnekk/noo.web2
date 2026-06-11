@@ -16,6 +16,7 @@ export type MediaCategory =
   | 'assigned-work-student-comment-rich-text'
   | 'assigned-work-mentor-comment-rich-text'
   | 'help-rich-text'
+  | 'snippet-rich-text'
 
 export interface MediaEntity extends ApiEntity<'Media'> {
   order: number

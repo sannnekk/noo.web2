@@ -62,7 +62,10 @@ const authStore = useAuthStore()
 const password = shallowRef('')
 
 const identity = computed(
-  () => authStore.userInfo?.username ?? authStore.userInfo?.email ?? ''
+  () =>
+    authStore.currentUser.data?.username ??
+    authStore.currentUser.data?.email ??
+    ''
 )
 
 const errorList = computed<ValidationError[]>(() => {
@@ -75,7 +78,7 @@ const errorList = computed<ValidationError[]>(() => {
 
 function submit(): void {
   const usernameOrEmail =
-    authStore.userInfo?.username ?? authStore.userInfo?.email
+    authStore.currentUser.data?.username ?? authStore.currentUser.data?.email
 
   if (!usernameOrEmail || !password.value) {
     return

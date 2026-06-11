@@ -34,8 +34,8 @@ const ownerFilterKey = can(CoursePermissions.useStudentOwnershipFilter)
 
 const initialFilters = [
   new EqualsFilter('isArchived', true),
-  ...(authStore.userInfo?.id
-    ? [new EqualsFilter(ownerFilterKey, authStore.userInfo.id)]
+  ...(authStore.userId
+    ? [new EqualsFilter(ownerFilterKey, authStore.userId)]
     : [])
 ]
 

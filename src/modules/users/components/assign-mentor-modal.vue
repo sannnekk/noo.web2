@@ -154,7 +154,7 @@ const resolvedPayload = computed<CreateMentorAssignmentPayload | null>(() => {
 
   const mentorId =
     action.kind === 'become'
-      ? (authStore.userInfo?.id ?? null)
+      ? (authStore.userId ?? null)
       : (pickedMentor.value?.id ?? null)
 
   if (!mentorId) {

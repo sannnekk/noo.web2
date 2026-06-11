@@ -14,28 +14,39 @@
       v-if="isOnline"
       class="noo-user-avatar__is-online"
     />
+    <div
+      v-if="editable"
+      class="noo-user-avatar__edit"
+      @click="$emit('edit')"
+    >
+      <noo-icon name="edit" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { UserAvatarEntity } from '@/modules/users/api/user.types'
 import { computed } from 'vue'
 
 interface Props {
   name?: string
-  // @ts-expect-error type not implemented
-  // eslint-disable-next-line no-undef
   avatar?: UserAvatarEntity | null
   isOnline?: boolean
+  editable?: boolean
 }
 
+type Emits = (e: 'edit') => void
+
 const props = defineProps<Props>()
+
+defineEmits<Emits>()
 
 const src = computed(() => {
   switch (props.avatar?.avatarType) {
     case 'telegram':
-      return props.avatar.telegramAvatarUrl
+      return props.avatar.avatarUrl
     case 'custom':
-      return props.avatar.media?.src
+      return props.avatar.media?.url
     case undefined:
     default:
       return null
@@ -50,6 +61,8 @@ const src = computed(() => {
   aspect-ratio: 1 / 1
   border-radius: 50%
   position: relative
+  border-radius: 50%
+  overflow: hidden
 
   &__image
     display: block
@@ -59,7 +72,6 @@ const src = computed(() => {
     background-color: var(--border-color)
     overflow: hidden
     aspect-ratio: 1 / 1
-    border-radius: 50%
 
   &__initials
     display: block
@@ -78,4 +90,23 @@ const src = computed(() => {
     border-radius: 50%
     background-color: var(--success)
     border: 1px solid var(--lightest)
+
+  &:hover .noo-user-avatar__edit
+    opacity: 1
+
+  &__edit
+    position: absolute
+    z-index: 1
+    top: 0
+    left: 0
+    background-color: rgba(0, 0, 0, 0.5)
+    width: 100%
+    height: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 0.3em
+    opacity: 0
+    transition: opacity 0.2s ease-in-out
+    cursor: pointer
 </style>

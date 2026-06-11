@@ -6,10 +6,7 @@
     <div class="noo-inline-user-block__avatar">
       <noo-user-avatar
         :name="user.name"
-        :avatar="
-          // @ts-expect-error not-implemented yet
-          user.avatar
-        "
+        :avatar="user.avatar"
       />
     </div>
     <noo-inline-link

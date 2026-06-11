@@ -20,10 +20,7 @@
         <noo-user-avatar
           class="users-list-page__avatar-cell"
           :name="item.name"
-          :avatar="
-            /* @ts-expect-error not-implemented yet */
-            item.avatar
-          "
+          :avatar="item.avatar"
         />
       </template>
       <template #column-name="{ item }">

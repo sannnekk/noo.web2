@@ -22,7 +22,7 @@ const module: ApplicationModule = {
         return {
           userId: route.params.userId
             ? String(route.params.userId)
-            : authStore.userInfo?.id
+            : authStore.userId
         }
       }
     }

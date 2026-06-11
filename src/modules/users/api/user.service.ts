@@ -5,6 +5,7 @@ import type { IPagination } from '@/core/utils/pagination.utils'
 import type {
   CreateMentorAssignmentPayload,
   MentorAssignmentEntity,
+  UserAvatarEntity,
   UserEntity
 } from './user.types'
 
@@ -34,6 +35,16 @@ interface IUserService {
   update(
     userId: string,
     patch: JsonPatchDocument<UserEntity>
+  ): Promise<ApiResponse>
+  /**
+   * Updates a user avatar using JSONPatchDocument
+   *
+   * @param userId The ID of the user to update avatar for
+   * @param patch A JSONPatchDocument to use for update
+   */
+  updateAvatar(
+    userId: string,
+    patch: JsonPatchDocument<UserAvatarEntity>
   ): Promise<ApiResponse>
   /**
    * Deletes a current user, requires password confirmation
@@ -120,6 +131,13 @@ async function update(
   return await Api.patch(`${BASE_PATH}/${userId}`, patch)
 }
 
+async function updateAvatar(
+  userId: string,
+  patch: JsonPatchDocument<UserAvatarEntity>
+): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${userId}/avatar`, patch)
+}
+
 async function deleteUser(password: string): Promise<ApiResponse> {
   return await Api.post(`${BASE_PATH}/delete`, { password })
 }
@@ -180,6 +198,7 @@ export const UserService: IUserService = {
   get,
   getById,
   update,
+  updateAvatar,
   delete: deleteUser,
   changeRole,
   block,

@@ -4,19 +4,21 @@
     class="noo-profile-widget"
   >
     <div class="noo-profile-widget__avatar">
-      <noo-user-avatar :name="authStore.userInfo?.name ?? undefined" />
-      <!-- TODO: add avatar -->
+      <noo-user-avatar
+        :name="authStore.currentUser.data?.name ?? undefined"
+        :avatar="authStore.currentUser.data?.avatar ?? undefined"
+      />
     </div>
     <div class="noo-profile-widget__credentials">
       <noo-title
         :size="3"
         class="noo-profile-widget__credentials__name"
       >
-        {{ authStore.userInfo?.name }}
+        {{ authStore.currentUser.data?.name }}
       </noo-title>
       <div class="noo-profile-widget__credentials__actions">
         <span class="noo-profile-widget__credentials__actions__username">
-          {{ authStore.userInfo?.username }}
+          {{ authStore.currentUser.data?.username }}
         </span>
         <noo-dot-separator />
         <noo-logout-button

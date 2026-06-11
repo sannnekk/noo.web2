@@ -29,7 +29,7 @@ const useAssignedWorkListStore = defineStore(
   'assigned-works:assigned-work-list',
   (): AssignedWorkListStore => {
     const authStore = useAuthStore()
-    const userId = computed(() => authStore.userInfo!.id!)
+    const userId = computed(() => authStore.userId!)
 
     const metadata = useApiRequest(() =>
       AssignedWorkService.getMetadata(userId.value)

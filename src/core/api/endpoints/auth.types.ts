@@ -1,22 +1,15 @@
 export type UserRole = 'admin' | 'teacher' | 'mentor' | 'assistant' | 'student'
 
-export interface UserInfo {
-  id: string
-  name: string | null
-  username: string | null
-  email: string | null
-  role: UserRole
-}
-
 export interface LoginPayload {
   usernameOrEmail: string
   password: string
 }
 
 export interface LoginResponse {
-  accessToken: string | null
+  accessToken: string
   expiresAt: string
-  userInfo: UserInfo
+  userId: string
+  userRole: UserRole
 }
 
 export interface RegisterPayload {

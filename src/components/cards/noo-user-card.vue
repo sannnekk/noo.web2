@@ -3,10 +3,7 @@
     <div class="noo-user-card__avatar">
       <noo-user-avatar
         :name="user.name"
-        :avatar="
-          // @ts-expect-error not-implemented yet
-          user.avatar
-        "
+        :avatar="user.avatar"
       />
     </div>
     <div class="noo-user-card__credentials">

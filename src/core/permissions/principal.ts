@@ -19,18 +19,17 @@ export interface Principal {
  *
  * Reads straight from the auth store, so it works both inside components and in
  * places where composables are unavailable (router guards, API interceptors).
- * Accessing `store.userInfo` registers a reactive dependency, so calling this
- * from within a `computed` re-evaluates on login/logout.
+ * Accessing `store.userId`/`store.userRole` registers a reactive dependency, so
+ * calling this from within a `computed` re-evaluates on login/logout.
  */
 function getPrincipal(): Principal | null {
   const store = useAuthStore()
-  const info = store.userInfo
 
-  if (!info) {
+  if (!store.userId || !store.userRole) {
     return null
   }
 
-  return { id: info.id, role: info.role }
+  return { id: store.userId, role: store.userRole }
 }
 
 /**

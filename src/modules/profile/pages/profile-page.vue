@@ -4,19 +4,24 @@
       <template #sidebar>
         <div class="profile-page__sidebar">
           <div class="profile-page__sidebar__avatar">
-            <noo-user-avatar :name="authStore.userInfo?.name ?? undefined" />
+            <noo-user-avatar
+              :name="currentUser?.name ?? undefined"
+              :avatar="avatar"
+              editable
+              @edit="isAvatarModalOpen = true"
+            />
           </div>
           <div class="profile-page__sidebar__info">
             <noo-title :size="3">
-              {{ authStore.userInfo?.name }}
+              {{ currentUser?.name }}
             </noo-title>
             <noo-text-block
               size="small"
               dimmed
             >
-              {{ authStore.userInfo?.username }}
+              {{ currentUser?.username }}
               <br />
-              {{ authStore.userInfo?.email }}
+              {{ currentUser?.email }}
             </noo-text-block>
           </div>
           <div class="profile-page__sidebar__edit-profile">
@@ -80,6 +85,14 @@
         </noo-tabs-layout>
       </template>
     </noo-sidebar-layout>
+
+    <avatar-edit-modal
+      v-if="authStore.userId"
+      v-model:is-open="isAvatarModalOpen"
+      v-model:avatar="avatar"
+      :user-id="authStore.userId"
+      :name="currentUser?.name ?? undefined"
+    />
   </div>
 </template>
 
@@ -88,9 +101,12 @@ import StatisticsView from '../views/statistics-view.vue'
 import PollsView from '../views/polls-view.vue'
 import PaymentsView from '../views/payments-view.vue'
 import GeneralInfoView from '../views/general-info-view.vue'
+import AvatarEditModal from '../components/avatar-edit-modal.vue'
 import type { ProfilePageTab } from '../types'
+import type { UserAvatarEntity } from '@/modules/users/api/user.types'
 import { useAuthStore } from '@/core/stores/auth.store'
 import { ProfilePermissions, useProfilePermissions } from '../permissions'
+import { computed, ref, watch } from 'vue'
 
 export interface ProfilePageProps {
   tabId?: ProfilePageTab
@@ -100,6 +116,20 @@ defineProps<ProfilePageProps>()
 
 const authStore = useAuthStore()
 const { can } = useProfilePermissions()
+
+const currentUser = computed(() => authStore.currentUser.data)
+
+const isAvatarModalOpen = ref(false)
+const avatar = ref<UserAvatarEntity | null>(null)
+
+// Seed the editable avatar from the loaded user; the edit modal may override it.
+watch(
+  () => currentUser.value?.avatar,
+  (value) => {
+    avatar.value = value ?? null
+  },
+  { immediate: true }
+)
 
 const canViewInfo = can(ProfilePermissions.viewInfoTab)
 const canViewStatistics = can(ProfilePermissions.viewStatisticsTab)

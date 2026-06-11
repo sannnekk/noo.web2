@@ -44,14 +44,14 @@ export const useCalendarStore = defineStore(
 
     function setUserId(newUserId?: string) {
       if (!newUserId) {
-        userId.value = authStore.userInfo!.id
+        userId.value = authStore.userId!
       } else {
         userId.value = newUserId
       }
     }
 
     const isReadOnly = computed(() => {
-      return authStore.userInfo?.id !== userId.value
+      return authStore.userId !== userId.value
     })
 
     const calendar = useApiRequest<

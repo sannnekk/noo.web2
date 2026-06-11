@@ -7,7 +7,6 @@ import type {
   LoginResponse,
   RegisterPayload,
   ResetPasswordPayload,
-  UserInfo,
   UserRole
 } from '../api/endpoints/auth.types'
 import {
@@ -17,9 +16,26 @@ import {
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
 import { useGlobalUIStore } from './global-ui.store'
+import { UserService } from '@/modules/users/api/user.service'
+import type { UserEntity } from '@/modules/users/api/user.types'
 
 export interface AuthStore {
-  userInfo: ShallowRef<UserInfo | undefined>
+  /**
+   * ID of the authenticated user. Restored synchronously from cookies on boot
+   * so route guards and permission checks work before `currentUser` resolves.
+   */
+  userId: ShallowRef<string | undefined>
+  /**
+   * Role of the authenticated user. Like {@link userId}, kept as a lightweight,
+   * cookie-backed value so role-based guards don't have to await the full fetch.
+   */
+  userRole: ShallowRef<UserRole | undefined>
+  /**
+   * The full, up-to-date authenticated user, fetched from the server on login
+   * and on every page load while authenticated.
+   */
+  currentUser: UseApiRequestReturn<void, UserEntity>
+  loadCurrentUser: () => Promise<void>
   isAuthenticated: ComputedRef<boolean>
   isRetryLoginModalVisible: ShallowRef<boolean>
   setRedirect: (value?: string) => void
@@ -37,8 +53,9 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   const globalUiStore = useGlobalUIStore()
 
   // state
-  const userInfo = shallowRef<UserInfo>()
-  const isAuthenticated = computed(() => !!userInfo.value)
+  const userId = shallowRef<string>()
+  const userRole = shallowRef<UserRole>()
+  const isAuthenticated = computed(() => !!userId.value)
   const router = useRouter()
   const isRetryLoginModalVisible = shallowRef<boolean>(false)
   const redirect = shallowRef<string>()
@@ -48,26 +65,55 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     redirect.value = value
   }
 
+  function setSession(response: LoginResponse): void {
+    userId.value = response.userId
+    userRole.value = response.userRole
+
+    CookieStorage.set(CookieStorage.StorageAliases.userId, response.userId)
+    CookieStorage.set(CookieStorage.StorageAliases.userRole, response.userRole)
+    CookieStorage.set(
+      CookieStorage.StorageAliases.apiToken,
+      response.accessToken
+    )
+  }
+
   // getters
   function roleIsOneOf(roles: UserRole[]): boolean {
-    if (!userInfo.value) {
+    if (!userRole.value) {
       return false
     }
 
-    return roles.includes(userInfo.value.role)
+    return roles.includes(userRole.value)
+  }
+
+  // current user
+  const currentUser = useApiRequest<void, UserEntity>(
+    () => UserService.getById(userId.value!),
+    undefined,
+    (error) => {
+      globalUiStore.createApiErrorToast(
+        'Не удалось загрузить данные пользователя',
+        error
+      )
+    }
+  )
+
+  // Fetches the full, up-to-date current user from the server. Triggered on
+  // login and on every app/page load while authenticated, so the lightweight
+  // identity restored from cookies is always backed by fresh server data.
+  async function loadCurrentUser(): Promise<void> {
+    if (!userId.value) {
+      return
+    }
+
+    await currentUser.execute()
   }
 
   // requests
   const login = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      userInfo.value = response.data.userInfo
-
-      CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)
-      CookieStorage.set(
-        CookieStorage.StorageAliases.apiToken,
-        response.data.accessToken
-      )
+      setSession(response.data)
 
       if (redirect.value) {
         router.push(redirect.value)
@@ -83,21 +129,17 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   const retryLogin = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
-      userInfo.value = response.data.userInfo
+      setSession(response.data)
       isRetryLoginModalVisible.value = false
-
-      CookieStorage.set(CookieStorage.StorageAliases.user, userInfo.value)
-      CookieStorage.set(
-        CookieStorage.StorageAliases.apiToken,
-        response.data.accessToken
-      )
       globalUiStore.createSuccessToast('Вы снова в системе')
     }
   )
 
   function clearSession(): void {
     globalUiStore.setLoading(false)
-    userInfo.value = undefined
+    userId.value = undefined
+    userRole.value = undefined
+    currentUser.data.value = null
     isRetryLoginModalVisible.value = false
     CookieStorage.clear()
     router.push({ name: 'auth.login' })
@@ -170,8 +212,9 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   )
 
   // set initial state from cookies
-  userInfo.value = CookieStorage.get<UserInfo>(
-    CookieStorage.StorageAliases.user
+  userId.value = CookieStorage.get<string>(CookieStorage.StorageAliases.userId)
+  userRole.value = CookieStorage.get<UserRole>(
+    CookieStorage.StorageAliases.userRole
   )
 
   // event listeners
@@ -181,7 +224,10 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
   })
 
   return {
-    userInfo,
+    userId,
+    userRole,
+    currentUser,
+    loadCurrentUser,
     isAuthenticated,
     isRetryLoginModalVisible,
     roleIsOneOf,

@@ -43,15 +43,11 @@ const useProfileStore = defineStore('profile:profile', (): ProfileStore => {
   const authStore = useAuthStore()
   const uiStore = useGlobalUIStore()
 
-  const isStudent = computed<boolean>(
-    () => authStore.userInfo?.role === 'student'
-  )
-  const isMentor = computed<boolean>(
-    () => authStore.userInfo?.role === 'mentor'
-  )
+  const isStudent = computed<boolean>(() => authStore.userRole === 'student')
+  const isMentor = computed<boolean>(() => authStore.userRole === 'mentor')
 
   function getCurrentUserId(): string {
-    const userId = authStore.userInfo?.id
+    const userId = authStore.userId
 
     if (!userId) {
       throw new Error('No authenticated user in the profile store')

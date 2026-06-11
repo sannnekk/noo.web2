@@ -1,7 +1,8 @@
 import Cookie from 'js-cookie'
 
 const StorageAliases = {
-  user: 'noo.userInfo',
+  userId: 'noo.userId',
+  userRole: 'noo.userRole',
   apiToken: 'noo.apiToken',
   theme: 'noo.theme'
 } as const

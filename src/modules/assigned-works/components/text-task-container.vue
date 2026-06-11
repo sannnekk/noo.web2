@@ -11,6 +11,7 @@
       v-model="model"
       :placeholder="readonly ? 'Нет ответа' : 'Введите ваш ответ здесь...'"
       :readonly="readonly"
+      media-category="assigned-work-student-rich-text"
     />
   </div>
 </template>

@@ -102,7 +102,7 @@ const navEntries = computed<NavEntry[]>(() => {
       return true
     }
 
-    return entry.for.includes(authStore.userInfo!.role)
+    return entry.for.includes(authStore.userRole!)
   })
 })
 </script>

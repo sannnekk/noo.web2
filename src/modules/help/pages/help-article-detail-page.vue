@@ -61,6 +61,7 @@
       <noo-richtext-editor
         v-else
         v-model="store.article.content"
+        media-category="help-rich-text"
       />
     </div>
 

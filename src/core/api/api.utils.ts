@@ -204,8 +204,12 @@ function refreshAccessToken(): Promise<boolean> {
         normalized.data.accessToken
       )
       CookieStorage.set(
-        CookieStorage.StorageAliases.user,
-        normalized.data.userInfo
+        CookieStorage.StorageAliases.userId,
+        normalized.data.userId
+      )
+      CookieStorage.set(
+        CookieStorage.StorageAliases.userRole,
+        normalized.data.userRole
       )
 
       return true

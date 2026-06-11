@@ -1,7 +1,7 @@
 <template>
   <statistics-panel
-    :user-id="authStore.userInfo?.id ?? null"
-    :user-role="authStore.userInfo?.role ?? null"
+    :user-id="authStore.userId ?? null"
+    :user-role="authStore.userRole ?? null"
   />
 </template>
 

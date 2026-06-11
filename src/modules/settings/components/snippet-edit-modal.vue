@@ -22,6 +22,7 @@
           v-model="contentModel"
           label="Содержимое"
           placeholder="Текст сниппета"
+          media-category="snippet-rich-text"
         />
       </div>
     </template>

@@ -123,6 +123,7 @@
             isReadonlyMode ? 'Нет текста задания' : 'Введите текст задания'
           "
           :errors="workDetailStore.taskValidationState.fieldErrors.content"
+          media-category="work-rich-text"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -138,6 +139,7 @@
             isReadonlyMode ? 'Нет текста подсказки' : 'Введите текст подсказки'
           "
           :errors="workDetailStore.taskValidationState.fieldErrors.solveHint"
+          media-category="work-rich-text"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
@@ -155,6 +157,7 @@
               : 'Введите текст объяснения'
           "
           :errors="workDetailStore.taskValidationState.fieldErrors.explanation"
+          media-category="work-rich-text"
         />
       </noo-grid-layout-item>
       <noo-grid-layout-item
