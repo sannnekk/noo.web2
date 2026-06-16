@@ -40,7 +40,6 @@ import { isApiError } from '@/core/api/api.utils'
 import { MediaService } from '@/modules/media/api/media.service'
 import { NodeViewWrapper, nodeViewProps } from '@tiptap/vue-3'
 import { computed, ref } from 'vue'
-import { mediaRawUrl } from './extensions/media-url'
 
 const props = defineProps(nodeViewProps)
 
@@ -53,7 +52,9 @@ const isEditable = computed(() => props.editor.isEditable)
 const status = ref<'loading' | 'loaded' | 'error'>(
   mediaId.value ? 'loading' : 'error'
 )
-const currentSrc = ref(mediaId.value ? mediaRawUrl(mediaId.value) : '')
+const currentSrc = ref(
+  mediaId.value ? MediaService.mediaRawUrl(mediaId.value) : ''
+)
 const hasRetried = ref(false)
 
 // The stable /raw URL relies on the media cookie. If the tab has been open past

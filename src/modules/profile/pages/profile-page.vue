@@ -25,7 +25,12 @@
             </noo-text-block>
           </div>
           <div class="profile-page__sidebar__edit-profile">
-            <noo-button variant="secondary"> Редактировать профиль </noo-button>
+            <noo-button
+              variant="secondary"
+              :to="{ name: 'settings.account' }"
+            >
+              Редактировать профиль
+            </noo-button>
           </div>
         </div>
       </template>

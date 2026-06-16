@@ -53,8 +53,9 @@ interface WorkDetailStore {
    * If no ID is provided, it creates a new work.
    *
    * @param workId The ID of the work to view or edit.
+   * @param taskId The ID of the task to pre-select once the work is loaded.
    */
-  init: (workId?: string) => Promise<void>
+  init: (workId?: string, taskId?: string) => Promise<void>
   /**
    * Moves to the next task in the work.
    */
@@ -130,7 +131,7 @@ const useWorkDetailStore = defineStore(
       workValidation.validate()
     }
 
-    async function init(workId?: string): Promise<void> {
+    async function init(workId?: string, taskId?: string): Promise<void> {
       if (!workId) {
         setMode('create')
         work.value = WorkService.createDraft()
@@ -170,6 +171,10 @@ const useWorkDetailStore = defineStore(
       workPatchGenerator.value = JsonPatchUtils.observe(loadedWork)
       setMode('view')
       validateWork()
+
+      if (taskId) {
+        task.value = loadedWork.tasks?.find((t) => t.id === taskId) ?? null
+      }
     }
 
     function nextTask(): void {

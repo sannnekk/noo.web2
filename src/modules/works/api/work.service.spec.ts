@@ -156,9 +156,9 @@ describe('WorkService', () => {
         subjectId: 'subject-1'
       }
       const mockStats: WorkStatistics = {
-        hardestTaskSummaries: [],
-        averageWorkScore: null,
-        medianWorkScore: null,
+        taskSummaries: [],
+        averageWorkScore: { absolute: null, percentage: null },
+        medianWorkScore: { absolute: null, percentage: null },
         workSolveCount: 0,
         work: mockWork
       }

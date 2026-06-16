@@ -13,6 +13,7 @@ import type {
   RequestUploadPayload,
   UploadTicket
 } from './media.types'
+import { appConfig } from '@/core/config/app.config'
 
 const BASE_PATH = '/media'
 
@@ -46,6 +47,12 @@ interface IMediaService {
    */
   getDownloadUrl(mediaId: string): Promise<ApiResponse<DownloadUrl>>
   /**
+   * Returns a stable URL for rendering the media in-browser. This is not a
+   * presigned URL, but a permanent endpoint that proxies the file from S3. To use only
+   * for img tags and similar, where the browser handles the download and rendering.
+   */
+  mediaRawUrl(mediaId: string): string
+  /**
    * Permanently removes the file from S3 and the database.
    */
   delete(mediaId: string): Promise<ApiResponse>
@@ -74,6 +81,10 @@ async function getDownloadUrl(
   mediaId: string
 ): Promise<ApiResponse<DownloadUrl>> {
   return Api.get<DownloadUrl>(`${BASE_PATH}/${mediaId}/download-url`)
+}
+
+function mediaRawUrl(mediaId: string): string {
+  return `${appConfig.apiUrl}/media/${mediaId}/raw`
 }
 
 async function deleteMedia(mediaId: string): Promise<ApiResponse> {
@@ -155,5 +166,6 @@ export const MediaService: IMediaService = {
   requestUpload,
   completeUpload,
   getDownloadUrl,
+  mediaRawUrl,
   delete: deleteMedia
 }

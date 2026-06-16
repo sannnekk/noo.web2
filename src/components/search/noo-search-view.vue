@@ -22,6 +22,7 @@
         :row-link="rowLink"
         :error="error"
         :try-again="tryAgain"
+        :actions="actions"
       >
         <template
           v-for="column in columns"
@@ -54,6 +55,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from '../entity-table/entity-table-helpers'
+import type { RowAction } from '../entity-table/noo-entity-table.vue'
 import type { ApiError } from '@/core/api/api.utils'
 
 export interface Props<
@@ -68,6 +70,7 @@ export interface Props<
   rowLink?: (item: T) => RouteLocationAsRelativeGeneric
   error?: ApiError | null
   tryAgain?: () => void
+  actions?: RowAction<T>[]
 }
 
 defineProps<Props<T>>()

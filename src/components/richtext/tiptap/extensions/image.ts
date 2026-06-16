@@ -1,7 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import NooTiptapImageView from '../noo-tiptap-image-view.vue'
-import { mediaRawUrl } from './media-url'
+import { MediaService } from '@/modules/media/api/media.service'
 
 export interface ImageOptions {
   HTMLAttributes: Record<string, unknown>
@@ -80,7 +80,7 @@ export const Image = Node.create<ImageOptions>({
     return [
       'img',
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        src: mediaId ? mediaRawUrl(mediaId) : null
+        src: mediaId ? MediaService.mediaRawUrl(mediaId) : null
       })
     ]
   },

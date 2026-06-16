@@ -11,3 +11,14 @@ export interface EntityTableColumnType<
   if?: () => boolean
   converter?: (value: T[keyof T]) => string
 }
+
+export interface EntityTableAction<
+  T extends ApiEntity<TName>,
+  TName extends string = T['_entityName']
+> {
+  label: string
+  variant?: 'default' | 'danger'
+  if?: (item: T) => boolean
+  disabled?: (item: T) => boolean
+  onClick: (item: T) => void
+}

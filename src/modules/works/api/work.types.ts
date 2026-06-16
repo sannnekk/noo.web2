@@ -63,18 +63,19 @@ export interface WorkTaskEntity extends ApiEntity<'WorkTask'> {
 }
 
 export interface WorkStatistics {
-  hardestTaskSummaries: {
+  taskSummaries: {
     taskId: WorkTaskEntity['id']
-    avgScore: number
+    averageScore: number | null
+    maxScore: number
   }[]
   averageWorkScore: {
-    absolute: number
-    percentage: number
-  } | null
+    absolute: number | null
+    percentage: number | null
+  }
   medianWorkScore: {
-    absolute: number
-    percentage: number
-  } | null
+    absolute: number | null
+    percentage: number | null
+  }
   workSolveCount: number
   work: WorkEntity
 }

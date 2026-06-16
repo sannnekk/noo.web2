@@ -11,6 +11,7 @@
         >
           {{ column.title }}
         </th>
+        <th v-if="props.actions && props.actions.length"></th>
       </tr>
     </thead>
     <tbody
@@ -43,6 +44,23 @@
             </slot>
           </component>
         </td>
+        <td
+          v-if="props.actions?.length"
+          class="noo-entity-table__content__row__cell noo-entity-table__content__row__cell--actions"
+        >
+          <noo-dropdown
+            :actions="
+              props.actions
+                .filter((action) => (action.if ? action.if(item) : true))
+                .map((action) => ({
+                  label: action.label,
+                  icon: action.icon,
+                  variant: action.variant,
+                  onClick: () => action.action(item)
+                }))
+            "
+          />
+        </td>
       </tr>
     </tbody>
     <tbody
@@ -59,6 +77,9 @@
           :key="col.key"
           :style="col.width ? { width: col.width } : {}"
         >
+          <div class="noo-entity-table__skeleton__item" />
+        </td>
+        <td v-if="props.actions?.length">
           <div class="noo-entity-table__skeleton__item" />
         </td>
       </tr>
@@ -119,6 +140,15 @@ import type { ApiEntity } from '@/core/api/api.types'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import type { EntityTableColumnType } from './entity-table-helpers'
 import type { ApiError } from '@/core/api/api.utils'
+import type { IconName } from '../icons/noo-icon.vue'
+
+export interface RowAction<T> {
+  icon: IconName
+  label: string
+  variant?: 'default' | 'danger'
+  if?: (item: T) => boolean
+  action: (item: T) => void | Promise<void>
+}
 
 export interface Props<
   T extends ApiEntity<TName>,
@@ -130,6 +160,7 @@ export interface Props<
   rowLink?: (item: T) => RouteLocationAsRelativeGeneric
   error?: ApiError | null
   tryAgain?: () => void
+  actions?: RowAction<T>[]
 }
 
 const props = defineProps<Props<T>>()
@@ -173,6 +204,9 @@ const getCellData = (item: T, column: EntityTableColumnType<T>) => {
       &__cell
         padding: 0.5em
         vertical-align: middle
+
+        &--actions
+          //font-size: 1.5em
 
         &__link
           box-sizing: border-box

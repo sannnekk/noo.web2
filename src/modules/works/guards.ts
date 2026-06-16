@@ -7,9 +7,10 @@ async function loadWorkGuard(
 ): Promise<NavigationGuardReturn> {
   const workDetailStore = useWorkDetailStore()
   const workId = getOptionalRouteParam(to.params.workId)
+  const taskId = getOptionalRouteParam(to.query.taskId)
 
   // explicitly without await as we don't want to block navigation
-  workDetailStore.init(workId)
+  workDetailStore.init(workId, taskId)
 
   return true
 }

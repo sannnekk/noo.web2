@@ -1,38 +1,40 @@
 <template>
-  <label>{{ label }}</label>
-  <div
-    class="noo-tag-input"
-    :class="{
-      'noo-tag-input--readonly': readonly,
-      'noo-tag-input--error': errors?.length
-    }"
-  >
-    <div class="noo-tag-input__tags">
-      <span
-        v-for="(tag, index) in model"
-        :key="index"
-        class="noo-tag-input__tag"
-        :class="{
-          'noo-tag-input__tag--readonly': readonly
-        }"
-      >
-        {{ tag }}
-        <b
-          class="noo-tag-input__tag__remove"
-          @click="removeTag(index)"
+  <div class="noo-text-tag-input">
+    <label>{{ label }}</label>
+    <div
+      class="noo-tag-input"
+      :class="{
+        'noo-tag-input--readonly': readonly,
+        'noo-tag-input--error': errors?.length
+      }"
+    >
+      <div class="noo-tag-input__tags">
+        <span
+          v-for="(tag, index) in model"
+          :key="index"
+          class="noo-tag-input__tag"
+          :class="{
+            'noo-tag-input__tag--readonly': readonly
+          }"
         >
-          +
-        </b>
-      </span>
+          {{ tag }}
+          <b
+            class="noo-tag-input__tag__remove"
+            @click="removeTag(index)"
+          >
+            +
+          </b>
+        </span>
+      </div>
+      <input
+        v-model="input"
+        type="text"
+        @keydown.enter.prevent="addTag()"
+        @keydown.backspace="removeLastTag()"
+      />
     </div>
-    <input
-      v-model="input"
-      type="text"
-      @keydown.enter.prevent="addTag()"
-      @keydown.backspace="removeLastTag()"
-    />
+    <noo-input-error-list :errors="errors" />
   </div>
-  <noo-input-error-list :errors="errors" />
 </template>
 
 <script setup lang="ts">
@@ -93,6 +95,9 @@ function removeLastTag() {
 </script>
 
 <style scoped lang="sass">
+.noo-text-tag-input
+  width: 100%
+
 label
   font-size: 0.8em
   color: var(--text-light)
