@@ -29,6 +29,10 @@ export interface AppConfig {
    */
   maxFileSizeInBytes: number
   /**
+   * Maximum video file size for NOO.Tube uploads in bytes.
+   */
+  maxVideoSizeInBytes: number
+  /**
    * Google client ID for OAuth2 authentication.
    * Used for Google Sheets integration.
    */
@@ -57,5 +61,6 @@ export const appConfig: AppConfig = Object.freeze({
   googleClientId:
     '643513066461-h6vrkoirgj91vr2isaqsm7hrv6tbkml8.apps.googleusercontent.com',
   maxFileSizeInBytes: 150 * 1024 * 1024, // 150 MB
+  maxVideoSizeInBytes: 5 * 1024 * 1024 * 1024, // 5 GB
   apiConnectTimeoutSeconds: 30 // 30 seconds
 })

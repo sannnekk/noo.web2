@@ -170,6 +170,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /assigned-work/{assignedWorkId}/history:
+    get:
+      tags:
+        - AssignedWork
+      summary: Gets the assigned work history entries, paginated
+      parameters:
+        - name: assignedWorkId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: AssignedWorkId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - AssignedWorkId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignedWorkHistoryDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /assigned-work/{assignedWorkId}:
     get:
       tags:
@@ -2009,6 +2081,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /nootube/webhooks/kinescope:
+    post:
+      tags:
+        - KinescopeWebhook
+      summary: Receives Kinescope webhook notifications (e.g. video processing status
+        changes).
+      parameters:
+        - name: secret
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KinescopeWebhook"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/KinescopeWebhook"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/KinescopeWebhook"
+      responses: {}
   /media/upload-url:
     post:
       tags:
@@ -2189,6 +2284,612 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /media/{mediaId}/raw:
+    get:
+      tags:
+        - Media
+      summary: >-
+        Stable, embeddable URL for a media file. Enforces the same access rules
+        as
+
+        M:Noo.Api.Media.MediaController.GetDownloadUrlAsync(System.Ulid,System.Threading.CancellationToken),
+        then 302-redirects to a freshly presigned
+
+        download URL. The redirect is never cached, so each load resolves a
+        valid URL.
+      description: >-
+        Accepts the bearer header (for API/Swagger callers) or the httpOnly
+        media
+
+        cookie, which the browser attaches to plain `<img>` requests.
+      parameters:
+        - name: mediaId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "302":
+          description: Found
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube:
+    get:
+      tags:
+        - Nootube
+      summary: Gets a list of videos, paginated
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: CreatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Title
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Nootube
+      summary: >-
+        Creates a video and initializes an upload on the configured video
+        engine.
+
+        Returns the upload URL the client should stream the file to (e.g. a tus
+        endpoint).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoUploadDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}:
+    get:
+      tags:
+        - Nootube
+      summary: Gets a video by its ID.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    patch:
+      tags:
+        - Nootube
+      summary: Updates a video.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Nootube
+      summary: Deletes a video.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/finish:
+    post:
+      tags:
+        - Nootube
+      summary: Marks a video upload as finished and syncs its metadata from the video
+        engine.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/reaction:
+    patch:
+      tags:
+        - Nootube
+      summary: Toggles a reaction for a video
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: reaction
+          in: query
+          schema:
+            $ref: "#/components/schemas/VideoReaction"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/comment:
+    get:
+      tags:
+        - Nootube
+      summary: Gets a paginated list of comments for a video.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: VideoId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - VideoId
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoCommentDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Nootube
+      summary: Creates a comment for a video.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoCommentDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoCommentDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateNooTubeVideoCommentDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoCommentDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/comment/{commentId}:
+    patch:
+      tags:
+        - Nootube
+      summary: Updates a comment.
+      parameters:
+        - name: commentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: videoId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - Nootube
+      summary: Deletes a comment.
+      parameters:
+        - name: commentId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: videoId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /notification:
     get:
       tags:
@@ -2329,6 +3030,34 @@ paths:
                 $ref: "#/components/schemas/SerializedNooException"
         "404":
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /notification/mark-all-read:
+    patch:
+      tags:
+        - Notification
+      summary: Mark all of the current user's notifications as read
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -3529,30 +4258,108 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /support:
+  /support/article:
     get:
       tags:
         - Support
-      summary: Retrieves a tree of support categories.
+      summary: Retrieves a list of all support articles by category
+      parameters:
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: Category
+          in: query
+          schema:
+            $ref: "#/components/schemas/SupportCategory"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Order
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SupportCategoryDTOIEnumerableApiResponseDTO"
-  /support/article/{articleId}:
+                $ref: "#/components/schemas/SupportArticleDTOListApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - Support
+      summary: Creates a new support article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportArticleDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /support/article/{articleSlug}:
     get:
       tags:
         - Support
-      summary: Retrieves a support article by its ID.
+      summary: Retrieves a support article by its slug
       parameters:
-        - name: articleId
+        - name: articleSlug
           in: path
-          description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
           schema:
-            $ref: "#/components/schemas/Ulid"
+            type: string
       responses:
         "200":
           description: OK
@@ -3566,6 +4373,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /support/article/{articleId}:
     patch:
       tags:
         - Support
@@ -3629,174 +4437,6 @@ paths:
       summary: Deletes a support article by its ID.
       parameters:
         - name: articleId
-          in: path
-          description: Universally Unique Lexicographically Sortable Identifier (ULID).
-          required: true
-          schema:
-            $ref: "#/components/schemas/Ulid"
-      responses:
-        "204":
-          description: No Content
-          content:
-            application/json: {}
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-  /support/article:
-    post:
-      tags:
-        - Support
-      summary: Creates a new support article.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportArticleDTO"
-          text/json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportArticleDTO"
-          application/*+json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportArticleDTO"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-  /support/category:
-    post:
-      tags:
-        - Support
-      summary: Creates a new support category.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportCategoryDTO"
-          text/json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportCategoryDTO"
-          application/*+json:
-            schema:
-              $ref: "#/components/schemas/CreateSupportCategoryDTO"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-  /support/category/{categoryId}:
-    patch:
-      tags:
-        - Support
-      summary: Updates a support category by its ID using a JSON Patch document.
-      parameters:
-        - name: categoryId
-          in: path
-          description: Universally Unique Lexicographically Sortable Identifier (ULID).
-          required: true
-          schema:
-            $ref: "#/components/schemas/Ulid"
-      requestBody:
-        content:
-          application/json-patch+json:
-            schema:
-              type: array
-              items:
-                required:
-                  - op
-                  - path
-                type: object
-                properties:
-                  op:
-                    type: string
-                  path:
-                    type: string
-                  value:
-                    type: object
-      responses:
-        "204":
-          description: No Content
-          content:
-            application/json: {}
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SerializedNooException"
-    delete:
-      tags:
-        - Support
-      summary: Deletes a support category by its ID.
-      parameters:
-        - name: categoryId
           in: path
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
@@ -3976,6 +4616,64 @@ paths:
                 $ref: "#/components/schemas/SerializedNooException"
         "403":
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/avatar:
+    patch:
+      tags:
+        - User
+      summary: Updates a user's avatar by their unique identifier.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                required:
+                  - op
+                  - path
+                type: object
+                properties:
+                  op:
+                    type: string
+                  path:
+                    type: string
+                  value:
+                    type: object
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -4804,6 +5502,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /work/{id}/statistics:
+    get:
+      tags:
+        - Work
+      summary: Retrieves statistics of a particular work by its id
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkStatisticsDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
 components:
   schemas:
     AddHelperMentorOptionsDTO:
@@ -4982,6 +5723,66 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    AssignedWorkHistoryDTO:
+      required:
+        - _entityName
+        - changedAt
+        - createdAt
+        - id
+        - type
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          $ref: "#/components/schemas/AssignedWorkHistoryType"
+        changedAt:
+          type: string
+          format: date-time
+        value:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        changedBy:
+          $ref: "#/components/schemas/UserDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    AssignedWorkHistoryDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignedWorkHistoryDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    AssignedWorkHistoryType:
+      enum:
+        - created
+        - started-solving
+        - solve-deadline-shifted
+        - solved
+        - started-checking
+        - check-deadline-shifted
+        - checked
+        - sent-on-recheck
+        - sent-on-resolve
+        - helper-mentor-added
+        - main-mentor-changed
+      type: string
     AssignedWorkProgressDTO:
       type: object
       properties:
@@ -5077,27 +5878,30 @@ components:
           nullable: true
       additionalProperties: false
     BulkCreateNotificationsDTO:
+      required:
+        - isBanner
+        - title
+        - type
+        - userIds
       type: object
       properties:
         userIds:
           type: array
           items:
             $ref: "#/components/schemas/Ulid"
-          nullable: true
         type:
+          minLength: 1
           type: string
-          nullable: true
         title:
+          minLength: 1
           type: string
-          nullable: true
         message:
           type: string
           nullable: true
         isBanner:
           type: boolean
         link:
-          type: string
-          nullable: true
+          $ref: "#/components/schemas/FrontendLink"
         linkText:
           type: string
           nullable: true
@@ -5278,6 +6082,10 @@ components:
           nullable: true
         isActive:
           type: boolean
+        publishAt:
+          type: string
+          format: date-time
+          nullable: true
         parentChapterId:
           $ref: "#/components/schemas/Ulid"
         subChapters:
@@ -5615,6 +6423,10 @@ components:
           nullable: true
         isActive:
           type: boolean
+        publishAt:
+          type: string
+          format: date-time
+          nullable: true
         subChapters:
           type: array
           items:
@@ -5795,6 +6607,47 @@ components:
         subjectId:
           $ref: "#/components/schemas/Ulid"
       additionalProperties: false
+    CreateNooTubeVideoCommentDTO:
+      required:
+        - content
+      type: object
+      properties:
+        content:
+          maxLength: 512
+          minLength: 1
+          type: string
+      additionalProperties: false
+    CreateNooTubeVideoDTO:
+      required:
+        - fileSize
+        - title
+      type: object
+      properties:
+        title:
+          maxLength: 255
+          minLength: 1
+          type: string
+        serviceType:
+          $ref: "#/components/schemas/NooTubeServiceType"
+        description:
+          maxLength: 512
+          type: string
+          nullable: true
+        fileSize:
+          minimum: 1
+          type: integer
+          format: int64
+        fileName:
+          maxLength: 255
+          type: string
+          nullable: true
+        isListed:
+          type: boolean
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
     CreatePollAnswerDTO:
       required:
         - pollQuestionId
@@ -5903,30 +6756,8 @@ components:
           $ref: "#/components/schemas/IRichTextType"
         isActive:
           type: boolean
-        categoryId:
-          $ref: "#/components/schemas/Ulid"
-      additionalProperties: false
-    CreateSupportCategoryDTO:
-      required:
-        - name
-        - order
-      type: object
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-        order:
-          maximum: 255
-          minimum: 0
-          type: integer
-          format: int32
-        isPinned:
-          type: boolean
-        isActive:
-          type: boolean
-        parentId:
-          $ref: "#/components/schemas/Ulid"
+        category:
+          $ref: "#/components/schemas/SupportCategory"
       additionalProperties: false
     CreateWorkDTO:
       required:
@@ -6023,6 +6854,17 @@ components:
         - normal
         - large
       type: string
+    FrontendLink:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+        params:
+          nullable: true
+      additionalProperties: false
     GoogleOAuthCredentialsDTO:
       type: object
       properties:
@@ -6132,6 +6974,28 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    KinescopeWebhook:
+      type: object
+      properties:
+        event:
+          type: string
+          nullable: true
+        data:
+          $ref: "#/components/schemas/KinescopeWebhookData"
+      additionalProperties: false
+    KinescopeWebhookData:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+      additionalProperties: false
     LoginDTO:
       required:
         - password
@@ -6151,7 +7015,8 @@ components:
       required:
         - accessToken
         - expiresAt
-        - userInfo
+        - userId
+        - userRole
       type: object
       properties:
         accessToken:
@@ -6160,8 +7025,10 @@ components:
         expiresAt:
           type: string
           format: date-time
-        userInfo:
-          $ref: "#/components/schemas/UserInfoDTO"
+        userId:
+          $ref: "#/components/schemas/Ulid"
+        userRole:
+          $ref: "#/components/schemas/UserRoles"
       additionalProperties: false
     LoginResponseDTOApiResponseDTO:
       type: object
@@ -6186,6 +7053,7 @@ components:
         - assigned-work-student-comment-rich-text
         - assigned-work-mentor-comment-rich-text
         - help-rich-text
+        - snippet-rich-text
       type: string
     MediaDTO:
       required:
@@ -6308,10 +7176,7 @@ components:
       additionalProperties: false
     NooTubeServiceType:
       enum:
-        - noo-tube
-        - you-tube
-        - vk-video
-        - rutube
+        - kinescope
       type: string
     NooTubeVideoCommentDTO:
       required:
@@ -6341,6 +7206,25 @@ components:
         updatedAt:
           type: string
           format: date-time
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoCommentDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/NooTubeVideoCommentDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoCommentDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/NooTubeVideoCommentDTO"
+          nullable: true
+        meta:
           nullable: true
       additionalProperties: false
     NooTubeVideoDTO:
@@ -6385,6 +7269,8 @@ components:
           type: integer
           format: int32
           nullable: true
+        isListed:
+          type: boolean
         publishedAt:
           type: string
           format: date-time
@@ -6398,6 +7284,49 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NooTubeVideoCommentDTO"
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/NooTubeVideoDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/NooTubeVideoDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoUploadDTO:
+      required:
+        - externalId
+        - uploadUrl
+        - videoId
+      type: object
+      properties:
+        videoId:
+          $ref: "#/components/schemas/Ulid"
+        uploadUrl:
+          minLength: 1
+          type: string
+        externalId:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    NooTubeVideoUploadDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/NooTubeVideoUploadDTO"
+        meta:
           nullable: true
       additionalProperties: false
     NotificationChannelType:
@@ -6435,8 +7364,7 @@ components:
         isBanner:
           type: boolean
         link:
-          type: string
-          nullable: true
+          $ref: "#/components/schemas/FrontendLink"
         linkText:
           type: string
           nullable: true
@@ -6826,6 +7754,18 @@ components:
         entityId:
           $ref: "#/components/schemas/Ulid"
       additionalProperties: false
+    ScoreSummaryDTO:
+      type: object
+      properties:
+        absolute:
+          type: number
+          format: double
+          nullable: true
+        percentage:
+          type: number
+          format: double
+          nullable: true
+      additionalProperties: false
     SerializedNooException:
       type: object
       properties:
@@ -7131,11 +8071,13 @@ components:
     SupportArticleDTO:
       required:
         - _entityName
-        - categoryId
+        - category
         - content
         - createdAt
         - id
         - isActive
+        - order
+        - slug
         - title
       type: object
       properties:
@@ -7143,6 +8085,14 @@ components:
           minLength: 1
           type: string
           readOnly: true
+        slug:
+          minLength: 1
+          type: string
+        order:
+          maximum: 255
+          minimum: 0
+          type: integer
+          format: int32
         id:
           $ref: "#/components/schemas/Ulid"
         title:
@@ -7152,8 +8102,8 @@ components:
           $ref: "#/components/schemas/IRichTextType"
         isActive:
           type: boolean
-        categoryId:
-          $ref: "#/components/schemas/Ulid"
+        category:
+          $ref: "#/components/schemas/SupportCategory"
         createdAt:
           type: string
           format: date-time
@@ -7170,59 +8120,38 @@ components:
         meta:
           nullable: true
       additionalProperties: false
-    SupportCategoryDTO:
-      required:
-        - _entityName
-        - articles
-        - children
-        - createdAt
-        - id
-        - isActive
-        - isPinned
-        - name
-      type: object
-      properties:
-        _entityName:
-          minLength: 1
-          type: string
-          readOnly: true
-        id:
-          $ref: "#/components/schemas/Ulid"
-        name:
-          minLength: 1
-          type: string
-        isPinned:
-          type: boolean
-        isActive:
-          type: boolean
-        parentId:
-          $ref: "#/components/schemas/Ulid"
-        children:
-          type: array
-          items:
-            $ref: "#/components/schemas/SupportCategoryDTO"
-        articles:
-          type: array
-          items:
-            $ref: "#/components/schemas/SupportArticleDTO"
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-          nullable: true
-      additionalProperties: false
-    SupportCategoryDTOIEnumerableApiResponseDTO:
+    SupportArticleDTOListApiResponseDTO:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/SupportCategoryDTO"
+            $ref: "#/components/schemas/SupportArticleDTO"
           nullable: true
         meta:
           nullable: true
+      additionalProperties: false
+    SupportCategory:
+      enum:
+        - courses
+        - payment
+        - works
+      type: string
+    TaskSummaryDTO:
+      required:
+        - maxScore
+        - taskId
+      type: object
+      properties:
+        taskId:
+          $ref: "#/components/schemas/Ulid"
+        averageScore:
+          type: number
+          format: double
+          nullable: true
+        maxScore:
+          type: integer
+          format: int32
       additionalProperties: false
     Ulid:
       pattern: ^[0-7][0-9A-HJKMNP-TV-Z]{25}$
@@ -7280,6 +8209,56 @@ components:
           readOnly: true
       additionalProperties: false
     UpdateCourseMaterialContentDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateNooTubeVideoCommentDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateNooTubeVideoCommentDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateNooTubeVideoCommentDTOOperation:
+      type: object
+      properties:
+        path:
+          type: string
+          nullable: true
+        op:
+          type: string
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+      additionalProperties: false
+    UpdateNooTubeVideoDTOJsonPatchDocument:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpdateNooTubeVideoDTOOperation"
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UpdateNooTubeVideoDTOOperation:
       type: object
       properties:
         path:
@@ -7394,17 +8373,17 @@ components:
         value:
           nullable: true
       additionalProperties: false
-    UpdateSupportCategoryDTOJsonPatchDocument:
+    UpdateUserAvatarDTOJsonPatchDocument:
       type: object
       properties:
         operations:
           type: array
           items:
-            $ref: "#/components/schemas/UpdateSupportCategoryDTOOperation"
+            $ref: "#/components/schemas/UpdateUserAvatarDTOOperation"
           nullable: true
           readOnly: true
       additionalProperties: false
-    UpdateSupportCategoryDTOOperation:
+    UpdateUserAvatarDTOOperation:
       type: object
       properties:
         path:
@@ -7545,6 +8524,44 @@ components:
         content:
           $ref: "#/components/schemas/IRichTextType"
       additionalProperties: false
+    UserAvatarDTO:
+      required:
+        - _entityName
+        - avatarType
+        - createdAt
+        - id
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        avatarType:
+          $ref: "#/components/schemas/UserAvatarType"
+        avatarUrl:
+          type: string
+          nullable: true
+        mediaId:
+          type: string
+          nullable: true
+        media:
+          $ref: "#/components/schemas/MediaDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    UserAvatarType:
+      enum:
+        - none
+        - custom
+        - telegram
+      type: string
     UserDTO:
       required:
         - _entityName
@@ -7581,6 +8598,8 @@ components:
           nullable: true
         role:
           $ref: "#/components/schemas/UserRoles"
+        avatar:
+          $ref: "#/components/schemas/UserAvatarDTO"
         isBlocked:
           type: boolean
         isVerified:
@@ -7621,29 +8640,6 @@ components:
           minLength: 1
           type: string
       additionalProperties: false
-    UserInfoDTO:
-      required:
-        - email
-        - id
-        - name
-        - role
-        - username
-      type: object
-      properties:
-        id:
-          $ref: "#/components/schemas/Ulid"
-        name:
-          minLength: 1
-          type: string
-        username:
-          minLength: 1
-          type: string
-        email:
-          minLength: 1
-          type: string
-        role:
-          $ref: "#/components/schemas/UserRoles"
-      additionalProperties: false
     UserRoles:
       enum:
         - admin
@@ -7677,19 +8673,29 @@ components:
           $ref: "#/components/schemas/UserTheme"
         fontSize:
           $ref: "#/components/schemas/FontSize"
-        backgroundImageMediaId:
+        backgroundImageId:
           $ref: "#/components/schemas/Ulid"
       additionalProperties: false
     UserTheme:
       enum:
         - light
         - dark
-        - system-default
+        - system
+      type: string
+    VideoReaction:
+      enum:
+        - like
+        - dislike
+        - heart
+        - laugh
+        - sad
+        - mindblowing
       type: string
     VideoState:
       enum:
         - not-uploaded
         - uploading
+        - encoding
         - uploaded
         - published
       type: string
@@ -7752,6 +8758,37 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    WorkStatisticsDTO:
+      required:
+        - averageWorkScore
+        - medianWorkScore
+        - taskSummaries
+        - work
+        - workSolveCount
+      type: object
+      properties:
+        taskSummaries:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskSummaryDTO"
+        averageWorkScore:
+          $ref: "#/components/schemas/ScoreSummaryDTO"
+        medianWorkScore:
+          $ref: "#/components/schemas/ScoreSummaryDTO"
+        workSolveCount:
+          type: integer
+          format: int32
+        work:
+          $ref: "#/components/schemas/WorkDTO"
+      additionalProperties: false
+    WorkStatisticsDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/WorkStatisticsDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
     WorkTaskCheckStrategy:
       enum:
         - manual
@@ -7793,6 +8830,10 @@ components:
         maxScore:
           type: integer
           format: int32
+        averageScore:
+          type: number
+          format: double
+          nullable: true
         content:
           $ref: "#/components/schemas/IRichTextType"
         rightAnswers:

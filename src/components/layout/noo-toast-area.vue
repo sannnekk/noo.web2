@@ -20,7 +20,8 @@ const globalUiStore = useGlobalUIStore()
 <style lang="sass" scoped>
 .noo-toast-area
   position: fixed
-  z-index: 99
+  // Above modals (z-index 1000) so toasts stay visible over open dialogs.
+  z-index: 1100
   width: min(90%, 400px)
   max-height: 90vh
   top: 20px

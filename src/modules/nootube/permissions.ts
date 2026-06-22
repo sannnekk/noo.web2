@@ -1,20 +1,32 @@
 import { definePermissions, roles } from '@/core/permissions/permission-policy'
 
 const NooTubePermissions = {
-  viewListPage: 'viewListPage'
+  viewListTab: 'viewListTab',
+  viewFavoritesTab: 'viewFavoritesTab',
+  viewOwnVideosTab: 'viewVideoTab',
+  createVideo: 'createVideo'
 } as const
 
 type NooTubePermission =
   (typeof NooTubePermissions)[keyof typeof NooTubePermissions]
 
 const nooTubePermissionPolicy = definePermissions({
-  [NooTubePermissions.viewListPage]: roles(
+  [NooTubePermissions.viewListTab]: roles(
     'admin',
     'teacher',
     'assistant',
     'mentor',
     'student'
-  )
+  ),
+  [NooTubePermissions.viewFavoritesTab]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor',
+    'student'
+  ),
+  [NooTubePermissions.viewOwnVideosTab]: roles('teacher'),
+  [NooTubePermissions.createVideo]: roles('teacher')
 })
 
 function useNooTubePermissions(): Pick<

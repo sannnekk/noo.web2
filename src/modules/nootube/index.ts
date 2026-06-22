@@ -14,7 +14,7 @@ const module: ApplicationModule = {
         pageTitle: 'НОО.Tube',
         tabTitle: 'НОО.Tube',
         layout: PaneLayout,
-        roles: nooTubePermissionPolicy.rolesFor(NooTubePermissions.viewListPage)
+        roles: nooTubePermissionPolicy.rolesFor(NooTubePermissions.viewListTab)
       },
       component: () => import('./pages/nootube-list-page.vue'),
       props: (route): NooTubeListPageProps => {

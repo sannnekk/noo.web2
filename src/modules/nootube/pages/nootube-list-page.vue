@@ -35,6 +35,22 @@
           :try-again="favouritesSearch.reload"
         />
       </template>
+
+      <template #tab-title-own>
+        <span>Мои видео</span>
+      </template>
+      <template #tab-own>
+        <nootube-list-view
+          v-model:page="ownVideoSearch.page.value"
+          v-model:search="ownVideoSearch.search.value"
+          :items="ownVideoSearch.data.value"
+          :total-count="ownVideoSearch.total.value"
+          :is-loading="ownVideoSearch.isLoading.value"
+          :limit="ownVideoSearch.pageSize.value"
+          :error="ownVideoSearch.error.value"
+          :try-again="ownVideoSearch.reload"
+        />
+      </template>
     </noo-tabs-layout>
   </div>
 </template>
@@ -51,6 +67,5 @@ export interface NooTubeListPageProps {
 
 const allSearch = useSearch(NooTubeService.get)
 const favouritesSearch = useSearch(NooTubeService.getFavourites)
+const ownVideoSearch = useSearch(NooTubeService.getOwn)
 </script>
-
-<style scoped></style>
