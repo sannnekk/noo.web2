@@ -15,13 +15,16 @@
       <template #actions>
         <noo-button
           v-if="can(NooTubePermissions.createVideo)"
-          @click="isFormOpen = true"
+          @click="openCreateForm"
         >
           Загрузить видео
         </noo-button>
       </template>
       <template #tile="{ item }">
-        <noo-video-card :video="item" />
+        <noo-video-card
+          :video="item"
+          :actions="actionsFor(item)"
+        />
       </template>
     </noo-card-search-view>
 
@@ -32,23 +35,43 @@
       :close-on-esc="false"
     >
       <template #title>
-        <noo-title :size="2"> Загрузить видео </noo-title>
+        <noo-title :size="2">
+          {{ editedVideo ? 'Редактировать видео' : 'Загрузить видео' }}
+        </noo-title>
       </template>
       <template #content>
         <nootube-video-form
           v-if="isFormOpen"
-          @done="onVideoUploaded"
-          @cancel="isFormOpen = false"
+          :video="editedVideo"
+          @done="onFormDone"
+          @cancel="closeForm"
         />
       </template>
     </noo-base-modal>
+
+    <noo-sure-modal
+      v-model:is-open="isDeleteOpen"
+      @confirm="onConfirmDelete"
+    >
+      <template #title>
+        <noo-title :size="2"> Удалить видео? </noo-title>
+      </template>
+      <template #content>
+        <noo-text-block dimmed>
+          Видео «{{ deletedVideo?.title }}» будет удалено безвозвратно.
+        </noo-text-block>
+      </template>
+      <template #confirm-action-text> Удалить </template>
+    </noo-sure-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ApiError } from '@/core/api/api.utils'
+import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
+import { isApiError, type ApiError } from '@/core/api/api.utils'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { ref } from 'vue'
+import { NooTubeService } from '../api/nootube.service'
 import type { NooTubeVideoEntity } from '../api/nootube.types'
 import nootubeVideoForm from './nootube-video-form.vue'
 import { useNooTubePermissions, NooTubePermissions } from '../permissions'
@@ -80,11 +103,89 @@ const { can } = useNooTubePermissions()
 const globalUiStore = useGlobalUIStore()
 
 const isFormOpen = ref(false)
+// The video being edited; `null` means the form is in create (upload) mode.
+const editedVideo = ref<NooTubeVideoEntity | null>(null)
 
-function onVideoUploaded() {
-  // Keep the modal open so the user sees the completed state and closes it
-  // themselves; just refresh the list and notify in the background.
+const isDeleteOpen = ref(false)
+const deletedVideo = ref<NooTubeVideoEntity | null>(null)
+
+function actionsFor(video: NooTubeVideoEntity): DropdownAction[] {
+  const actions: DropdownAction[] = []
+
+  if (can(NooTubePermissions.editVideo)) {
+    actions.push({
+      label: 'Редактировать',
+      icon: 'edit',
+      onClick: () => openEditForm(video)
+    })
+  }
+
+  if (can(NooTubePermissions.deleteVideo)) {
+    actions.push({
+      label: 'Удалить',
+      icon: 'delete',
+      variant: 'danger',
+      onClick: () => openDeleteModal(video)
+    })
+  }
+
+  return actions
+}
+
+function openCreateForm() {
+  editedVideo.value = null
+  isFormOpen.value = true
+}
+
+function openEditForm(video: NooTubeVideoEntity) {
+  editedVideo.value = video
+  isFormOpen.value = true
+}
+
+function closeForm() {
+  isFormOpen.value = false
+  editedVideo.value = null
+}
+
+function onFormDone() {
+  props.tryAgain?.()
+
+  if (editedVideo.value) {
+    globalUiStore.createSuccessToast('Видео обновлено')
+    closeForm()
+
+    return
+  }
+
+  // In create mode keep the modal open so the user sees the completed upload
+  // state and closes it themselves; just refresh the list in the background.
   globalUiStore.createSuccessToast('Видео загружено и обрабатывается')
+}
+
+function openDeleteModal(video: NooTubeVideoEntity) {
+  deletedVideo.value = video
+  isDeleteOpen.value = true
+}
+
+async function onConfirmDelete() {
+  const video = deletedVideo.value
+
+  if (!video) {
+    return
+  }
+
+  const response = await NooTubeService.delete(video.id)
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast(
+      'Не удалось удалить видео',
+      response.error
+    )
+
+    return
+  }
+
+  globalUiStore.createSuccessToast('Видео удалено')
   props.tryAgain?.()
 }
 </script>

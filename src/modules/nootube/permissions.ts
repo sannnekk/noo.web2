@@ -4,7 +4,9 @@ const NooTubePermissions = {
   viewListTab: 'viewListTab',
   viewFavoritesTab: 'viewFavoritesTab',
   viewOwnVideosTab: 'viewVideoTab',
-  createVideo: 'createVideo'
+  createVideo: 'createVideo',
+  editVideo: 'editVideo',
+  deleteVideo: 'deleteVideo'
 } as const
 
 type NooTubePermission =
@@ -26,7 +28,9 @@ const nooTubePermissionPolicy = definePermissions({
     'student'
   ),
   [NooTubePermissions.viewOwnVideosTab]: roles('teacher'),
-  [NooTubePermissions.createVideo]: roles('teacher')
+  [NooTubePermissions.createVideo]: roles('teacher'),
+  [NooTubePermissions.editVideo]: roles('admin', 'teacher'),
+  [NooTubePermissions.deleteVideo]: roles('admin', 'teacher')
 })
 
 function useNooTubePermissions(): Pick<

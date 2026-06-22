@@ -6,6 +6,13 @@
     <div class="noo-video-card__inner">
       <div class="noo-video-card__inner__thumbnail">
         <noo-uploaded-image :src="video.thumbnail" />
+        <div
+          v-if="actions?.length"
+          class="noo-video-card__inner__thumbnail__actions"
+          @click.stop.prevent
+        >
+          <noo-dropdown :actions="actions" />
+        </div>
         <div class="noo-video-card__inner__thumbnail__duration">
           {{ duration }}
         </div>
@@ -31,11 +38,14 @@
 </template>
 
 <script setup lang="ts">
+import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
 import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
 import { computed } from 'vue'
 
 interface Props {
   video: NooTubeVideoEntity
+  /** Optional management actions shown as a dropdown over the thumbnail. */
+  actions?: DropdownAction[]
 }
 
 const props = defineProps<Props>()
@@ -80,6 +90,14 @@ function stringifyDuration(length: number | null): string {
         height: 100%
         object-fit: cover
         object-position: center
+
+      &__actions
+        position: absolute
+        top: 0.4em
+        right: 0.4em
+        border-radius: var(--border-radius)
+        background-color: rgba(0, 0, 0, 0.5)
+        color: white
 
       &__duration
         position: absolute

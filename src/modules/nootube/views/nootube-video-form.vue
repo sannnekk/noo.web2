@@ -1,6 +1,9 @@
 <template>
   <div class="nootube-video-form">
-    <ol class="nootube-video-form__steps">
+    <ol
+      v-if="!isEditMode"
+      class="nootube-video-form__steps"
+    >
       <li
         v-for="stepItem in steps"
         :key="stepItem.number"
@@ -43,12 +46,20 @@
         :crop-ratio="16 / 9"
         category="video-cover"
       />
+      <noo-text-block
+        dimmed
+        size="small"
+      >
+        Если обложка не указана, будет использована автоматически
+        сгенерированная из видео.
+      </noo-text-block>
       <noo-checkbox v-model="draft.isListed">
         Показывать видео в общем списке
       </noo-checkbox>
     </div>
 
     <div
+      v-if="!isEditMode"
       v-show="step === 2"
       class="nootube-video-form__upload"
     >
@@ -60,7 +71,23 @@
     </div>
 
     <div class="nootube-video-form__actions">
-      <template v-if="step === 1">
+      <template v-if="isEditMode">
+        <noo-button
+          variant="primary"
+          :disabled="!canProceed || isSaving"
+          @click="onSave"
+        >
+          Сохранить
+        </noo-button>
+        <noo-button
+          variant="secondary"
+          :disabled="isSaving"
+          @click="$emit('cancel')"
+        >
+          Отмена
+        </noo-button>
+      </template>
+      <template v-else-if="step === 1">
         <noo-button
           variant="primary"
           :disabled="!canProceed"
@@ -97,24 +124,48 @@
 </template>
 
 <script lang="ts" setup>
+import { isApiError } from '@/core/api/api.utils'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store'
+import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
 import { isStringOfLength } from '@/core/validators/string.utils'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, reactive, ref, watch } from 'vue'
 import { NooTubeService } from '../api/nootube.service'
+import type {
+  NooTubeVideoEntity,
+  PossiblyUnsavedNooTubeVideo
+} from '../api/nootube.types'
 import nootubeVideoUploader from '../components/nootube-video-uploader.vue'
+
+interface Props {
+  /**
+   * When provided, the form runs in edit mode: only the metadata can be
+   * changed, the upload step and video file are unavailable.
+   */
+  video?: NooTubeVideoEntity | null
+}
 
 interface Emits {
   /**
-   * Emitted once the video has been created and its upload finished.
+   * Emitted once the video has been created and its upload finished, or once an
+   * existing video's metadata has been saved in edit mode.
    */
   (e: 'done', videoId: string): void
   /**
-   * Emitted when the user cancels the form before uploading.
+   * Emitted when the user cancels the form.
    */
   (e: 'cancel'): void
 }
 
+const props = withDefaults(defineProps<Props>(), {
+  video: null
+})
+
 const emits = defineEmits<Emits>()
+
+const globalUiStore = useGlobalUIStore()
+
+const isEditMode = computed(() => !!props.video)
 
 const steps = [
   { number: 1, label: 'Информация' },
@@ -124,12 +175,22 @@ const steps = [
 const step = ref<1 | 2>(1)
 const isUploading = ref(false)
 const isUploaded = ref(false)
+const isSaving = ref(false)
 
-const draft = reactive(NooTubeService.createDraft())
+const draft = reactive<PossiblyUnsavedNooTubeVideo>(
+  props.video
+    ? { ...NooTubeService.createDraft(), ...props.video, _key: props.video.id }
+    : NooTubeService.createDraft()
+)
+
+// In edit mode, observe the draft so saving only sends the changed metadata.
+const patchGenerator = isEditMode.value ? JsonPatchUtils.observe(draft) : null
 
 // The file uploader works with MediaEntity objects, while the video keeps only
 // the thumbnail id. Keep the selected cover in sync with the draft.
-const thumbnailMedia = ref<MediaEntity[]>([])
+const thumbnailMedia = ref<MediaEntity[]>(
+  props.video?.thumbnail ? [props.video.thumbnail] : []
+)
 
 watch(thumbnailMedia, (media) => {
   draft.thumbnailId = media[0]?.id ?? null
@@ -144,6 +205,37 @@ function validateTitle(value: string) {
 function onUploaded(videoId: string) {
   isUploaded.value = true
   emits('done', videoId)
+}
+
+async function onSave() {
+  if (!props.video || !patchGenerator) {
+    return
+  }
+
+  const patch = patchGenerator.generate()
+
+  if (patch.length === 0) {
+    emits('done', props.video.id)
+
+    return
+  }
+
+  isSaving.value = true
+
+  const response = await NooTubeService.update(props.video.id, patch)
+
+  isSaving.value = false
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast(
+      'Не удалось обновить видео',
+      response.error
+    )
+
+    return
+  }
+
+  emits('done', props.video.id)
 }
 </script>
 
