@@ -196,6 +196,7 @@ function createMaterialContentDraft(): PossiblyUnsavedCourseMaterialContent {
     _entityName: 'CourseMaterialContent',
     _key: uid(),
     content: emptyRichText(),
+    pollId: null,
     nooTubeVideos: [],
     medias: [],
     workAssignments: []

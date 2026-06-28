@@ -89,7 +89,7 @@
     <noo-title :size="3"> Прикрепленный опрос </noo-title>
 
     <noo-poll-select
-      v-model="currentContent.poll"
+      v-model:ids="currentContent.pollId"
       label="Выберите опрос"
     />
   </template>

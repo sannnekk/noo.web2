@@ -45,6 +45,7 @@ export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
 export interface CourseMaterialContentEntity extends ApiEntity<'CourseMaterialContent'> {
   content: IRichText
   poll?: PollEntity
+  pollId: string | null
   nooTubeVideos?: NooTubeVideoEntity[]
   nooTubeVideoIds?: string[]
   medias?: MediaEntity[]

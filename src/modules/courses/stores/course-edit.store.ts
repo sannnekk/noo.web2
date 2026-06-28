@@ -315,6 +315,8 @@ const useCourseEditStore = defineStore(
         PossiblyUnsavedCourseMaterialContent
       >(response.data)
 
+      loadedContent.pollId = response.data.poll?.id ?? null
+
       materialContentDrafts.setDraft(materialKey, loadedContent)
 
       if (loadedContent.id) {

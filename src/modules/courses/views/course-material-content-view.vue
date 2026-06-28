@@ -49,6 +49,16 @@
         />
       </div>
     </noo-section>
+    <noo-section
+      v-if="courseDetailStore.materialContent.data.poll"
+      title="Прикрепленный опрос"
+      description=""
+    >
+      <noo-text-block>
+        {{ courseDetailStore.materialContent.data.poll.title }}
+      </noo-text-block>
+      <noo-button variant="primary"> Перейти к опросу </noo-button>
+    </noo-section>
   </div>
   <div
     v-else-if="courseDetailStore.materialContent.isLoading"
