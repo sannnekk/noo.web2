@@ -51,6 +51,12 @@
           class="users-list-page__role-cell"
         />
       </template>
+      <template #column-createdAt="{ item }">
+        <noo-date
+          include-time
+          :value="item.createdAt"
+        />
+      </template>
     </noo-search-view>
   </div>
 </template>
@@ -84,6 +90,10 @@ const columns: EntityTableColumnType<UserEntity>[] = [
   {
     key: 'role',
     title: 'Роль'
+  },
+  {
+    key: 'createdAt',
+    title: 'Дата регистрации'
   }
 ]
 </script>

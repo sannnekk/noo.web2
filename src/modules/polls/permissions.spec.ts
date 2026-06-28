@@ -10,4 +10,13 @@ describe('polls permissions', () => {
       pollsPermissionPolicy.rolesFor(PollsPermissions.viewEditPage)
     ).toEqual(['admin', 'teacher', 'student'])
   })
+
+  it('restricts results and deletion to admins and teachers', () => {
+    expect(
+      pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)
+    ).toEqual(['admin', 'teacher'])
+    expect(pollsPermissionPolicy.rolesFor(PollsPermissions.deletePoll)).toEqual(
+      ['admin', 'teacher']
+    )
+  })
 })

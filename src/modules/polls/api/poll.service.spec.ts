@@ -65,4 +65,36 @@ describe('PollService', () => {
       expect(!isApiError(result) && result.data).toEqual(created)
     })
   })
+
+  describe('participations', () => {
+    test('getParticipations should request the poll participation endpoint', async () => {
+      ;(Api.get as Mock).mockResolvedValue({ data: [] })
+
+      await PollService.getParticipations('poll-1')
+
+      expect(Api.get).toHaveBeenCalledWith(
+        '/poll/poll-1/participation',
+        undefined
+      )
+    })
+
+    test('getParticipation should request a single participation', async () => {
+      ;(Api.get as Mock).mockResolvedValue({ data: { id: 'part-1' } })
+
+      await PollService.getParticipation('part-1')
+
+      expect(Api.get).toHaveBeenCalledWith('/poll/participation/part-1')
+    })
+
+    test('getParticipatedPolls should request the user participation endpoint', async () => {
+      ;(Api.get as Mock).mockResolvedValue({ data: [] })
+
+      await PollService.getParticipatedPolls('user-1')
+
+      expect(Api.get).toHaveBeenCalledWith(
+        '/poll/user/user-1/participation',
+        undefined
+      )
+    })
+  })
 })

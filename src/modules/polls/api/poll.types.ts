@@ -42,6 +42,7 @@ export interface PollEntity extends ApiEntity<'Poll'> {
   isActive: boolean
   expiresAt: Date | null
   isAuthRequired: boolean
+  participationsCount: number
   questions?: PollQuestionEntity[]
 }
 

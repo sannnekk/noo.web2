@@ -4,6 +4,7 @@ import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type {
   PollEntity,
+  PollParticipationEntity,
   PossiblyUnsavedPoll,
   PossiblyUnsavedQuestion
 } from './poll.types'
@@ -58,6 +59,37 @@ interface IPollService {
    * @returns A promise that resolves to an ApiResponse indicating the success of the operation.
    */
   delete: (id: string) => Promise<ApiResponse>
+  /**
+   * Fetches the participations (results) of a poll.
+   *
+   * @param pollId The ID of the poll whose participations to fetch.
+   * @param pagination Pagination object to paginate the results. If not provided, the default pagination will be used.
+   * @returns A promise that resolves to an ApiResponse containing an array of PollParticipationEntity objects.
+   */
+  getParticipations: (
+    pollId: string,
+    pagination?: IPagination
+  ) => Promise<ApiResponse<PollParticipationEntity[]>>
+  /**
+   * Fetches a single poll participation, including the user's answers.
+   *
+   * @param participationId The ID of the participation to fetch.
+   * @returns A promise that resolves to an ApiResponse containing the PollParticipationEntity object.
+   */
+  getParticipation: (
+    participationId: string
+  ) => Promise<ApiResponse<PollParticipationEntity>>
+  /**
+   * Fetches the polls a specific user has participated in.
+   *
+   * @param userId The ID of the user whose participated polls to fetch.
+   * @param pagination Pagination object to paginate the results. If not provided, the default pagination will be used.
+   * @returns A promise that resolves to an ApiResponse containing an array of PollEntity objects.
+   */
+  getParticipatedPolls: (
+    userId: string,
+    pagination?: IPagination
+  ) => Promise<ApiResponse<PollEntity[]>>
 }
 
 async function get(
@@ -79,6 +111,7 @@ function createDraft(): PossiblyUnsavedPoll {
     isActive: true,
     expiresAt: null,
     isAuthRequired: false,
+    participationsCount: 0,
     questions: []
   }
 }
@@ -112,6 +145,32 @@ async function deletePoll(id: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/${id}`)
 }
 
+async function getParticipations(
+  pollId: string,
+  pagination?: IPagination
+): Promise<ApiResponse<PollParticipationEntity[]>> {
+  return await Api.get(
+    `${BASE_PATH}/${pollId}/participation`,
+    pagination ? pagination.toQuery() : undefined
+  )
+}
+
+async function getParticipation(
+  participationId: string
+): Promise<ApiResponse<PollParticipationEntity>> {
+  return await Api.get(`${BASE_PATH}/participation/${participationId}`)
+}
+
+async function getParticipatedPolls(
+  userId: string,
+  pagination?: IPagination
+): Promise<ApiResponse<PollEntity[]>> {
+  return await Api.get(
+    `${BASE_PATH}/user/${userId}/participation`,
+    pagination ? pagination.toQuery() : undefined
+  )
+}
+
 export const PollService: IPollService = {
   createDraft,
   createQuestionDraft,
@@ -119,5 +178,8 @@ export const PollService: IPollService = {
   getById,
   create,
   update,
-  delete: deletePoll
+  delete: deletePoll,
+  getParticipations,
+  getParticipation,
+  getParticipatedPolls
 }

@@ -2347,6 +2347,10 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: Type
+          in: query
+          schema:
+            $ref: "#/components/schemas/VideoFilterType"
         - name: Page
           in: query
           schema:
@@ -2663,6 +2667,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/favourite:
+    patch:
+      tags:
+        - Nootube
+      summary: Toggles whether a video is in the current user's favourites.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /nootube/{videoId}/comment:
     get:
       tags:
@@ -2761,9 +2806,7 @@ paths:
         "201":
           description: Created
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NooTubeVideoCommentDTOApiResponseDTO"
+            application/json: {}
         "400":
           description: Bad Request
           content:
@@ -3261,6 +3304,88 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /poll/user/{userId}/participation:
+    get:
+      tags:
+        - Poll
+      summary: Get a paginated list of polls a specific user has participated in.
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Search
+          in: query
+          schema:
+            type: string
+        - name: CreatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: UpdatedAt
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: IsActive
+          in: query
+          schema:
+            type: boolean
+        - name: IsAuthRequired
+          in: query
+          schema:
+            type: boolean
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - Title
+              - Description
+              - CreatedAt
+              - UpdatedAt
+              - IsActive
+              - IsAuthRequired
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PollDTOIEnumerableApiResponseDTO"
         "401":
           description: Unauthorized
           content:
@@ -6620,6 +6745,8 @@ components:
     CreateNooTubeVideoDTO:
       required:
         - fileSize
+        - isActive
+        - isListed
         - title
       type: object
       properties:
@@ -6633,6 +6760,8 @@ components:
           maxLength: 512
           type: string
           nullable: true
+        thumbnailId:
+          $ref: "#/components/schemas/Ulid"
         fileSize:
           minimum: 1
           type: integer
@@ -6641,6 +6770,8 @@ components:
           maxLength: 255
           type: string
           nullable: true
+        isActive:
+          type: boolean
         isListed:
           type: boolean
         publishedAt:
@@ -7208,14 +7339,6 @@ components:
           format: date-time
           nullable: true
       additionalProperties: false
-    NooTubeVideoCommentDTOApiResponseDTO:
-      type: object
-      properties:
-        data:
-          $ref: "#/components/schemas/NooTubeVideoCommentDTO"
-        meta:
-          nullable: true
-      additionalProperties: false
     NooTubeVideoCommentDTOIEnumerableApiResponseDTO:
       type: object
       properties:
@@ -7230,12 +7353,16 @@ components:
     NooTubeVideoDTO:
       required:
         - _entityName
+        - createdAt
         - id
+        - isActive
+        - isFavourite
+        - isListed
         - publishedAt
         - serviceType
         - state
         - title
-        - uploadedByUserId
+        - uploadedById
       type: object
       properties:
         _entityName:
@@ -7269,21 +7396,27 @@ components:
           type: integer
           format: int32
           nullable: true
+        isActive:
+          type: boolean
         isListed:
+          type: boolean
+        isFavourite:
           type: boolean
         publishedAt:
           type: string
           format: date-time
-        uploadedByUserId:
+        uploadedById:
           $ref: "#/components/schemas/Ulid"
-        uploadedByUser:
+        uploadedBy:
           $ref: "#/components/schemas/UserDTO"
         thumbnail:
           $ref: "#/components/schemas/MediaDTO"
-        comments:
-          type: array
-          items:
-            $ref: "#/components/schemas/NooTubeVideoCommentDTO"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
           nullable: true
       additionalProperties: false
     NooTubeVideoDTOApiResponseDTO:
@@ -7459,6 +7592,7 @@ components:
         - id
         - isActive
         - isAuthRequired
+        - participationsCount
         - title
       type: object
       properties:
@@ -7493,6 +7627,9 @@ components:
           items:
             $ref: "#/components/schemas/PollQuestionDTO"
           nullable: true
+        participationsCount:
+          type: integer
+          format: int32
       additionalProperties: false
     PollDTOApiResponseDTO:
       type: object
@@ -8681,6 +8818,12 @@ components:
         - light
         - dark
         - system
+      type: string
+    VideoFilterType:
+      enum:
+        - all
+        - favourite
+        - own
       type: string
     VideoReaction:
       enum:
