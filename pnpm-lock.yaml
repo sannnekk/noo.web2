@@ -14,6 +14,9 @@ importers:
       '@intl-tel-input/vue':
         specifier: 28.1.0
         version: 28.1.0(vue@3.5.30(typescript@5.8.3))
+      '@kinescope/vue-kinescope-player':
+        specifier: 2.1.0
+        version: 2.1.0(vue@3.5.30(typescript@5.8.3))
       '@tiptap/core':
         specifier: 3.26.0
         version: 3.26.0(@tiptap/pm@3.26.0)
@@ -653,6 +656,11 @@ packages:
 
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
+
+  '@kinescope/vue-kinescope-player@2.1.0':
+    resolution: {integrity: sha512-0HrE387x3LefiurOtDZ2UpCIMBsfVrgGnoCcWah/ujCMIgFYMRgnaPatSkpI1L+E+MHRP9pYeb646YkzI4aCNA==}
+    peerDependencies:
+      vue: ^3.3.4
 
   '@mapbox/geojson-rewind@0.5.2':
     resolution: {integrity: sha512-tJaT+RbYGJYStt7wI3cq4Nl4SXxG8W7JDG5DMJu97V25RnbNg3QtQtf+KD+VLjNpWKYsRvXDNmNrBgEETr1ifA==}
@@ -4374,6 +4382,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@juggle/resize-observer@3.4.0': {}
+
+  '@kinescope/vue-kinescope-player@2.1.0(vue@3.5.30(typescript@5.8.3))':
+    dependencies:
+      vue: 3.5.30(typescript@5.8.3)
 
   '@mapbox/geojson-rewind@0.5.2':
     dependencies:

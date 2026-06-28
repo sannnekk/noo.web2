@@ -69,5 +69,23 @@ const targetHasRole =
   (_, { target }) =>
     !!target && roles.includes(target.role)
 
+/**
+ * Whether the current principal has one of the specified roles. Independent of
+ * the context, so it composes with relationship predicates (e.g. to allow a
+ * privileged role to act on any resource via `anyOf(...)`).
+ */
+const principalHasRole =
+  <Ctx>(...roles: UserRole[]): PermissionPredicate<Ctx> =>
+  (principal) =>
+    roles.includes(principal.role)
+
 export type { PermissionPredicate, TargetContext }
-export { not, allOf, anyOf, targetIsSelf, targetIsNotSelf, targetHasRole }
+export {
+  not,
+  allOf,
+  anyOf,
+  targetIsSelf,
+  targetIsNotSelf,
+  targetHasRole,
+  principalHasRole
+}

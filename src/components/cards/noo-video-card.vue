@@ -1,7 +1,7 @@
 <template>
   <router-link
     class="noo-video-card"
-    to=""
+    :to="{ name: 'nootube.detail', params: { videoId: video.id } }"
   >
     <div class="noo-video-card__inner">
       <div class="noo-video-card__inner__thumbnail">
@@ -16,15 +16,25 @@
         <div class="noo-video-card__inner__thumbnail__duration">
           {{ duration }}
         </div>
+        <div
+          v-if="!video.isListed"
+          class="noo-video-card__inner__thumbnail__unlisted-tag"
+        >
+          Не в списке
+        </div>
       </div>
       <div class="noo-video-card__inner__info">
-        <noo-title :size="3">
+        <noo-title
+          :size="3"
+          no-margin
+        >
           {{ video.title }}
         </noo-title>
         <noo-text-block
           v-if="video.description"
           size="small"
           dimmed
+          no-margin
         >
           {{ video.description }}
         </noo-text-block>
@@ -40,31 +50,17 @@
 <script setup lang="ts">
 import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
 import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
+import { formatVideoDuration } from '@/modules/nootube/video.utils'
 import { computed } from 'vue'
 
 interface Props {
   video: NooTubeVideoEntity
-  /** Optional management actions shown as a dropdown over the thumbnail. */
   actions?: DropdownAction[]
 }
 
 const props = defineProps<Props>()
 
-const duration = computed(() => stringifyDuration(props.video.duration))
-
-function stringifyDuration(length: number | null): string {
-  if (length === null || length < 0) {
-    return '--:--'
-  }
-
-  const hours = Math.floor(length / 3600)
-  const minutes = Math.floor((length % 3600) / 60)
-  const seconds = length % 60
-
-  return `${hours ? hours + ':' : ''}${minutes
-    .toString()
-    .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-}
+const duration = computed(() => formatVideoDuration(props.video.duration))
 </script>
 
 <style scoped lang="sass">
@@ -78,6 +74,9 @@ function stringifyDuration(length: number | null): string {
     color: var(--lila)
 
   &__inner
+    &__info
+      padding-top: 0.3em
+
     &__thumbnail
       overflow: hidden
       border-radius: var(--border-radius)
@@ -108,4 +107,15 @@ function stringifyDuration(length: number | null): string {
         padding: 0.2em 0.4em
         font-size: 0.8em
         border-top-left-radius: var(--border-radius)
+
+      &__unlisted-tag
+        position: absolute
+        top: 0.4em
+        left: 0.4em
+        background-color: var(--warning)
+        color: #000
+        border-radius: var(--border-radius)
+        font-size: 0.75em
+        padding: 0.2em 0.4em
+        font-weight: 600
 </style>

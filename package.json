@@ -20,6 +20,7 @@
   "dependencies": {
     "@duskmoon/vue3-typed-js": "^0.0.4",
     "@intl-tel-input/vue": "28.1.0",
+    "@kinescope/vue-kinescope-player": "2.1.0",
     "@tiptap/core": "3.26.0",
     "@tiptap/extension-mathematics": "3.26.0",
     "@tiptap/extension-subscript": "3.26.0",
