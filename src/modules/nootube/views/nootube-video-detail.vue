@@ -26,6 +26,16 @@
         {{ video.title }}
       </noo-title>
       <div class="nootube-video-detail__header__meta">
+        <span
+          class="nootube-video-detail__header__meta__badge"
+          :class="{
+            'nootube-video-detail__header__meta__badge--favourite':
+              video.isFavourite
+          }"
+          @click="$emit('toggle-favourite')"
+        >
+          {{ video.isFavourite ? 'В избранном' : 'Добавить в избранное' }}
+        </span>
         <span>
           Опубликовано
           <noo-date
@@ -33,12 +43,6 @@
             timezones="both"
             include-time
           />
-        </span>
-        <span
-          v-if="!video.isListed"
-          class="nootube-video-detail__header__meta__badge"
-        >
-          Не в общем списке
         </span>
       </div>
     </header>
@@ -72,7 +76,11 @@ interface Props {
   video: NooTubeVideoEntity
 }
 
+type Emits = (event: 'toggle-favourite') => void
+
 const props = defineProps<Props>()
+
+defineEmits<Emits>()
 
 const isPlayable = computed(
   () =>
@@ -158,10 +166,23 @@ const thumbnailSrc = computed(
       font-size: 0.9em
 
       &__badge
-        padding: 0.1em 0.6em
+        padding: 0.2em 0.8em
         border-radius: 5em
         background-color: var(--light-background-color)
-        color: var(--text)
+        color: var(--form-text-color)
+        cursor: pointer
+
+        &:hover
+          background-color: var(--primary)
+          color: #000
+
+        &--favourite
+          background-color: var(--primary)
+          color: #000
+
+          &:hover
+            background-color: var(--form-background)
+            color: var(--form-text-color)
 
   &__description
     margin: 0

@@ -52,6 +52,13 @@ interface INooTubeService {
    */
   getById: (videoId: string) => Promise<ApiResponse<NooTubeVideoEntity>>
   /**
+   * Toggles if a video is favourited by the current user.
+   *
+   * @param videoId The ID of the video to toggle.
+   * @returns A promise that resolves to an ApiResponse.
+   */
+  toggleFavourite: (videoId: string) => Promise<ApiResponse>
+  /**
    * Creates a video and initializes an upload on the configured video engine.
    *
    * @param video The video to create together with the upload metadata.
@@ -148,6 +155,7 @@ function createDraft(): PossiblyUnsavedNooTubeVideo {
     state: 'not-uploaded',
     duration: null,
     isListed: true,
+    isFavourite: false,
     publishedAt: new Date(),
     uploadedByUserId: ''
   }
@@ -183,6 +191,10 @@ async function getById(
   videoId: string
 ): Promise<ApiResponse<NooTubeVideoEntity>> {
   return await Api.get(`${BASE_PATH}/${videoId}`)
+}
+
+async function toggleFavourite(videoId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${videoId}/favourite`)
 }
 
 async function create(
@@ -253,6 +265,7 @@ export const NooTubeService: INooTubeService = {
   getFavourites,
   getOwn,
   getById,
+  toggleFavourite,
   create,
   update,
   delete: deleteVideo,

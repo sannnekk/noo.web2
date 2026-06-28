@@ -22,15 +22,17 @@
     <nootube-video-detail
       v-else-if="request.data.value"
       :video="request.data.value"
+      @toggle-favourite="toggleFavourite.execute"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useApiRequest } from '@/core/composables/useApiRequest'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { NooTubeService } from '../api/nootube.service'
 import nootubeVideoDetail from '../views/nootube-video-detail.vue'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 
 export interface NooTubeVideoDetailPageProps {
   videoId: string
@@ -38,7 +40,30 @@ export interface NooTubeVideoDetailPageProps {
 
 const props = defineProps<NooTubeVideoDetailPageProps>()
 
+const uiStore = useGlobalUIStore()
 const request = useApiRequest(NooTubeService.getById)
+const video = computed(() => request.data.value)
+
+const toggleFavourite = useApiRequest(
+  () => NooTubeService.toggleFavourite(props.videoId),
+  () => {
+    if (!video.value) {
+      return
+    }
+
+    const isFavourite = !video.value.isFavourite
+
+    request.data.value = { ...video.value, isFavourite }
+
+    uiStore.createSuccessToast(
+      isFavourite
+        ? 'Видео добавлено в избранное'
+        : 'Видео удалено из избранного'
+    )
+  },
+  (error) =>
+    uiStore.createApiErrorToast('Не удалось добавить видео в избранное', error)
+)
 
 watch(
   () => props.videoId,

@@ -19,7 +19,12 @@
       v-else-if="state === 'success'"
       class="auth-verify-email-view__success"
     >
-      <noo-title :size="4">Ваш email успешно подтвержден!</noo-title>
+      <noo-title
+        :size="4"
+        align="center"
+      >
+        Ваш email успешно подтвержден!
+      </noo-title>
       <noo-button
         :to="{ name: 'auth.login' }"
         variant="primary"

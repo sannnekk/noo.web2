@@ -31,6 +31,7 @@ export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   state: NooTubeVideoState
   duration: number | null
   isListed: boolean
+  isFavourite: boolean
   publishedAt: Date
   uploadedByUserId: string
   uploadedByUser?: UserEntity | null

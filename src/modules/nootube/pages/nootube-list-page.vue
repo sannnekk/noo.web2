@@ -36,10 +36,16 @@
         />
       </template>
 
-      <template #tab-title-own>
+      <template
+        v-if="canViewOwnVideos"
+        #tab-title-own
+      >
         <span>Мои видео</span>
       </template>
-      <template #tab-own>
+      <template
+        v-if="canViewOwnVideos"
+        #tab-own
+      >
         <nootube-list-view
           v-model:page="ownVideoSearch.page.value"
           v-model:search="ownVideoSearch.search.value"
@@ -60,10 +66,15 @@ import { useSearch } from '@/core/composables/useSearch'
 import { NooTubeService } from '../api/nootube.service'
 import type { NooTubeListPageTab } from '../types'
 import nootubeListView from '../views/nootube-list-view.vue'
+import { NooTubePermissions, useNooTubePermissions } from '../permissions'
 
 export interface NooTubeListPageProps {
   tab: NooTubeListPageTab
 }
+
+const { can } = useNooTubePermissions()
+
+const canViewOwnVideos = can(NooTubePermissions.viewOwnVideosTab)
 
 const allSearch = useSearch(NooTubeService.get)
 const favouritesSearch = useSearch(NooTubeService.getFavourites)
