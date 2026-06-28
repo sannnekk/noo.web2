@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const ProfilePermissions = {
   viewInfoTab: 'viewInfoTab',
@@ -29,15 +33,7 @@ const profilePermissionPolicy = definePermissions({
   [ProfilePermissions.viewPaymentsTab]: roles('student')
 })
 
-function useProfilePermissions(): Pick<
-  typeof profilePermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: profilePermissionPolicy.can,
-    cannot: profilePermissionPolicy.cannot
-  }
-}
+const useProfilePermissions = createUsePermissions(profilePermissionPolicy)
 
 export type { ProfilePermission }
 export { ProfilePermissions, profilePermissionPolicy, useProfilePermissions }

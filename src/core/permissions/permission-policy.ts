@@ -119,5 +119,33 @@ function definePermissions<Defs extends PermissionDefinitions>(
   return { can, cannot, rolesFor }
 }
 
-export type { PermissionPolicy, PermissionRule, DefinePermissionsOptions }
-export { definePermissions, roles, rule }
+/** The component-facing subset of a policy: just the permission checks. */
+type PermissionChecks<Defs extends PermissionDefinitions> = Pick<
+  PermissionPolicy<Defs>,
+  'can' | 'cannot'
+>
+
+/**
+ * Builds a module's `use*Permissions()` composable from its policy, exposing
+ * only `can`/`cannot` (route-level `rolesFor` stays off the component API).
+ * Lets each module declare its hook in one line instead of repeating the same
+ * wrapper.
+ */
+function createUsePermissions<Defs extends PermissionDefinitions>(
+  policy: PermissionPolicy<Defs>
+): () => PermissionChecks<Defs> {
+  const checks: PermissionChecks<Defs> = {
+    can: policy.can,
+    cannot: policy.cannot
+  }
+
+  return () => checks
+}
+
+export type {
+  PermissionPolicy,
+  PermissionRule,
+  DefinePermissionsOptions,
+  PermissionChecks
+}
+export { definePermissions, roles, rule, createUsePermissions }

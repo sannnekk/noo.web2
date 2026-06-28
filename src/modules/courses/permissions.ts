@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const CoursePermissions = {
   viewListPage: 'viewListPage',
@@ -43,15 +47,7 @@ const coursePermissionPolicy = definePermissions({
   [CoursePermissions.solveWork]: roles('student')
 })
 
-function useCoursePermissions(): Pick<
-  typeof coursePermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: coursePermissionPolicy.can,
-    cannot: coursePermissionPolicy.cannot
-  }
-}
+const useCoursePermissions = createUsePermissions(coursePermissionPolicy)
 
 export type { CoursePermission }
 export { CoursePermissions, coursePermissionPolicy, useCoursePermissions }

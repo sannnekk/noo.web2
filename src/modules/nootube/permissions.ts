@@ -1,4 +1,5 @@
 import {
+  createUsePermissions,
   definePermissions,
   roles,
   rule
@@ -20,7 +21,6 @@ const NooTubePermissions = {
   manageComment: 'manageComment'
 } as const
 
-/** Context for rules acting on a single comment (its author). */
 type CommentContext = TargetContext<{ id: string }>
 
 type NooTubePermission =
@@ -45,22 +45,13 @@ const nooTubePermissionPolicy = definePermissions({
   [NooTubePermissions.createVideo]: roles('teacher'),
   [NooTubePermissions.editVideo]: roles('admin', 'teacher'),
   [NooTubePermissions.deleteVideo]: roles('admin', 'teacher'),
-  // Teachers and admins can manage any comment; everyone else only their own.
   [NooTubePermissions.manageComment]: rule<CommentContext>(
     ['admin', 'teacher', 'assistant', 'mentor', 'student'],
     anyOf(principalHasRole('admin', 'teacher'), targetIsSelf)
   )
 })
 
-function useNooTubePermissions(): Pick<
-  typeof nooTubePermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: nooTubePermissionPolicy.can,
-    cannot: nooTubePermissionPolicy.cannot
-  }
-}
+const useNooTubePermissions = createUsePermissions(nooTubePermissionPolicy)
 
 export type { NooTubePermission }
 export { NooTubePermissions, nooTubePermissionPolicy, useNooTubePermissions }

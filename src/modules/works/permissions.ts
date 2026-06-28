@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const WorksPermissions = {
   viewListPage: 'viewListPage',
@@ -12,15 +16,7 @@ const worksPermissionPolicy = definePermissions({
   [WorksPermissions.viewEditPage]: roles('admin', 'teacher', 'student')
 })
 
-function useWorksPermissions(): Pick<
-  typeof worksPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: worksPermissionPolicy.can,
-    cannot: worksPermissionPolicy.cannot
-  }
-}
+const useWorksPermissions = createUsePermissions(worksPermissionPolicy)
 
 export type { WorksPermission }
 export { WorksPermissions, worksPermissionPolicy, useWorksPermissions }

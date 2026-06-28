@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const CalendarPermissions = {
   viewPage: 'viewPage'
@@ -17,15 +21,7 @@ const calendarPermissionPolicy = definePermissions({
   )
 })
 
-function useCalendarPermissions(): Pick<
-  typeof calendarPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: calendarPermissionPolicy.can,
-    cannot: calendarPermissionPolicy.cannot
-  }
-}
+const useCalendarPermissions = createUsePermissions(calendarPermissionPolicy)
 
 export type { CalendarPermission }
 export { CalendarPermissions, calendarPermissionPolicy, useCalendarPermissions }

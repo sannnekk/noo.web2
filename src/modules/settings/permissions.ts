@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const SettingsPermissions = {
   manageAccountSettings: 'manageAccountSettings',
@@ -51,15 +55,7 @@ const settingsPermissionPolicy = definePermissions({
   )
 })
 
-function useSettingsPermissions(): Pick<
-  typeof settingsPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: settingsPermissionPolicy.can,
-    cannot: settingsPermissionPolicy.cannot
-  }
-}
+const useSettingsPermissions = createUsePermissions(settingsPermissionPolicy)
 
 export type { SettingsPermission }
 export { SettingsPermissions, settingsPermissionPolicy, useSettingsPermissions }

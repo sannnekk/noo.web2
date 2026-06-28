@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const AssignedWorksPermissions = {
   viewListPage: 'viewListPage',
@@ -54,15 +58,9 @@ const assignedWorksPermissionPolicy = definePermissions({
   )
 })
 
-function useAssignedWorksPermissions(): Pick<
-  typeof assignedWorksPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: assignedWorksPermissionPolicy.can,
-    cannot: assignedWorksPermissionPolicy.cannot
-  }
-}
+const useAssignedWorksPermissions = createUsePermissions(
+  assignedWorksPermissionPolicy
+)
 
 export type { AssignedWorksPermission }
 export {

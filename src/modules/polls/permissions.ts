@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const PollsPermissions = {
   viewListPage: 'viewListPage',
@@ -12,15 +16,7 @@ const pollsPermissionPolicy = definePermissions({
   [PollsPermissions.viewEditPage]: roles('admin', 'teacher', 'student')
 })
 
-function usePollsPermissions(): Pick<
-  typeof pollsPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: pollsPermissionPolicy.can,
-    cannot: pollsPermissionPolicy.cannot
-  }
-}
+const usePollsPermissions = createUsePermissions(pollsPermissionPolicy)
 
 export type { PollsPermission }
 export { PollsPermissions, pollsPermissionPolicy, usePollsPermissions }

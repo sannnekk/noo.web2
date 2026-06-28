@@ -1,4 +1,8 @@
-import { definePermissions, roles } from '@/core/permissions/permission-policy'
+import {
+  createUsePermissions,
+  definePermissions,
+  roles
+} from '@/core/permissions/permission-policy'
 
 const HelpPermissions = {
   /** Create, edit and delete support articles. Reading is open to everyone. */
@@ -11,15 +15,7 @@ const helpPermissionPolicy = definePermissions({
   [HelpPermissions.manageArticles]: roles('admin', 'teacher')
 })
 
-function useHelpPermissions(): Pick<
-  typeof helpPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: helpPermissionPolicy.can,
-    cannot: helpPermissionPolicy.cannot
-  }
-}
+const useHelpPermissions = createUsePermissions(helpPermissionPolicy)
 
 export type { HelpPermission }
 export { HelpPermissions, helpPermissionPolicy, useHelpPermissions }

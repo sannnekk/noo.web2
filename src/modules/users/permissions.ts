@@ -1,4 +1,5 @@
 import {
+  createUsePermissions,
   definePermissions,
   roles,
   rule
@@ -100,15 +101,7 @@ const usersPermissionPolicy = definePermissions({
   [UsersPermissions.manageCourseMemberships]: roles('admin', 'teacher')
 })
 
-function useUsersPermissions(): Pick<
-  typeof usersPermissionPolicy,
-  'can' | 'cannot'
-> {
-  return {
-    can: usersPermissionPolicy.can,
-    cannot: usersPermissionPolicy.cannot
-  }
-}
+const useUsersPermissions = createUsePermissions(usersPermissionPolicy)
 
 export type { UsersPermission }
 export { UsersPermissions, usersPermissionPolicy, useUsersPermissions }
