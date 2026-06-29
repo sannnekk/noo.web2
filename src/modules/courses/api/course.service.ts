@@ -1,5 +1,5 @@
 import { Api, type ApiResponse } from '@/core/api/api.utils'
-import { uid } from '@/core/utils/id.utils'
+import { newUlid, uid } from '@/core/utils/id.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import { emptyRichText } from '@/core/utils/richtext.utils'
@@ -168,6 +168,9 @@ function createChapterDraft(order: number): PossiblyUnsavedChapter {
   return {
     _entityName: 'CourseChapter',
     _key: uid(),
+    // New chapters carry a client-minted ULID so the flattened update patch can
+    // reference them as a parent via parentChapterId within a single request.
+    id: newUlid(),
     order,
     title: `Новая глава ${order}`,
     color: null,

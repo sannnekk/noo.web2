@@ -52,12 +52,18 @@ interface Props {
   patch: JsonPatchDocument<T>
   original: T
   pathLabels: LabelMap<T>
+  normalizeValue?: (key: string, value: unknown) => unknown
 }
 
 const props = defineProps<Props>()
 
 const changes = computed<PatchListChange<T>[]>(() =>
-  createPatchListChanges(props.patch, props.original, props.pathLabels)
+  createPatchListChanges(
+    props.patch,
+    props.original,
+    props.pathLabels,
+    props.normalizeValue
+  )
 )
 </script>
 

@@ -22,14 +22,15 @@ interface PatchListChange<T extends object> {
 function createPatchListChanges<T extends object>(
   patch: JsonPatchDocument<T>,
   original: T,
-  pathLabels: LabelMap<T>
+  pathLabels: LabelMap<T>,
+  normalizeValue?: (key: string, value: unknown) => unknown
 ): PatchListChange<T>[] {
   const labelPaths = Object.keys(pathLabels)
 
-  let currentState = normalizeJsonPatchTarget(original) as Record<
-    string,
-    unknown
-  >
+  let currentState = normalizeJsonPatchTarget(
+    original,
+    normalizeValue
+  ) as Record<string, unknown>
 
   return patch.map((operation, index) => {
     const previousState = currentState

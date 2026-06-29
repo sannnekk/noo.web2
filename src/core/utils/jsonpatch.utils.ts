@@ -47,11 +47,19 @@ function observe<T extends object>(
     normalizeValue
   ) as T
 
-  // Filter out the following keys from the JSON Patch document:
+  // Filter out operations that target one of these properties:
   // - _key (local only property)
   // - _entityName (static property)
   // - id, createdAt, updatedAt (managed by the backend)
-  const excludedPaths = ['_key', '_entityName', 'id', 'createdAt', 'updatedAt']
+  // Matched against the final path segment only, so foreign-key fields such as
+  // parentChapterId / subjectId / contentId are NOT accidentally excluded.
+  const excludedKeys = ['_key', '_entityName', 'id', 'createdAt', 'updatedAt']
+
+  function isExcluded(path: string): boolean {
+    const lastSegment = path.slice(path.lastIndexOf('/') + 1)
+
+    return excludedKeys.includes(lastSegment)
+  }
 
   function generate(): JsonPatchDocument<T> {
     return jsonpatch
@@ -59,10 +67,7 @@ function observe<T extends object>(
         normalizedOriginal,
         normalizeJsonPatchTarget(obj, normalizeValue) as T
       )
-      .filter(
-        (operation) =>
-          !excludedPaths.some((path) => operation.path.endsWith(path))
-      )
+      .filter((operation) => !isExcluded(operation.path))
   }
 
   return {

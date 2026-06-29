@@ -72,13 +72,39 @@ function searchMaterials(
   return results
 }
 
-function normalizeCoursePatch(key: string, value: unknown): unknown {
-  if (key === 'chapters' && Array.isArray(value) && value.length === 0) {
-    return null
+/**
+ * Flattens a nested chapter tree into a single list where every chapter (root or
+ * nested) is a top-level entry and its position is expressed through parentChapterId.
+ *
+ * The update API contract is flat: this keeps the patch dictionary aligned with the
+ * backend's CourseModel.Chapters collection so the merge reuses chapters by id without
+ * orphaning descendants, and turns a move into a single parentChapterId change.
+ */
+function flattenChapters(
+  chapters: CourseChapterEntity[],
+  parentChapterId: string | null = null
+): CourseChapterEntity[] {
+  const flattened: CourseChapterEntity[] = []
+
+  for (const chapter of chapters) {
+    const { subChapters, ...chapterWithoutSubChapters } = chapter
+
+    flattened.push({
+      ...chapterWithoutSubChapters,
+      parentChapterId
+    } as CourseChapterEntity)
+
+    flattened.push(...flattenChapters(subChapters ?? [], chapter.id ?? null))
   }
 
-  if (key === 'subChapters' && Array.isArray(value) && value.length === 0) {
-    return null
+  return flattened
+}
+
+function normalizeCoursePatch(key: string, value: unknown): unknown {
+  if (key === 'chapters' && Array.isArray(value)) {
+    const flattened = flattenChapters(value as CourseChapterEntity[])
+
+    return flattened.length === 0 ? null : flattened
   }
 
   if (key === 'materials' && Array.isArray(value) && value.length === 0) {

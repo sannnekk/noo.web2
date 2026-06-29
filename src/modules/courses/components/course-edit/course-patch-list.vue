@@ -4,6 +4,7 @@
       :patch="patchForList"
       :original="originalForList"
       :path-labels="coursePathLabels"
+      :normalize-value="normalizeCoursePatch"
     >
       <template #path--subjectId="{ value }">
         <noo-subject-select
@@ -61,31 +62,9 @@
         </noo-text-block>
       </template>
 
-      <template #path--chapters-any-subChapters="{ op, side }">
+      <template #path--chapters-any-parentChapterId="{ value }">
         <noo-text-block>
-          {{
-            formatEntityOperation(
-              op as string,
-              side as SlotSide,
-              'Подглава добавлена',
-              'Подглава удалена',
-              'Список подглав обновлен'
-            )
-          }}
-        </noo-text-block>
-      </template>
-
-      <template #path--chapters-any-subChapters-any="{ op, side }">
-        <noo-text-block>
-          {{
-            formatEntityOperation(
-              op as string,
-              side as SlotSide,
-              'Подглава добавлена',
-              'Подглава удалена',
-              'Подглава обновлена'
-            )
-          }}
+          {{ value ? 'Вложенная глава' : 'Глава верхнего уровня' }}
         </noo-text-block>
       </template>
 
@@ -117,36 +96,6 @@
         </noo-text-block>
       </template>
 
-      <template #path--chapters-any-subChapters-any-materials="{ op, side }">
-        <noo-text-block>
-          {{
-            formatEntityOperation(
-              op as string,
-              side as SlotSide,
-              'Материал добавлен',
-              'Материал удален',
-              'Список материалов обновлен'
-            )
-          }}
-        </noo-text-block>
-      </template>
-
-      <template
-        #path--chapters-any-subChapters-any-materials-any="{ op, side }"
-      >
-        <noo-text-block>
-          {{
-            formatEntityOperation(
-              op as string,
-              side as SlotSide,
-              'Материал добавлен',
-              'Материал удален',
-              'Материал обновлен'
-            )
-          }}
-        </noo-text-block>
-      </template>
-
       <template #path--chapters-any-isActive="{ value }">
         <noo-text-block>
           {{ formatBoolean(value) }}
@@ -154,22 +103,6 @@
       </template>
 
       <template #path--chapters-any-publishAt="{ value }">
-        <noo-text-block>
-          <noo-date
-            v-if="isDateValue(value)"
-            :value="value as DateValue"
-          />
-          <span v-else>Не запланировано</span>
-        </noo-text-block>
-      </template>
-
-      <template #path--chapters-any-subChapters-any-isActive="{ value }">
-        <noo-text-block>
-          {{ formatBoolean(value) }}
-        </noo-text-block>
-      </template>
-
-      <template #path--chapters-any-subChapters-any-publishAt="{ value }">
         <noo-text-block>
           <noo-date
             v-if="isDateValue(value)"
@@ -194,26 +127,6 @@
           <span v-else>Не запланировано</span>
         </noo-text-block>
       </template>
-
-      <template
-        #path--chapters-any-subChapters-any-materials-any-isActive="{ value }"
-      >
-        <noo-text-block>
-          {{ formatBoolean(value) }}
-        </noo-text-block>
-      </template>
-
-      <template
-        #path--chapters-any-subChapters-any-materials-any-publishAt="{ value }"
-      >
-        <noo-text-block>
-          <noo-date
-            v-if="isDateValue(value)"
-            :value="value as DateValue"
-          />
-          <span v-else>Не запланировано</span>
-        </noo-text-block>
-      </template>
     </noo-patch-list>
   </div>
 </template>
@@ -226,6 +139,7 @@ import type {
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import { computed } from 'vue'
 import type { PossiblyUnsavedCourse } from '../../types'
+import { normalizeCoursePatch } from '../../utils'
 
 type SlotSide = 'prev' | 'now'
 type DateValue = string | Date
@@ -261,6 +175,8 @@ const coursePathLabels: LabelMap<PatchListTarget> = {
     `Активность главы «${getTitle(ctx.entity)}»`,
   '/chapters/*/publishAt': (ctx: PatchLabelContext) =>
     `Дата публикации главы «${getTitle(ctx.entity)}»`,
+  '/chapters/*/parentChapterId': (ctx: PatchLabelContext) =>
+    `Расположение главы «${getTitle(ctx.entity)}»`,
   '/chapters/*/materials': (ctx: PatchLabelContext) =>
     `Материалы главы «${getTitle(ctx.entity)}»`,
   '/chapters/*/materials/*': (ctx: PatchLabelContext) =>
@@ -270,26 +186,6 @@ const coursePathLabels: LabelMap<PatchListTarget> = {
   '/chapters/*/materials/*/isActive': (ctx: PatchLabelContext) =>
     `Активность материала «${getTitle(ctx.entity)}»`,
   '/chapters/*/materials/*/publishAt': (ctx: PatchLabelContext) =>
-    `Дата публикации материала «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters': (ctx: PatchLabelContext) =>
-    `Подглавы в «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*': (ctx: PatchLabelContext) =>
-    `Подглава «${getTitle(ctx.value, 'Без названия')}»`,
-  '/chapters/*/subChapters/*/title': (ctx: PatchLabelContext) =>
-    `Название подглавы «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/isActive': (ctx: PatchLabelContext) =>
-    `Активность подглавы «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/publishAt': (ctx: PatchLabelContext) =>
-    `Дата публикации подглавы «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/materials': (ctx: PatchLabelContext) =>
-    `Материалы подглавы «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/materials/*': (ctx: PatchLabelContext) =>
-    `Материал «${getTitle(ctx.value, 'Без названия')}»`,
-  '/chapters/*/subChapters/*/materials/*/title': (ctx: PatchLabelContext) =>
-    `Название материала «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/materials/*/isActive': (ctx: PatchLabelContext) =>
-    `Активность материала «${getTitle(ctx.entity)}»`,
-  '/chapters/*/subChapters/*/materials/*/publishAt': (ctx: PatchLabelContext) =>
     `Дата публикации материала «${getTitle(ctx.entity)}»`
 }
 

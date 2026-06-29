@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { ulid } from 'ulid'
 import type { ApiEntity } from '../api/api.types'
 import type { PossiblyUnsavedEntity } from './types.utils'
 
@@ -9,6 +10,19 @@ import type { PossiblyUnsavedEntity } from './types.utils'
  */
 function uid(): string {
   return _.uniqueId()
+}
+
+/**
+ * Generates a canonical ULID, compatible with the backend `System.Ulid` columns.
+ *
+ * Used when the client must mint a stable id before saving — e.g. a new course
+ * chapter, whose id is referenced by its children through `parentChapterId` in the
+ * flattened update patch (see normalizeCoursePatch).
+ *
+ * @return A canonical 26-character ULID string.
+ */
+function newUlid(): string {
+  return ulid()
 }
 
 /**
@@ -64,4 +78,4 @@ function convertArrayItems<TName extends string>(items: unknown[]): unknown[] {
   })
 }
 
-export { convertToLocal, uid }
+export { convertToLocal, newUlid, uid }
