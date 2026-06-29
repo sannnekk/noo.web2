@@ -18,6 +18,7 @@ const NooTubePermissions = {
   createVideo: 'createVideo',
   editVideo: 'editVideo',
   deleteVideo: 'deleteVideo',
+  viewStatistics: 'viewStatistics',
   manageComment: 'manageComment'
 } as const
 
@@ -45,6 +46,7 @@ const nooTubePermissionPolicy = definePermissions({
   [NooTubePermissions.createVideo]: roles('teacher'),
   [NooTubePermissions.editVideo]: roles('admin', 'teacher'),
   [NooTubePermissions.deleteVideo]: roles('admin', 'teacher'),
+  [NooTubePermissions.viewStatistics]: roles('admin', 'teacher'),
   [NooTubePermissions.manageComment]: rule<CommentContext>(
     ['admin', 'teacher', 'assistant', 'mentor', 'student'],
     anyOf(principalHasRole('admin', 'teacher'), targetIsSelf)

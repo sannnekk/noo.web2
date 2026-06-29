@@ -23,12 +23,12 @@
     </div>
     <transition name="noo-dropdown__fade">
       <ul
-        v-if="isOpen && actions.length"
+        v-if="isOpen && visibleActions.length"
         class="noo-dropdown__menu"
         :class="`noo-dropdown__menu--${align}`"
       >
         <li
-          v-for="(action, index) in actions"
+          v-for="(action, index) in visibleActions"
           :key="index"
           class="noo-dropdown__menu__item"
           :class="{
@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { IconName } from '../icons/noo-icon.vue'
 
 export interface DropdownAction {
@@ -61,6 +61,7 @@ export interface DropdownAction {
   icon?: IconName
   variant?: 'default' | 'danger'
   disabled?: boolean
+  if?: () => boolean
   onClick: () => void
 }
 
@@ -70,10 +71,14 @@ interface Props {
   triggerLabel?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   align: 'right',
   triggerLabel: 'Действия'
 })
+
+const visibleActions = computed(() =>
+  props.actions.filter((action) => action.if?.() ?? true)
+)
 
 const rootRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)

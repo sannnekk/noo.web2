@@ -46,6 +46,31 @@ export interface NooTubeVideoCommentEntity extends ApiEntity<'NooTubeVideoCommen
 }
 
 /**
+ * A single day of playback statistics for a video.
+ */
+export interface NooTubeVideoStatisticsPoint {
+  date: Date
+  views: number
+  uniqueViews: number
+  watchTimeSeconds: number
+  playerLoads: number
+}
+
+/**
+ * Aggregated playback statistics for a video over a period, together with a
+ * per-day timeline.
+ */
+export interface NooTubeVideoStatistics {
+  from: Date
+  to: Date
+  views: number
+  uniqueViews: number
+  watchTimeSeconds: number
+  playerLoads: number
+  timeline: NooTubeVideoStatisticsPoint[]
+}
+
+/**
  * Result of initializing a video upload. Contains the upload URL the client
  * should stream the file to (e.g. a tus endpoint).
  */

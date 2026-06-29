@@ -6,6 +6,7 @@ import type {
   CreateNooTubeVideoPayload,
   NooTubeVideoCommentEntity,
   NooTubeVideoEntity,
+  NooTubeVideoStatistics,
   NooTubeVideoUpload,
   PossiblyUnsavedNooTubeVideo,
   PossiblyUnsavedNooTubeVideoComment,
@@ -51,6 +52,20 @@ interface INooTubeService {
    * @returns A promise that resolves to an ApiResponse containing the NooTubeVideoEntity object.
    */
   getById: (videoId: string) => Promise<ApiResponse<NooTubeVideoEntity>>
+  /**
+   * Fetches playback statistics for a video over an optional period
+   * (defaults to the video's whole lifetime).
+   *
+   * @param videoId The ID of the video to fetch statistics for.
+   * @param from Optional start of the period.
+   * @param to Optional end of the period.
+   * @returns A promise that resolves to an ApiResponse containing the video statistics.
+   */
+  getStatistics: (
+    videoId: string,
+    from?: Date,
+    to?: Date
+  ) => Promise<ApiResponse<NooTubeVideoStatistics>>
   /**
    * Toggles if a video is favourited by the current user.
    *
@@ -193,6 +208,24 @@ async function getById(
   return await Api.get(`${BASE_PATH}/${videoId}`)
 }
 
+async function getStatistics(
+  videoId: string,
+  from?: Date,
+  to?: Date
+): Promise<ApiResponse<NooTubeVideoStatistics>> {
+  const query = new URLSearchParams()
+
+  if (from) {
+    query.set('from', from.toISOString())
+  }
+
+  if (to) {
+    query.set('to', to.toISOString())
+  }
+
+  return await Api.get(`${BASE_PATH}/${videoId}/statistics`, query)
+}
+
 async function toggleFavourite(videoId: string): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/${videoId}/favourite`)
 }
@@ -265,6 +298,7 @@ export const NooTubeService: INooTubeService = {
   getFavourites,
   getOwn,
   getById,
+  getStatistics,
   toggleFavourite,
   create,
   update,

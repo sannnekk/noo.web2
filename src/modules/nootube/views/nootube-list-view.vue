@@ -63,6 +63,11 @@
       </template>
       <template #confirm-action-text> Удалить </template>
     </noo-sure-modal>
+
+    <nootube-video-statistics-modal
+      v-model:is-open="isStatisticsOpen"
+      :video="statisticsVideo"
+    />
   </div>
 </template>
 
@@ -74,6 +79,7 @@ import { ref } from 'vue'
 import { NooTubeService } from '../api/nootube.service'
 import type { NooTubeVideoEntity } from '../api/nootube.types'
 import nootubeVideoForm from './nootube-video-form.vue'
+import nootubeVideoStatisticsModal from '../components/nootube-video-statistics-modal.vue'
 import { useNooTubePermissions, NooTubePermissions } from '../permissions'
 
 interface Props {
@@ -109,27 +115,31 @@ const editedVideo = ref<NooTubeVideoEntity | null>(null)
 const isDeleteOpen = ref(false)
 const deletedVideo = ref<NooTubeVideoEntity | null>(null)
 
-function actionsFor(video: NooTubeVideoEntity): DropdownAction[] {
-  const actions: DropdownAction[] = []
+const isStatisticsOpen = ref(false)
+const statisticsVideo = ref<NooTubeVideoEntity | null>(null)
 
-  if (can(NooTubePermissions.editVideo)) {
-    actions.push({
+function actionsFor(video: NooTubeVideoEntity): DropdownAction[] {
+  return [
+    {
       label: 'Редактировать',
       icon: 'edit',
+      if: () => can(NooTubePermissions.editVideo),
       onClick: () => openEditForm(video)
-    })
-  }
-
-  if (can(NooTubePermissions.deleteVideo)) {
-    actions.push({
+    },
+    {
+      label: 'Статистика',
+      icon: 'statistics',
+      if: () => can(NooTubePermissions.viewStatistics),
+      onClick: () => openStatistics(video)
+    },
+    {
       label: 'Удалить',
       icon: 'delete',
       variant: 'danger',
+      if: () => can(NooTubePermissions.deleteVideo),
       onClick: () => openDeleteModal(video)
-    })
-  }
-
-  return actions
+    }
+  ]
 }
 
 function openCreateForm() {
@@ -140,6 +150,11 @@ function openCreateForm() {
 function openEditForm(video: NooTubeVideoEntity) {
   editedVideo.value = video
   isFormOpen.value = true
+}
+
+function openStatistics(video: NooTubeVideoEntity) {
+  statisticsVideo.value = video
+  isStatisticsOpen.value = true
 }
 
 function closeForm() {
