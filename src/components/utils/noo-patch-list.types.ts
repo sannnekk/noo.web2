@@ -33,12 +33,11 @@ type JsonPatchPath<T> = T extends Primitive | Nil
       [K in keyof T & string]: NonNullable<T[K]> extends Primitive | Date
         ? `/${K}`
         : IsArray<T[K]> extends true
-          ?
-              | `/${K}`
-              | `/${K}/*`
-              | (IsPlainObject<ArrayElement<T[K]>> extends true
-                  ? `/${K}/*${JsonPatchPath<ArrayElement<T[K]>>}`
-                  : `/${K}/*`)
+          ? | `/${K}`
+            | `/${K}/*`
+            | (IsPlainObject<ArrayElement<T[K]>> extends true
+                ? `/${K}/*${JsonPatchPath<ArrayElement<T[K]>>}`
+                : `/${K}/*`)
           : IsPlainObject<NonNullable<T[K]>> extends true
             ? `/${K}` | `/${K}${JsonPatchPath<NonNullable<T[K]>>}`
             : `/${K}`
@@ -108,8 +107,7 @@ export interface LabelContext<TRoot, TValue, TEntity> {
  * A label can be either a static string or a function that receives typed context.
  */
 export type Label<TRoot, TValue, TEntity> =
-  | string
-  | ((ctx: LabelContext<TRoot, TValue, TEntity>) => string)
+  string | ((ctx: LabelContext<TRoot, TValue, TEntity>) => string)
 
 /**
  * A strongly-typed map of JSON Patch paths to their labels.

@@ -105,11 +105,9 @@ describe('useSearch', () => {
   })
 
   test('exposes error response', async () => {
-    const searchFn = vi.fn(
-      async (): Promise<ApiResponse<unknown[]>> => ({
-        error: { id: 'ERR', statusCode: 500, name: 'Error', payload: null }
-      })
-    )
+    const searchFn = vi.fn(async (): Promise<ApiResponse<unknown[]>> => ({
+      error: { id: 'ERR', statusCode: 500, name: 'Error', payload: null }
+    }))
 
     const search = useSearch(searchFn, { immediate: true, debounce: 0 })
 

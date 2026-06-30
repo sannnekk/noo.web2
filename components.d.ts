@@ -63,6 +63,7 @@ declare module 'vue' {
     NooBaseModal: typeof import('./src/components/modal/noo-base-modal.vue')['default']
     NooBetaTag: typeof import('./src/components/tags/noo-beta-tag.vue')['default']
     NooButton: typeof import('./src/components/buttons/noo-button.vue')['default']
+    NooCalendarEventCard: typeof import('./src/components/calendar/noo-calendar-event-card.vue')['default']
     NooCalendarItemModal: typeof import('./src/components/calendar/noo-calendar-item-modal.vue')['default']
     NooCalendarView: typeof import('./src/components/calendar/noo-calendar-view.vue')['default']
     NooCalendarViewDefaultLegend: typeof import('./src/components/calendar/noo-calendar-view-default-legend.vue')['default']

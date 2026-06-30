@@ -105,8 +105,7 @@ async function onConfirm() {
 
   try {
     const result = cropper.getResult() as
-      | { canvas?: HTMLCanvasElement }
-      | undefined
+      { canvas?: HTMLCanvasElement } | undefined
     const canvas = result?.canvas
 
     if (!canvas) {

@@ -36,12 +36,7 @@ import { computed } from 'vue'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 
 export type ButtonType =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'danger'
-  | 'inline'
-  | 'danger-inline'
+  'primary' | 'secondary' | 'tertiary' | 'danger' | 'inline' | 'danger-inline'
 export type ButtonSize = 'small' | 'medium' | 'large'
 
 interface Props {

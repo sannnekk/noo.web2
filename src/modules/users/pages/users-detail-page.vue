@@ -80,7 +80,7 @@
             v-if="can(UsersPermissions.viewCalendarTab)"
             #tab-calendar
           >
-            <calendar-view />
+            <calendar-view :user-id="userId" />
           </template>
           <template
             v-if="can(UsersPermissions.viewStatisticsTab, { target: user })"

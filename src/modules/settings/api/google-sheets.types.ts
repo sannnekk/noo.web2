@@ -1,10 +1,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 
 export type GoogleSheetsIntegrationType =
-  | 'user-course'
-  | 'user-work'
-  | 'user-role'
-  | 'poll-results'
+  'user-course' | 'user-work' | 'user-role' | 'poll-results'
 
 export type GoogleSheetsIntegrationStatus = 'active' | 'inactive' | 'error'
 

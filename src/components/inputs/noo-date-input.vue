@@ -221,42 +221,11 @@ function validateInput(value: Date | undefined | null) {
 </style>
 
 <!--
-  Global theming for the datepicker. The menu is teleported to <body>, so the
-  variables are defined globally (and namespaced under `--dp-*`, owned by the
-  library) rather than scoped. They reference the app design tokens, so light
-  and dark themes follow `html.dark` automatically.
+  The picker's menu is teleported to <body>, so this shadow rule is global
+  (not scoped). The `--dp-*` theme tokens themselves live in `public/var.css`
+  so every picker instance is themed regardless of which one is mounted.
 -->
 <style lang="sass">
-.dp--theme-light,
-.dp--theme-dark
-  --dp-font-family: var(--font-family)
-  --dp-font-size: 0.9rem
-  --dp-input-padding: 0.55em 0.8em
-  --dp-border-radius: var(--border-radius)
-  --dp-cell-border-radius: var(--border-radius)
-  --dp-background-color: var(--form-background)
-  --dp-text-color: var(--form-text-color)
-  --dp-hover-color: var(--light)
-  --dp-hover-text-color: var(--form-text-color)
-  --dp-hover-icon-color: var(--form-text-color)
-  --dp-primary-color: var(--primary)
-  --dp-primary-text-color: var(--dark)
-  --dp-primary-disabled-color: var(--border-color)
-  --dp-secondary-color: var(--text-light)
-  --dp-border-color: var(--border-color)
-  --dp-menu-border-color: var(--border-color)
-  --dp-border-color-hover: var(--text-light)
-  --dp-border-color-focus: var(--primary)
-  --dp-disabled-color: var(--light)
-  --dp-disabled-color-text: var(--text-light)
-  --dp-icon-color: var(--text-light)
-  --dp-danger-color: var(--danger)
-  --dp-success-color: var(--success)
-  --dp-marker-color: var(--danger)
-  --dp-tooltip-color: var(--form-background)
-  --dp-range-between-dates-background-color: var(--light)
-  --dp-range-between-dates-text-color: var(--form-text-color)
-
 .noo-date-input__menu
   box-shadow: var(--block-shadow)
 </style>

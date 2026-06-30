@@ -1,198 +1,282 @@
 <template>
-  <calendar-view
-    class="noo-calendar-view"
-    locale="ru-RU"
-    :enable-date-selection="props.readonly"
-    :starting-day-of-week="1"
-    :items="calendarItems"
-    :show-date="currentDate"
-  >
-    <template #header="{ headerProps }">
-      <div class="noo-calendar-view__header">
-        <div class="noo-calendar-view__header__title-slot">
-          <slot name="header-title" />
+  <div class="noo-calendar-view">
+    <div
+      v-if="errorInfo && !isLoading"
+      class="noo-calendar-view__error"
+    >
+      <noo-error-block
+        with-image
+        centered
+        :try-again="reload"
+      >
+        <noo-title
+          :size="3"
+          align="center"
+        >
+          Не удалось загрузить события календаря
+        </noo-title>
+        <noo-text-block
+          dimmed
+          align="center"
+        >
+          {{
+            errorInfo?.description ||
+            'Попробуйте обновить страницу или зайти позже.'
+          }}
+        </noo-text-block>
+      </noo-error-block>
+    </div>
+    <noo-sidebar-layout v-else>
+      <template #sidebar>
+        <div class="noo-calendar-view__calendar">
+          <vue-date-picker
+            v-model="selectedDate"
+            inline
+            auto-apply
+            :time-config="{ enableTimePicker: false }"
+            :week-start="1"
+            :locale="locale"
+            :markers="markers"
+            @update-month-year="onMonthYearChange"
+          >
+            <template #marker="{ date }">
+              <div class="noo-calendar-view__calendar__dots">
+                <span
+                  v-for="(dotColor, index) in dotsForDay(date)"
+                  :key="index"
+                  class="noo-calendar-view__calendar__dots__dot"
+                  :style="{ backgroundColor: dotColor }"
+                />
+              </div>
+            </template>
+          </vue-date-picker>
         </div>
-        <div class="noo-calendar-view__header__month-title">
+        <div class="noo-calendar-view__legend">
+          <noo-calendar-view-default-legend />
+        </div>
+      </template>
+      <template #content>
+        <div class="noo-calendar-view__events">
           <noo-title :size="3">
-            {{ headerProps.periodLabel }}
+            События
+            <span class="noo-calendar-view__events__date">
+              <noo-date
+                :value="selectedDate"
+                timezones="Europe/Moscow"
+              />
+            </span>
           </noo-title>
-        </div>
-        <div class="noo-calendar-view__header__actions">
-          <noo-button
-            variant="secondary"
-            class="noo-calendar-view__header__actions calendar-view__header__actions--prev"
-            @click="changePeriod(headerProps.previousPeriod)"
+          <div
+            v-if="isLoading"
+            class="noo-calendar-view__events__loading"
           >
-            <noo-icon name="arrow-left" />
-          </noo-button>
-          <noo-button
-            variant="secondary"
-            class="noo-calendar-view__header__actions calendar-view__header__actions--next"
-            @click="changePeriod(headerProps.nextPeriod)"
+            <noo-loader-icon />
+          </div>
+          <div
+            v-else-if="eventsForSelectedDay.length"
+            class="noo-calendar-view__events__list"
           >
-            <noo-icon name="arrow-right" />
-          </noo-button>
+            <noo-calendar-event-card
+              v-for="event in eventsForSelectedDay"
+              :key="event.id"
+              :event="event"
+            />
+          </div>
+          <noo-text-block
+            v-else
+            dimmed
+            class="noo-calendar-view__events__empty"
+          >
+            На этот день событий нет.
+          </noo-text-block>
         </div>
-      </div>
-    </template>
-    <template #item="{ value, top }">
-      <noo-calendar-view-item
-        v-bind="value"
-        :top-offset="top"
-        :event="getEventById(value.id)"
-        @hover="onItemHover(value.id, $event)"
-        @click="onItemClick($event)"
-      />
-    </template>
-  </calendar-view>
-  <div class="noo-calendar-view__legend">
-    <slot name="legend">
-      <noo-calendar-view-default-legend />
-    </slot>
+      </template>
+    </noo-sidebar-layout>
   </div>
-  <noo-calendar-item-modal
-    v-model:is-open="itemModal.isOpen"
-    :event="itemModal.item"
-    @save="onItemSaved()"
-  />
 </template>
 
 <script setup lang="ts">
 import type { CalendarEventEntity } from '@/modules/calendar/api/calendar.types'
-import { computed, reactive, shallowRef, watch } from 'vue'
-import { CalendarView, type ICalendarItem } from 'vue-simple-calendar'
-import 'vue-simple-calendar/dist/vue-simple-calendar.css'
+import { useApiRequest } from '@/core/composables/useApiRequest'
+import { useAuthStore } from '@/core/stores/auth.store'
+import { CalendarService } from '@/modules/calendar/api/calendar.service'
+import { ruLocale } from '@/core/utils/dates.ru-locale'
+import { VueDatePicker, type Marker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import { computed, ref, watch } from 'vue'
+import {
+  getEventColor,
+  getLocalDayKey,
+  getMoscowDayKey,
+  toLocalDayDate
+} from './calendar-helpers'
 
 interface Props {
-  readonly?: boolean
-  events: CalendarEventEntity[]
-  isLoading?: boolean
-}
-
-interface Emits {
-  (e: 'item-saved', event: CalendarEventEntity): void
-  (e: 'change-period', period: Date | null): void
+  /** Whose calendar to show. Defaults to the authenticated user. */
+  userId?: string
 }
 
 const props = defineProps<Props>()
-const emits = defineEmits<Emits>()
 
-const currentDate = shallowRef(new Date())
-const itemModal = reactive<{
-  item: CalendarEventEntity | null
-  isOpen: boolean
-}>({
-  item: null,
-  isOpen: false
-})
+const authStore = useAuthStore()
 
-const items = shallowRef<(CalendarEventEntity & { classes?: string[] })[]>(
-  props.events
+// `date-fns` is not a direct dependency, so borrow the picker's own `locale`
+// prop type and feed it our Intl-built Russian locale.
+type DatePickerLocale = InstanceType<typeof VueDatePicker>['$props']['locale']
+const locale = ruLocale as unknown as DatePickerLocale
+
+const resolvedUserId = computed(() => props.userId ?? authStore.userId ?? '')
+
+/** The day the user has selected; also drives the events list. */
+const selectedDate = ref(new Date())
+// The month/year currently shown in the calendar — it can differ from
+// `selectedDate` while the user pages through months without picking a day.
+const viewedYear = ref(selectedDate.value.getFullYear())
+const viewedMonth = ref(selectedDate.value.getMonth()) // 0-based
+
+const eventsRequest = useApiRequest<
+  { year: number; month: number },
+  CalendarEventEntity[]
+>(({ year, month }) =>
+  CalendarService.getEvents(year, month, resolvedUserId.value)
 )
 
-watch(
-  () => props.events,
-  (newEvents) => (items.value = newEvents),
-  { immediate: true }
-)
+const isLoading = computed(() => eventsRequest.isLoading.value)
+const errorInfo = computed(() => eventsRequest.error.value)
+const eventList = computed(() => eventsRequest.data.value ?? [])
 
-const calendarItems = computed<ICalendarItem[]>(() => {
-  return items.value.map((event) => ({
-    ...event,
-    startDate: new Date(event.startDateTime),
-    endDate: event.endDateTime ? new Date(event.endDateTime) : undefined
-  }))
-})
-
-function changePeriod(period: Date | null): void {
-  if (period) {
-    currentDate.value = period
-    emits('change-period', period)
-  }
-}
-
-function onItemHover(id: string, isHover: boolean): void {
-  items.value = items.value.map((item) => {
-    if (item.id === id) {
-      return {
-        ...item,
-        classes: isHover
-          ? [...(item.classes ?? []), 'is-hover']
-          : (item.classes ?? []).filter((c) => c !== 'is-hover')
-      }
-    }
-
-    return item
+function reload(): void {
+  // `getEvents` expects a 1-based month.
+  void eventsRequest.execute({
+    year: viewedYear.value,
+    month: viewedMonth.value + 1
   })
 }
 
-function onItemClick(eventId: string): void {
-  itemModal.item = items.value.find((item) => item.id === eventId) ?? null
+reload()
+watch(resolvedUserId, reload)
 
-  if (itemModal.item) {
-    itemModal.isOpen = true
+/** Events grouped by the calendar cell (Moscow day) they belong to. */
+const eventsByDay = computed(() => {
+  const map = new Map<string, CalendarEventEntity[]>()
+
+  for (const event of eventList.value) {
+    const key = getMoscowDayKey(event.startDateTime)
+    const bucket = map.get(key)
+
+    if (bucket) {
+      bucket.push(event)
+    } else {
+      map.set(key, [event])
+    }
   }
+
+  return map
+})
+
+/** One marker per day that has at least one event. */
+const markers = computed<Marker[]>(() =>
+  [...eventsByDay.value.values()].map((events) => ({
+    date: toLocalDayDate(events[0].startDateTime),
+    type: 'dot'
+  }))
+)
+
+/** Distinct event-type colours for a given calendar cell. */
+function dotsForDay(date: Date): string[] {
+  const events = eventsByDay.value.get(getLocalDayKey(date)) ?? []
+  const colors: string[] = []
+
+  for (const event of events) {
+    const color = getEventColor(event.type)
+
+    if (!colors.includes(color)) {
+      colors.push(color)
+    }
+  }
+
+  return colors
 }
 
-function onItemSaved(): void {
-  if (itemModal.item) {
-    emits('item-saved', itemModal.item)
-  }
-  itemModal.isOpen = false
-}
+const eventsForSelectedDay = computed(() => {
+  const events = eventsByDay.value.get(getLocalDayKey(selectedDate.value)) ?? []
 
-function getEventById(id: string): CalendarEventEntity | undefined {
-  return items.value.find((item) => item.id === id)
+  return [...events].sort(
+    (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+  )
+})
+
+function onMonthYearChange({
+  month,
+  year
+}: {
+  month: number
+  year: number
+}): void {
+  viewedMonth.value = month
+  viewedYear.value = year
+  reload()
 }
 </script>
 
 <style scoped lang="sass">
 .noo-calendar-view
-  min-height: 800px
+  &__error
+    width: min(600px, 90%)
+    margin: 0 auto
+    padding: 3em 0
 
-  &__header
-    display: flex
-    flex-direction: row
-    justify-content: flex-start
-    align-items: center
-    gap: 1em
+  &__calendar
+    // Bump the day-cell size up from the 35px default.
+    --dp-cell-size: 2.8em
 
-    &__month-title
-      text-transform: capitalize
+    // v13 ships double-dash class names (`.dp--*`). The widget defaults to a
+    // 260px min-width; stretch the whole inline wrapper chain so it fills the
+    // sidebar instead of staying at its intrinsic width.
+    :deep(.dp--main),
+    :deep(.dp--outer-menu-wrap),
+    :deep(.dp--menu-wrapper)
+      width: 100%
 
-    &__actions
-      display: flex
-      gap: 1em
-      align-items: center
-
-      &--prev,
-      &--next
-        &:hover
-          svg
-            --form-text-color: var(--white) !important
-
-  // styles inside the calendar component
-  &:deep()
-    .cv-header-days, .cv-header-day, .cv-weeks, .cv-week, .cv-day, .cv-item
-      border-style: solid
-      border-color: var(--border-color)
-
-    .cv-day
-      &.outsideOfMonth
-        background-color: var(--light-background-color)
-
-        .cv-day-number
-          color: var(--text-light)
-
-      &.today
-        background-color: var(--primary)
-
-    .cv-header-days
+    :deep(.dp--menu)
+      width: 100%
+      min-width: 0
       border: none
 
-      .cv-header-day
-        border: none
-        padding: 0.75em 0
-        color: var(--text-light)
-        text-transform: uppercase
+    &__dots
+      display: flex
+      justify-content: center
+      gap: 2px
+      position: absolute
+      bottom: 2px
+      left: 0
+      right: 0
+
+      &__dot
+        width: 5px
+        height: 5px
+        border-radius: 50%
+
+  &__events
+    margin-top: 1em
+
+    &__date
+      font-size: 0.7em
+      color: var(--text-light)
+      margin-left: 0.5em
+
+    &__list
+      display: flex
+      flex-direction: column
+      gap: 0.8em
+      margin-top: 0.5em
+
+    &__loading
+      display: flex
+      justify-content: center
+      padding: 2em 0
+      font-size: 2em
+
+    &__empty
+      margin-top: 0.5em
 </style>

@@ -18,26 +18,33 @@
 </template>
 
 <script setup lang="ts">
+import type { CalendarEventType } from '@/modules/calendar/api/calendar.types'
+import { getEventColor, getEventTypeLabel } from './calendar-helpers'
+
+const eventTypes: CalendarEventType[] = [
+  'assigned-work-solve-deadline',
+  'assigned-work-check-deadline',
+  'assigned-work-checked',
+  'assigned-work-solved',
+  'custom'
+]
+
 const items: {
   label: string
   color: string
-}[] = [
-  { label: 'дедлайн сдачи работы', color: 'var(--danger)' },
-  { label: 'дедлайн проверки работы', color: 'var(--lila)' },
-  { label: 'работа проверена', color: 'var(--success)' },
-  { label: 'работа сдана', color: 'var(--warning)' },
-  { label: 'другое событие', color: 'var(--text-light)' }
-]
+}[] = eventTypes.map((type) => ({
+  label: getEventTypeLabel(type),
+  color: getEventColor(type)
+}))
 </script>
 
 <style scoped lang="sass">
 .noo-calendar-view-default-legend
-  padding: 1em
+  padding: 1em 0
 
   &__items
     display: flex
-    flex-wrap: wrap
-    gap: 2em
+    flex-direction: column
 
     &__item
       display: flex

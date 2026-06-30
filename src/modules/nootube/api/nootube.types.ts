@@ -6,19 +6,10 @@ import type { UserEntity } from '@/modules/users/api/user.types'
 export type NooTubeServiceType = 'kinescope'
 
 export type NooTubeVideoState =
-  | 'not-uploaded'
-  | 'uploading'
-  | 'encoding'
-  | 'uploaded'
-  | 'published'
+  'not-uploaded' | 'uploading' | 'encoding' | 'uploaded' | 'published'
 
 export type VideoReaction =
-  | 'like'
-  | 'dislike'
-  | 'heart'
-  | 'laugh'
-  | 'sad'
-  | 'mindblowing'
+  'like' | 'dislike' | 'heart' | 'laugh' | 'sad' | 'mindblowing'
 
 export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   title: string

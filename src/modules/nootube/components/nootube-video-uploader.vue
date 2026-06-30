@@ -97,12 +97,7 @@ import { NooTubeService } from '../api/nootube.service'
 import type { PossiblyUnsavedNooTubeVideo } from '../api/nootube.types'
 
 type UploadStatus =
-  | 'idle'
-  | 'creating'
-  | 'uploading'
-  | 'finishing'
-  | 'done'
-  | 'error'
+  'idle' | 'creating' | 'uploading' | 'finishing' | 'done' | 'error'
 
 interface Props {
   video: PossiblyUnsavedNooTubeVideo
