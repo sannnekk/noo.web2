@@ -20,7 +20,17 @@
       >
         <template #above-content>
           <div class="assigned-works-list-view__head">
-            <div class="assigned-works-list-view__head__filters" />
+            <div class="assigned-works-list-view__head__filters">
+              <noo-search-filters v-model:filters="filtersModel">
+                <noo-search-enum-filter
+                  v-model:filters="filtersModel"
+                  filter-key="type"
+                  label="Тип работы"
+                  multiple
+                  :options="workTypes"
+                />
+              </noo-search-filters>
+            </div>
             <div class="assigned-works-list-view__head__selected">
               <noo-if-animation>
                 <div
@@ -191,7 +201,9 @@ import {
   useAssignedWorksPermissions
 } from '../permissions'
 import type { ApiError } from '@/core/api/api.utils'
+import type { IFilter } from '@/core/utils/pagination.utils'
 import { percentageScore } from '../utils'
+import { workTypes } from '@/modules/works/constants'
 
 interface Props {
   works: AssignedWorkEntity[]
@@ -215,6 +227,10 @@ const searchModel = defineModel<string>('search', {
 
 const pageModel = defineModel<number>('page', {
   default: 1
+})
+
+const filtersModel = defineModel<IFilter[] | undefined>('filters', {
+  default: undefined
 })
 
 const selectedItems = ref<Record<string, boolean>>({})

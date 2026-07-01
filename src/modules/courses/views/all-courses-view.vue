@@ -10,6 +10,20 @@
     :error="search.error.value"
     :try-again="search.reload"
   >
+    <template #above-content>
+      <noo-search-filters v-model:filters="search.filters.value">
+        <noo-search-subject-filter
+          v-model:filters="search.filters.value"
+          filter-key="subjectId"
+        />
+        <noo-search-range-filter
+          v-model:filters="search.filters.value"
+          filter-key="createdAt"
+          from-label="Дата создания с"
+          to-label="до"
+        />
+      </noo-search-filters>
+    </template>
     <template #actions>
       <noo-button
         v-if="can(CoursePermissions.createCourse)"

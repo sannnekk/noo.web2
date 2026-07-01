@@ -17,6 +17,30 @@
       :try-again="search.reload"
       :actions="actions"
     >
+      <template #above-content>
+        <noo-search-filters v-model:filters="search.filters.value">
+          <noo-search-boolean-filter
+            v-model:filters="search.filters.value"
+            filter-key="isActive"
+            label="Статус"
+            true-label="Активные"
+            false-label="Неактивные"
+          />
+          <noo-search-boolean-filter
+            v-model:filters="search.filters.value"
+            filter-key="isAuthRequired"
+            label="Авторизация"
+            true-label="Требуется"
+            false-label="Не требуется"
+          />
+          <noo-search-range-filter
+            v-model:filters="search.filters.value"
+            filter-key="createdAt"
+            from-label="Дата создания с"
+            to-label="до"
+          />
+        </noo-search-filters>
+      </template>
       <template #actions>
         <noo-button
           :to="{ name: 'polls.edit' }"
@@ -29,6 +53,9 @@
         <noo-text-block class="polls-list-page__title-cell">
           {{ item.title }}
         </noo-text-block>
+      </template>
+      <template #column-isAuthRequired="{ item }">
+        {{ item.isAuthRequired ? 'Да' : 'Нет' }}
       </template>
       <template #column-isActive="{ item }">
         <noo-active-tag :active="item.isActive" />
@@ -94,6 +121,10 @@ const columns: EntityTableColumnType<PollEntity>[] = [
   {
     key: 'participationsCount',
     title: 'Прошло опрос'
+  },
+  {
+    key: 'isAuthRequired',
+    title: 'Авторизация?'
   },
   {
     key: 'isActive',

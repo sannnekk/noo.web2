@@ -27,7 +27,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const model = defineModel<Delta | null>('modelValue', {
-  default: new Delta().insert('')
+  default: () => new Delta().insert('')
 })
 
 const contentModel = computed<Delta>({

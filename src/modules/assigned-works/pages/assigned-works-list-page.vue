@@ -21,6 +21,7 @@
         <assigned-works-list-view
           v-model:search="assignedWorksListStore.allSearch.search"
           v-model:page="assignedWorksListStore.allSearch.page"
+          v-model:filters="assignedWorksListStore.allSearch.filters"
           :works="assignedWorksListStore.allSearch.data"
           :total-count="assignedWorksListStore.allSearch.total"
           :is-loading="assignedWorksListStore.allSearch.isLoading"
@@ -41,6 +42,7 @@
         <assigned-works-list-view
           v-model:search="assignedWorksListStore.notMadeSearch.search"
           v-model:page="assignedWorksListStore.notMadeSearch.page"
+          v-model:filters="assignedWorksListStore.notMadeSearch.filters"
           :works="assignedWorksListStore.notMadeSearch.data"
           :total-count="assignedWorksListStore.notMadeSearch.total"
           :is-loading="assignedWorksListStore.notMadeSearch.isLoading"
@@ -61,6 +63,7 @@
         <assigned-works-list-view
           v-model:search="assignedWorksListStore.notCheckedSearch.search"
           v-model:page="assignedWorksListStore.notCheckedSearch.page"
+          v-model:filters="assignedWorksListStore.notCheckedSearch.filters"
           :works="assignedWorksListStore.notCheckedSearch.data"
           :total-count="assignedWorksListStore.notCheckedSearch.total"
           :is-loading="assignedWorksListStore.notCheckedSearch.isLoading"
@@ -81,6 +84,7 @@
         <assigned-works-list-view
           v-model:search="assignedWorksListStore.checkedSearch.search"
           v-model:page="assignedWorksListStore.checkedSearch.page"
+          v-model:filters="assignedWorksListStore.checkedSearch.filters"
           :works="assignedWorksListStore.checkedSearch.data"
           :total-count="assignedWorksListStore.checkedSearch.total"
           :is-loading="assignedWorksListStore.checkedSearch.isLoading"

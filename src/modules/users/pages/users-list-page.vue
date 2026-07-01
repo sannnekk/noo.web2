@@ -16,6 +16,23 @@
       :error="search.error.value"
       :try-again="search.reload"
     >
+      <template #above-content>
+        <noo-search-filters v-model:filters="search.filters.value">
+          <noo-search-range-filter
+            v-model:filters="search.filters.value"
+            filter-key="createdAt"
+            from-label="Дата регистрации с"
+            to-label="до"
+          />
+          <noo-search-enum-filter
+            v-model:filters="search.filters.value"
+            filter-key="role"
+            label="Роль"
+            multiple
+            :options="userRoles"
+          />
+        </noo-search-filters>
+      </template>
       <template #column-avatar="{ item }">
         <noo-user-avatar
           class="users-list-page__avatar-cell"
@@ -66,6 +83,7 @@ import type { EntityTableColumnType } from '@/components/entity-table/entity-tab
 import { useSearch } from '@/core/composables/useSearch'
 import { UserService } from '../api/user.service'
 import type { UserEntity } from '../api/user.types'
+import { userRoles } from '../constants'
 
 const search = useSearch<UserEntity>(UserService.get)
 
