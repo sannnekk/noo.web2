@@ -225,6 +225,7 @@ describe('CourseService', () => {
         description: 'Course description',
         thumbnailId: null,
         subjectId: 's1',
+        isArchived: false,
         chapters: []
       }
       const mockResponse = { id: 'new-course-id' }

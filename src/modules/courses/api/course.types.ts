@@ -18,6 +18,7 @@ export interface CourseEntity extends ApiEntity<'Course'> {
   subjectId: string
   subject?: SubjectEntity | null
   authors?: UserEntity[]
+  isArchived: boolean
   chapters?: CourseChapterEntity[]
 }
 
@@ -78,6 +79,7 @@ export interface CourseMembershipEntity extends ApiEntity<'CourseMembership'> {
   course?: CourseEntity
   isActive: boolean
   isArchived: boolean
+  isArchivedByStudent: boolean
   studentId: string
   student?: UserEntity
   assignerId?: string

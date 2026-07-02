@@ -40,7 +40,10 @@
       </noo-button>
     </template>
     <template #tile="{ item }">
-      <noo-course-card :course="item" />
+      <noo-course-card
+        :course="item"
+        @deleted="search.reload"
+      />
     </template>
   </noo-card-search-view>
 </template>

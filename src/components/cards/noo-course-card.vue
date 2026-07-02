@@ -7,6 +7,13 @@
       >
         <noo-uploaded-image :src="course.thumbnail" />
       </router-link>
+      <div
+        v-if="canManage"
+        class="noo-course-card__img__actions"
+        @click.stop.prevent
+      >
+        <noo-dropdown :actions="actions" />
+      </div>
     </div>
     <div
       v-if="course.subject"
@@ -22,18 +29,73 @@
     <div class="noo-course-card__description">
       {{ course.description }}
     </div>
+
+    <noo-sure-modal
+      v-model:is-open="isDeleteOpen"
+      @confirm="onConfirmDelete"
+    >
+      <template #title>
+        <noo-title :size="2"> Удалить курс? </noo-title>
+      </template>
+      <template #content>
+        <noo-text-block dimmed>
+          Курс «{{ course.name }}» будет удалён безвозвратно.
+        </noo-text-block>
+      </template>
+      <template #confirm-action-text> Удалить </template>
+    </noo-sure-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
+import { isApiError } from '@/core/api/api.utils'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store'
+import { CourseService } from '@/modules/courses/api/course.service'
 import type { CourseEntity } from '@/modules/courses/api/course.types'
-import { computed } from 'vue'
+import {
+  CoursePermissions,
+  useCoursePermissions
+} from '@/modules/courses/permissions'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 interface Props {
   course: CourseEntity
 }
 
+type Emits = (e: 'deleted') => void
+
 const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+const router = useRouter()
+const globalUiStore = useGlobalUIStore()
+const { can } = useCoursePermissions()
+
+const canManage = computed(() => can(CoursePermissions.manageCourse))
+
+const isDeleteOpen = ref(false)
+
+const actions = computed<DropdownAction[]>(() => [
+  {
+    label: 'Редактировать',
+    icon: 'edit',
+    onClick: () =>
+      router.push({
+        name: 'courses.edit',
+        params: { courseId: props.course.id }
+      })
+  },
+  {
+    label: 'Удалить',
+    icon: 'delete',
+    variant: 'danger',
+    onClick: () => {
+      isDeleteOpen.value = true
+    }
+  }
+])
 
 const to = computed(() => {
   return {
@@ -41,6 +103,19 @@ const to = computed(() => {
     params: { courseId: props.course.id }
   }
 })
+
+async function onConfirmDelete() {
+  const response = await CourseService.delete(props.course.id)
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast('Не удалось удалить курс', response.error)
+
+    return
+  }
+
+  globalUiStore.createSuccessToast('Курс удалён')
+  emit('deleted')
+}
 </script>
 
 <style scoped lang="sass">
@@ -60,6 +135,14 @@ const to = computed(() => {
     border-radius: var(--border-radius)
     margin-bottom: 1rem
     position: relative
+
+    &__actions
+      position: absolute
+      top: 0.4em
+      right: 0.4em
+      border-radius: var(--border-radius)
+      background-color: rgba(0, 0, 0, 0.5)
+      color: white
 
     a
       display: block

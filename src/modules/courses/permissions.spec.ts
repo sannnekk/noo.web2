@@ -53,6 +53,25 @@ describe('courses permissions', () => {
     expect(can(CoursePermissions.manageCourse)).toBe(true)
   })
 
+  it('shows the all-courses tab to every role except students', () => {
+    signInAs({ id: 's', role: 'student' })
+    expect(can(CoursePermissions.viewAllTab)).toBe(false)
+    expect(can(CoursePermissions.viewOwnTab)).toBe(true)
+    expect(can(CoursePermissions.viewArchivedTab)).toBe(true)
+
+    signInAs({ id: 't', role: 'teacher' })
+    expect(can(CoursePermissions.viewAllTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnTab)).toBe(true)
+    expect(can(CoursePermissions.viewArchivedTab)).toBe(true)
+
+    for (const role of ['admin', 'assistant', 'mentor'] as const) {
+      signInAs({ id: role, role })
+      expect(can(CoursePermissions.viewAllTab)).toBe(true)
+      expect(can(CoursePermissions.viewOwnTab)).toBe(false)
+      expect(can(CoursePermissions.viewArchivedTab)).toBe(false)
+    }
+  })
+
   it('denies access when not authenticated', () => {
     expect(can(CoursePermissions.viewOwnTab)).toBe(false)
   })

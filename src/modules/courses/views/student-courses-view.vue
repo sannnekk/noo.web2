@@ -1,5 +1,5 @@
 <template>
-  <div class="archived-courses-view">
+  <div class="student-courses-view">
     <noo-card-search-view
       v-model:search="search.search.value"
       v-model:page="search.page.value"
@@ -8,9 +8,14 @@
       :is-loading="search.isLoading.value"
       :limit="25"
       :per-row="3"
+      :error="search.error.value"
+      :try-again="search.reload"
     >
       <template #tile="{ item }">
-        <noo-course-card :course="item" />
+        <noo-course-card
+          :course="item"
+          @deleted="search.reload"
+        />
       </template>
     </noo-card-search-view>
   </div>
@@ -23,25 +28,19 @@ import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
 import type { CourseEntity, CourseMembershipEntity } from '../api/course.types'
-import { CoursePermissions, useCoursePermissions } from '../permissions'
+
+const props = defineProps<{ archived: boolean }>()
 
 const authStore = useAuthStore()
-const { can } = useCoursePermissions()
-
-const ownerFilterKey = can(CoursePermissions.useStudentOwnershipFilter)
-  ? 'studentId'
-  : 'assignerId'
-
-const initialFilters = [
-  new EqualsFilter('isArchived', true),
-  ...(authStore.userId
-    ? [new EqualsFilter(ownerFilterKey, authStore.userId)]
-    : [])
-]
 
 const search = useSearch<CourseMembershipEntity>(CourseService.getMemberships, {
   immediate: true,
-  initialFilters
+  initialFilters: [
+    new EqualsFilter('isArchivedByStudent', props.archived),
+    ...(authStore.userId
+      ? [new EqualsFilter('studentId', authStore.userId)]
+      : [])
+  ]
 })
 
 const courses = computed<CourseEntity[]>(() => {

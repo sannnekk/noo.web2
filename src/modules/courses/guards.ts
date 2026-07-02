@@ -1,4 +1,5 @@
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
+import type { CoursePermission } from './permissions'
 import { CoursePermissions, coursePermissionPolicy } from './permissions'
 import { useCourseDetailStore } from './stores/course-detail.store'
 import { useCourseEditStore } from './stores/course-edit.store'
@@ -26,31 +27,31 @@ async function initEditCoursePageGuard(
   return true
 }
 
+const courseTabPermissions: Record<CourseListTab, CoursePermission> = {
+  all: CoursePermissions.viewAllTab,
+  own: CoursePermissions.viewOwnTab,
+  archived: CoursePermissions.viewArchivedTab
+}
+
+function defaultCourseListTab(): CourseListTab {
+  const fallback = (['all', 'own', 'archived'] as CourseListTab[]).find((tab) =>
+    coursePermissionPolicy.can(courseTabPermissions[tab])
+  )
+
+  return fallback ?? 'all'
+}
+
 function courseListTabAccessGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
-  const tabId = to.params.tabId as string
+  const tabId = to.params.tabId as CourseListTab
+  const permission = courseTabPermissions[tabId]
 
-  if (tabId === 'own' || tabId === 'archived') {
-    const permission =
-      tabId === 'own'
-        ? CoursePermissions.viewOwnTab
-        : CoursePermissions.viewArchivedTab
-
-    if (!coursePermissionPolicy.can(permission)) {
-      return { name: 'courses.list', params: { tabId: 'all' } }
-    }
-  }
-
-  // Check if the tabId is valid
-  const validTabs: CourseListTab[] = ['all', 'own', 'archived']
-
-  if (validTabs.includes(tabId as CourseListTab)) {
+  if (permission && coursePermissionPolicy.can(permission)) {
     return true
   }
 
-  // If the tabId is invalid, redirect to the 'all' tab
-  return { name: 'courses.list', params: { tabId: 'all' } }
+  return { name: 'courses.list', params: { tabId: defaultCourseListTab() } }
 }
 
 export {

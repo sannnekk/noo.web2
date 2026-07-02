@@ -160,6 +160,7 @@ function createDraft(): PossiblyUnsavedCourse {
     endDate: new Date(),
     subjectId: null,
     thumbnailId: null,
+    isArchived: false,
     chapters: []
   }
 }

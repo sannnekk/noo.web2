@@ -9,6 +9,7 @@ const CoursePermissions = {
   viewDetailPage: 'viewDetailPage',
   viewStudentsPage: 'viewStudentsPage',
   viewEditPage: 'viewEditPage',
+  viewAllTab: 'viewAllTab',
   viewOwnTab: 'viewOwnTab',
   viewArchivedTab: 'viewArchivedTab',
   createCourse: 'createCourse',
@@ -38,6 +39,12 @@ const coursePermissionPolicy = definePermissions({
   ),
   [CoursePermissions.viewStudentsPage]: roles('admin', 'teacher'),
   [CoursePermissions.viewEditPage]: roles('admin', 'teacher'),
+  [CoursePermissions.viewAllTab]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor'
+  ),
   [CoursePermissions.viewOwnTab]: roles('teacher', 'student'),
   [CoursePermissions.viewArchivedTab]: roles('teacher', 'student'),
   [CoursePermissions.createCourse]: roles('admin', 'teacher'),
