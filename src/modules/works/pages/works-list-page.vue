@@ -78,6 +78,12 @@
     :work-id="statisticsModal.workId"
   />
 
+  <work-relations-modal
+    v-model:is-open="relationsModal.isOpen"
+    :work-id="relationsModal.workId"
+    :work-title="relationsModal.workTitle"
+  />
+
   <noo-sure-modal
     v-model:is-open="deleteModal.isOpen"
     @confirm="onConfirmDelete"
@@ -97,6 +103,7 @@
 
 <script setup lang="ts">
 import WorkStatisticsModal from '../components/work-statistics-modal.vue'
+import WorkRelationsModal from '../components/work-relations-modal.vue'
 import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
 import type { RowAction } from '@/components/entity-table/noo-entity-table.vue'
 import { useSearch } from '@/core/composables/useSearch'
@@ -113,6 +120,12 @@ const uiStore = useGlobalUIStore()
 const statisticsModal = reactive({
   isOpen: false,
   workId: null as WorkEntity['id'] | null
+})
+
+const relationsModal = reactive({
+  isOpen: false,
+  workId: null as WorkEntity['id'] | null,
+  workTitle: null as WorkEntity['title'] | null
 })
 
 const deleteModal = reactive({
@@ -140,6 +153,15 @@ const columns: EntityTableColumnType<WorkEntity>[] = [
 ]
 
 const actions: RowAction<WorkEntity>[] = [
+  {
+    icon: 'list',
+    label: 'Присвоенные материалы',
+    action: (work) => {
+      relationsModal.workId = work.id
+      relationsModal.workTitle = work.title
+      relationsModal.isOpen = true
+    }
+  },
   {
     icon: 'statistics',
     label: 'Статистика работы',

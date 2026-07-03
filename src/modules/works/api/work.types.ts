@@ -1,6 +1,7 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { IRichText } from '@/core/utils/richtext.utils'
 import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
+import type { CourseWorkAssignmentEntity } from '@/modules/courses/api/course.types'
 import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 
 const workTypeValues = [
@@ -78,6 +79,14 @@ export interface WorkStatistics {
   }
   workSolveCount: number
   work: WorkEntity
+}
+
+export interface WorkRelation {
+  courseId: string
+  materialId: string
+  subject: SubjectEntity | null
+  path: string[]
+  assignment: CourseWorkAssignmentEntity
 }
 
 export { workTaskCheckStrategyValues, workTaskTypeValues, workTypeValues }

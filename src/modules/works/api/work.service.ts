@@ -7,6 +7,7 @@ import type { PossiblyUnsavedWork, PossiblyUnsavedWorkTask } from '../types'
 import type {
   UnsavedWork,
   WorkEntity,
+  WorkRelation,
   WorkStatistics,
   WorkTaskType
 } from './work.types'
@@ -60,6 +61,13 @@ interface IWorkService {
    * @returns Work statistics
    */
   getStatisticsById(id: string): Promise<ApiResponse<WorkStatistics>>
+  /**
+   * Get the course materials a work is assigned to.
+   *
+   * @param id The ID of the work to get relations for.
+   * @returns The list of course materials the work is assigned to.
+   */
+  getRelationsById(id: string): Promise<ApiResponse<WorkRelation[]>>
   /**
    * Delete a work.
    *
@@ -116,6 +124,12 @@ async function getStatisticsById(
   return await Api.get(`${BASE_PATH}/${id}/statistics`)
 }
 
+async function getRelationsById(
+  id: string
+): Promise<ApiResponse<WorkRelation[]>> {
+  return await Api.get(`${BASE_PATH}/${id}/relation`)
+}
+
 async function create(work: UnsavedWork): Promise<ApiResponse<{ id: string }>> {
   return await Api.post(BASE_PATH, work)
 }
@@ -137,6 +151,7 @@ export const WorkService: IWorkService = {
   get,
   getById,
   getStatisticsById,
+  getRelationsById,
   create,
   update,
   delete: deleteWork
