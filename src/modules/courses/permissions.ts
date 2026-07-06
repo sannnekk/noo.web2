@@ -16,6 +16,7 @@ const CoursePermissions = {
   manageCourse: 'manageCourse',
   viewCourseShop: 'viewCourseShop',
   useStudentOwnershipFilter: 'useStudentOwnershipFilter',
+  manageOwnMembership: 'manageOwnMembership',
   solveWork: 'solveWork'
 } as const
 
@@ -51,6 +52,7 @@ const coursePermissionPolicy = definePermissions({
   [CoursePermissions.manageCourse]: roles('admin', 'teacher'),
   [CoursePermissions.viewCourseShop]: roles('student'),
   [CoursePermissions.useStudentOwnershipFilter]: roles('student'),
+  [CoursePermissions.manageOwnMembership]: roles('student'),
   [CoursePermissions.solveWork]: roles('student')
 })
 

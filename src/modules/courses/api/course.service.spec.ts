@@ -437,6 +437,62 @@ describe('CourseService', () => {
     })
   })
 
+  describe('archiveMembership', () => {
+    test('should archive a course membership', async () => {
+      const mockMembershipId = 'm1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.archiveMembership(mockMembershipId)
+
+      expect(Api.patch).toHaveBeenCalledWith(
+        `/course/membership/${mockMembershipId}/archive`
+      )
+    })
+  })
+
+  describe('unarchiveMembership', () => {
+    test('should restore a course membership from the archive', async () => {
+      const mockMembershipId = 'm1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.unarchiveMembership(mockMembershipId)
+
+      expect(Api.patch).toHaveBeenCalledWith(
+        `/course/membership/${mockMembershipId}/unarchive`
+      )
+    })
+  })
+
+  describe('pinMembership', () => {
+    test('should pin a course membership', async () => {
+      const mockMembershipId = 'm1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.pinMembership(mockMembershipId)
+
+      expect(Api.patch).toHaveBeenCalledWith(
+        `/course/membership/${mockMembershipId}/pin`
+      )
+    })
+  })
+
+  describe('unpinMembership', () => {
+    test('should unpin a course membership', async () => {
+      const mockMembershipId = 'm1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.unpinMembership(mockMembershipId)
+
+      expect(Api.patch).toHaveBeenCalledWith(
+        `/course/membership/${mockMembershipId}/unpin`
+      )
+    })
+  })
+
   describe('delete', () => {
     test('should delete a course', async () => {
       const mockId = 'c1'

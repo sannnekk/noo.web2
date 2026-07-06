@@ -198,6 +198,7 @@ declare module 'vue' {
     NotificationsIcon: typeof import('./src/components/icons/noo-icons/notifications-icon.vue')['default']
     PaymentIcon: typeof import('./src/components/icons/noo-icons/payment-icon.vue')['default']
     PdfFileIcon: typeof import('./src/components/icons/noo-icons/pdf-file-icon.vue')['default']
+    PinIcon: typeof import('./src/components/icons/noo-icons/pin-icon.vue')['default']
     PlayIcon: typeof import('./src/components/icons/noo-icons/play-icon.vue')['default']
     PngFileIcon: typeof import('./src/components/icons/noo-icons/png-file-icon.vue')['default']
     PollIcon: typeof import('./src/components/icons/noo-icons/poll-icon.vue')['default']

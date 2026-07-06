@@ -23,6 +23,7 @@
               <br />
               {{ currentUser?.email }}
             </noo-text-block>
+            <noo-user-role-tag :role="currentUser!.role" />
           </div>
           <div class="profile-page__sidebar__edit-profile">
             <noo-button

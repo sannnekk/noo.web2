@@ -8,7 +8,13 @@
         <noo-uploaded-image :src="course.thumbnail" />
       </router-link>
       <div
-        v-if="canManage"
+        v-if="isPinned"
+        class="noo-course-card__img__pin"
+      >
+        <noo-icon name="pin" />
+      </div>
+      <div
+        v-if="canManage || canManageOwnMembership"
         class="noo-course-card__img__actions"
         @click.stop.prevent
       >
@@ -52,7 +58,10 @@ import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
 import { isApiError } from '@/core/api/api.utils'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { CourseService } from '@/modules/courses/api/course.service'
-import type { CourseEntity } from '@/modules/courses/api/course.types'
+import type {
+  CourseEntity,
+  CourseMembershipEntity
+} from '@/modules/courses/api/course.types'
 import {
   CoursePermissions,
   useCoursePermissions
@@ -62,9 +71,13 @@ import { useRouter } from 'vue-router'
 
 interface Props {
   course: CourseEntity
+  membership?: CourseMembershipEntity
 }
 
-type Emits = (e: 'deleted') => void
+interface Emits {
+  (e: 'deleted'): void
+  (e: 'membership-updated'): void
+}
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
@@ -74,6 +87,11 @@ const globalUiStore = useGlobalUIStore()
 const { can } = useCoursePermissions()
 
 const canManage = computed(() => can(CoursePermissions.manageCourse))
+const canManageOwnMembership = computed(
+  () => !!props.membership && can(CoursePermissions.manageOwnMembership)
+)
+
+const isPinned = computed(() => props.membership?.isPinnedByStudent ?? false)
 
 const isDeleteOpen = ref(false)
 
@@ -81,6 +99,7 @@ const actions = computed<DropdownAction[]>(() => [
   {
     label: 'Редактировать',
     icon: 'edit',
+    if: () => canManage.value,
     onClick: () =>
       router.push({
         name: 'courses.edit',
@@ -91,9 +110,24 @@ const actions = computed<DropdownAction[]>(() => [
     label: 'Удалить',
     icon: 'delete',
     variant: 'danger',
+    if: () => canManage.value,
     onClick: () => {
       isDeleteOpen.value = true
     }
+  },
+  {
+    label: isPinned.value ? 'Открепить' : 'Закрепить',
+    icon: 'pin',
+    if: () => canManageOwnMembership.value,
+    onClick: onTogglePin
+  },
+  {
+    label: props.membership?.isArchivedByStudent
+      ? 'Вернуть из архива'
+      : 'Архивировать',
+    icon: 'delete',
+    if: () => canManageOwnMembership.value,
+    onClick: onToggleArchive
   }
 ])
 
@@ -115,6 +149,60 @@ async function onConfirmDelete() {
 
   globalUiStore.createSuccessToast('Курс удалён')
   emit('deleted')
+}
+
+async function onTogglePin() {
+  if (!props.membership) {
+    return
+  }
+
+  const response = isPinned.value
+    ? await CourseService.unpinMembership(props.membership.id)
+    : await CourseService.pinMembership(props.membership.id)
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast(
+      isPinned.value
+        ? 'Не удалось открепить курс'
+        : 'Не удалось закрепить курс',
+      response.error
+    )
+
+    return
+  }
+
+  globalUiStore.createSuccessToast(
+    isPinned.value ? 'Курс откреплён' : 'Курс закреплён'
+  )
+  emit('membership-updated')
+}
+
+async function onToggleArchive() {
+  if (!props.membership) {
+    return
+  }
+
+  const isArchived = props.membership.isArchivedByStudent
+
+  const response = isArchived
+    ? await CourseService.unarchiveMembership(props.membership.id)
+    : await CourseService.archiveMembership(props.membership.id)
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast(
+      isArchived
+        ? 'Не удалось вернуть курс из архива'
+        : 'Не удалось архивировать курс',
+      response.error
+    )
+
+    return
+  }
+
+  globalUiStore.createSuccessToast(
+    isArchived ? 'Курс возвращён из архива' : 'Курс перемещён в архив'
+  )
+  emit('membership-updated')
 }
 </script>
 
@@ -140,6 +228,18 @@ async function onConfirmDelete() {
       position: absolute
       top: 0.4em
       right: 0.4em
+      border-radius: var(--border-radius)
+      background-color: rgba(0, 0, 0, 0.5)
+      color: white
+
+    &__pin
+      position: absolute
+      top: 0.4em
+      left: 0.4em
+      display: flex
+      align-items: center
+      justify-content: center
+      padding: 0.35em
       border-radius: var(--border-radius)
       background-color: rgba(0, 0, 0, 0.5)
       color: white

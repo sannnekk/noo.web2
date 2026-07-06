@@ -65,6 +65,7 @@ export type IconName =
   | 'drag-handle'
   | 'clock'
   | 'payment'
+  | 'pin'
 
 interface Props {
   name: IconName

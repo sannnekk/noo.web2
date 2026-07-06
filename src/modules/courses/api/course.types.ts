@@ -80,6 +80,7 @@ export interface CourseMembershipEntity extends ApiEntity<'CourseMembership'> {
   isActive: boolean
   isArchived: boolean
   isArchivedByStudent: boolean
+  isPinnedByStudent: boolean
   studentId: string
   student?: UserEntity
   assignerId?: string

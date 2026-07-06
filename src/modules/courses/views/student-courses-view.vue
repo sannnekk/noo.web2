@@ -3,7 +3,7 @@
     <noo-card-search-view
       v-model:search="search.search.value"
       v-model:page="search.page.value"
-      :items="courses"
+      :items="memberships"
       :total-count="search.total.value"
       :is-loading="search.isLoading.value"
       :limit="25"
@@ -13,8 +13,11 @@
     >
       <template #tile="{ item }">
         <noo-course-card
-          :course="item"
+          v-if="item.course"
+          :course="item.course"
+          :membership="item"
           @deleted="search.reload"
+          @membership-updated="search.reload"
         />
       </template>
     </noo-card-search-view>
@@ -27,7 +30,7 @@ import { useAuthStore } from '@/core/stores/auth.store'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
-import type { CourseEntity, CourseMembershipEntity } from '../api/course.types'
+import type { CourseMembershipEntity } from '../api/course.types'
 
 const props = defineProps<{ archived: boolean }>()
 
@@ -43,19 +46,19 @@ const search = useSearch<CourseMembershipEntity>(CourseService.getMemberships, {
   ]
 })
 
-const courses = computed<CourseEntity[]>(() => {
-  const byId = new Map<string, CourseEntity>()
+const memberships = computed<CourseMembershipEntity[]>(() => {
+  const byCourseId = new Map<string, CourseMembershipEntity>()
 
   for (const membership of search.data.value) {
     const course = membership.course
 
-    if (!course || byId.has(course.id)) {
+    if (!course || byCourseId.has(course.id)) {
       continue
     }
 
-    byId.set(course.id, course)
+    byCourseId.set(course.id, membership)
   }
 
-  return [...byId.values()]
+  return [...byCourseId.values()]
 })
 </script>

@@ -133,6 +133,30 @@ interface ICourseService {
    */
   deleteMembership(membershipId: string): Promise<ApiResponse>
   /**
+   * Archives a course membership for the current student.
+   *
+   * @param membershipId The ID of the membership to be archived.
+   */
+  archiveMembership(membershipId: string): Promise<ApiResponse>
+  /**
+   * Restores a course membership from the archive for the current student.
+   *
+   * @param membershipId The ID of the membership to be restored.
+   */
+  unarchiveMembership(membershipId: string): Promise<ApiResponse>
+  /**
+   * Pins a course membership for the current student.
+   *
+   * @param membershipId The ID of the membership to be pinned.
+   */
+  pinMembership(membershipId: string): Promise<ApiResponse>
+  /**
+   * Unpins a course membership for the current student.
+   *
+   * @param membershipId The ID of the membership to be unpinned.
+   */
+  unpinMembership(membershipId: string): Promise<ApiResponse>
+  /**
    * Delete a course
    *
    * @param id The ID of the course to be deleted.
@@ -281,6 +305,22 @@ async function deleteMembership(membershipId: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/membership/${membershipId}`)
 }
 
+async function archiveMembership(membershipId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/archive`)
+}
+
+async function unarchiveMembership(membershipId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/unarchive`)
+}
+
+async function pinMembership(membershipId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/pin`)
+}
+
+async function unpinMembership(membershipId: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/unpin`)
+}
+
 async function deleteCourse(id: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/${id}`)
 }
@@ -302,5 +342,9 @@ export const CourseService: ICourseService = {
   getMemberships,
   createMembership,
   deleteMembership,
+  archiveMembership,
+  unarchiveMembership,
+  pinMembership,
+  unpinMembership,
   delete: deleteCourse
 }
