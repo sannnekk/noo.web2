@@ -92,8 +92,10 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   busyAssignmentId: null,
-  canChange: () => () => false,
-  canUnassign: () => () => false,
+  // Function-typed props receive their default as-is (no factory call),
+  // so the default must be the predicate itself
+  canChange: () => false,
+  canUnassign: () => false,
   changeLabel: 'Сменить',
   unassignLabel: 'Снять'
 })
