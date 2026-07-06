@@ -33,7 +33,7 @@ defineProps<Props>()
 .noo-text-block
 	&--small
 		font-size: 14px
-		line-height: 16px
+		line-height: 18px
 
 	&--medium
 		font-size: 16px

@@ -33,6 +33,11 @@ export interface CourseChapterEntity extends ApiEntity<'CourseChapter'> {
   materials?: CourseMaterialEntity[]
 }
 
+const courseMaterialReactionValues = ['check', 'thinking'] as const
+
+export type CourseMaterialReaction =
+  (typeof courseMaterialReactionValues)[number]
+
 export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   order: number
   title: string
@@ -41,6 +46,7 @@ export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   publishAt: Date | null
   chapterId: string
   contentId: string | null
+  myReaction?: CourseMaterialReaction | null
 }
 
 export interface CourseMaterialContentEntity extends ApiEntity<'CourseMaterialContent'> {
@@ -93,4 +99,4 @@ export interface CreateCourseMembershipPayload {
   notifyStudent?: boolean
 }
 
-export { courseMembershipTypeValues }
+export { courseMaterialReactionValues, courseMembershipTypeValues }

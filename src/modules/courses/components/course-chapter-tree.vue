@@ -62,6 +62,12 @@
           }"
         >
           {{ material.title }}
+          <span
+            v-if="material.myReaction"
+            class="course-chapter-tree__item__reaction"
+          >
+            {{ courseMaterialReactionEmojis[material.myReaction] }}
+          </span>
         </router-link>
       </li>
     </ul>
@@ -74,6 +80,7 @@ import type {
   CourseMaterialEntity
 } from '../api/course.types.ts'
 import { reactive, computed } from 'vue'
+import { courseMaterialReactionEmojis } from '../constants.ts'
 import { findChapterByMaterialId } from '../utils.ts'
 
 interface Props {
@@ -134,6 +141,10 @@ if (props.initiallySelectedMaterialId) {
 
       a
         color: var(--secondary) !important
+
+    &__reaction
+      font-size: 0.85em
+      margin-left: 0.2em
 
     &__list-opener
       font-size: 0.8em

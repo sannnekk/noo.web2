@@ -1,4 +1,7 @@
-import type { CourseMembershipType } from './api/course.types'
+import type {
+  CourseMaterialReaction,
+  CourseMembershipType
+} from './api/course.types'
 
 const courseMembershipTypes: { label: string; value: CourseMembershipType }[] =
   [
@@ -7,4 +10,21 @@ const courseMembershipTypes: { label: string; value: CourseMembershipType }[] =
     { label: 'Подписка', value: 'subscription' }
   ]
 
-export { courseMembershipTypes }
+const courseMaterialReactions: {
+  label: string
+  emoji: string
+  value: CourseMaterialReaction
+}[] = [
+  { label: 'Пройдено', emoji: '✅', value: 'check' },
+  { label: 'Стоит вернуться', emoji: '🤔', value: 'thinking' }
+]
+
+const courseMaterialReactionEmojis = Object.fromEntries(
+  courseMaterialReactions.map((reaction) => [reaction.value, reaction.emoji])
+) as Record<CourseMaterialReaction, string>
+
+export {
+  courseMaterialReactionEmojis,
+  courseMaterialReactions,
+  courseMembershipTypes
+}

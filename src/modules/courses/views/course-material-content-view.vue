@@ -16,6 +16,9 @@
       <noo-richtext-block
         :value="courseDetailStore.materialContent.data.content"
       />
+      <course-material-reactions
+        v-if="can(CoursePermissions.reactToMaterial)"
+      />
     </div>
     <noo-section
       v-if="courseDetailStore.materialContent.data.workAssignments?.length"
@@ -84,9 +87,11 @@
 </template>
 
 <script setup lang="ts">
+import CourseMaterialReactions from '../components/course-material-reactions.vue'
 import WorkAssignment from '../components/work-assignment.vue'
 import { debounce } from 'lodash'
 import { watch } from 'vue'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 
 export interface CourseMaterialViewProps {
@@ -96,6 +101,7 @@ export interface CourseMaterialViewProps {
 const props = defineProps<CourseMaterialViewProps>()
 
 const courseDetailStore = useCourseDetailStore()
+const { can } = useCoursePermissions()
 
 watch(
   () => props.materialId,

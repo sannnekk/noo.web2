@@ -214,6 +214,25 @@ describe('CourseService', () => {
     })
   })
 
+  describe('toggleMaterialReaction', () => {
+    test('should toggle a reaction on a material', async () => {
+      const mockCourseId = 'c1'
+      const mockMaterialId = 'm1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.toggleMaterialReaction(
+        mockCourseId,
+        mockMaterialId,
+        'check'
+      )
+
+      expect(Api.patch).toHaveBeenCalledWith(
+        `/course/${mockCourseId}/material/${mockMaterialId}/reaction?reaction=check`
+      )
+    })
+  })
+
   describe('create', () => {
     test('should create a new course', async () => {
       const mockCourse: PossiblyUnsavedCourse = {

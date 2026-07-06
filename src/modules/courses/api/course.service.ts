@@ -14,6 +14,7 @@ import type {
 import type {
   CourseEntity,
   CourseMaterialContentEntity,
+  CourseMaterialReaction,
   CourseMembershipEntity,
   CreateCourseMembershipPayload
 } from './course.types'
@@ -66,6 +67,18 @@ interface ICourseService {
     courseId: string,
     contentId: string
   ): Promise<ApiResponse<CourseMaterialContentEntity>>
+  /**
+   * Toggles the current student's reaction on a course material.
+   *
+   * @param courseId The ID of the course the material belongs to.
+   * @param materialId The ID of the material to react to.
+   * @param reaction The reaction to toggle.
+   */
+  toggleMaterialReaction(
+    courseId: string,
+    materialId: string,
+    reaction: CourseMaterialReaction
+  ): Promise<ApiResponse>
   /**
    * Creates a new course entity
    *
@@ -256,6 +269,18 @@ async function getMaterialContent(
   return await Api.get(`${BASE_PATH}/${courseId}/content/${contentId}`)
 }
 
+async function toggleMaterialReaction(
+  courseId: string,
+  materialId: string,
+  reaction: CourseMaterialReaction
+): Promise<ApiResponse> {
+  const query = new URLSearchParams({ reaction })
+
+  return await Api.patch(
+    `${BASE_PATH}/${courseId}/material/${materialId}/reaction?${query.toString()}`
+  )
+}
+
 async function create(
   course: PossiblyUnsavedCourse
 ): Promise<ApiResponse<{ id: string }>> {
@@ -334,6 +359,7 @@ export const CourseService: ICourseService = {
   get,
   getById,
   getMaterialContent,
+  toggleMaterialReaction,
   create,
   update,
   createMaterialContent,
