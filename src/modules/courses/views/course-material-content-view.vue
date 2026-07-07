@@ -21,9 +21,29 @@
       />
     </div>
     <noo-section
+      v-if="courseDetailStore.materialContent.data.nooTubeVideos?.length"
+      title="Прикрепленные видео"
+      description="Ниже представлены видео, прикрепленные к этому материалу."
+    >
+      <noo-grid-layout
+        :cols="3"
+        gap="0.2em"
+      >
+        <noo-grid-layout-item
+          v-for="(video, index) in courseDetailStore.materialContent.data
+            .nooTubeVideos"
+          :key="video.id"
+          :col="(index % 3) + 1"
+          :row="Math.floor(index / 3) + 1"
+        >
+          <noo-video-card :video="video" />
+        </noo-grid-layout-item>
+      </noo-grid-layout>
+    </noo-section>
+    <noo-section
       v-if="courseDetailStore.materialContent.data.workAssignments?.length"
       title="Прикрепленные работы"
-      description="Если одна из работ ниже уже была начата, то нажатие кнопки &#65282;К работе&#65282;, откроет уже начатую работу, а не создаст новую. Если попыток несколько, будет открыта последняя из них. Ниже, под работой, будет отображаться прогресс по работам и всем попыткам, к отдельной попытке можно перейти, нажав кнопку &#65282;Перейти, в таблице прогресса."
+      description="Если одна из работ ниже уже была начата, то нажатие кнопки &#65282;К работе&#65282;, откроет уже начатую работу, а не создаст новую. Если попыток несколько, будет открыта последняя из них. Ниже, под работой, будет отображаться прогресс по работам и всем попыткам, к отдельной попытке можно перейти, нажав кнопку &#65282;Перейти&#65282;, в таблице прогресса."
     >
       <div class="course-material-content-view__work-assignments__list">
         <work-assignment

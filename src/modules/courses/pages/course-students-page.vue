@@ -24,6 +24,8 @@
           dimmed
           size="small"
         >
+          {{ course?.description }}
+          <br />
           Количество учеников на курсе: {{ search.total.value }}
         </noo-text-block>
       </div>

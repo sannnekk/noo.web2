@@ -72,9 +72,9 @@
       v-model:work-assignments="currentContent.workAssignments"
     />
 
-    <noo-title :size="3"> Припрепленные видоеуроки НОО.Tube </noo-title>
+    <noo-title :size="3"> Прикрепленные видеоуроки НОО.Tube </noo-title>
 
-    <noo-text-block dimmed> Блок прикрепленных видео... </noo-text-block>
+    <noo-video-select v-model="nooTubeVideos" />
 
     <noo-title :size="3"> Прикрепленные файлы </noo-title>
 
@@ -100,6 +100,7 @@
 
 <script setup lang="ts">
 import type { MediaEntity } from '@/modules/media/api/media.types'
+import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
 import { computed, watch } from 'vue'
 import { useCourseEditStore } from '../../stores/course-edit.store'
 import WorkAssignmentsForm from './work-assignments-form.vue'
@@ -108,6 +109,15 @@ const courseEditStore = useCourseEditStore()
 
 const currentContent = computed(() => courseEditStore.currentMaterialContent)
 const currentMaterial = computed(() => courseEditStore.currentMaterial)
+
+const nooTubeVideos = computed<NooTubeVideoEntity[]>({
+  get: () => currentContent.value?.nooTubeVideos ?? [],
+  set: (value) => {
+    if (currentContent.value) {
+      currentContent.value.nooTubeVideos = value
+    }
+  }
+})
 
 const medias = computed<MediaEntity[]>({
   get: () => currentContent.value?.medias ?? [],

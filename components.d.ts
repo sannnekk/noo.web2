@@ -191,6 +191,8 @@ declare module 'vue' {
     NooUserRoleTag: typeof import('./src/components/tags/noo-user-role-tag.vue')['default']
     NooUserSelect: typeof import('./src/components/inputs/entity-select/noo-user-select.vue')['default']
     NooVideoCard: typeof import('./src/components/cards/noo-video-card.vue')['default']
+    NooVideoSelect: typeof import('./src/components/inputs/video-select/noo-video-select.vue')['default']
+    NooVideoSelectModal: typeof import('./src/components/inputs/video-select/noo-video-select-modal.vue')['default']
     NooWarningBlock: typeof import('./src/components/blocks/noo-warning-block.vue')['default']
     NooWorkSelect: typeof import('./src/components/inputs/entity-select/noo-work-select.vue')['default']
     NooWorkTypeSelect: typeof import('./src/components/inputs/entity-prop-select/noo-work-type-select.vue')['default']

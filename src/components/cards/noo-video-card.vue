@@ -1,10 +1,20 @@
 <template>
-  <router-link
+  <component
+    :is="selectable ? 'div' : RouterLink"
     class="noo-video-card"
-    :to="{ name: 'nootube.detail', params: { videoId: video.id } }"
+    :class="{ 'noo-video-card--selectable': selectable }"
+    :to="
+      selectable
+        ? undefined
+        : { name: 'nootube.detail', params: { videoId: video.id } }
+    "
+    @click="selectable && emits('select')"
   >
     <div class="noo-video-card__inner">
-      <div class="noo-video-card__inner__thumbnail">
+      <div
+        class="noo-video-card__inner__thumbnail"
+        :class="{ 'noo-video-card__inner__thumbnail--selected': selected }"
+      >
         <noo-uploaded-image :src="video.thumbnail" />
         <div
           v-if="actions?.length"
@@ -12,6 +22,24 @@
           @click.stop.prevent
         >
           <noo-dropdown :actions="actions" />
+        </div>
+        <div
+          v-if="removable"
+          class="noo-video-card__inner__thumbnail__remove"
+          @click.stop.prevent="emits('remove')"
+        >
+          <noo-icon
+            name="close"
+            hoverable
+          />
+        </div>
+        <div
+          v-if="selected"
+          class="noo-video-card__inner__thumbnail__selected-overlay"
+        >
+          <div class="noo-video-card__inner__thumbnail__selected-overlay__icon">
+            <noo-icon name="check-green" />
+          </div>
         </div>
         <div class="noo-video-card__inner__thumbnail__duration">
           {{ duration }}
@@ -44,7 +72,7 @@
         />
       </div>
     </div>
-  </router-link>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -52,13 +80,29 @@ import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
 import type { NooTubeVideoEntity } from '@/modules/nootube/api/nootube.types'
 import { formatVideoDuration } from '@/modules/nootube/video.utils'
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 
 interface Props {
   video: NooTubeVideoEntity
   actions?: DropdownAction[]
+  /**
+   * Renders the card as a plain block instead of a link to the video page.
+   * Clicking the card emits `select`.
+   */
+  selectable?: boolean
+  selected?: boolean
+  /**
+   * Shows a remove button on the thumbnail. Clicking it emits `remove`.
+   */
+  removable?: boolean
 }
 
 const props = defineProps<Props>()
+
+const emits = defineEmits<{
+  select: []
+  remove: []
+}>()
 
 const duration = computed(() => formatVideoDuration(props.video.duration))
 </script>
@@ -84,6 +128,9 @@ const duration = computed(() => formatVideoDuration(props.video.duration))
       aspect-ratio: 16 / 9
       position: relative
 
+      &--selected
+        outline: 2px solid var(--lila)
+
       img
         width: 100%
         height: 100%
@@ -97,6 +144,41 @@ const duration = computed(() => formatVideoDuration(props.video.duration))
         border-radius: var(--border-radius)
         background-color: rgba(0, 0, 0, 0.5)
         color: white
+
+      &__remove
+        position: absolute
+        top: 0.4em
+        right: 0.4em
+        font-size: 1.2em
+        display: flex
+        align-items: center
+        justify-content: center
+        padding: 0.2em
+        border-radius: 30px
+        background-color: rgba(0, 0, 0, 0.5)
+        color: white
+        z-index: 1
+
+        &:hover
+          background-color: rgba(0, 0, 0, 0.9)
+
+      &__selected-overlay
+        position: absolute
+        inset: 0
+        display: flex
+        align-items: center
+        justify-content: center
+        font-size: 2em
+        background-color: rgba(0, 0, 0, 0.35)
+
+        &__icon
+          display: flex
+          align-items: center
+          justify-content: center
+          width: 1.2em
+          height: 1.2em
+          border-radius: 50%
+          background-color: white
 
       &__duration
         position: absolute
