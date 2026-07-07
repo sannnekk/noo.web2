@@ -107,6 +107,16 @@ const actions = computed<DropdownAction[]>(() => [
       })
   },
   {
+    label: 'Участники',
+    icon: 'user',
+    if: () => canManage.value,
+    onClick: () =>
+      router.push({
+        name: 'courses.students',
+        params: { courseId: props.course.id }
+      })
+  },
+  {
     label: 'Удалить',
     icon: 'delete',
     variant: 'danger',

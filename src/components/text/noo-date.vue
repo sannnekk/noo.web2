@@ -3,7 +3,18 @@
     class="noo-date"
     :title="title"
   >
-    {{ display }}
+    <template v-if="timezones == 'local'">{{ relative }}</template>
+    <template v-else-if="timezones == 'Europe/Moscow'">
+      {{ moscowAbsolute }} МСК
+    </template>
+    <template v-else-if="timezones == 'both'">
+      <span v-if="multiline">
+        <span class="relative">{{ relative }}</span>
+        <br />
+        <span class="moscow">{{ moscowAbsolute }} МСК</span>
+      </span>
+      <span v-else> {{ relative }} · {{ moscowAbsolute }} МСК </span>
+    </template>
   </span>
 </template>
 
@@ -22,6 +33,7 @@ interface Props {
    */
   timezones?: 'both' | 'local' | 'Europe/Moscow'
   includeTime?: boolean
+  multiline?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -49,20 +61,6 @@ const localAbsolute = computed(() =>
     includeTime: props.includeTime
   })
 )
-
-const display = computed(() => {
-  switch (props.timezones) {
-    case 'local':
-      return relative.value
-    case 'Europe/Moscow':
-      return `${moscowAbsolute.value} МСК`
-    case 'both':
-    default:
-      return userIsInMoscow
-        ? `${relative.value} · ${moscowAbsolute.value}`
-        : `${relative.value} · ${moscowAbsolute.value} МСК`
-  }
-})
 
 // Always expose the precise absolute time(s) on hover.
 const title = computed(() =>
