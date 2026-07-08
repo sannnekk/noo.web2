@@ -1,5 +1,5 @@
 <template>
-  <div class="student-courses-view">
+  <div class="course-memberships-view">
     <noo-card-search-view
       v-model:search="search.search.value"
       v-model:page="search.page.value"
@@ -11,6 +11,18 @@
       :error="search.error.value"
       :try-again="search.reload"
     >
+      <template
+        v-if="!archived"
+        #actions
+      >
+        <noo-button
+          v-if="can(CoursePermissions.viewCourseShop)"
+          :to="AppConstants.courseShopLink"
+          new-tab
+        >
+          Наш магазин курсов
+        </noo-button>
+      </template>
       <template #tile="{ item }">
         <noo-course-card
           v-if="item.course"
@@ -26,15 +38,28 @@
 
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
+import { AppConstants } from '@/core/config/constants.config'
 import { useAuthStore } from '@/core/stores/auth.store'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
 import type { CourseMembershipEntity } from '../api/course.types'
+import { CoursePermissions, useCoursePermissions } from '../permissions'
 
-const props = defineProps<{ archived: boolean }>()
+interface Props {
+  /**
+   * Whether to show only the memberships archived by the current
+   * student. Non-archived memberships are shown otherwise.
+   */
+  archived?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  archived: false
+})
 
 const authStore = useAuthStore()
+const { can } = useCoursePermissions()
 
 const search = useSearch<CourseMembershipEntity>(CourseService.getMemberships, {
   immediate: true,

@@ -76,6 +76,7 @@ interface Props {
 
 interface Emits {
   (e: 'deleted'): void
+  (e: 'archive-toggled'): void
   (e: 'membership-updated'): void
 }
 
@@ -115,6 +116,12 @@ const actions = computed<DropdownAction[]>(() => [
         name: 'courses.students',
         params: { courseId: props.course.id }
       })
+  },
+  {
+    label: props.course.isArchived ? 'Вернуть из архива' : 'Архивировать',
+    icon: 'delete',
+    if: () => canManage.value,
+    onClick: onToggleCourseArchive
   },
   {
     label: 'Удалить',
@@ -159,6 +166,30 @@ async function onConfirmDelete() {
 
   globalUiStore.createSuccessToast('Курс удалён')
   emit('deleted')
+}
+
+async function onToggleCourseArchive() {
+  const isArchived = props.course.isArchived
+
+  const response = isArchived
+    ? await CourseService.unarchive(props.course.id)
+    : await CourseService.archive(props.course.id)
+
+  if (isApiError(response)) {
+    globalUiStore.createApiErrorToast(
+      isArchived
+        ? 'Не удалось вернуть курс из архива'
+        : 'Не удалось архивировать курс',
+      response.error
+    )
+
+    return
+  }
+
+  globalUiStore.createSuccessToast(
+    isArchived ? 'Курс возвращён из архива' : 'Курс перемещён в архив'
+  )
+  emit('archive-toggled')
 }
 
 async function onTogglePin() {

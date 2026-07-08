@@ -1,58 +1,25 @@
 <template>
-  <div class="own-courses-page">
+  <div class="course-list-page">
     <noo-tabs-layout
       use-route-tabs
       with-padding
       route-param-name="tabId"
     >
       <template
-        v-if="can(CoursePermissions.viewAllTab)"
-        #tab-title-all
+        v-for="tab in visibleTabs"
+        :key="tab.id"
+        #[`tab-title-${tab.id}`]
       >
-        <span>Все курсы</span>
+        <span>{{ tab.title }}</span>
       </template>
       <template
-        v-if="can(CoursePermissions.viewAllTab)"
-        #tab-all
+        v-for="tab in visibleTabs"
+        :key="tab.id"
+        #[`tab-${tab.id}`]
       >
-        <all-courses-view />
-      </template>
-      <template
-        v-if="can(CoursePermissions.viewOwnTab)"
-        #tab-title-own
-      >
-        <span>Мои курсы</span>
-      </template>
-      <template
-        v-if="can(CoursePermissions.viewOwnTab)"
-        #tab-own
-      >
-        <student-courses-view
-          v-if="isStudent"
-          :archived="false"
-        />
-        <teacher-courses-view
-          v-else
-          :archived="false"
-        />
-      </template>
-      <template
-        v-if="can(CoursePermissions.viewArchivedTab)"
-        #tab-title-archived
-      >
-        <span>Архив</span>
-      </template>
-      <template
-        v-if="can(CoursePermissions.viewArchivedTab)"
-        #tab-archived
-      >
-        <student-courses-view
-          v-if="isStudent"
-          :archived="true"
-        />
-        <teacher-courses-view
-          v-else
-          :archived="true"
+        <component
+          :is="tab.component"
+          v-bind="tab.props"
         />
       </template>
     </noo-tabs-layout>
@@ -60,11 +27,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { courseListTabs } from '../course-list-tabs'
+import { useCoursePermissions } from '../permissions'
 import type { CourseListTab } from '../types'
-import { CoursePermissions, useCoursePermissions } from '../permissions'
-import AllCoursesView from '../views/all-courses-view.vue'
-import StudentCoursesView from '../views/student-courses-view.vue'
-import TeacherCoursesView from '../views/teacher-courses-view.vue'
 
 export interface CourseListPageProps {
   tabId: CourseListTab
@@ -74,5 +40,7 @@ defineProps<CourseListPageProps>()
 
 const { can } = useCoursePermissions()
 
-const isStudent = can(CoursePermissions.useStudentOwnershipFilter)
+const visibleTabs = computed(() =>
+  courseListTabs.filter((tab) => can(tab.permission))
+)
 </script>

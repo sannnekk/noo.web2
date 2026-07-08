@@ -53,26 +53,45 @@ describe('courses permissions', () => {
     expect(can(CoursePermissions.manageCourse)).toBe(true)
   })
 
-  it('shows the all-courses tab to every role except students', () => {
+  it('shows students only the membership tabs', () => {
     signInAs({ id: 's', role: 'student' })
-    expect(can(CoursePermissions.viewAllTab)).toBe(false)
-    expect(can(CoursePermissions.viewOwnTab)).toBe(true)
-    expect(can(CoursePermissions.viewArchivedTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(true)
+    expect(can(CoursePermissions.viewArchivedMembershipsTab)).toBe(true)
+    expect(can(CoursePermissions.viewAllCoursesTab)).toBe(false)
+    expect(can(CoursePermissions.viewOwnCoursesTab)).toBe(false)
+    expect(can(CoursePermissions.viewArchivedCoursesTab)).toBe(false)
+  })
 
+  it('shows teachers the all, own and archived course tabs', () => {
     signInAs({ id: 't', role: 'teacher' })
-    expect(can(CoursePermissions.viewAllTab)).toBe(true)
-    expect(can(CoursePermissions.viewOwnTab)).toBe(true)
-    expect(can(CoursePermissions.viewArchivedTab)).toBe(true)
+    expect(can(CoursePermissions.viewAllCoursesTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnCoursesTab)).toBe(true)
+    expect(can(CoursePermissions.viewArchivedCoursesTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(false)
+    expect(can(CoursePermissions.viewArchivedMembershipsTab)).toBe(false)
+  })
 
-    for (const role of ['admin', 'assistant', 'mentor'] as const) {
+  it('shows admins the all and archived course tabs', () => {
+    signInAs({ id: 'a', role: 'admin' })
+    expect(can(CoursePermissions.viewAllCoursesTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnCoursesTab)).toBe(false)
+    expect(can(CoursePermissions.viewArchivedCoursesTab)).toBe(true)
+    expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(false)
+    expect(can(CoursePermissions.viewArchivedMembershipsTab)).toBe(false)
+  })
+
+  it('shows assistants and mentors only the all courses tab', () => {
+    for (const role of ['assistant', 'mentor'] as const) {
       signInAs({ id: role, role })
-      expect(can(CoursePermissions.viewAllTab)).toBe(true)
-      expect(can(CoursePermissions.viewOwnTab)).toBe(false)
-      expect(can(CoursePermissions.viewArchivedTab)).toBe(false)
+      expect(can(CoursePermissions.viewAllCoursesTab)).toBe(true)
+      expect(can(CoursePermissions.viewOwnCoursesTab)).toBe(false)
+      expect(can(CoursePermissions.viewArchivedCoursesTab)).toBe(false)
+      expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(false)
+      expect(can(CoursePermissions.viewArchivedMembershipsTab)).toBe(false)
     }
   })
 
   it('denies access when not authenticated', () => {
-    expect(can(CoursePermissions.viewOwnTab)).toBe(false)
+    expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(false)
   })
 })

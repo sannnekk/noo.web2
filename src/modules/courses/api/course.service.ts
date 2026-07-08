@@ -170,6 +170,18 @@ interface ICourseService {
    */
   unpinMembership(membershipId: string): Promise<ApiResponse>
   /**
+   * Archives a course. Available to teachers and admins.
+   *
+   * @param id The ID of the course to be archived.
+   */
+  archive(id: string): Promise<ApiResponse>
+  /**
+   * Restores a course from the archive. Available to teachers and admins.
+   *
+   * @param id The ID of the course to be restored.
+   */
+  unarchive(id: string): Promise<ApiResponse>
+  /**
    * Delete a course
    *
    * @param id The ID of the course to be deleted.
@@ -346,6 +358,14 @@ async function unpinMembership(membershipId: string): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/membership/${membershipId}/unpin`)
 }
 
+async function archiveCourse(id: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${id}/archive`)
+}
+
+async function unarchiveCourse(id: string): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${id}/unarchive`)
+}
+
 async function deleteCourse(id: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/${id}`)
 }
@@ -372,5 +392,7 @@ export const CourseService: ICourseService = {
   unarchiveMembership,
   pinMembership,
   unpinMembership,
+  archive: archiveCourse,
+  unarchive: unarchiveCourse,
   delete: deleteCourse
 }

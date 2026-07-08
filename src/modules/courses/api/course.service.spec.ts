@@ -512,6 +512,30 @@ describe('CourseService', () => {
     })
   })
 
+  describe('archive', () => {
+    test('should archive a course', async () => {
+      const mockId = 'c1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.archive(mockId)
+
+      expect(Api.patch).toHaveBeenCalledWith(`/course/${mockId}/archive`)
+    })
+  })
+
+  describe('unarchive', () => {
+    test('should restore a course from the archive', async () => {
+      const mockId = 'c1'
+
+      ;(Api.patch as Mock).mockResolvedValue({})
+
+      await CourseService.unarchive(mockId)
+
+      expect(Api.patch).toHaveBeenCalledWith(`/course/${mockId}/unarchive`)
+    })
+  })
+
   describe('delete', () => {
     test('should delete a course', async () => {
       const mockId = 'c1'

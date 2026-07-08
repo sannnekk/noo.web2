@@ -1,6 +1,6 @@
 import type { NavigationGuardReturn, RouteLocationNormalized } from 'vue-router'
-import type { CoursePermission } from './permissions'
-import { CoursePermissions, coursePermissionPolicy } from './permissions'
+import { courseListTabs } from './course-list-tabs'
+import { coursePermissionPolicy } from './permissions'
 import { useCourseDetailStore } from './stores/course-detail.store'
 import { useCourseEditStore } from './stores/course-edit.store'
 import type { CourseListTab } from './types'
@@ -27,27 +27,23 @@ async function initEditCoursePageGuard(
   return true
 }
 
-const courseTabPermissions: Record<CourseListTab, CoursePermission> = {
-  all: CoursePermissions.viewAllTab,
-  own: CoursePermissions.viewOwnTab,
-  archived: CoursePermissions.viewArchivedTab
-}
-
 function defaultCourseListTab(): CourseListTab {
-  const fallback = (['all', 'own', 'archived'] as CourseListTab[]).find((tab) =>
-    coursePermissionPolicy.can(courseTabPermissions[tab])
+  const fallback = courseListTabs.find((tab) =>
+    coursePermissionPolicy.can(tab.permission)
   )
 
-  return fallback ?? 'all'
+  return fallback?.id ?? 'all'
 }
 
 function courseListTabAccessGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
   const tabId = to.params.tabId as CourseListTab
-  const permission = courseTabPermissions[tabId]
+  const hasAccess = courseListTabs.some(
+    (tab) => tab.id === tabId && coursePermissionPolicy.can(tab.permission)
+  )
 
-  if (permission && coursePermissionPolicy.can(permission)) {
+  if (hasAccess) {
     return true
   }
 
