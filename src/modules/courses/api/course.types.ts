@@ -18,6 +18,7 @@ export interface CourseEntity extends ApiEntity<'Course'> {
   subjectId: string
   subject?: SubjectEntity | null
   authors?: UserEntity[]
+  authorIds?: string[]
   isArchived: boolean
   chapters?: CourseChapterEntity[]
 }

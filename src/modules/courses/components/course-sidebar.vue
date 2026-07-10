@@ -58,21 +58,17 @@
     >
       <noo-text-block
         dimmed
-        class="course-sidebar__authors__title"
         size="small"
+        no-margin
       >
         Авторы:
       </noo-text-block>
       <div class="course-sidebar__authors__list">
-        <noo-text-block
+        <noo-inline-user-card
           v-for="author in course.authors"
           :key="author.id"
-          size="small"
-          dimmed
-          no-margin
-        >
-          {{ author.name || author.username || author.email || author.id }}
-        </noo-text-block>
+          :user="author"
+        />
       </div>
     </div>
     <div class="course-sidebar__chapter-tree">
@@ -164,13 +160,11 @@ const materialSearchModalOpened = shallowRef<boolean>(false)
       display: block
 
   &__authors
-    &__title
-      margin-bottom: 0
-
     &__list
+      margin: 0.2em 0 1em 0
       display: flex
       flex-direction: column
-      gap: 0.1em
+      gap: 0.4em
 
   &__search
     margin-bottom: 1em

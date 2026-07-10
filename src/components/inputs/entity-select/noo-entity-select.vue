@@ -26,31 +26,26 @@
         }"
         @click="focusInput"
       >
-        <div
-          v-if="selectedEntities.length"
-          class="noo-entity-select__chips"
+        <button
+          v-for="entity in selectedEntities"
+          :key="getEntityId(entity)"
+          type="button"
+          class="noo-entity-select__chip"
+          :disabled="readonly"
+          @click.stop="removeEntity(getEntityId(entity))"
         >
-          <button
-            v-for="entity in selectedEntities"
-            :key="getEntityId(entity)"
-            type="button"
-            class="noo-entity-select__chip"
-            :disabled="readonly"
-            @click.stop="removeEntity(getEntityId(entity))"
+          <slot
+            name="chip"
+            :entity="entity"
           >
-            <slot
-              name="chip"
-              :entity="entity"
-            >
-              <span>{{ getEntityLabel(entity) }}</span>
-            </slot>
-            <noo-icon
-              v-if="!readonly"
-              name="close"
-              class="noo-entity-select__chip__remove"
-            />
-          </button>
-        </div>
+            <span>{{ getEntityLabel(entity) }}</span>
+          </slot>
+          <noo-icon
+            v-if="!readonly"
+            name="close"
+            class="noo-entity-select__chip__remove"
+          />
+        </button>
         <input
           v-if="multiple || !selectedEntities.length"
           ref="inputRef"
@@ -701,6 +696,7 @@ function retrySelectionLoad(): void {
     position: relative
 
   &__control
+    position: relative
     min-height: 2.4em
     width: 100%
     border: 1px solid var(--border-color)
@@ -710,10 +706,10 @@ function retrySelectionLoad(): void {
     box-sizing: border-box
     display: flex
     align-items: center
-    gap: 0.5em
-    padding: 0.2em 0.8em
+    flex-wrap: wrap
+    gap: 0.4em
+    padding: 0.3em 2.5em 0.3em 0.8em
     cursor: text
-    flex-wrap: nowrap
 
     &--focused
       border-color: var(--primary)
@@ -725,12 +721,6 @@ function retrySelectionLoad(): void {
       background: var(--light)
       opacity: 0.7
       cursor: default
-
-  &__chips
-    display: flex
-    flex-wrap: wrap
-    gap: 0.4em
-    margin: 0.2em 0
 
   &__chip
     display: inline-flex
@@ -754,11 +744,14 @@ function retrySelectionLoad(): void {
       cursor: pointer
       display: flex
 
+      &:hover
+        --form-text-color: var(--danger)
+
   &__input
     border: none
     outline: none
+    flex: 1 1 6em
     min-width: 6em
-    flex-grow: 1
     width: auto
     padding: 0.3em 0
     font-size: 0.9em
@@ -770,10 +763,13 @@ function retrySelectionLoad(): void {
       cursor: not-allowed
 
   &__actions
+    position: absolute
+    top: 50%
+    right: 0.6em
+    transform: translateY(-50%)
     display: flex
     align-items: center
     justify-content: center
-    margin-left: auto
     flex-shrink: 0
 
   &__icon

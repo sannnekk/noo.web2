@@ -85,6 +85,15 @@
               resettable
             />
           </div>
+          <div class="course-edit-sidebar__authors">
+            <noo-user-select
+              v-model="editCourseStore.course.authors"
+              v-model:ids="editCourseStore.course.authorIds"
+              multiple
+              role="teacher"
+              label="Авторы курса"
+            />
+          </div>
         </div>
       </template>
       <template #tab-title-tree> Главы </template>

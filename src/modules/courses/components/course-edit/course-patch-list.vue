@@ -34,6 +34,28 @@
         </noo-text-block>
       </template>
 
+      <template #path--authors="{ value }">
+        <div
+          v-if="asUsers(value).length"
+          class="course-patch-list__users"
+        >
+          <noo-inline-user-card
+            v-for="user in asUsers(value)"
+            :key="user.id"
+            :user="user"
+          />
+        </div>
+        <noo-text-block v-else>—</noo-text-block>
+      </template>
+
+      <template #path--authors-any="{ value }">
+        <noo-inline-user-card
+          v-if="asUser(value)"
+          :user="asUser(value)!"
+        />
+        <noo-text-block v-else>—</noo-text-block>
+      </template>
+
       <template #path--chapters="{ op, side }">
         <noo-text-block>
           {{
@@ -137,6 +159,7 @@ import type {
   LabelMap
 } from '@/components/utils/noo-patch-list.types'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
+import type { UserEntity } from '@/modules/users/api/user.types'
 import { computed } from 'vue'
 import type { PossiblyUnsavedCourse } from '../../types'
 import { normalizeCoursePatch } from '../../utils'
@@ -166,6 +189,7 @@ const coursePathLabels: LabelMap<PatchListTarget> = {
   '/subjectId': 'Предмет',
   '/startDate': 'Дата начала',
   '/endDate': 'Дата окончания',
+  '/authors': 'Авторы курса',
   '/chapters': 'Главы курса',
   '/chapters/*': (ctx: PatchLabelContext) =>
     `Глава «${getTitle(ctx.value, 'Без названия')}»`,
@@ -232,10 +256,36 @@ function getTitle(value: unknown, fallback = 'Без названия'): string 
 
   return fallback
 }
+
+function isUser(value: unknown): value is UserEntity {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    (value as Record<string, unknown>)._entityName == 'User'
+  )
+}
+
+function asUser(value: unknown): UserEntity | null {
+  return isUser(value) ? value : null
+}
+
+function asUsers(value: unknown): UserEntity[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter(isUser)
+}
 </script>
 
 <style scoped lang="sass">
 .save-course-changes-modal__content__patch-list
   max-height: 300px
   overflow-y: auto
+
+.course-patch-list__users
+  display: flex
+  flex-direction: column
+  gap: 0.3em
+  align-items: flex-start
 </style>

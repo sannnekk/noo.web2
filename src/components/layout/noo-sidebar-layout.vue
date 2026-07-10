@@ -139,12 +139,12 @@ onUnmounted(() => {
       width: var(--sidebar-width-wide)
 
     &--collapsible
-      overflow: hidden
 
     &--collapsed
       width: var(--sidebar-collapsed-width)
       padding-right: 0.6em
       padding-left: 0.6em
+      overflow: hidden
 
     @media screen and (max-width: 768px)
       width: calc(100% - 2em) !important
