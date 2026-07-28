@@ -46,7 +46,12 @@ const module: ApplicationModule = {
       beforeEnter: [initCoursePageGuard],
       props: (route): CourseDetailPageProps => {
         return {
-          courseId: String(route.params.courseId)
+          courseId: String(route.params.courseId),
+          // Owned by the child route, but the sidebar lives on this level and has to
+          // know which material is open to expand the chapter tree down to it.
+          materialId: route.params.materialId
+            ? String(route.params.materialId)
+            : undefined
         }
       },
       children: [

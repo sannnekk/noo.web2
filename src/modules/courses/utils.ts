@@ -28,26 +28,33 @@ function findMaterial(
   return null
 }
 
-function findChapterByMaterialId(
+/**
+ * Collects the ids of every chapter on the way down to the material, from the root
+ * chapter to the one that directly owns it.
+ *
+ * The tree renders one component per nesting level, so opening a material means opening
+ * its whole ancestor chain, not just its immediate parent.
+ */
+function findChapterIdPathToMaterial(
   chapters: CourseChapterEntity[] | undefined,
   materialId: string
-): CourseChapterEntity | null {
+): string[] {
   for (const chapter of chapters ?? []) {
     if ((chapter.materials ?? []).some((m) => m.id === materialId)) {
-      return chapter
+      return [chapter.id]
     }
 
-    const chapterFromSubChapters = findChapterByMaterialId(
+    const pathFromSubChapters = findChapterIdPathToMaterial(
       chapter.subChapters,
       materialId
     )
 
-    if (chapterFromSubChapters) {
-      return chapterFromSubChapters
+    if (pathFromSubChapters.length > 0) {
+      return [chapter.id, ...pathFromSubChapters]
     }
   }
 
-  return null
+  return []
 }
 
 function searchMaterials(
@@ -128,7 +135,7 @@ function getLastAttempt(
 
 export {
   findMaterial,
-  findChapterByMaterialId,
+  findChapterIdPathToMaterial,
   normalizeCoursePatch,
   searchMaterials,
   getLastAttempt

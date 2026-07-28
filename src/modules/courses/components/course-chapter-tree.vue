@@ -13,7 +13,7 @@
       >
         <div
           class="course-chapter-tree__item__header"
-          @click="chaptersState[chapter.id] = !chaptersState[chapter.id]"
+          @click="toggleChapter(chapter.id)"
         >
           <noo-list-opener-icon
             :opened="getChapterOpened(chapter.id)"
@@ -34,7 +34,7 @@
             <course-chapter-tree
               :chapters="chapter.subChapters ?? []"
               :materials="chapter.materials"
-              :initially-selected-material-id="initiallySelectedMaterialId"
+              :expanded-chapter-ids="expandedChapterIds"
               :all-opened="allOpened"
               :highlighted-key="highlightedKey"
             />
@@ -79,40 +79,53 @@ import type {
   CourseChapterEntity,
   CourseMaterialEntity
 } from '../api/course.types.ts'
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 import { courseMaterialReactionEmojis } from '../constants.ts'
-import { findChapterByMaterialId } from '../utils.ts'
 
 interface Props {
   chapters: CourseChapterEntity[]
   materials?: CourseMaterialEntity[]
-  initiallySelectedMaterialId?: string
+  /**
+   * Chapters to open regardless of what the user toggled, e.g. the ancestor chain
+   * of the currently opened material. Toggling such a chapter overrides it until
+   * the chain itself changes.
+   */
+  expandedChapterIds?: string[]
   allOpened?: boolean
   highlightedKey?: string | null
 }
 
 const props = defineProps<Props>()
 
-const chaptersState = reactive<Record<string, boolean>>({})
+const toggledChapters = reactive<Record<string, boolean>>({})
+
+const expandedChapterIdSet = computed(
+  () => new Set(props.expandedChapterIds ?? [])
+)
 
 const getChapterOpened = computed(() => (chapterId: string) => {
   if (props.allOpened) {
     return true
   }
 
-  return chaptersState[chapterId] ?? false
+  return toggledChapters[chapterId] ?? expandedChapterIdSet.value.has(chapterId)
 })
 
-if (props.initiallySelectedMaterialId) {
-  const chapter = findChapterByMaterialId(
-    props.chapters,
-    props.initiallySelectedMaterialId
-  )
-
-  if (chapter) {
-    chaptersState[chapter.id] = true
-  }
+function toggleChapter(chapterId: string): void {
+  toggledChapters[chapterId] = !getChapterOpened.value(chapterId)
 }
+
+// A new chain (another material was opened) takes precedence over earlier manual
+// toggles, so a chapter the user collapsed before opens again when it leads to the
+// material that is now selected.
+watch(
+  () => props.expandedChapterIds,
+  (chapterIds) => {
+    for (const chapterId of chapterIds ?? []) {
+      delete toggledChapters[chapterId]
+    }
+  }
+)
 </script>
 
 <style lang="sass" scoped>
@@ -126,21 +139,17 @@ if (props.initiallySelectedMaterialId) {
     padding-left: 1.7em
     font-size: 0.9em
 
+  &__item
+    &--highlighted, a.router-link-active
+      color: var(--secondary) !important
+
     a
       cursor: pointer
       color: var(--text-light)
       text-decoration: none
 
       &:hover
-        color: var(--secondary)
-
-  &__item
-    &--highlighted
-      background-color: var(--secondary-light)
-      border-radius: var(--border-radius)
-
-      a
-        color: var(--secondary) !important
+        text-decoration: underline
 
     &__reaction
       font-size: 0.85em
@@ -159,7 +168,7 @@ if (props.initiallySelectedMaterialId) {
       font-size: 0.9em
 
       &:hover
-        color: var(--secondary) !important
+        color: var(--secondary)
 
     &__content
       padding-left: 1em

@@ -93,7 +93,7 @@
         <course-chapter-tree
           v-else
           :chapters="chapterFilter.filteredChapters.value"
-          :initially-selected-material-id="openedMaterialId"
+          :expanded-chapter-ids="expandedChapterIds"
           :all-opened="chapterFilter.isFiltering.value"
           :highlighted-key="chapterFilter.highlightedKey.value"
         />
@@ -121,6 +121,7 @@ import { useRouter } from 'vue-router'
 import { useCourseChapterFilter } from '../composables/useCourseChapterFilter'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
+import { findChapterIdPathToMaterial } from '../utils'
 import MaterialSearchModal from './material-search-modal.vue'
 import CourseChapterTree from './course-chapter-tree.vue'
 
@@ -128,13 +129,24 @@ interface Props {
   openedMaterialId?: string
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const router = useRouter()
 const courseDetailStore = useCourseDetailStore()
 const { can } = useCoursePermissions()
 
 const course = computed(() => courseDetailStore.course.data)
+
+// Recomputed once the course arrives, so a directly opened material link expands the
+// tree down to it even though the chapters load after the first render.
+const expandedChapterIds = computed(() =>
+  props.openedMaterialId
+    ? findChapterIdPathToMaterial(
+        course.value?.chapters,
+        props.openedMaterialId
+      )
+    : []
+)
 
 const chapterFilter = useCourseChapterFilter({
   chapters: () => course.value?.chapters,

@@ -1,8 +1,11 @@
 import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
 import { describe, expect, test } from 'vitest'
-import type { CourseChapterEntity } from './api/course.types'
+import type {
+  CourseChapterEntity,
+  CourseMaterialEntity
+} from './api/course.types'
 import type { PossiblyUnsavedCourse } from './types'
-import { normalizeCoursePatch } from './utils'
+import { findChapterIdPathToMaterial, normalizeCoursePatch } from './utils'
 
 type PatchOp = { op: string; path: string; value?: unknown }
 
@@ -25,6 +28,69 @@ function chapter(
     ...overrides
   }
 }
+
+function material(
+  id: string,
+  chapterId: string,
+  overrides: Partial<CourseMaterialEntity> = {}
+): CourseMaterialEntity {
+  return {
+    _entityName: 'CourseMaterial',
+    id,
+    createdAt: new Date(0),
+    updatedAt: null,
+    order: 1,
+    title: `Material ${id}`,
+    titleColor: null,
+    isActive: true,
+    publishAt: null,
+    chapterId,
+    contentId: null,
+    ...overrides
+  }
+}
+
+// The sidebar expands the tree by opening every chapter on this path, so a missing
+// ancestor leaves the material invisible even though its own chapter is "opened".
+describe('findChapterIdPathToMaterial', () => {
+  test('returns the whole ancestor chain, root first', () => {
+    const tree = [
+      chapter('A', {
+        subChapters: [
+          chapter('A1', {
+            subChapters: [chapter('A1a', { materials: [material('m', 'A1a')] })]
+          })
+        ]
+      })
+    ]
+
+    expect(findChapterIdPathToMaterial(tree, 'm')).toEqual(['A', 'A1', 'A1a'])
+  })
+
+  test('returns a single chapter for a material at the root level', () => {
+    const tree = [chapter('A', { materials: [material('m', 'A')] })]
+
+    expect(findChapterIdPathToMaterial(tree, 'm')).toEqual(['A'])
+  })
+
+  test('skips branches that do not contain the material', () => {
+    const tree = [
+      chapter('A', { materials: [material('other', 'A')] }),
+      chapter('B', {
+        subChapters: [chapter('B1', { materials: [material('m', 'B1')] })]
+      })
+    ]
+
+    expect(findChapterIdPathToMaterial(tree, 'm')).toEqual(['B', 'B1'])
+  })
+
+  test('returns an empty path for an unknown material or missing chapters', () => {
+    const tree = [chapter('A', { materials: [material('m', 'A')] })]
+
+    expect(findChapterIdPathToMaterial(tree, 'unknown')).toEqual([])
+    expect(findChapterIdPathToMaterial(undefined, 'm')).toEqual([])
+  })
+})
 
 // Mirrors how the store observes the course. Passing an inline literal (or inspecting the
 // typed ops) would make the generic patch type recurse on the self-referential chapter
