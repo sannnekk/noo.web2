@@ -1,0 +1,337 @@
+[
+  {
+    "version": "1.1.1-alpha",
+    "date": "2026-07-10T11:20:54+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Added author management to a course edit page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added subject management to settings",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added video select component & used it in course material content edit page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added course reactions",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added role tag in profile & pin and archive for a student course assignment",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added related materials to work list page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed a student can manage mentor assignments",
+        "author": "sannnekk"
+      },
+      {
+        "type": "optimization",
+        "description": "Improved course students page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored course module tabs & added archive&unarchive buttons for a coruse",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
+    "version": "1.1.0-alpha",
+    "date": "2026-07-02T11:15:25+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Added course and course assignment archivation & fixed tabs on course list page for all roles",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added filters to all the pages where needed",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented calendar page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added video statistics",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented poll particiation list page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added favourite videos & small ui improvements",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added nootube video detail page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added video edit to nootube modal",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented nootube video upload",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added work statistics & added dropdown menu & small ui improvements and refactorings",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed problems with updating course tree",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed poll not being attached to course material",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored permissions",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
+    "version": "1.0.2-alpha",
+    "date": "2026-06-12T01:14:15+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Added avatar support & user info now loads on every page load and login",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented image upload in tiptap",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added tiptap as a default richtext editor, left quill as legacy fallback",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented assigned work history modal",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented help module, without main page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented notifications",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added refresh token & retry login modal",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored user settings, added working background image",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
+    "version": "1.0.1-alpha",
+    "date": "2026-06-02T16:59:09+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Implemented assigned works, courses and mentors on user detail page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "optimization",
+        "description": "IMproved date & time handling: reactive time, handling time zones",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored permission system",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
+    "version": "1.0.0-alpha",
+    "date": "2026-05-20T09:37:39+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Added metadata to assigned works list page & fixed loading ui in lists",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added error handling in searches",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added forgotten fiels",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added autosave for assigned works",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented assined work load & answer save",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added phone input & finished account settings",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added assigned work progress in course module",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented managing student and mentor assignments",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added snippet support in settings",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added file support",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added file upload",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added auth views to verify email & reset password",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added back buttons & started settings module",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added chart components",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added tests for composables",
+        "author": "Alex"
+      },
+      {
+        "type": "feature",
+        "description": "Added filters & aligned them with backend",
+        "author": "Alex"
+      },
+      {
+        "type": "feature",
+        "description": "Added validation to work module, fixed issue with decoding date from server, some minor bugs fixed",
+        "author": "Alex"
+      },
+      {
+        "type": "feature",
+        "description": "Added errors to input components",
+        "author": "Alex"
+      },
+      {
+        "type": "feature",
+        "description": "Implemented json patch & changes view",
+        "author": "Alex"
+      },
+      {
+        "type": "feature",
+        "description": "Added help page & layout",
+        "author": "Alex"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed app url for testing",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed Dockerfile",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed reload page broke create work page & small design fixes",
+        "author": "Alex"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored entity creation",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored role & permission handling",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored inputs & added tooltip to them",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored the way validation works in works module",
+        "author": "Alex"
+      },
+      {
+        "type": "refactor",
+        "description": "Refactored Entity types",
+        "author": "Alex"
+      }
+    ]
+  }
+]

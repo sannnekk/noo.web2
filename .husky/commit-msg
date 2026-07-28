@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+# Enforces the conventional-commit format that scripts/generate-changelog.mjs
+# reads to build the changelog. Keep this file in sync with the API's
+# .githooks/commit-msg.
+
+subject=$(head -n 1 "$1")
+
+# Let git's own generated subjects through untouched.
+case "$subject" in
+"Merge "* | "Revert "* | "fixup! "* | "squash! "*) exit 0 ;;
+esac
+
+pattern='^(feat|fix|perf|refactor|chore|docs|test|style|ci|build)(\([a-z0-9._-]+\))?!?: .{1,100}$'
+
+if printf '%s' "$subject" | grep -Eq "$pattern"; then
+	exit 0
+fi
+
+cat >&2 <<'EOF'
+✖ Commit message does not follow the conventional-commit format:
+
+    <type>(<optional scope>): <subject>
+
+Types that appear in the changelog:
+    feat      a new feature                -> Feature
+    fix       a bug fix                    -> BugFix
+    perf      an improvement               -> Optimization
+    refactor  a behaviour-neutral change   -> Refactor
+
+Types that are deliberately kept out of the changelog:
+    chore, docs, test, style, ci, build
+
+Examples:
+    feat(courses): add author management to the course edit page
+    fix: student can manage mentor assignments
+    chore: bump vite to 6.4.3
+
+EOF
+
+exit 1

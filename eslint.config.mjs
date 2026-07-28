@@ -18,6 +18,8 @@ export default defineConfig([
       '**/*.test.ts',
       '**/.output/**',
       '**/.cache/**',
+      // Build-time node scripts, outside the app's tsconfig
+      'scripts/**',
       './*.*'
     ]
   },
