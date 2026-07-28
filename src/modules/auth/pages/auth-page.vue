@@ -105,8 +105,6 @@ setTheme('light')
 	overflow: hidden
 	background: var(--light-background-color)
 
-	// Below lg the two panels stack, so the page has to be allowed to grow
-	// and scroll instead of being pinned to the viewport height.
 	+tablet-down
 		height: auto
 		min-height: 100vh
@@ -126,8 +124,6 @@ setTheme('light')
 		margin: 10px
 		border-radius: var(--border-radius)
 
-		// One column: the decorative panel collapses into a compact bar
-		// above the form, keeping the form near the top of the screen.
 		+tablet-down
 			grid-template: "background" auto "content" 1fr / minmax(0, 1fr)
 			background-image: none
@@ -162,9 +158,8 @@ setTheme('light')
 				padding: var(--space-s) var(--page-gutter) 0
 
 			&__logo
-				// The logo renders an <h1> inside a child component, so an em
-				// on this wrapper is what scales it without reaching past the
-				// scoped-style boundary.
+				// The logo is an <h1> in a child component — em on this
+				// wrapper scales it without crossing the scoped boundary.
 				+tablet-down
 					font-size: 0.7em
 
@@ -175,8 +170,6 @@ setTheme('light')
 				font-size: fluid(1.5rem, 2.5rem)
 				height: 130px
 
-				// Decorative, and the tallest thing on the page — first to go
-				// when the form needs the room.
 				+tablet-down
 					display: none
 
@@ -203,8 +196,6 @@ setTheme('light')
 				&__title
 					font-size: 1em
 
-					// The two buttons carry the message on their own once
-					// there is no room for the sentence.
 					+tablet-down
 						display: none
 
@@ -241,9 +232,6 @@ setTheme('light')
 				overflow-x: hidden
 				max-height: calc(100vh - 20px - 4em)
 
-				// Stacked, the card is the page — it scrolls with the
-				// document rather than trapping the form in its own
-				// scroll area.
 				+tablet-down
 					max-width: 30rem
 					margin-inline: auto

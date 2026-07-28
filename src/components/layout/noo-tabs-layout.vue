@@ -146,14 +146,23 @@ function isTabActive(tab: string) {
       align-items: center
       justify-content: flex-start
       gap: 0.5em
+      // More tabs than fit is the normal case on a phone — scroll the strip
+      // rather than let the far tabs spill out where they cannot be reached.
+      +scroll-x
+      scrollbar-width: none
+
+      &::-webkit-scrollbar
+        display: none
 
     &__title
       display: block
+      flex: 0 0 auto
       cursor: pointer
       font-size: 0.9em
       color: var(--form-text-color)
       text-decoration: none
       line-height: 1.1em
+      white-space: nowrap
 
       &--active
         color: var(--white)

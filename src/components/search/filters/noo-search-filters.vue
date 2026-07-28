@@ -37,20 +37,35 @@ function clearFilters() {
   display: flex
   align-items: flex-start
   justify-content: space-between
-  gap: 1em
-  padding: 0.5em 0
+  gap: var(--space-s)
+  padding: var(--space-2xs) 0
   flex-wrap: wrap
-  margin: 0 0.5em
+  margin: 0 var(--space-2xs)
 
   &__list
     display: flex
     flex-wrap: wrap
-    gap: 1em
+    gap: var(--space-s)
     align-items: flex-start
 
+    +mobile
+      flex: 1 1 100%
+      gap: var(--space-2xs)
+
+      > *
+        flex: 1 1 100%
+        min-width: 0
+
   &__actions
-    padding-top: 1em
+    // Lines the buttons up with the inputs, which carry a label above them.
+    padding-top: var(--space-s)
     display: flex
     align-items: center
-    gap: 0.5em
+    gap: var(--space-2xs)
+
+    +mobile
+      flex: 1 1 100%
+      flex-wrap: wrap
+      justify-content: flex-end
+      padding-top: 0
 </style>

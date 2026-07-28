@@ -1,10 +1,7 @@
 @use "sass:map"
 
-// Viewport breakpoints.
-// These mirror three other places — keep all of them in sync:
-//   - src/core/config/breakpoints.config.ts (the JS side)
-//   - public/bootstrap-grid.min.css (the .col-* classes)
-//   - this file
+// Keep in sync with src/core/config/breakpoints.config.ts and the Bootstrap
+// grid in public/bootstrap-grid.min.css.
 $breakpoints: (sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px)
 
 @function bp($name)
@@ -12,28 +9,19 @@ $breakpoints: (sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px)
     @error "Unknown breakpoint `#{$name}`. Known: #{map.keys($breakpoints)}."
   @return map.get($breakpoints, $name)
 
-// Mobile-first: applies from $name and up.
-//   +up(lg)
-//     flex-direction: row
 =up($name)
   @media screen and (min-width: #{bp($name)})
     @content
 
-// Desktop-first: applies below $name. The 0.02px keeps it from overlapping
-// with +up($name) on fractional viewport widths.
-//   +down(md)
-//     flex-direction: column
+// The 0.02px stops this overlapping +up() on fractional viewport widths.
 =down($name)
   @media screen and (max-width: #{bp($name) - 0.02px})
     @content
 
-// Applies from $lower up to (but not including) $upper.
 =between($lower, $upper)
   @media screen and (min-width: #{bp($lower)}) and (max-width: #{bp($upper) - 0.02px})
     @content
 
-// Semantic aliases — prefer these for layout decisions, they read better
-// than a raw breakpoint name and are the ones the JS side exposes too.
 =mobile
   +down(md)
     @content
@@ -50,8 +38,6 @@ $breakpoints: (sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px)
   +up(lg)
     @content
 
-// Capability queries. Use these instead of a width guess when the real
-// question is "can this device hover?" or "is the pointer coarse?".
 =touch
   @media (hover: none) and (pointer: coarse)
     @content

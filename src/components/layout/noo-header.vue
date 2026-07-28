@@ -59,7 +59,6 @@ const route = useRoute()
     align-items: center
 
     +mobile
-      // auto rather than a fixed track — the toggler sizes fluidly now
       grid-template-columns: auto minmax(0, 1fr) auto
       grid-template-rows: auto auto
 

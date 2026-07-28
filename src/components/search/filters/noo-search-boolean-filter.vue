@@ -90,4 +90,7 @@ watch(
 <style scoped lang="sass">
 .noo-search-boolean-filter
   min-width: 200px
+
+  +mobile
+    min-width: 0
 </style>

@@ -1,18 +1,11 @@
 @use "sass:math"
 
-// The viewport range the fluid interpolation runs across.
 $fluid-min-viewport: 22.5rem !default // 360px
 $fluid-max-viewport: 90rem !default   // 1440px
 
-// Linear interpolation between two sizes, clamped at both ends. A value built
-// with fluid() scales with the viewport, so it usually removes the need for a
-// media query on the property entirely.
-//
-//   padding: fluid(1rem, 2.5rem)
-//   font-size: fluid(1.2rem, 1.75rem)
-//
-// Both bounds must be in rem — that keeps the slope unitless and the result
-// respects the user's browser font size.
+// fluid(1rem, 1.5rem) -> a size that interpolates with the viewport between
+// $from and $to, clamped at both ends. Bounds must be rem so the slope stays
+// unitless and the result respects the browser font size.
 @function fluid($min, $max, $from: $fluid-min-viewport, $to: $fluid-max-viewport)
   @if math.unit($min) != "rem" or math.unit($max) != "rem"
     @error "fluid() expects rem bounds, got #{$min} and #{$max}."

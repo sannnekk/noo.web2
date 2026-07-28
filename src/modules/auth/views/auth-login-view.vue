@@ -93,8 +93,6 @@ const authStore = useAuthStore()
         width: 50%
         margin: 0 auto
 
-        // Full width on phones — a half-width button in a card that is
-        // already narrow ends up smaller than a comfortable tap target.
         +mobile
           width: 100%
 </style>

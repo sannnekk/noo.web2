@@ -64,7 +64,9 @@ const { wideSidebar, collapsible } = toRefs(props)
 
 const { isMobile } = useBreakpoint()
 
-const sidebarOpened = ref(true)
+// Stacked on a phone, an open sidebar pushes the content off screen — start
+// it collapsed there when there is a toggle to reopen it with.
+const sidebarOpened = ref(!(props.collapsible && isMobile.value))
 const sidebarContentId = `noo-sidebar-content-${useId()}`
 
 const isSidebarCollapsed = computed(
@@ -88,12 +90,15 @@ watch(
   }
 )
 
-// Leaving mobile reopens the sidebar: on a wide viewport it sits beside the
-// content, so there is no reason to keep it collapsed.
+// Crossing the breakpoint resets the sidebar to whatever suits the new layout:
+// beside the content there is no reason to keep it collapsed, stacked above it
+// there is no reason to keep it open.
 watch(isMobile, (mobile, wasMobile) => {
-  if (wasMobile && !mobile && props.collapsible) {
-    sidebarOpened.value = true
+  if (mobile === wasMobile || !props.collapsible) {
+    return
   }
+
+  sidebarOpened.value = !mobile
 })
 </script>
 
@@ -109,12 +114,13 @@ watch(isMobile, (mobile, wasMobile) => {
 
   +mobile
     flex-direction: column
+    align-items: stretch
 
   &__sidebar
     width: var(--sidebar-width)
     height: fit-content
-    padding: 1em
-    margin: 1em
+    padding: var(--space-s)
+    margin: var(--space-s)
     border-radius: var(--border-radius)
     box-shadow: var(--block-shadow)
     transition: width 0.3s ease, padding 0.3s ease, max-height 0.3s ease
@@ -122,22 +128,25 @@ watch(isMobile, (mobile, wasMobile) => {
     &--wide
       width: var(--sidebar-width-wide)
 
-    &--collapsible
-
     &--collapsed
       width: var(--sidebar-collapsed-width)
-      padding-right: 0.6em
-      padding-left: 0.6em
+      padding-right: var(--space-2xs)
+      padding-left: var(--space-2xs)
       overflow: hidden
 
+    // Stacked, the sidebar spans the column and the widths above no longer
+    // apply — `auto` lets align-items: stretch do the sizing.
     +mobile
-      width: calc(100% - 2em) !important
+      width: auto
+      margin-bottom: 0
+
+      &--wide
+        width: auto
 
       &--collapsed
-        width: calc(100% - 2em) !important
+        width: auto
         max-height: 4.5em
-        margin-top: 0
-        margin-bottom: 0
+        overflow: hidden
 
     &__content
       max-height: 1000vh
@@ -156,7 +165,7 @@ watch(isMobile, (mobile, wasMobile) => {
     border: none
     border-radius: 999px
     margin-bottom: 0.75em
-    padding: 0.5em 0.8em
+    padding: var(--space-2xs) var(--space-xs)
     display: flex
     align-items: center
     justify-content: flex-start
@@ -204,7 +213,7 @@ watch(isMobile, (mobile, wasMobile) => {
   &__content
     flex: 1
     min-width: 0
-    padding: 1em
+    padding: var(--space-s)
     width: auto
 
     &--wide-sidebar

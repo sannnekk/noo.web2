@@ -89,17 +89,25 @@ const pageModel = defineModel<number>('page', {
     display: flex
     align-items: center
     justify-content: space-between
-    gap: 0.5em
-    padding: 0 0.5em
+    gap: var(--space-2xs)
+    padding: 0 var(--space-2xs)
+    flex-wrap: wrap
 
     &__search-input
-      flex: 0.75
+      flex: 0.75 1 16rem
 
     &__actions
       display: flex
       justify-content: flex-end
-      gap: 0.5rem
+      gap: var(--space-2xs)
+
+      +mobile
+        flex: 1 1 100%
+        flex-wrap: wrap
 
   &__content
-    padding: 1em 0
+    padding: var(--space-s) 0
+    // The table has a minimum width no amount of stacking removes — it scrolls
+    // itself so the page does not scroll sideways.
+    +scroll-x
 </style>

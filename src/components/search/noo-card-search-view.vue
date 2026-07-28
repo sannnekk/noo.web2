@@ -24,9 +24,9 @@
       v-else-if="items?.length"
       class="noo-card-search-view__content"
       :style="{
-        gridGap: gap,
-        padding: gap,
-        gridTemplateColumns: `repeat(${perRow}, minmax(0, 1fr))`
+        '--grid-gap': gap,
+        '--per-row': perRow,
+        '--tile-min-width': tileMinWidth
       }"
     >
       <div
@@ -109,11 +109,17 @@ export interface Props<
   isLoading?: boolean
   gap?: string
   /**
-   * Number of tiles per row in the grid.
-   * Can be 2 to 6.
-   * Default is 3.
+   * Maximum number of tiles per row, reached on wide viewports.
+   * Can be 2 to 6. Default is 3.
+   *
+   * The grid drops to fewer columns on its own once a tile would get
+   * narrower than `tileMinWidth`, so this is a ceiling and not a fixed count.
    */
   perRow?: number
+  /**
+   * Narrowest a tile is allowed to get before the grid drops a column.
+   */
+  tileMinWidth?: string
   error?: ApiError | null
   tryAgain?: () => void
 }
@@ -122,7 +128,8 @@ withDefaults(defineProps<Props<T>>(), {
   limit: 25,
   isLoading: false,
   perRow: 3,
-  gap: '0.5em'
+  gap: '0.5em',
+  tileMinWidth: '18rem'
 })
 
 const searchModel = defineModel<string>('search', {
@@ -139,26 +146,36 @@ const pageModel = defineModel<number>('page', {
     display: flex
     align-items: center
     justify-content: space-between
-    gap: 0.5em
-    padding: 0 0.5em
+    gap: var(--space-2xs)
+    padding: 0 var(--space-2xs)
+    flex-wrap: wrap
 
     &__search-input
-      flex: 0.75
+      flex: 0.75 1 16rem
 
     &__actions
       display: flex
       justify-content: flex-end
-      gap: 0.5em
+      gap: var(--space-2xs)
+
+      +mobile
+        flex: 1 1 100%
+        flex-wrap: wrap
 
   &__content
     display: grid
+    gap: var(--grid-gap)
+    padding: var(--grid-gap)
+    // Tracks never go below --tile-min-width, so auto-fit drops columns on its
+    // own; the calc() caps the count at --per-row when there is room to spare.
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(var(--tile-min-width), calc((100% - (var(--per-row) - 1) * var(--grid-gap)) / var(--per-row)))), 1fr))
 
   &__is-loading
     display: flex
     align-items: center
     justify-content: center
-    padding: 4em 1em
-    font-size: 3em
+    padding: var(--space-2xl) var(--space-s)
+    font-size: fluid(2rem, 3rem)
 
   &__empty
     display: flex
@@ -166,11 +183,11 @@ const pageModel = defineModel<number>('page', {
     align-items: center
     justify-content: center
     height: 100%
-    padding: 4em 1em
+    padding: var(--space-2xl) var(--space-s)
 
     &__inner
       text-align: center
-      width: max(600px, 90%)
+      width: min(max(600px, 90%), 100%)
 
       img
         max-width: 50%

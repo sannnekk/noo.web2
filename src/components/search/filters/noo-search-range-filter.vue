@@ -112,8 +112,14 @@ function normalizeDate(value: Date | string | number | null): Date | null {
   gap: 0.35em
   min-width: 260px
 
+  +mobile
+    min-width: 0
+
   &__inputs
     display: grid
     grid-template-columns: repeat(2, minmax(0, 1fr))
-    gap: 0.5em
+    gap: var(--space-2xs)
+
+    +down(sm)
+      grid-template-columns: minmax(0, 1fr)
 </style>
