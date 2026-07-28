@@ -40,7 +40,7 @@ const notificationStore = useNotificationsStore()
     border: none
     position: relative
 
-    @media screen and (max-width: 768px)
+    +mobile
       font-size: 1.4rem
       padding: 0.3em
 
@@ -61,6 +61,6 @@ const notificationStore = useNotificationsStore()
       font-size: 0.4em
       font-weight: bold
 
-      @media screen and (max-width: 768px)
+      +mobile
         min-width: 1.3em
 </style>

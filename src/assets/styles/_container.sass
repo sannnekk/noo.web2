@@ -1,0 +1,46 @@
+@use "sass:map"
+
+// Container-query thresholds. Deliberately smaller than the viewport
+// breakpoints — these describe how much room a component was *given*, not how
+// big the window is.
+$container-sizes: (xs: 20rem, sm: 30rem, md: 40rem, lg: 48rem, xl: 64rem)
+
+@function cq($size)
+  @if map.has-key($container-sizes, $size)
+    @return map.get($container-sizes, $size)
+  @return $size
+
+// Marks an element as a size-query container, so its descendants can react to
+// its width. Name it when the component nests other containers inside itself,
+// otherwise the nearest ancestor wins and that is rarely what you meant.
+//
+// Note: inline-size containment means children can no longer influence this
+// element's width. Put the container on a wrapper that already has its width
+// decided by its parent (a grid/flex child, a pane, a card shell).
+=container($name: null)
+  container-type: inline-size
+  @if $name != null
+    container-name: $name
+
+// Applies when the container is narrower than $size.
+//   .card
+//     +container(card)
+//     &__body
+//       +cq-down(sm, card)
+//         flex-direction: column
+=cq-down($size, $name: null)
+  @if $name == null
+    @container (max-width: #{cq($size)})
+      @content
+  @else
+    @container #{$name} (max-width: #{cq($size)})
+      @content
+
+// Applies when the container is at least $size wide.
+=cq-up($size, $name: null)
+  @if $name == null
+    @container (min-width: #{cq($size)})
+      @content
+  @else
+    @container #{$name} (min-width: #{cq($size)})
+      @content

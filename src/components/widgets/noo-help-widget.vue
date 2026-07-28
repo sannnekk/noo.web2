@@ -41,13 +41,13 @@
       background-color: var(--light)
       color: var(--form-text-color)
 
-    @media screen and (max-width: 768px)
+    +mobile
       padding: 0.3em
 
     &__icon
       font-size: 1.6em
 
-      @media screen and (max-width: 768px)
+      +mobile
         font-size: 1rem
 
     &__text

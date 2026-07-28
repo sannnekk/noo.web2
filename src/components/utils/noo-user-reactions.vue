@@ -68,7 +68,7 @@ function react(reaction: string) {
     display: flex
     gap: 1em
 
-    @media screen and (max-width: 768px)
+    +mobile
       gap: 0.5em
       flex-wrap: wrap
 

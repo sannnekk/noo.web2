@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 // css
+import '@/assets/styles/tokens.sass'
 import 'animate.css'
 
 // adding modules

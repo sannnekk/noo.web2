@@ -1,0 +1,40 @@
+@use "fluid" as *
+
+// Fluid design tokens. Every value interpolates linearly between 360px and
+// 1440px of viewport width and clamps outside that range, so sizes adapt
+// without a media query.
+//
+// These are emitted as custom properties on purpose: they sit next to the
+// colour tokens in public/var.css at the usage site, an ancestor can retune a
+// whole subtree (.compact --space-s: …), and third-party CSS we don't compile
+// can still read them.
+//
+// Imported once from src/main.ts. This is the only file that should call
+// fluid() for a scale value — components use var(--space-s) and friends.
+:root
+  // Type scale (1.2 minor third at 360px, 1.25 major third at 1440px).
+  // --step-0 is body text; negative steps are smaller.
+  --step--2: #{fluid(0.6944rem, 0.7191rem)}
+  --step--1: #{fluid(0.8333rem, 0.8993rem)}
+  --step-0: #{fluid(1rem, 1.125rem)}
+  --step-1: #{fluid(1.2rem, 1.4062rem)}
+  --step-2: #{fluid(1.44rem, 1.7578rem)}
+  --step-3: #{fluid(1.728rem, 2.1973rem)}
+  --step-4: #{fluid(2.0736rem, 2.7466rem)}
+  --step-5: #{fluid(2.4883rem, 3.4332rem)}
+
+  // Spacing scale — padding, margin, gap
+  --space-3xs: #{fluid(0.25rem, 0.3125rem)}
+  --space-2xs: #{fluid(0.5rem, 0.625rem)}
+  --space-xs: #{fluid(0.75rem, 0.9375rem)}
+  --space-s: #{fluid(1rem, 1.25rem)}
+  --space-m: #{fluid(1.5rem, 1.875rem)}
+  --space-l: #{fluid(2rem, 2.5rem)}
+  --space-xl: #{fluid(3rem, 3.75rem)}
+  --space-2xl: #{fluid(4rem, 5rem)}
+  --space-3xl: #{fluid(6rem, 7.5rem)}
+
+  // Page shell
+  --page-gutter: #{fluid(0.75rem, 2rem)}
+  --content-max-width: 90rem
+  --tap-target-size: 2.75rem

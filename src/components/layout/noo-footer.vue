@@ -75,27 +75,20 @@
       padding: 0
 
     img
-      height: 2rem
+      height: fluid(1rem, 2rem)
       margin-right: 0.5rem
       position: relative
-      top: 0.6rem
-
-      @media (max-width: 1200px)
-        height: 1rem
-        top: 0.1rem
+      top: fluid(0.1rem, 0.6rem)
 
     a
       color: var(--text-light)
       text-decoration: none
-      font-size: 1rem
+      font-size: fluid(0.8rem, 1rem)
       font-weight: normal
       transition: color 0.2s
 
       &:hover
         color: var(--lila)
-
-      @media (max-width: 1200px)
-        font-size: 0.8rem
 
   &__links
     height: 3rem
@@ -104,17 +97,13 @@
     gap: 0.3rem
     align-items: center
     color: var(--text-light)
-    font-size: 0.9rem
+    font-size: fluid(0.6rem, 0.9rem)
 
-    @media (max-width: 1200px)
-      font-size: 0.8rem
+    +down(lg)
+      padding-top: var(--space-3xs)
 
-    @media (max-width: 992px)
-      font-size: 0.6rem
-      padding-top: 0.6rem
-
-    @media (max-width: 768px)
-      padding-top: 2rem
+    +mobile
+      padding-top: var(--space-l)
       flex-direction: column
       align-items: flex-start
 
@@ -131,7 +120,7 @@
 
   &__cookies
     color: var(--text-light)
-    font-size: 0.8rem
+    font-size: fluid(0.6rem, 0.8rem)
     margin-top: 0.5rem
     margin-bottom: 0
     text-align: right
@@ -139,11 +128,7 @@
     font-weight: 300
     line-height: 1.2
 
-    @media (max-width: 1200px)
-      font-size: 0.8rem
-
-    @media (max-width: 992px)
-      font-size: 0.6rem
+    +down(lg)
       text-align: left
 </style>
 

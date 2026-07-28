@@ -58,20 +58,18 @@ const route = useRoute()
     grid-template-rows: 1fr
     align-items: center
 
-    @media screen and (max-width: 768px)
-      grid-template-columns: 40px minmax(0, 1fr) auto
+    +mobile
+      // auto rather than a fixed track — the toggler sizes fluidly now
+      grid-template-columns: auto minmax(0, 1fr) auto
       grid-template-rows: auto auto
 
   &__pane-toggler
-    font-size: 60px
+    font-size: fluid(2.5rem, 3.75rem)
     margin-right: 0em
     height: 1em
-    min-width: 70px
-    width: 70px
+    min-width: fluid(2.5rem, 4.375rem)
+    width: fluid(2.5rem, 4.375rem)
     overflow: hidden
-
-    @media screen and (max-width: 768px)
-      font-size: 40px
 
   &__page-title
     h1
@@ -81,7 +79,7 @@ const route = useRoute()
       text-overflow: ellipsis
       overflow: hidden
 
-      @media screen and (max-width: 768px)
+      +mobile
         margin-left: 0.4em
         font-size: 20px
 
@@ -92,16 +90,16 @@ const route = useRoute()
     margin: 0 1em
     gap: 0.4em
 
-    @media screen and (max-width: 768px)
+    +mobile
       margin: 0
       padding-left: 0.5em
 
     &__hotkey-widget
-      @media screen and (max-width: 768px)
+      +mobile
         display: none
 
   &__profile-widget
-    @media screen and (max-width: 768px)
+    +mobile
       grid-column: 1 / -1
       width: 100%
       border-top: 1px solid var(--border-color)

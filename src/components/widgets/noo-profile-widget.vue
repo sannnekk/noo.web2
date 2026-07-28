@@ -44,7 +44,7 @@ const authStore = useAuthStore()
   padding: 10px
   border-radius: var(--border-radius)
 
-  @media screen and (max-width: 768px)
+  +mobile
     padding: 0
 
   &:hover
@@ -54,11 +54,11 @@ const authStore = useAuthStore()
     font-size: 50px
     margin-right: 10px
 
-    @media screen and (max-width: 768px)
+    +mobile
       font-size: 40px
 
   &__credentials
-    @media screen and (max-width: 768px)
+    +mobile
       font-size: 12px
 
     &__name

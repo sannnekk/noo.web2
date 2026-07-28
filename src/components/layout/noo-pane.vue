@@ -176,7 +176,7 @@ watch(
         align-items: center
         padding: 0.7em 0
 
-        @media screen and (max-width: 768px)
+        +mobile
           padding-top: 0.5em
           padding-bottom: 0.5em
           font-size: 15px

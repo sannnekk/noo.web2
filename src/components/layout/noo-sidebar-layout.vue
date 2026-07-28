@@ -47,15 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  ref,
-  toRefs,
-  useId,
-  watch
-} from 'vue'
+import { computed, ref, toRefs, useId, watch } from 'vue'
+
+import { useBreakpoint } from '@/core/composables/useBreakpoint'
 
 interface Props {
   wideSidebar?: boolean
@@ -68,8 +62,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 const { wideSidebar, collapsible } = toRefs(props)
 
+const { isMobile } = useBreakpoint()
+
 const sidebarOpened = ref(true)
-const isMobileViewport = ref(false)
 const sidebarContentId = `noo-sidebar-content-${useId()}`
 
 const isSidebarCollapsed = computed(
@@ -84,16 +79,6 @@ function toggleSidebar() {
   sidebarOpened.value = !sidebarOpened.value
 }
 
-function handleResize() {
-  const isMobile = window.innerWidth <= 768
-
-  if (isMobileViewport.value && !isMobile && props.collapsible) {
-    sidebarOpened.value = true
-  }
-
-  isMobileViewport.value = isMobile
-}
-
 watch(
   () => props.collapsible,
   (collapsible) => {
@@ -103,13 +88,12 @@ watch(
   }
 )
 
-onMounted(() => {
-  handleResize()
-  window.addEventListener('resize', handleResize)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+// Leaving mobile reopens the sidebar: on a wide viewport it sits beside the
+// content, so there is no reason to keep it collapsed.
+watch(isMobile, (mobile, wasMobile) => {
+  if (wasMobile && !mobile && props.collapsible) {
+    sidebarOpened.value = true
+  }
 })
 </script>
 
@@ -123,7 +107,7 @@ onUnmounted(() => {
   flex-direction: row
   align-items: flex-start
 
-  @media screen and (max-width: 768px)
+  +mobile
     flex-direction: column
 
   &__sidebar
@@ -146,7 +130,7 @@ onUnmounted(() => {
       padding-left: 0.6em
       overflow: hidden
 
-    @media screen and (max-width: 768px)
+    +mobile
       width: calc(100% - 2em) !important
 
       &--collapsed
@@ -207,7 +191,7 @@ onUnmounted(() => {
       max-width: 16em
       transition: max-width 0.2s ease, opacity 0.2s ease
 
-    @media screen and (max-width: 768px)
+    +mobile
       margin-bottom: 0.5em
 
       &--collapsed
@@ -226,6 +210,6 @@ onUnmounted(() => {
     &--wide-sidebar
       width: auto
 
-    @media screen and (max-width: 768px)
+    +mobile
       width: 100%
 </style>

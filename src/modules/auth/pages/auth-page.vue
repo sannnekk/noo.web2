@@ -1,9 +1,6 @@
 <template>
   <div class="auth-page">
-    <div
-      class="auth-page__inner"
-      style="background-image: url('/img/line-background.svg')"
-    >
+    <div class="auth-page__inner">
       <div class="auth-page__inner__background">
         <div class="auth-page__inner__background__logo">
           <noo-main-logo />
@@ -104,9 +101,17 @@ setTheme('light')
 
 <style scoped lang="sass">
 .auth-page
-	height: 100vh
+	+full-height
 	overflow: hidden
 	background: var(--light-background-color)
+
+	// Below lg the two panels stack, so the page has to be allowed to grow
+	// and scroll instead of being pinned to the viewport height.
+	+tablet-down
+		height: auto
+		min-height: 100vh
+		min-height: 100dvh
+		overflow: visible
 
 	&__inner
 		display: grid
@@ -114,11 +119,29 @@ setTheme('light')
 		width: calc(100% - 20px)
 		height: calc(100% - 20px)
 		background-color: #fff
+		background-image: url('/img/line-background.svg')
 		background-position: center
 		background-repeat: no-repeat
 		background-size: contain
 		margin: 10px
 		border-radius: var(--border-radius)
+
+		// One column: the decorative panel collapses into a compact bar
+		// above the form, keeping the form near the top of the screen.
+		+tablet-down
+			grid-template: "background" auto "content" 1fr / minmax(0, 1fr)
+			background-image: none
+			height: auto
+			min-height: calc(100vh - 20px)
+			min-height: calc(100dvh - 20px)
+
+		+mobile
+			width: 100%
+			height: auto
+			min-height: 100vh
+			min-height: 100dvh
+			margin: 0
+			border-radius: 0
 
 		&__background
 			height: 100%
@@ -129,9 +152,33 @@ setTheme('light')
 			gap: 1em
 			justify-content: space-around
 
+			+tablet-down
+				height: auto
+				flex-direction: row
+				flex-wrap: wrap
+				align-items: center
+				justify-content: space-between
+				gap: var(--space-2xs)
+				padding: var(--space-s) var(--page-gutter) 0
+
+			&__logo
+				// The logo renders an <h1> inside a child component, so an em
+				// on this wrapper is what scales it without reaching past the
+				// scoped-style boundary.
+				+tablet-down
+					font-size: 0.7em
+
+				+mobile
+					font-size: 0.55em
+
 			&__typing-text
-				font-size: 2.5em
+				font-size: fluid(1.5rem, 2.5rem)
 				height: 130px
+
+				// Decorative, and the tallest thing on the page — first to go
+				// when the form needs the room.
+				+tablet-down
+					display: none
 
 			&__image
 				padding: 1em 0
@@ -141,16 +188,33 @@ setTheme('light')
 				img
 					width: 85%
 
+				+tablet-down
+					display: none
+
 			&__actions
 				display: flex
 				flex-direction: column
 
+				+tablet-down
+					flex-direction: row
+					align-items: center
+					gap: var(--space-2xs)
+
 				&__title
 					font-size: 1em
+
+					// The two buttons carry the message on their own once
+					// there is no room for the sentence.
+					+tablet-down
+						display: none
 
 				&__list
 					display: flex
 					gap: 1em
+
+					+tablet-down
+						gap: var(--space-2xs)
+						font-size: 0.8em
 
 		&__content
 			height: 100%
@@ -160,6 +224,11 @@ setTheme('light')
 			align-items: center
 			border-radius: 10px
 			padding: 2em
+
+			+tablet-down
+				height: auto
+				align-items: flex-start
+				padding: var(--space-s) var(--page-gutter) var(--space-l)
 
 			&__inner
 				border-radius: var(--border-radius)
@@ -171,6 +240,19 @@ setTheme('light')
 				overflow-y: auto
 				overflow-x: hidden
 				max-height: calc(100vh - 20px - 4em)
+
+				// Stacked, the card is the page — it scrolls with the
+				// document rather than trapping the form in its own
+				// scroll area.
+				+tablet-down
+					max-width: 30rem
+					margin-inline: auto
+					max-height: none
+					overflow-y: visible
+					padding: var(--space-m) var(--space-m) var(--space-2xs)
+
+				+mobile
+					padding: var(--space-s) var(--space-s) var(--space-2xs)
 
 				&__help
 					margin-top: 1em
@@ -186,4 +268,7 @@ setTheme('light')
 				&__rights
 					margin-top: 3em
 					color: var(--text-light)
+
+					+mobile
+						margin-top: var(--space-m)
 </style>

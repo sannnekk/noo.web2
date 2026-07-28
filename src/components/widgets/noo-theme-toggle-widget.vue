@@ -50,7 +50,7 @@ const { mode, toggle } = useTheme()
     cursor: pointer
     border: none
 
-    @media screen and (max-width: 768px)
+    +mobile
       font-size: 1.4rem
       padding: 0.3em
 

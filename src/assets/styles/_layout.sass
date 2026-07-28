@@ -1,0 +1,44 @@
+// Intrinsic layout primitives. Each of these reflows on its own — reach for
+// them before reaching for a breakpoint.
+
+// A grid whose columns wrap by themselves: as many $min-wide tracks as fit,
+// one full-width track when they don't. The inner min() keeps a single card
+// from overflowing a container narrower than $min.
+=auto-grid($min: 18rem, $gap: var(--space-s))
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(min(#{$min}, 100%), 1fr))
+  gap: $gap
+
+// A row that becomes a stack once its children can no longer hold $threshold.
+// The switch happens at the element's own width, not the viewport's.
+=switcher($threshold: 30rem, $gap: var(--space-s))
+  display: flex
+  flex-wrap: wrap
+  gap: $gap
+
+  > *
+    flex: 1 1 #{$threshold}
+
+// A centred reading column with viewport-proportional gutters.
+=content-column($max: var(--content-max-width))
+  width: 100%
+  max-width: $max
+  margin-inline: auto
+  padding-inline: var(--page-gutter)
+
+// Wide content — tables, code blocks, charts — scrolls inside its own box
+// instead of forcing the page to scroll sideways.
+=scroll-x
+  max-width: 100%
+  overflow-x: auto
+  -webkit-overflow-scrolling: touch
+
+// Full viewport height that accounts for mobile browser chrome.
+=full-height
+  height: 100vh
+  height: 100dvh
+
+// Hit targets big enough to tap. Apply to buttons/links that are icon-sized.
+=tap-target($size: 2.75rem)
+  min-width: $size
+  min-height: $size
