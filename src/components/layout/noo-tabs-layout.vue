@@ -53,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, type VNode } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, onUpdated, watch, type VNode } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 interface Slots {
   actions: () => VNode | VNode[] | null
@@ -80,6 +80,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emits = defineEmits<Emits>()
 const slots = defineSlots<Slots>()
 const route = useRoute()
+const router = useRouter()
 
 function tabKeys(): string[] {
   return Object.keys(slots)
@@ -115,6 +116,23 @@ onMounted(() => {
   const keys = tabKeys()
 
   if (!activeTab.value && keys.length > 0) {
+    activeTab.value = keys[0]
+  }
+})
+
+// Callers gate their tabs on data that arrives after the first render, so the
+// active tab can vanish from under us — a tab picked before the data landed
+// would otherwise leave the pane blank with nothing highlighted.
+onUpdated(() => {
+  const keys = tabKeys()
+
+  if (!keys.length || keys.includes(activeTab.value)) {
+    return
+  }
+
+  if (props.useRouteTabs) {
+    router.replace(getRouteName(keys[0]))
+  } else {
     activeTab.value = keys[0]
   }
 })

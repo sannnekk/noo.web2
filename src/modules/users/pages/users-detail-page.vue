@@ -66,8 +66,16 @@
           use-route-tabs
           route-param-name="tabId"
         >
-          <template #tab-title-general-info>Общая информация</template>
-          <template #tab-general-info>
+          <template
+            v-if="showGeneralInfoTab"
+            #tab-title-general-info
+          >
+            Общая информация
+          </template>
+          <template
+            v-if="showGeneralInfoTab"
+            #tab-general-info
+          >
             <general-info-view />
           </template>
           <template
@@ -176,6 +184,10 @@ const { can } = useUsersPermissions()
 
 const user = computed(() => userDetailStore.user.data)
 const onlineInfo = computed(() => userDetailStore.onlineInfo.data)
+
+// An admin has neither assignments nor courses of their own, so the tab would
+// only ever render an empty pane.
+const showGeneralInfoTab = computed(() => userDetailStore.role !== 'admin')
 
 watch(
   () => props.userId,

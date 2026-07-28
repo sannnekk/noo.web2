@@ -8,15 +8,28 @@
     </div>
     <template v-else-if="userDetailStore.user.data">
       <student-mentor-assignments
-        v-if="userDetailStore.isStudent"
+        v-if="userDetailStore.role === 'student'"
         :student="userDetailStore.user.data"
       />
       <mentor-student-assignments
-        v-else-if="userDetailStore.isMentor"
+        v-else-if="userDetailStore.role === 'mentor'"
         :mentor="userDetailStore.user.data"
       />
       <noo-section
-        v-if="userDetailStore.isStudent"
+        v-if="userDetailStore.role === 'teacher'"
+        title="Авторские курсы"
+        description="Курсы, автором которых является этот преподаватель"
+      >
+        <authored-course-list
+          :courses="userDetailStore.authoredCourses.data ?? []"
+          :is-loading="userDetailStore.authoredCourses.isLoading"
+          :has-error="!!userDetailStore.authoredCourses.error"
+          empty-text="Преподаватель пока не является автором ни одного курса"
+          @retry="userDetailStore.authoredCourses.execute()"
+        />
+      </noo-section>
+      <noo-section
+        v-if="userDetailStore.role === 'student'"
         title="Курсы"
         description="Здесь отображаются курсы, на которые ученик был добавлен вручную или через подписку. Прогресс по курсам сохраняется, даже если ученик будет удалён из курса"
       >
@@ -69,6 +82,7 @@
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
 import type { CourseMembershipEntity } from '@/modules/courses/api/course.types'
+import AuthoredCourseList from '../components/authored-course-list.vue'
 import CourseMembershipList from '../components/course-membership-list.vue'
 import MentorStudentAssignments from '../components/mentor-student-assignments.vue'
 import StudentMentorAssignments from '../components/student-mentor-assignments.vue'

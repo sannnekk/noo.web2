@@ -14,7 +14,10 @@ import { defineStore } from 'pinia'
 import { computed, type ComputedRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { CourseService } from '@/modules/courses/api/course.service'
-import type { CourseMembershipEntity } from '@/modules/courses/api/course.types'
+import type {
+  CourseEntity,
+  CourseMembershipEntity
+} from '@/modules/courses/api/course.types'
 import { UserService } from '../api/user.service'
 import { SessionService } from '@/modules/settings/api/session.service'
 import type {
@@ -52,13 +55,13 @@ interface UserDetailStore {
    */
   courseMemberships: UseApiRequestReturn<void, CourseMembershipEntity[]>
   /**
-   * Whether the loaded user is a student.
+   * Courses the user is an author of (relevant when the user is a teacher).
    */
-  isStudent: ComputedRef<boolean>
+  authoredCourses: UseApiRequestReturn<void, CourseEntity[]>
   /**
-   * Whether the loaded user is a mentor.
+   * Role of the loaded user, or null while no user is loaded.
    */
-  isMentor: ComputedRef<boolean>
+  role: ComputedRef<UserRole | null>
   /**
    * Loads the user and any role-relevant data.
    * Typically called from the route guard.
@@ -123,10 +126,7 @@ const useUserDetailStore = defineStore(
         uiStore.createApiErrorToast('Не удалось загрузить онлайн-статус', error)
     )
 
-    const isStudent = computed<boolean>(
-      () => user.data.value?.role === 'student'
-    )
-    const isMentor = computed<boolean>(() => user.data.value?.role === 'mentor')
+    const role = computed<UserRole | null>(() => user.data.value?.role ?? null)
 
     function getUserId(): string {
       const userId = user.data.value?.id
@@ -171,14 +171,34 @@ const useUserDetailStore = defineStore(
         uiStore.createApiErrorToast('Не удалось загрузить курсы', error)
     )
 
+    // A teacher can author more courses than the default page size, and the
+    // tab shows the whole list rather than paginating it.
+    const authoredCourses = useApiRequest<void, CourseEntity[]>(
+      () =>
+        CourseService.get(
+          new Pagination(1, 100, undefined, undefined, [
+            new EqualsFilter('authorId', getUserId())
+          ])
+        ),
+      undefined,
+      (error) =>
+        uiStore.createApiErrorToast('Не удалось загрузить курсы автора', error)
+    )
+
     async function loadAssignmentsForRole(): Promise<void> {
-      if (isStudent.value) {
-        await Promise.all([
-          mentorAssignments.execute(undefined),
-          courseMemberships.execute()
-        ])
-      } else if (isMentor.value) {
-        await studentAssignments.execute(undefined)
+      switch (role.value) {
+        case 'student':
+          await Promise.all([
+            mentorAssignments.execute(undefined),
+            courseMemberships.execute()
+          ])
+          break
+        case 'mentor':
+          await studentAssignments.execute(undefined)
+          break
+        case 'teacher':
+          await authoredCourses.execute()
+          break
       }
     }
 
@@ -302,8 +322,8 @@ const useUserDetailStore = defineStore(
       mentorAssignments,
       studentAssignments,
       courseMemberships,
-      isStudent,
-      isMentor,
+      authoredCourses,
+      role,
       init,
       update,
       changeRole,
