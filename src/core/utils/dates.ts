@@ -304,6 +304,16 @@ function addDays(
   return result
 }
 
+function isInFuture(date: Date | string | null | undefined): boolean {
+  const parsed = toDate(date)
+
+  if (!parsed) {
+    return false
+  }
+
+  return parsed.getTime() > Date.now()
+}
+
 export const DateHelpers = {
   formatDate,
   formatRelative,
@@ -311,5 +321,6 @@ export const DateHelpers = {
   getCurrentTimezone,
   toMoscowParts,
   fromMoscowParts,
-  addDays
+  addDays,
+  isInFuture
 }

@@ -77,10 +77,57 @@
       title="Прикрепленный опрос"
       description=""
     >
-      <noo-text-block>
-        {{ courseDetailStore.materialContent.data.poll.title }}
-      </noo-text-block>
-      <noo-button variant="primary"> Перейти к опросу </noo-button>
+      <div class="course-material-content-view__poll">
+        <div class="course-material-content-view__poll__info">
+          <noo-text-block no-margin>
+            {{ courseDetailStore.materialContent.data.poll.title }}
+          </noo-text-block>
+          <noo-text-block
+            dimmed
+            no-margin
+            size="small"
+          >
+            {{ courseDetailStore.materialContent.data.poll.description }}
+          </noo-text-block>
+          <noo-text-block
+            v-if="
+              DateHelpers.isInFuture(
+                courseDetailStore.materialContent.data.poll.expiresAt
+              )
+            "
+            dimmed
+            no-margin
+            size="small"
+          >
+            Опрос открыт до:
+            <noo-date
+              :value="courseDetailStore.materialContent.data.poll?.expiresAt"
+              include-time
+              timezones="both"
+            />
+          </noo-text-block>
+          <noo-text-block
+            v-else
+            dimmed
+            no-margin
+            size="small"
+          >
+            Опрос уже истек и недоступен для прохождения
+          </noo-text-block>
+        </div>
+        <div class="course-material-content-view__poll__actions">
+          <noo-button
+            variant="primary"
+            :disabled="
+              !DateHelpers.isInFuture(
+                courseDetailStore.materialContent.data.poll.expiresAt
+              )
+            "
+          >
+            Перейти к опросу
+          </noo-button>
+        </div>
+      </div>
     </noo-section>
   </div>
   <div
@@ -111,6 +158,7 @@ import CourseMaterialReactions from '../components/course-material-reactions.vue
 import WorkAssignment from '../components/work-assignment.vue'
 import { debounce } from 'lodash'
 import { watch } from 'vue'
+import { DateHelpers } from '@/core/utils/dates'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
 
@@ -153,4 +201,17 @@ watch(
       display: flex
       flex-direction: column
       gap: 0.5em
+
+  &__poll
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 1em
+
+    &__info
+      flex: 1
+
+    &__actions
+      display: flex
+      align-items: center
 </style>

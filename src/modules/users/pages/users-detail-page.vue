@@ -8,7 +8,10 @@
           </noo-back-button>
           <template v-if="user">
             <div class="users-detail-page__sidebar__avatar">
-              <noo-user-avatar :name="user.name" />
+              <noo-user-avatar
+                :name="user.name"
+                :avatar="user.avatar"
+              />
             </div>
             <div
               v-if="onlineInfo"
