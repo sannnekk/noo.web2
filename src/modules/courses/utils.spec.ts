@@ -5,7 +5,11 @@ import type {
   CourseMaterialEntity
 } from './api/course.types'
 import type { PossiblyUnsavedCourse } from './types'
-import { findChapterIdPathToMaterial, normalizeCoursePatch } from './utils'
+import {
+  collectPinnedMaterials,
+  findChapterIdPathToMaterial,
+  normalizeCoursePatch
+} from './utils'
 
 type PatchOp = { op: string; path: string; value?: unknown }
 
@@ -43,6 +47,7 @@ function material(
     title: `Material ${id}`,
     titleColor: null,
     isActive: true,
+    isPinned: false,
     publishAt: null,
     chapterId,
     contentId: null,
@@ -89,6 +94,38 @@ describe('findChapterIdPathToMaterial', () => {
 
     expect(findChapterIdPathToMaterial(tree, 'unknown')).toEqual([])
     expect(findChapterIdPathToMaterial(undefined, 'm')).toEqual([])
+  })
+})
+
+// The sidebar lists pinned materials above the tree, so they have to be gathered from
+// every nesting level, not just the root chapters.
+describe('collectPinnedMaterials', () => {
+  test('collects pinned materials from the whole tree, in tree order', () => {
+    const tree = [
+      chapter('A', {
+        materials: [
+          material('a1', 'A', { isPinned: true }),
+          material('a2', 'A')
+        ],
+        subChapters: [
+          chapter('A1', {
+            materials: [material('a1a', 'A1', { isPinned: true })]
+          })
+        ]
+      }),
+      chapter('B', { materials: [material('b1', 'B')] })
+    ]
+
+    expect(collectPinnedMaterials(tree).map((m) => m.id)).toEqual(['a1', 'a1a'])
+  })
+
+  test('returns an empty list when nothing is pinned or chapters are missing', () => {
+    expect(
+      collectPinnedMaterials([
+        chapter('A', { materials: [material('m', 'A')] })
+      ])
+    ).toEqual([])
+    expect(collectPinnedMaterials(undefined)).toEqual([])
   })
 })
 

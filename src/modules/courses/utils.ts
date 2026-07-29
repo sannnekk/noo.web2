@@ -80,6 +80,25 @@ function searchMaterials(
 }
 
 /**
+ * Collects every pinned material of the course, in tree order.
+ *
+ * Pinned materials stay in the tree where they belong; this list is what lets the
+ * sidebar surface them again above it without the reader having to expand chapters.
+ */
+function collectPinnedMaterials(
+  chapters: CourseChapterEntity[] | undefined
+): CourseMaterialEntity[] {
+  const pinned: CourseMaterialEntity[] = []
+
+  for (const chapter of chapters ?? []) {
+    pinned.push(...(chapter.materials ?? []).filter((m) => m.isPinned))
+    pinned.push(...collectPinnedMaterials(chapter.subChapters))
+  }
+
+  return pinned
+}
+
+/**
  * Flattens a nested chapter tree into a single list where every chapter (root or
  * nested) is a top-level entry and its position is expressed through parentChapterId.
  *
@@ -136,6 +155,7 @@ function getLastAttempt(
 export {
   findMaterial,
   findChapterIdPathToMaterial,
+  collectPinnedMaterials,
   normalizeCoursePatch,
   searchMaterials,
   getLastAttempt

@@ -71,6 +71,41 @@
         />
       </div>
     </div>
+    <div
+      v-if="pinnedMaterials.length"
+      class="course-sidebar__pinned"
+    >
+      <noo-text-block
+        dimmed
+        size="small"
+        no-margin
+      >
+        Закрепленные материалы:
+      </noo-text-block>
+      <ul class="course-sidebar__pinned__list">
+        <li
+          v-for="material in pinnedMaterials"
+          :key="material.id"
+          class="course-sidebar__pinned__list__item"
+        >
+          <router-link
+            :to="{
+              name: 'courses.detail.material',
+              params: { materialId: material.id }
+            }"
+            :style="{
+              color: material.titleColor || 'inherit'
+            }"
+          >
+            <noo-icon
+              class="course-sidebar__pinned__list__item__icon"
+              name="pin"
+            />
+            {{ material.title }}
+          </router-link>
+        </li>
+      </ul>
+    </div>
     <div class="course-sidebar__chapter-tree">
       <div class="course-sidebar__search">
         <noo-search-input
@@ -121,7 +156,7 @@ import { useRouter } from 'vue-router'
 import { useCourseChapterFilter } from '../composables/useCourseChapterFilter'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
-import { findChapterIdPathToMaterial } from '../utils'
+import { collectPinnedMaterials, findChapterIdPathToMaterial } from '../utils'
 import MaterialSearchModal from './material-search-modal.vue'
 import CourseChapterTree from './course-chapter-tree.vue'
 
@@ -146,6 +181,10 @@ const expandedChapterIds = computed(() =>
         props.openedMaterialId
       )
     : []
+)
+
+const pinnedMaterials = computed(() =>
+  collectPinnedMaterials(course.value?.chapters)
 )
 
 const chapterFilter = useCourseChapterFilter({
@@ -177,6 +216,33 @@ const materialSearchModalOpened = shallowRef<boolean>(false)
       display: flex
       flex-direction: column
       gap: 0.4em
+
+  &__pinned
+    margin-bottom: 1em
+
+    &__list
+      list-style: none
+      padding-left: 0
+      margin: 0.2em 0 0 0
+      display: flex
+      flex-direction: column
+      gap: 0.2em
+      font-size: 0.9em
+
+      &__item
+        a
+          color: var(--text-light)
+          text-decoration: none
+
+          &:hover
+            text-decoration: underline
+
+        a.router-link-active
+          color: var(--secondary) !important
+
+        &__icon
+          --form-text-color: var(--warning)
+          transform: translateY(0.1em)
 
   &__search
     margin-bottom: 1em

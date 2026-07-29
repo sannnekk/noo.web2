@@ -40,6 +40,11 @@
               no-margin
               :color="material.titleColor"
             >
+              <noo-icon
+                v-if="material.isPinned"
+                class="tree-material-list__item__title__pin-icon"
+                name="pin"
+              />
               {{ material.title }}
             </noo-title>
           </div>
@@ -202,6 +207,10 @@ function adjustOrder(): void {
       &__info
         font-size: 0.7em
         color: var(--text-light)
+
+      &__pin-icon
+        --form-text-color: var(--warning)
+        transform: translateY(0.1em)
 
     &__actions
       display: flex

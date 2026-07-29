@@ -240,6 +240,7 @@ function createMaterialDraft(order: number): PossiblyUnsavedMaterial {
     titleColor: null,
     contentId: null,
     isActive: false,
+    isPinned: false,
     publishAt: null
   }
 }

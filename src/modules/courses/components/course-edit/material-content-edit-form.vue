@@ -3,13 +3,13 @@
   <template v-else-if="currentContent && currentMaterial">
     <noo-title :size="3"> Данные материала </noo-title>
     <noo-grid-layout
-      :cols="2"
+      :cols="3"
       gap="0em"
     >
       <noo-grid-layout-item
         :col="1"
         :row="1"
-        :colspan="2"
+        :colspan="3"
         vertical-align="center"
         horizontal-align="stretch"
       >
@@ -48,6 +48,23 @@
         :row="2"
         horizontal-align="stretch"
       >
+        <noo-checkbox
+          v-model="currentMaterial.isPinned"
+          dimmed
+          size="small"
+        >
+          {{
+            currentMaterial.isPinned
+              ? 'Материал закреплен'
+              : 'Материал не закреплен'
+          }}
+        </noo-checkbox>
+      </noo-grid-layout-item>
+      <noo-grid-layout-item
+        :col="3"
+        :row="2"
+        horizontal-align="stretch"
+      >
         <noo-color-input
           v-model="currentMaterial.titleColor"
           label="Цвет материала"
@@ -56,7 +73,7 @@
       <noo-grid-layout-item
         :col="1"
         :row="3"
-        :colspan="2"
+        :colspan="3"
       >
         <noo-richtext-editor
           v-model="currentContent.content"

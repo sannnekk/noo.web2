@@ -44,6 +44,7 @@ export interface CourseMaterialEntity extends ApiEntity<'CourseMaterial'> {
   title: string
   titleColor: string | null
   isActive: boolean
+  isPinned: boolean
   publishAt: Date | null
   chapterId: string
   contentId: string | null

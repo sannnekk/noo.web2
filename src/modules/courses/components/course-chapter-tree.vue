@@ -61,6 +61,11 @@
             color: material.titleColor || 'inherit'
           }"
         >
+          <noo-icon
+            v-if="material.isPinned"
+            class="course-chapter-tree__item__pin-icon"
+            name="pin"
+          />
           {{ material.title }}
           <span
             v-if="material.myReaction"
@@ -154,6 +159,10 @@ watch(
     &__reaction
       font-size: 0.85em
       margin-left: 0.2em
+
+    &__pin-icon
+      --form-text-color: var(--warning)
+      transform: translateY(0.1em)
 
     &__list-opener
       font-size: 0.8em
