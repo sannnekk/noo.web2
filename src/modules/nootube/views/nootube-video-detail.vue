@@ -47,6 +47,8 @@
       </div>
     </header>
 
+    <nootube-video-reactions :video-id="video.id" />
+
     <noo-user-card
       v-if="video.uploadedByUser"
       :user="video.uploadedByUser"
@@ -71,6 +73,7 @@ import { computed } from 'vue'
 import type { NooTubeVideoEntity } from '../api/nootube.types'
 import nootubePlayer from '../components/nootube-player.vue'
 import nootubeVideoComments from '../components/nootube-video-comments.vue'
+import nootubeVideoReactions from '../components/nootube-video-reactions.vue'
 
 interface Props {
   video: NooTubeVideoEntity

@@ -86,4 +86,9 @@ function validateInput(value: string | undefined | null) {
 }
 </script>
 
+<style lang="sass" scoped>
+.noo-input .noo-input__textarea
+  line-height: 1.4em
+</style>
+
 <style scoped lang="sass" src="./noo-input.sass"></style>

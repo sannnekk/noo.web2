@@ -166,9 +166,11 @@ const pageModel = defineModel<number>('page', {
     display: grid
     gap: var(--grid-gap)
     padding: var(--grid-gap)
-    // Tracks never go below --tile-min-width, so auto-fit drops columns on its
+    // Tracks never go below --tile-min-width, so auto-fill drops columns on its
     // own; the calc() caps the count at --per-row when there is room to spare.
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(var(--tile-min-width), calc((100% - (var(--per-row) - 1) * var(--grid-gap)) / var(--per-row)))), 1fr))
+    // auto-fill (not auto-fit) keeps the unfilled tracks, so a partial last row
+    // — or a single result — keeps the tile width instead of stretching.
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--tile-min-width), calc((100% - (var(--per-row) - 1) * var(--grid-gap)) / var(--per-row)))), 1fr))
 
   &__is-loading
     display: flex

@@ -30,6 +30,22 @@ export interface NooTubeVideoEntity extends ApiEntity<'NooTubeVideo'> {
   comments?: NooTubeVideoCommentEntity[]
 }
 
+/**
+ * How many users picked each reaction on a video. Reactions nobody picked are
+ * omitted by the API.
+ */
+export type VideoReactionCounts = Partial<Record<VideoReaction, number>>
+
+/**
+ * Reactions of all users on a video, together with the current user's own one.
+ * Unlike course material reactions, the counts are visible to everyone who may
+ * watch the video.
+ */
+export interface NooTubeVideoReactions {
+  myReaction: VideoReaction | null
+  counts: VideoReactionCounts
+}
+
 export interface NooTubeVideoCommentEntity extends ApiEntity<'NooTubeVideoComment'> {
   userId: string
   content: string

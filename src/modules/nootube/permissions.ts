@@ -19,6 +19,7 @@ const NooTubePermissions = {
   editVideo: 'editVideo',
   deleteVideo: 'deleteVideo',
   viewStatistics: 'viewStatistics',
+  reactToVideo: 'reactToVideo',
   manageComment: 'manageComment'
 } as const
 
@@ -47,6 +48,14 @@ const nooTubePermissionPolicy = definePermissions({
   [NooTubePermissions.editVideo]: roles('admin', 'teacher'),
   [NooTubePermissions.deleteVideo]: roles('admin', 'teacher'),
   [NooTubePermissions.viewStatistics]: roles('admin', 'teacher'),
+  // Everyone who may watch a video may react to it
+  [NooTubePermissions.reactToVideo]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor',
+    'student'
+  ),
   [NooTubePermissions.manageComment]: rule<CommentContext>(
     ['admin', 'teacher', 'assistant', 'mentor', 'student'],
     anyOf(principalHasRole('admin', 'teacher'), targetIsSelf)

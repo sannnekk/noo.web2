@@ -10,6 +10,7 @@
             reaction.reaction === myReaction,
           'noo-user-reactions__list__item--readonly': readonly
         }"
+        :title="labels?.[reaction.reaction]"
         @click="react(reaction.reaction)"
       >
         <noo-emoji :name="reaction.reaction" />
@@ -35,6 +36,8 @@ import { computed } from 'vue'
 
 interface Props {
   reactions: Record<string, number>
+  /** Human-readable name per reaction, shown as a tooltip. */
+  labels?: Record<string, string>
   myReaction?: string
   loading?: boolean
   hideNumbers?: boolean

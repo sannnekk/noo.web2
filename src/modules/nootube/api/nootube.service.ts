@@ -6,6 +6,7 @@ import type {
   CreateNooTubeVideoPayload,
   NooTubeVideoCommentEntity,
   NooTubeVideoEntity,
+  NooTubeVideoReactions,
   NooTubeVideoStatistics,
   NooTubeVideoUpload,
   PossiblyUnsavedNooTubeVideo,
@@ -105,7 +106,16 @@ interface INooTubeService {
    */
   finishUpload: (videoId: string) => Promise<ApiResponse>
   /**
-   * Toggles a reaction for a video.
+   * Fetches the reactions of all users on a video together with the current
+   * user's own reaction.
+   *
+   * @param videoId The ID of the video to fetch the reactions for.
+   * @returns A promise that resolves to an ApiResponse containing the reactions.
+   */
+  getReactions: (videoId: string) => Promise<ApiResponse<NooTubeVideoReactions>>
+  /**
+   * Toggles a reaction for a video. Reacting with the reaction the user already
+   * picked takes it back.
    *
    * @param videoId The ID of the video to react to.
    * @param reaction The reaction to toggle.
@@ -251,6 +261,12 @@ async function finishUpload(videoId: string): Promise<ApiResponse> {
   return await Api.post(`${BASE_PATH}/${videoId}/finish`)
 }
 
+async function getReactions(
+  videoId: string
+): Promise<ApiResponse<NooTubeVideoReactions>> {
+  return await Api.get(`${BASE_PATH}/${videoId}/reaction`)
+}
+
 async function toggleReaction(
   videoId: string,
   reaction: VideoReaction
@@ -304,6 +320,7 @@ export const NooTubeService: INooTubeService = {
   update,
   delete: deleteVideo,
   finishUpload,
+  getReactions,
   toggleReaction,
   getComments,
   createComment,
