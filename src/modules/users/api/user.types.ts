@@ -14,6 +14,23 @@ export interface UserEntity extends ApiEntity<'User'> {
   avatar: UserAvatarEntity | null
   isBlocked: boolean
   isVerified: boolean
+  /**
+   * Mentors of the user, returned by the user search. Only students have them.
+   */
+  mentors?: UserMentor[]
+}
+
+/**
+ * A mentor of a student as listings show them: enough to name the mentor, link
+ * to their profile and colour them by subject. The full picture of who is
+ * assigned to whom is {@link MentorAssignmentEntity}.
+ */
+export interface UserMentor {
+  /** Id of the mentor, not of the assignment. */
+  id: string
+  name: string
+  subjectName: string | null
+  subjectColor: string | null
 }
 
 export interface UserAvatarEntity extends ApiEntity<'UserAvatar'> {

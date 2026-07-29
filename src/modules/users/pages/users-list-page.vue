@@ -41,10 +41,36 @@
         />
       </template>
       <template #column-name="{ item }">
-        <noo-text-block class="users-list-page__name-cell">
+        <noo-text-block no-margin>
           {{ item.isBlocked ? '🚫 ' : '' }}
           {{ item.name }}
         </noo-text-block>
+        <noo-text-block
+          v-if="item.role === 'student'"
+          dimmed
+          size="small"
+          no-margin
+        >
+          {{ item.mentors?.length ? 'Кураторы:' : 'Нет кураторов' }}
+        </noo-text-block>
+        <div
+          v-if="item.role === 'student'"
+          class="users-list-page__mentors"
+        >
+          <div
+            v-for="mentor in item.mentors"
+            :key="mentor.id"
+            class="users-list-page__mentors__mentor"
+            :title="`Куратор по предмету ${mentor.subjectName}`"
+          >
+            <noo-color-badge :color="mentor.subjectColor ?? undefined" />
+            <noo-inline-link
+              :to="{ name: 'users.detail', params: { userId: mentor.id } }"
+            >
+              {{ mentor.name }}
+            </noo-inline-link>
+          </div>
+        </div>
       </template>
       <template #column-username="{ item }">
         <noo-text-block
@@ -125,4 +151,19 @@ const columns: EntityTableColumnType<UserEntity>[] = [
 
   &__role-cell
     display: inline-block
+
+  &__mentors
+    display: flex
+    flex-direction: column
+    gap: 0.15em
+    margin-top: 0.15em
+
+    &__mentor
+      display: flex
+      align-items: center
+      gap: 0.4em
+      font-size: 0.85em
+
+      &__subject
+        color: var(--text-light)
 </style>
