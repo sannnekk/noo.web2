@@ -104,7 +104,21 @@
             v-else
             class="nootube-video-comments__list__item__content"
           >
-            {{ comment.content }}
+            <template
+              v-for="(segment, index) in parseCommentSegments(comment.content)"
+              :key="index"
+            >
+              <button
+                v-if="segment.type === 'timestamp'"
+                type="button"
+                class="nootube-video-comments__timestamp"
+                title="Перейти к этому моменту видео"
+                @click="$emit('seek', segment.seconds)"
+              >
+                {{ segment.value }}
+              </button>
+              <span v-else>{{ segment.value }}</span>
+            </template>
           </noo-text-block>
         </div>
       </li>
@@ -153,12 +167,18 @@ import { computed, ref } from 'vue'
 import { NooTubeService } from '../api/nootube.service'
 import type { NooTubeVideoCommentEntity } from '../api/nootube.types'
 import { NooTubePermissions, useNooTubePermissions } from '../permissions'
+import { parseCommentSegments } from '../video.utils'
 
 interface Props {
   videoId: string
 }
 
+/** Asks the page to jump to a moment of the video a comment points at. */
+type Emits = (event: 'seek', seconds: number) => void
+
 const props = defineProps<Props>()
+
+defineEmits<Emits>()
 
 const authStore = useAuthStore()
 const globalUiStore = useGlobalUIStore()
@@ -411,6 +431,24 @@ load(true)
       &__edit-actions
         display: flex
         gap: 0.5em
+
+  // Timestamps stay part of the sentence, so this is an inline chip rather
+  // than a block button. The colours are fixed in both themes because the
+  // chip background is.
+  &__timestamp
+    display: inline
+    padding: 0 0.3em
+    border: none
+    border-radius: 0.3em
+    font: inherit
+    font-variant-numeric: tabular-nums
+    color: #000
+    background-color: var(--secondary)
+    cursor: pointer
+
+    &:hover,
+    &:focus-visible
+      background-color: var(--text-light)
 
   &__more
     display: flex

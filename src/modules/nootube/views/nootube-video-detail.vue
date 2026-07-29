@@ -1,8 +1,12 @@
 <template>
   <article class="nootube-video-detail">
-    <div class="nootube-video-detail__player">
+    <div
+      ref="playerSection"
+      class="nootube-video-detail__player"
+    >
       <nootube-player
         v-if="isPlayable"
+        ref="player"
         :video-id="video.externalIdentifier!"
       />
       <div
@@ -63,13 +67,16 @@
 
     <section class="nootube-video-detail__comments">
       <noo-title :size="3"> Комментарии </noo-title>
-      <nootube-video-comments :video-id="video.id" />
+      <nootube-video-comments
+        :video-id="video.id"
+        @seek="seek"
+      />
     </section>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import type { NooTubeVideoEntity } from '../api/nootube.types'
 import nootubePlayer from '../components/nootube-player.vue'
 import nootubeVideoComments from '../components/nootube-video-comments.vue'
@@ -111,6 +118,22 @@ const stateMessage = computed(() => {
 const thumbnailSrc = computed(
   () => props.video.thumbnail ?? props.video.externalThumbnailUrl ?? undefined
 )
+
+const player = useTemplateRef<InstanceType<typeof nootubePlayer>>('player')
+const playerSection = useTemplateRef<HTMLDivElement>('playerSection')
+
+/**
+ * Jumps to a moment of the video a comment points at. The player is usually
+ * scrolled out of view when a timestamp is clicked, so it is brought back.
+ */
+function seek(seconds: number): void {
+  if (!player.value) {
+    return
+  }
+
+  player.value.seekTo(seconds)
+  playerSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
 
 <style scoped lang="sass">
