@@ -47,6 +47,11 @@ export interface PollEntity extends ApiEntity<'Poll'> {
 }
 
 export interface PollQuestionEntity extends ApiEntity<'PollQuestion'> {
+  /**
+   * Position inside the poll. Owned by the client: it is assigned on creation and
+   * renumbered on reorder, the API just stores and sorts by it.
+   */
+  order: number
   title: string
   description: string | null
   isRequired: boolean

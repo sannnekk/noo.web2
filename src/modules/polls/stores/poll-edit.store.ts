@@ -44,6 +44,10 @@ interface PollEditStore {
    */
   removeQuestion: (key: string) => void
   /**
+   * Renumbers the `order` of every question after the list has been reordered.
+   */
+  reorderQuestions: () => void
+  /**
    * Initializes the store with a poll ID, typically in a navigation guard.
    * If no ID is provided, it initializes a new poll.
    */
@@ -191,9 +195,11 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
       return
     }
 
+    const questions = poll.value.questions ?? []
+
     poll.value.questions = [
-      ...(poll.value?.questions ?? []),
-      PollService.createQuestionDraft()
+      ...questions,
+      PollService.createQuestionDraft(questions.length + 1)
     ]
   }
 
@@ -203,6 +209,18 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     }
 
     poll.value.questions = poll.value.questions.filter((q) => q._key !== key)
+  }
+
+  function reorderQuestions(): void {
+    if (!poll.value) {
+      return
+    }
+
+    // The list order is only expressed through `order`: the patch document keys
+    // questions by id, so a moved question produces no operation on its own.
+    poll.value.questions.forEach((question, index) => {
+      question.order = index + 1
+    })
   }
 
   return {
@@ -215,6 +233,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     save,
     addQuestion,
     removeQuestion,
+    reorderQuestions,
     hasChanges,
     cancelEdit
   }

@@ -18,8 +18,10 @@ interface IPollService {
   createDraft: () => PossiblyUnsavedPoll
   /**
    * Creates a local draft for a new poll question.
+   *
+   * @param order Position inside the poll.
    */
-  createQuestionDraft: () => PossiblyUnsavedQuestion
+  createQuestionDraft: (order?: number) => PossiblyUnsavedQuestion
   /**
    * Fetches a list of polls.
    *
@@ -116,10 +118,11 @@ function createDraft(): PossiblyUnsavedPoll {
   }
 }
 
-function createQuestionDraft(): PossiblyUnsavedQuestion {
+function createQuestionDraft(order = 1): PossiblyUnsavedQuestion {
   return {
     _entityName: 'PollQuestion',
     _key: uid(),
+    order,
     title: 'Новый вопрос',
     description: null,
     type: 'text',

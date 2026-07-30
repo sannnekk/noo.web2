@@ -150,6 +150,7 @@
             gap="1em"
             handle=".poll-question-card__head__handle"
             :disabled="isReadonlyMode"
+            @reorder="pollEditStore.reorderQuestions()"
           >
             <template #default="{ item: question, index }">
               <poll-question-card
