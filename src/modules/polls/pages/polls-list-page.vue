@@ -57,6 +57,19 @@
       <template #column-isAuthRequired="{ item }">
         {{ item.isAuthRequired ? 'Да' : 'Нет' }}
       </template>
+      <template #column-expiresAt="{ item }">
+        <noo-text-block
+          class="polls-list-page__expires-at-cell"
+          dimmed
+        >
+          <noo-date
+            :value="item.expiresAt"
+            timezones="both"
+            include-time
+            multiline
+          />
+        </noo-text-block>
+      </template>
       <template #column-isActive="{ item }">
         <noo-active-tag :active="item.isActive" />
       </template>
@@ -69,6 +82,7 @@
             :value="item.createdAt"
             timezones="both"
             include-time
+            multiline
           />
         </noo-text-block>
       </template>
@@ -126,6 +140,7 @@ const columns: EntityTableColumnType<PollEntity>[] = [
     key: 'isAuthRequired',
     title: 'Авторизация?'
   },
+  { key: 'expiresAt', title: 'Дата окончания' },
   {
     key: 'isActive',
     title: 'Статус'
