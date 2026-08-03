@@ -155,6 +155,7 @@ declare module 'vue' {
     NooSubjectSelect: typeof import('./src/components/inputs/entity-select/noo-subject-select.vue')['default']
     NooSupportLogo: typeof import('./src/components/images/noo-support-logo.vue')['default']
     NooSureModal: typeof import('./src/components/modal/noo-sure-modal.vue')['default']
+    NooSwapAnimation: typeof import('./src/components/animations/noo-swap-animation.vue')['default']
     NooTabCounter: typeof import('./src/components/utils/noo-tab-counter.vue')['default']
     NooTabsLayout: typeof import('./src/components/layout/noo-tabs-layout.vue')['default']
     NooTelegramLoginButton: typeof import('./src/components/buttons/noo-telegram-login-button.vue')['default']

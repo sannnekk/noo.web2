@@ -1,4 +1,5 @@
 import PaneLayout from '@/layouts/pane-layout.vue'
+import PollLayout from '@/layouts/poll-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { loadPollGuard } from './guards'
 import type { PollsEditPageProps } from './pages/polls-edit-page.vue'
@@ -19,6 +20,20 @@ const module: ApplicationModule = {
         roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewListPage)
       },
       component: () => import('./pages/polls-list-page.vue')
+    },
+    {
+      name: 'polls.participate',
+      path: '/polls/participate/:pollId',
+      meta: {
+        pageTitle: 'Принять участие в опросе',
+        tabTitle: 'Принять участие в опросе',
+        layout: PollLayout,
+        noAuth: true
+      },
+      component: () => import('./pages/poll-participation-page.vue'),
+      props: (route): PollParticipationPageProps => ({
+        pollId: String(route.params.pollId)
+      })
     },
     {
       name: 'polls.edit',
@@ -61,7 +76,7 @@ const module: ApplicationModule = {
         layout: PaneLayout,
         roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)
       },
-      component: () => import('./pages/poll-participation-page.vue'),
+      component: () => import('./pages/poll-participation-list-page.vue'),
       props: (route): PollParticipationPageProps => ({
         pollId: String(route.params.pollId),
         participationId: String(route.params.participationId)

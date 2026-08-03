@@ -117,12 +117,14 @@
         </div>
         <div class="course-material-content-view__poll__actions">
           <noo-button
+            v-if="can(CoursePermissions.participateInPoll)"
             variant="primary"
-            :disabled="
-              !DateHelpers.isInFuture(
-                courseDetailStore.materialContent.data.poll.expiresAt
-              )
-            "
+            :to="{
+              name: 'polls.participate',
+              params: {
+                pollId: courseDetailStore.materialContent.data.poll.id
+              }
+            }"
           >
             Перейти к опросу
           </noo-button>

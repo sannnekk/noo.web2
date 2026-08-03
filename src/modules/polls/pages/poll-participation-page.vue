@@ -1,168 +1,71 @@
 <template>
   <div class="poll-participation-page">
-    <noo-back-button :route="{ name: 'polls.results', params: { pollId } }">
-      Назад к результатам
-    </noo-back-button>
-
-    <div
-      v-if="isLoading"
-      class="poll-participation-page__state"
-    >
-      <noo-loader-icon contrast />
-    </div>
-
-    <noo-error-block
-      v-else-if="error"
-      with-image
-      centered
-      :try-again="reload"
-    >
-      <noo-title :size="3"> Не удалось загрузить ответы </noo-title>
-    </noo-error-block>
-
-    <template v-else-if="participation">
-      <noo-section
-        title="Участник"
-        class="poll-participation-page__participant"
+    <noo-swap-animation>
+      <div
+        v-if="isLoading"
+        class="poll-participation-page__loading"
       >
-        <div class="poll-participation-page__participant__row">
-          <noo-inline-user-card
-            v-if="participation.user"
-            :user="participation.user"
-          />
-          <noo-text-block
-            v-else
-            no-margin
-          >
-            {{ participation.userExternalIdentifier ?? 'Аноним' }}
-          </noo-text-block>
-          <noo-text-block
-            dimmed
-            no-margin
-          >
-            {{ userTypeLabel(participation.userType) }} ·
-            <noo-date
-              :value="participation.createdAt"
-              timezones="both"
-              include-time
-            />
-          </noo-text-block>
-        </div>
-      </noo-section>
-
-      <noo-section :title="pollTitle">
-        <ol class="poll-participation-page__questions">
-          <li
-            v-for="question in questions"
-            :key="question.id"
-            class="poll-participation-page__question"
-          >
-            <noo-title
-              :size="5"
-              class="poll-participation-page__question__title"
-            >
-              {{ question.title }}
-            </noo-title>
-            <poll-answer-value
-              v-if="answersByQuestionId[question.id]"
-              :answer="answersByQuestionId[question.id]"
-            />
-            <noo-text-block
-              v-else
-              dimmed
-              no-margin
-            >
-              Без ответа
-            </noo-text-block>
-          </li>
-        </ol>
-      </noo-section>
-    </template>
+        <noo-loader-icon
+          class="poll-participation-page__loading__icon"
+          contrast
+        />
+        <noo-text-block class="poll-participation-page__loading__text">
+          Загрузка опроса...
+        </noo-text-block>
+      </div>
+      <div
+        v-else-if="participation"
+        class="poll-participation-page__content"
+      >
+        Content
+      </div>
+      <noo-error-block
+        v-else
+        with-image
+        centered
+        :try-again="init"
+      >
+        <noo-title :size="3"> Не удалось загрузить опрос </noo-title>
+      </noo-error-block>
+    </noo-swap-animation>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApiRequest } from '@/core/composables/useApiRequest'
-import { computed, watch } from 'vue'
-import { PollService } from '../api/poll.service'
-import type { ParticipatingUserType, PollAnswerEntity } from '../api/poll.types'
-import { participatingUserTypes } from '../constants'
-import pollAnswerValue from '../views/poll-answer-value.vue'
+import { onMounted, ref } from 'vue'
 
-export interface PollParticipationPageProps {
+interface Props {
   pollId: string
-  participationId: string
 }
 
-const props = defineProps<PollParticipationPageProps>()
+defineProps<Props>()
 
-const poll = useApiRequest(PollService.getById)
-const participationRequest = useApiRequest(PollService.getParticipation)
+const isLoading = ref(true)
+const participation = ref(null)
 
-const participation = computed(() => participationRequest.data.value)
-const pollTitle = computed(() => poll.data.value?.title ?? 'Ответы')
-const questions = computed(() => poll.data.value?.questions ?? [])
+async function init() {}
 
-const answersByQuestionId = computed<Record<string, PollAnswerEntity>>(() => {
-  const map: Record<string, PollAnswerEntity> = {}
-
-  for (const answer of participation.value?.answers ?? []) {
-    map[answer.pollQuestionId] = answer
-  }
-
-  return map
+onMounted(() => {
+  setTimeout(() => {
+    isLoading.value = false
+    participation.value = 1
+  }, 2000)
 })
-
-const isLoading = computed(
-  () => poll.isLoading.value || participationRequest.isLoading.value
-)
-const error = computed(
-  () => poll.error.value ?? participationRequest.error.value
-)
-
-function userTypeLabel(type: ParticipatingUserType): string {
-  return participatingUserTypes.find((t) => t.value === type)?.label ?? type
-}
-
-function reload() {
-  poll.execute(props.pollId)
-  participationRequest.execute(props.participationId)
-}
-
-watch(
-  () => [props.pollId, props.participationId],
-  () => reload(),
-  { immediate: true }
-)
 </script>
 
-<style scoped lang="sass">
+<style lang="sass" scoped>
 .poll-participation-page
-  padding: 0.5em 0
-
-  &__state
-    display: flex
-    justify-content: center
-    padding: 3em 0
-    font-size: 4em
-
-  &__participant
-    margin-bottom: 1.5em
-
-    &__row
-      display: flex
-      flex-direction: column
-      gap: 0.25em
-
-  &__questions
-    margin: 0
-    padding: 0
-    list-style: none
+  &__loading
     display: flex
     flex-direction: column
-    gap: 1.25em
+    align-items: center
+    justify-content: center
+    height: 500px
+    width: 100%
 
-  &__question
-    &__title
-      margin-bottom: 0.35em
+    &__icon
+      font-size: 3rem
+
+    &__text
+      font-size: 1.2rem
 </style>

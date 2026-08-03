@@ -19,7 +19,8 @@ const CoursePermissions = {
   viewCourseShop: 'viewCourseShop',
   manageOwnMembership: 'manageOwnMembership',
   reactToMaterial: 'reactToMaterial',
-  solveWork: 'solveWork'
+  solveWork: 'solveWork',
+  participateInPoll: 'participateInPoll'
 } as const
 
 type CoursePermission =
@@ -57,7 +58,8 @@ const coursePermissionPolicy = definePermissions({
   [CoursePermissions.viewCourseShop]: roles('student'),
   [CoursePermissions.manageOwnMembership]: roles('student'),
   [CoursePermissions.reactToMaterial]: roles('student'),
-  [CoursePermissions.solveWork]: roles('student')
+  [CoursePermissions.solveWork]: roles('student'),
+  [CoursePermissions.participateInPoll]: roles('assistant', 'mentor', 'student')
 })
 
 const useCoursePermissions = createUsePermissions(coursePermissionPolicy)
