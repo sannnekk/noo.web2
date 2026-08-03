@@ -78,8 +78,7 @@ const module: ApplicationModule = {
       },
       component: () => import('./pages/poll-participation-list-page.vue'),
       props: (route): PollParticipationPageProps => ({
-        pollId: String(route.params.pollId),
-        participationId: String(route.params.participationId)
+        pollId: String(route.params.pollId)
       })
     }
   ]

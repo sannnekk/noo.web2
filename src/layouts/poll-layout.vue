@@ -15,7 +15,16 @@
       <div class="poll-layout__header__logo">
         <h1>НОО.Опросы</h1>
       </div>
-      <noo-theme-toggle-widget />
+      <div class="poll-layout__header__widgets">
+        <noo-theme-toggle-widget />
+        <noo-help-widget />
+        <noo-button
+          :to="{ name: 'root' }"
+          variant="secondary"
+        >
+          К платформе
+        </noo-button>
+      </div>
     </header>
     <main class="poll-layout__content">
       <div class="poll-layout__content__card">
@@ -114,26 +123,56 @@ const blobs: CSSProperties[] = [
       filter: blur(1rem)
       animation: poll-layout-drift var(--blob-duration) ease-in-out var(--blob-delay) infinite alternate
 
+      // A 25rem circle swallows a phone screen — keep the composition, shrink
+      // the scale it is composed at.
+      +mobile
+        width: calc(var(--blob-size) * 0.55)
+
       +reduced-motion
         animation: none
 
   &__header
     display: flex
+    flex-wrap: wrap
     align-items: center
     justify-content: space-between
-    gap: var(--space-s)
+    gap: var(--space-2xs) var(--space-s)
     padding-block: var(--space-s)
 
+    // No room for a title on one side and three controls on the other — stack
+    // them and centre both rows.
+    +mobile
+      flex-direction: column
+      justify-content: center
+
     &__logo
+      h1
+        margin: 0
+        font-size: fluid(1.1rem, 1.75rem)
+        white-space: nowrap
+
+        +mobile
+          font-size: 1.6rem
+
+    &__widgets
+      display: flex
+      flex-wrap: wrap
+      align-items: center
+      justify-content: flex-end
+      gap: var(--space-3xs)
+
+      // noo-button sizes itself in em, so scaling this row scales the
+      // "К платформе" button down next to the icon widgets.
       +mobile
-        font-size: 0.7em
+        font-size: 0.8em
+        justify-content: center
 
   &__content
     +content-column(50rem)
     position: relative
     z-index: 1
     flex: 1 1 auto
-    padding-block: var(--space-s) var(--space-xl)
+    padding-block: var(--space-s) var(--space-l)
 
     &__card
       border-radius: var(--border-radius)

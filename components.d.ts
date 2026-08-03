@@ -58,6 +58,7 @@ declare module 'vue' {
     NooActiveTag: typeof import('./src/components/tags/noo-active-tag.vue')['default']
     NooAnimatedRouterView: typeof import('./src/components/router/noo-animated-router-view.vue')['default']
     NooAssignedWorkScore: typeof import('./src/components/utils/noo-assigned-work-score.vue')['default']
+    NooAuthWidget: typeof import('./src/components/widgets/noo-auth-widget.vue')['default']
     NooBackButton: typeof import('./src/components/buttons/noo-back-button.vue')['default']
     NooBarChart: typeof import('./src/components/charts/noo-bar-chart.vue')['default']
     NooBaseModal: typeof import('./src/components/modal/noo-base-modal.vue')['default']

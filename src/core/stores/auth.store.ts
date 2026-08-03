@@ -40,12 +40,24 @@ export interface AuthStore {
   isRetryLoginModalVisible: ShallowRef<boolean>
   setRedirect: (value?: string) => void
   login: UseApiRequestReturn<LoginPayload, LoginResponse>
+  /**
+   * Logs in without leaving the current page — for public pages that
+   * authenticate in place (a modal) instead of sending the user to the auth
+   * screen and back.
+   */
+  loginInPlace: UseApiRequestReturn<LoginPayload, LoginResponse>
   retryLogin: UseApiRequestReturn<LoginPayload, LoginResponse>
   register: UseApiRequestReturn<RegisterPayload>
   forgotPassword: UseApiRequestReturn<string>
   verifyEmail: UseApiRequestReturn<string>
   resetPassword: UseApiRequestReturn<ResetPasswordPayload>
   logout: UseApiRequestReturn
+  /**
+   * Ends the session without leaving the current page — the counterpart to
+   * {@link AuthStore.loginInPlace}, for public pages where a visitor swaps
+   * account instead of being sent to the auth screen.
+   */
+  logoutInPlace: UseApiRequestReturn
   roleIsOneOf: (roles: UserRole[]) => boolean
 }
 
@@ -126,6 +138,17 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     }
   )
 
+  const loginInPlace = useApiRequest<LoginPayload, LoginResponse>(
+    AuthService.login,
+    (response) => {
+      setSession(response.data)
+      globalUiStore.createSuccessToast('Вы вошли в систему')
+    },
+    (error) => {
+      globalUiStore.createApiErrorToast('Не удалось войти', error)
+    }
+  )
+
   const retryLogin = useApiRequest<LoginPayload, LoginResponse>(
     AuthService.login,
     (response) => {
@@ -135,13 +158,17 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     }
   )
 
-  function clearSession(): void {
-    globalUiStore.setLoading(false)
+  function clearSessionState(): void {
     userId.value = undefined
     userRole.value = undefined
     currentUser.data.value = null
     isRetryLoginModalVisible.value = false
     CookieStorage.clear()
+  }
+
+  function clearSession(): void {
+    globalUiStore.setLoading(false)
+    clearSessionState()
     router.push({ name: 'auth.login' })
   }
 
@@ -153,6 +180,14 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     },
     clearSession,
     clearSession
+  )
+
+  // Ends the session where the user stands: the token is revoked and the local
+  // identity dropped, but nothing navigates and no full-screen loader appears.
+  const logoutInPlace = useApiRequest(
+    AuthService.removeCurrentSession,
+    clearSessionState,
+    clearSessionState
   )
 
   const register = useApiRequest<RegisterPayload>(
@@ -233,12 +268,14 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     roleIsOneOf,
     setRedirect,
     login,
+    loginInPlace,
     retryLogin,
     register,
     forgotPassword,
     verifyEmail,
     resetPassword,
-    logout
+    logout,
+    logoutInPlace
   }
 })
 
