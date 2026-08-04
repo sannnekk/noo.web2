@@ -6,18 +6,22 @@
     <noo-title
       :size="3"
       align="center"
+      no-margin
     >
       Спасибо за участие!
     </noo-title>
     <noo-text-block align="center">
-      Ваши ответы отправлены и уже помогают нам стать лучше.
+      Ваши ответы отправлены и сохранены.
     </noo-text-block>
     <noo-text-block
       align="center"
       size="small"
       dimmed
+      no-margin
     >
       Ответы можно отправить только один раз, изменить их уже не получится.
+      Просмотреть ответы можно в личном кабинете на платформе, во вкладке
+      "Профиль".
     </noo-text-block>
     <div class="poll-participation-success-view__actions">
       <noo-button
