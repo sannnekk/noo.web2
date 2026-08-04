@@ -156,6 +156,46 @@ function toAnswerPayload(
 }
 
 /**
+ * Whether a value can still be used as an answer to a question. A restored
+ * draft is the main source of values nobody typed in this session: the poll may
+ * have been edited since, so a value that no longer fits its question — or a
+ * choice that was removed from it — is dropped rather than shown.
+ */
+function matchesQuestionType(
+  question: PollQuestionEntity,
+  value: unknown
+): value is PollAnswerInputValue {
+  const options = question.config.options ?? []
+
+  switch (question.type) {
+    case 'checkbox':
+      return typeof value === 'boolean'
+    case 'number':
+    case 'rating':
+      return typeof value === 'number' && Number.isFinite(value)
+    case 'date':
+    case 'date-time':
+      return value instanceof Date && !Number.isNaN(value.getTime())
+    case 'text':
+      return typeof value === 'string'
+    case 'single-choice':
+      return typeof value === 'string' && options.includes(value)
+    case 'multiple-choice':
+      return (
+        Array.isArray(value) &&
+        value.every(
+          (entry) => typeof entry === 'string' && options.includes(entry)
+        )
+      )
+    // Files are not answerable yet, see `poll-answer-input.vue`.
+    case 'files':
+      return false
+    default:
+      return false
+  }
+}
+
+/**
  * The choices a question offers, in the shape the select inputs expect.
  */
 function toAnswerOptions(
@@ -171,6 +211,7 @@ export {
   createEmptyAnswer,
   isAnswered,
   isEmptyValue,
+  matchesQuestionType,
   toAnswerOptions,
   toAnswerPayload,
   validateAnswer

@@ -7,6 +7,7 @@ import type {
 import {
   createEmptyAnswer,
   isAnswered,
+  matchesQuestionType,
   toAnswerOptions,
   toAnswerPayload,
   validateAnswer
@@ -116,6 +117,37 @@ describe('participation utils', () => {
         pollQuestionId: 'question-1',
         value: { type: 'single-choice', value: null }
       })
+    })
+  })
+
+  describe('matchesQuestionType', () => {
+    test('should accept a value of the question own type', () => {
+      expect(matchesQuestionType(makeQuestion('text'), 'Ответ')).toBe(true)
+      expect(matchesQuestionType(makeQuestion('number'), 3)).toBe(true)
+      expect(matchesQuestionType(makeQuestion('checkbox'), true)).toBe(true)
+      expect(matchesQuestionType(makeQuestion('date'), new Date())).toBe(true)
+    })
+
+    test('should reject a value of another type', () => {
+      expect(matchesQuestionType(makeQuestion('number'), 'три')).toBe(false)
+      expect(matchesQuestionType(makeQuestion('text'), 3)).toBe(false)
+      expect(matchesQuestionType(makeQuestion('date'), 'вчера')).toBe(false)
+      expect(matchesQuestionType(makeQuestion('checkbox'), 'да')).toBe(false)
+      expect(matchesQuestionType(makeQuestion('text'), undefined)).toBe(false)
+    })
+
+    test('should reject a choice the question no longer offers', () => {
+      const single = makeQuestion('single-choice', {
+        config: { options: ['Да', 'Нет'] }
+      })
+      const multiple = makeQuestion('multiple-choice', {
+        config: { options: ['Да', 'Нет'] }
+      })
+
+      expect(matchesQuestionType(single, 'Да')).toBe(true)
+      expect(matchesQuestionType(single, 'Может быть')).toBe(false)
+      expect(matchesQuestionType(multiple, ['Да', 'Нет'])).toBe(true)
+      expect(matchesQuestionType(multiple, ['Да', 'Может быть'])).toBe(false)
     })
   })
 

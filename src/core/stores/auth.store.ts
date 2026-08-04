@@ -15,6 +15,7 @@ import {
 } from '../composables/useApiRequest'
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
+import { LocalStorage } from '../utils/local-storage.utils'
 import { useGlobalUIStore } from './global-ui.store'
 import { UserService } from '@/modules/users/api/user.service'
 import type { UserEntity } from '@/modules/users/api/user.types'
@@ -164,6 +165,9 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     currentUser.data.value = null
     isRetryLoginModalVisible.value = false
     CookieStorage.clear()
+    // Anything kept on the device for the person leaving — poll drafts, for
+    // one — must not still be there for whoever signs in next.
+    LocalStorage.clear()
   }
 
   function clearSession(): void {

@@ -1,8 +1,10 @@
 import type { ApiError } from '@/core/api/api.utils'
 import { isApiError } from '@/core/api/api.utils'
 import { useApiRequest } from '@/core/composables/useApiRequest'
+import { useAuthStore } from '@/core/stores/auth.store'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
+import { debouncedWatch } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import {
   computed,
@@ -14,13 +16,21 @@ import {
 } from 'vue'
 import { PollService } from '../api/poll.service'
 import type { PollEntity, PollQuestionEntity } from '../api/poll.types'
+import { clearDraft, readDraft, saveDraft } from '../participation.storage'
 import {
   createEmptyAnswer,
   isAnswered,
+  matchesQuestionType,
   toAnswerPayload,
   validateAnswer
 } from '../participation.utils'
 import type { PollAnswerInputValue, PollParticipant } from '../types'
+
+/**
+ * Long enough not to write on every keystroke, short enough that an accidental
+ * reload lands after the answer it interrupted was already stored.
+ */
+const DRAFT_SAVE_DEBOUNCE_MS = 300
 
 interface PollParticipationStore {
   /**
@@ -44,6 +54,15 @@ interface PollParticipationStore {
   participant: ShallowRef<PollParticipant | null>
   isSubmitting: ShallowRef<boolean>
   isSubmitted: ShallowRef<boolean>
+  /**
+   * Whether the answers on screen were picked up from an earlier, unfinished
+   * visit rather than typed in this one.
+   */
+  hasRestoredDraft: ShallowRef<boolean>
+  /**
+   * Throws the restored answers away and starts the poll from a blank slate.
+   */
+  discardDraft: () => void
   /**
    * Whether the poll still accepts answers.
    */
@@ -82,6 +101,7 @@ const usePollParticipationStore = defineStore(
   'polls:poll-participation',
   (): PollParticipationStore => {
     const uiStore = useGlobalUIStore()
+    const authStore = useAuthStore()
 
     const pollRequest = useApiRequest<string, PollEntity>((pollId) =>
       PollService.getById(pollId)
@@ -91,8 +111,12 @@ const usePollParticipationStore = defineStore(
     const participant = shallowRef<PollParticipant | null>(null)
     const isSubmitting = shallowRef(false)
     const isSubmitted = shallowRef(false)
+    const hasRestoredDraft = shallowRef(false)
     // Errors stay hidden until the first submit attempt, see `errorsFor()`.
     const isValidationVisible = shallowRef(false)
+    // Guards the draft watcher: only answers the visitor gave are worth
+    // storing, never the ones `init()` and `reset()` write themselves.
+    const isDraftPersisted = shallowRef(false)
 
     const poll = pollRequest.data
 
@@ -156,12 +180,8 @@ const usePollParticipationStore = defineStore(
       return validationErrors.value[questionId] ?? []
     }
 
-    async function init(pollId: string): Promise<void> {
-      reset()
-
-      await pollRequest.execute(pollId)
-
-      answers.value = Object.fromEntries(
+    function createEmptyAnswers(): Record<string, PollAnswerInputValue> {
+      return Object.fromEntries(
         questions.value.map((question) => [
           question.id,
           createEmptyAnswer(question)
@@ -169,13 +189,81 @@ const usePollParticipationStore = defineStore(
       )
     }
 
+    /**
+     * Blank answers with whatever an earlier visit left behind laid over them.
+     * The draft is filtered question by question: the poll may have been edited
+     * since, and only values that still fit the question they belong to are
+     * worth restoring.
+     */
+    function restoreAnswers(): Record<string, PollAnswerInputValue> {
+      const restored = createEmptyAnswers()
+      const draft = poll.value
+        ? readDraft(poll.value.id, authStore.userId)
+        : null
+
+      if (!draft) {
+        return restored
+      }
+
+      for (const question of questions.value) {
+        const value = draft[question.id]
+
+        if (!matchesQuestionType(question, value)) {
+          continue
+        }
+
+        restored[question.id] = value
+
+        if (isAnswered(question, value)) {
+          hasRestoredDraft.value = true
+        }
+      }
+
+      return restored
+    }
+
+    async function init(pollId: string): Promise<void> {
+      reset()
+
+      await pollRequest.execute(pollId)
+
+      answers.value = restoreAnswers()
+      isDraftPersisted.value = !!poll.value
+    }
+
     function reset(): void {
+      isDraftPersisted.value = false
       answers.value = {}
       participant.value = null
       isSubmitting.value = false
       isSubmitted.value = false
       isValidationVisible.value = false
+      hasRestoredDraft.value = false
     }
+
+    function discardDraft(): void {
+      if (poll.value) {
+        clearDraft(poll.value.id, authStore.userId)
+      }
+
+      answers.value = createEmptyAnswers()
+      hasRestoredDraft.value = false
+      isValidationVisible.value = false
+    }
+
+    // The draft is what makes an accidental reload survivable, so it follows
+    // the answers rather than any explicit "save" of the visitor's.
+    debouncedWatch(
+      answers,
+      () => {
+        if (!isDraftPersisted.value || !poll.value) {
+          return
+        }
+
+        saveDraft(poll.value.id, answers.value, authStore.userId)
+      },
+      { debounce: DRAFT_SAVE_DEBOUNCE_MS, deep: true }
+    )
 
     function setParticipant(value: PollParticipant | null): void {
       participant.value = value
@@ -222,6 +310,10 @@ const usePollParticipationStore = defineStore(
         return false
       }
 
+      // Answered polls cannot be taken again, so the draft has nothing left to
+      // protect.
+      isDraftPersisted.value = false
+      clearDraft(currentPoll.id, authStore.userId)
       isSubmitted.value = true
 
       return true
@@ -236,6 +328,8 @@ const usePollParticipationStore = defineStore(
       participant,
       isSubmitting,
       isSubmitted,
+      hasRestoredDraft,
+      discardDraft,
       isAvailable,
       unavailabilityReason,
       answeredCount,

@@ -13,9 +13,7 @@
         @submit="start()"
       />
       <template v-if="!isAuthRequired">
-        <div class="poll-participation-auth-view__options__separator">
-          или
-        </div>
+        <div class="poll-participation-auth-view__options__separator">или</div>
         <noo-telegram-login-button />
       </template>
     </div>

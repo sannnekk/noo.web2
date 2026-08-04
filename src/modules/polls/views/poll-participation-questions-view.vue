@@ -12,6 +12,28 @@
       <noo-progress-bar :value="participationStore.progress" />
     </div>
 
+    <noo-if-animation>
+      <div
+        v-if="participationStore.hasRestoredDraft"
+        class="poll-participation-questions-view__restored"
+      >
+        <noo-text-block
+          size="small"
+          dimmed
+          no-margin
+        >
+          Мы восстановили ответы, которые вы начали давать в этом браузере
+        </noo-text-block>
+        <noo-button
+          variant="inline"
+          size="small"
+          @click="participationStore.discardDraft()"
+        >
+          Начать заново
+        </noo-button>
+      </div>
+    </noo-if-animation>
+
     <div
       v-if="participationStore.questions.length > 0"
       class="poll-participation-questions-view__list"
@@ -89,6 +111,17 @@ async function submit(): Promise<void> {
     flex-direction: column
     gap: var(--space-3xs)
     margin-bottom: var(--space-s)
+
+  &__restored
+    display: flex
+    align-items: center
+    flex-wrap: wrap
+    justify-content: space-between
+    gap: var(--space-3xs)
+    margin-bottom: var(--space-2xs)
+    padding: var(--space-3xs) var(--space-2xs)
+    border-radius: var(--border-radius)
+    background-color: var(--light-background-color)
 
   &__list
     display: flex

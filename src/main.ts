@@ -1,5 +1,6 @@
 import App from '@/App.vue'
 import { registerModules } from '@/modules-registrar'
+import { LocalStorage } from '@/core/utils/local-storage.utils'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -21,6 +22,10 @@ import SettingsModule from '@/modules/settings'
 import TaskCardsModule from '@/modules/task-cards'
 import UsersModule from '@/modules/users'
 import WorksModule from '@/modules/works'
+
+// Records expire lazily on read, so the ones nobody comes back to are swept
+// here instead of piling up in the browser.
+LocalStorage.prune()
 
 const app = createApp(App)
 
