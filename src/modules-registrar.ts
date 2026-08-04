@@ -1,6 +1,6 @@
 import type { ApplicationModule } from '@/types/ApplicationModule'
 import { createRouter, type RouteRecordRaw } from 'vue-router'
-import { routerOptions } from './router'
+import { notFoundRoute, routerOptions } from './router'
 import { canRoleAccessGuard, isAuthenticatedGuard } from './router/guards'
 import {
   setPageTitleMiddleware,
@@ -27,6 +27,9 @@ function registerModules(modules: ApplicationModule[]): {
       ;(options.routes as RouteRecordRaw[]).push(...routes)
     }
   }
+
+  // Last, so that it only ever matches what no module answers to.
+  ;(options.routes as RouteRecordRaw[]).push(notFoundRoute)
 
   const router = createRouter(options)
 

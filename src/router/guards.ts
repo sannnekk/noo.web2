@@ -20,6 +20,20 @@ function isAuthenticatedGuard(
   return true
 }
 
+/**
+ * The not-found page, shown in place of the address that was asked for. The
+ * address bar is left alone — the way a server answers a 404 where it stands,
+ * rather than sending the visitor somewhere else.
+ */
+function toNotFound(to: RouteLocationNormalized): NavigationGuardReturn {
+  return {
+    name: 'not-found',
+    params: { pathMatch: to.path.substring(1).split('/') },
+    query: to.query,
+    hash: to.hash
+  }
+}
+
 function canRoleAccessGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
@@ -29,8 +43,11 @@ function canRoleAccessGuard(
     return true
   }
 
+  // A page the visitor's role cannot open is treated as a page that is not
+  // there: aborting the navigation would strand them on whatever they were
+  // looking at, with nothing to explain why nothing happened.
   if (!authStore.roleIsOneOf(to.meta.roles)) {
-    return false
+    return toNotFound(to)
   }
 
   return true
