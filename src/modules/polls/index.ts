@@ -1,7 +1,11 @@
 import PaneLayout from '@/layouts/pane-layout.vue'
 import PollLayout from '@/layouts/poll-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
-import { loadPollGuard } from './guards'
+import {
+  loadPollGuard,
+  participationResultGuard,
+  participationStartGuard
+} from './guards'
 import type { PollsEditPageProps } from './pages/polls-edit-page.vue'
 import type { PollResultsPageProps } from './pages/poll-results-page.vue'
 import type { PollParticipationPageProps } from './pages/poll-participation-page.vue'
@@ -33,7 +37,35 @@ const module: ApplicationModule = {
       component: () => import('./pages/poll-participation-page.vue'),
       props: (route): PollParticipationPageProps => ({
         pollId: String(route.params.pollId)
-      })
+      }),
+      redirect: (to) => ({
+        name: 'polls.participate.auth',
+        params: { pollId: to.params.pollId }
+      }),
+      children: [
+        {
+          name: 'polls.participate.auth',
+          path: 'auth',
+          component: () => import('./views/poll-participation-auth-view.vue')
+        },
+        {
+          name: 'polls.participate.questions',
+          path: 'questions',
+          beforeEnter: participationStartGuard,
+          component: () =>
+            import('./views/poll-participation-questions-view.vue')
+        },
+        {
+          name: 'polls.participate.success',
+          path: 'success',
+          meta: {
+            pageTitle: 'Спасибо за участие',
+            tabTitle: 'Спасибо за участие'
+          },
+          beforeEnter: participationResultGuard,
+          component: () => import('./views/poll-participation-success-view.vue')
+        }
+      ]
     },
     {
       name: 'polls.edit',

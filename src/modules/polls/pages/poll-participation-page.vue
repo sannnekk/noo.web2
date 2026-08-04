@@ -2,18 +2,20 @@
   <div class="poll-participation-page">
     <noo-swap-animation>
       <noo-error-block
-        v-if="error"
+        v-if="participationStore.error"
         with-image
         centered
         :try-again="init"
       >
         <noo-title :size="3"> Не удалось загрузить опрос </noo-title>
-        <noo-text-block v-if="error">
-          {{ `${error.name}: ${error.description}` }}
+        <noo-text-block>
+          {{
+            `${participationStore.error.name}: ${participationStore.error.description}`
+          }}
         </noo-text-block>
       </noo-error-block>
       <div
-        v-else-if="isLoading"
+        v-else-if="participationStore.isLoading"
         class="poll-participation-page__loading"
       >
         <noo-loader-icon
@@ -25,57 +27,36 @@
         </noo-text-block>
       </div>
       <div
-        v-else-if="poll"
+        v-else-if="participationStore.poll"
         class="poll-participation-page__content"
       >
-        <div class="poll-participation-page__icon">
-          <noo-icon name="poll" />
+        <div class="poll-participation-page__header">
+          <div class="poll-participation-page__header__icon">
+            <noo-icon name="poll" />
+          </div>
+          <noo-title
+            :size="2"
+            no-margin
+          >
+            {{ participationStore.poll.title }}
+          </noo-title>
+          <noo-text-block v-if="participationStore.poll.description">
+            {{ participationStore.poll.description }}
+          </noo-text-block>
         </div>
-        <noo-title
-          :size="2"
-          no-margin
-        >
-          {{ poll.title }}
-        </noo-title>
-        <noo-text-block v-if="poll.description">
-          {{ poll.description }}
-        </noo-text-block>
-        <noo-title :size="4">
-          Для того чтобы пройти опрос, пожалуйста, авторизируйтесь
-        </noo-title>
-        <div class="poll-participation-page__auth-options">
-          <noo-auth-widget v-model:user="user" />
-          <span>или</span>
-          <noo-telegram-login-button>
-            Войти через Telegram
-          </noo-telegram-login-button>
-        </div>
-        <noo-text-block
-          dimmed
-          size="small"
-        >
-          Ваши ответы будут привязаны к вашей учетной записи и не будут доступны
-          другим пользователям.
-        </noo-text-block>
-        <noo-text-block
-          dimmed
-          size="small"
-        >
-          При выборе опции "Войти через Telegram" мы не получаем доступ к вашим
-          личным данным, кроме вашего имени и идентификатора Telegram. Ваши
-          ответы будут привязаны к вашему Telegram-никнейму и не будут доступны
-          другим пользователям.
-        </noo-text-block>
+
+        <noo-warning-block v-if="!participationStore.isAvailable">
+          {{ participationStore.unavailabilityReason }}
+        </noo-warning-block>
+        <noo-animated-router-view v-else />
       </div>
     </noo-swap-animation>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useApiRequest } from '@/core/composables/useApiRequest'
-import { computed, onMounted, ref } from 'vue'
-import { PollService } from '../api/poll.service'
-import type { UserEntity } from '@/modules/users/api/user.types'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { usePollParticipationStore } from '../stores/poll-participation.store'
 
 export interface PollParticipationPageProps {
   pollId: string
@@ -83,23 +64,23 @@ export interface PollParticipationPageProps {
 
 const props = defineProps<PollParticipationPageProps>()
 
-const pollRequest = useApiRequest(() => PollService.getById(props.pollId))
+const participationStore = usePollParticipationStore()
 
-const user = ref<UserEntity | null>(null)
-
-const isLoading = computed(() => pollRequest.isLoading.value)
-const error = computed(() => pollRequest.error.value)
-const poll = computed(() => pollRequest.data.value)
-
-async function init() {
-  await pollRequest.execute()
+async function init(): Promise<void> {
+  await participationStore.init(props.pollId)
 }
 
 onMounted(init)
+
+// The flow lives entirely in the store, so leaving the poll — rather than
+// stepping between its views — is what discards the answers.
+onBeforeUnmount(participationStore.reset)
 </script>
 
 <style lang="sass" scoped>
 .poll-participation-page
+  overflow: hidden
+
   &__loading
     display: flex
     flex-direction: column
@@ -116,21 +97,10 @@ onMounted(init)
     &__text
       font-size: var(--step-0)
 
-  &__icon
-    font-size: fluid(3rem, 5rem)
-    line-height: 1
+  &__header
+    margin-bottom: var(--space-s)
 
-  &__auth-options
-    display: flex
-    align-items: center
-    justify-content: space-between
-    gap: var(--space-s)
-    margin-bottom: var(--space-l)
-
-    // Side by side needs ~36rem; below that the card, the "или" and the
-    // Telegram button stack instead of squeezing.
-    +mobile
-      flex-direction: column
-      align-items: center
-      text-align: center
+    &__icon
+      font-size: fluid(3rem, 5rem)
+      line-height: 1
 </style>

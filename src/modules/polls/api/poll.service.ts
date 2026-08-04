@@ -3,6 +3,7 @@ import { uid } from '@/core/utils/id.utils'
 import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type {
+  CreatePollParticipationPayload,
   PollEntity,
   PollParticipationEntity,
   PossiblyUnsavedPoll,
@@ -81,6 +82,17 @@ interface IPollService {
   getParticipation: (
     participationId: string
   ) => Promise<ApiResponse<PollParticipationEntity>>
+  /**
+   * Submits the current visitor's answers to a poll.
+   *
+   * @param pollId The ID of the poll to participate in.
+   * @param participation The participant and their answers.
+   * @returns A promise that resolves to an ApiResponse indicating the success of the operation.
+   */
+  participate: (
+    pollId: string,
+    participation: CreatePollParticipationPayload
+  ) => Promise<ApiResponse>
   /**
    * Fetches the polls a specific user has participated in.
    *
@@ -164,6 +176,13 @@ async function getParticipation(
   return await Api.get(`${BASE_PATH}/participation/${participationId}`)
 }
 
+async function participate(
+  pollId: string,
+  participation: CreatePollParticipationPayload
+): Promise<ApiResponse> {
+  return await Api.post(`${BASE_PATH}/${pollId}/participate`, participation)
+}
+
 async function getParticipatedPolls(
   userId: string,
   pagination?: IPagination
@@ -184,5 +203,6 @@ export const PollService: IPollService = {
   delete: deletePoll,
   getParticipations,
   getParticipation,
+  participate,
   getParticipatedPolls
 }

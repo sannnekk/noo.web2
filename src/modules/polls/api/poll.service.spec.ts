@@ -86,6 +86,26 @@ describe('PollService', () => {
       expect(Api.get).toHaveBeenCalledWith('/poll/participation/part-1')
     })
 
+    test('participate should post the answers to the poll', async () => {
+      const payload = {
+        userType: 'authenticated-user' as const,
+        userExternalIdentifier: null,
+        userExternalData: null,
+        answers: [
+          {
+            pollQuestionId: 'question-1',
+            value: { type: 'text' as const, value: 'Ответ' }
+          }
+        ]
+      }
+
+      ;(Api.post as Mock).mockResolvedValue({ data: undefined })
+
+      await PollService.participate('poll-1', payload)
+
+      expect(Api.post).toHaveBeenCalledWith('/poll/poll-1/participate', payload)
+    })
+
     test('getParticipatedPolls should request the user participation endpoint', async () => {
       ;(Api.get as Mock).mockResolvedValue({ data: [] })
 

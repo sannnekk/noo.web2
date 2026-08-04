@@ -70,13 +70,31 @@ export interface PollParticipationEntity extends ApiEntity<'PollParticipation'> 
   answers?: PollAnswerEntity[]
 }
 
+/**
+ * The answer itself. The API stores it as an opaque JSON blob, so the question
+ * type travels with the value and tells the reader how to interpret it.
+ */
+export interface PollAnswerValue {
+  type: PollQuestionType
+  value: unknown
+}
+
 export interface PollAnswerEntity extends ApiEntity<'PollAnswer'> {
   pollQuestionId: string
-  value: {
-    type: PollQuestionType
-    value: unknown
-  }
+  value: PollAnswerValue
   pollQuestion?: PollQuestionEntity
+}
+
+export interface CreatePollAnswerPayload {
+  pollQuestionId: string
+  value: PollAnswerValue | null
+}
+
+export interface CreatePollParticipationPayload {
+  userType: ParticipatingUserType
+  userExternalIdentifier?: string | null
+  userExternalData?: Record<string, unknown> | null
+  answers: CreatePollAnswerPayload[]
 }
 
 export type PossiblyUnsavedQuestion = PossiblyUnsavedEntity<
