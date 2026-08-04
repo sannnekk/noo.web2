@@ -65,4 +65,68 @@ describe('useApiRequest', () => {
 
     expect(progress.value).toBeNull()
   })
+
+  test('follows the transfer while the request is in flight', async () => {
+    let seenProgress: number | null = null
+
+    const request = vi.fn(async (_payload: void, onProgress) => {
+      onProgress?.({ loaded: 40, total: 80, bytes: 40 })
+      seenProgress = progress.value
+
+      return { data: { ok: true }, meta: null }
+    })
+
+    const { execute, progress } = useApiRequest(request)
+
+    await execute()
+
+    expect(seenProgress).toBe(50)
+    // …and reads as idle again once there is nothing in flight.
+    expect(progress.value).toBeNull()
+  })
+
+  test('reports progress even when the transfer size is unknown', async () => {
+    vi.useFakeTimers()
+
+    let seenProgress: number | null = null
+
+    const request = vi.fn(async () => {
+      // Nothing measurable ever arrives — the guess is all there is.
+      await vi.advanceTimersByTimeAsync(600)
+      seenProgress = progress.value
+
+      return { data: { ok: true }, meta: null }
+    })
+
+    const { execute, progress } = useApiRequest(request)
+
+    await execute()
+
+    expect(seenProgress).toBeGreaterThan(0)
+
+    vi.useRealTimers()
+  })
+
+  test('leaves progress alone when tracking is turned off', async () => {
+    vi.useFakeTimers()
+
+    let seenProgress: number | null = null
+
+    const request = vi.fn(async () => {
+      await vi.advanceTimersByTimeAsync(600)
+      seenProgress = progress.value
+
+      return { data: { ok: true }, meta: null }
+    })
+
+    const { execute, progress } = useApiRequest(request, undefined, undefined, {
+      trackProgress: false
+    })
+
+    await execute()
+
+    expect(seenProgress).toBeNull()
+
+    vi.useRealTimers()
+  })
 })

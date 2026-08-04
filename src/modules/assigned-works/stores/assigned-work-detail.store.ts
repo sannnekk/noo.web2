@@ -113,12 +113,14 @@ const useAssignedWorkDetailStore = defineStore(
      * @param assignedWorkId - The ID of the assigned work to load.
      */
     async function init(assignedWorkId: string): Promise<boolean> {
-      globalUiStore.setLoading(true, undefined, 'Загрузка работы...')
-
-      const apiResponse = await AssignedWorkService.getById(assignedWorkId)
+      // A work arrives with its tasks, answers and comments in one response, so
+      // the wait is long enough to be worth narrating.
+      const apiResponse = await globalUiStore.withLoader(
+        'Загрузка работы...',
+        (onProgress) => AssignedWorkService.getById(assignedWorkId, onProgress)
+      )
 
       if (isApiError(apiResponse)) {
-        globalUiStore.setLoading(false)
         globalUiStore.createApiErrorToast(
           'Не удалось загрузить работу',
           apiResponse.error
@@ -128,15 +130,12 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       if (!apiResponse.data) {
-        globalUiStore.setLoading(false)
-
         return false
       }
 
       assignedWork.value = apiResponse.data
       setSavedAnswers(apiResponse.data.answers ?? [])
       setEmptyAnswers()
-      globalUiStore.setLoading(false)
 
       return true
     }

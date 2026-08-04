@@ -7,7 +7,8 @@
     </noo-layout-change-transition>
     <noo-loader-overlay
       v-if="uiStore.isLoading"
-      :loading-progress="0"
+      :loading-progress="uiStore.loadingProgress ?? 0"
+      :text="uiStore.loadingText"
     />
   </div>
   <noo-toast-area />

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { shallowRef, type ShallowRef } from 'vue'
-import type { ApiError } from '../api/api.utils'
+import { shallowRef, watch, type ShallowRef } from 'vue'
+import type { ApiError, RequestProgress } from '../api/api.utils'
+import { useLoadingProgress } from '../composables/useLoadingProgress'
 import { uid } from '../utils/id.utils'
 
 export interface Toast {
@@ -22,6 +23,25 @@ interface GlobalUIStore {
     loadingProgress?: number,
     loadingText?: string
   ) => void
+  /**
+   * Runs a slow piece of work behind the fullscreen loader, with a progress bar
+   * that follows the transfer where its size is known and eases forward where
+   * it is not.
+   *
+   * The task is handed a progress sink to pass to any service that accepts one:
+   *
+   * ```ts
+   * const response = await uiStore.withLoader('Загрузка работы...', (onProgress) =>
+   *   AssignedWorkService.getById(id, onProgress)
+   * )
+   * ```
+   *
+   * The loader is taken down when the work settles, however it settles.
+   */
+  withLoader: <T>(
+    text: string | undefined,
+    task: (onProgress: (event: RequestProgress) => void) => Promise<T>
+  ) => Promise<T>
   toasts: ShallowRef<Toast[]>
   createToast: (toast: Omit<Toast, 'id'>) => void
   createErrorToast: (title: string, text?: string) => void
@@ -46,6 +66,43 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
     isLoading.value = loading
     loadingProgress.value = progress
     loadingText.value = text
+  }
+
+  const loadingTracker = useLoadingProgress()
+
+  watch(loadingTracker.progress, (value) => {
+    if (loadingTracker.isRunning.value) {
+      loadingProgress.value = value
+    }
+  })
+
+  /**
+   * Depth of nested `withLoader` calls, so an inner one finishing does not pull
+   * the loader out from under the work still going on around it.
+   */
+  let activeLoaders = 0
+
+  async function withLoader<T>(
+    text: string | undefined,
+    task: (onProgress: (event: RequestProgress) => void) => Promise<T>
+  ): Promise<T> {
+    if (activeLoaders === 0) {
+      loadingTracker.start()
+      setLoading(true, 0, text)
+    }
+
+    activeLoaders += 1
+
+    try {
+      return await task(loadingTracker.report)
+    } finally {
+      activeLoaders -= 1
+
+      if (activeLoaders === 0) {
+        loadingTracker.finish()
+        setLoading(false)
+      }
+    }
   }
 
   const toasts = shallowRef<Toast[]>([])
@@ -103,6 +160,7 @@ const useGlobalUIStore = defineStore('global:ui', (): GlobalUIStore => {
     loadingProgress,
     loadingText,
     setLoading,
+    withLoader,
     toasts,
     createToast,
     createApiErrorToast,

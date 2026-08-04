@@ -102,8 +102,28 @@ describe('AssignedWorkService', () => {
 
       const result = await AssignedWorkService.getById(mockId)
 
-      expect(Api.get).toHaveBeenCalledWith(`/assigned-work/${mockId}`)
+      expect(Api.get).toHaveBeenCalledWith(
+        `/assigned-work/${mockId}`,
+        undefined,
+        undefined,
+        undefined
+      )
       expect(!isApiError(result) && result.data).toEqual(mockData)
+    })
+
+    test('should pass the progress callback through to the request', async () => {
+      const onProgress = vi.fn()
+
+      ;(Api.get as Mock).mockResolvedValue({ data: { id: '123' } })
+
+      await AssignedWorkService.getById('123', onProgress)
+
+      expect(Api.get).toHaveBeenCalledWith(
+        '/assigned-work/123',
+        undefined,
+        undefined,
+        onProgress
+      )
     })
   })
 

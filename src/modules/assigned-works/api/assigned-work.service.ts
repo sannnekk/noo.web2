@@ -1,4 +1,8 @@
-import { type ApiResponse, Api } from '@/core/api/api.utils'
+import {
+  type ApiResponse,
+  type RequestProgress,
+  Api
+} from '@/core/api/api.utils'
 import { uid } from '@/core/utils/id.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
@@ -44,9 +48,13 @@ interface IAssignedWorkService {
    * Fetches an assigned work by its ID.
    *
    * @param id The ID of the assigned work to fetch.
+   * @param onProgress Called as the response comes in — a work with its tasks and answers is a heavy one.
    * @returns A promise that resolves to an ApiResponse containing the AssignedWorkEntity object.
    */
-  getById(id: string): Promise<ApiResponse<AssignedWorkEntity>>
+  getById(
+    id: string,
+    onProgress?: (event: RequestProgress) => void
+  ): Promise<ApiResponse<AssignedWorkEntity>>
   /**
    * Gets the progress of an assigned work by the id of the Work Assignment.
    * The response is an array since there can be multiple assigned works for one assignment as new attempts
@@ -171,8 +179,11 @@ async function getMetadata(
   return await Api.get(`${BASE_PATH}/${userId}/metadata`)
 }
 
-async function getById(id: string): Promise<ApiResponse<AssignedWorkEntity>> {
-  return await Api.get(`${BASE_PATH}/${id}`)
+async function getById(
+  id: string,
+  onProgress?: (event: RequestProgress) => void
+): Promise<ApiResponse<AssignedWorkEntity>> {
+  return await Api.get(`${BASE_PATH}/${id}`, undefined, undefined, onProgress)
 }
 
 async function getHistory(
