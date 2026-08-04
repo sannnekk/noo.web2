@@ -1,7 +1,83 @@
 [
   {
+    "version": "1.2.1-alpha",
+    "date": "2026-08-04T14:02:53+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "Added 404 page app-wide",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added under-construction-component",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Answers are now localstorage-persistent",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Implemented polls participation part with questions",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Implemented main auth page for poll participation",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Implemented poll layout",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "courses: more poll info on a course page",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "courses: added material pinning",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "users: Added student mentors to user list",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "nootube: Added timestamp highlights in comments",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "nootube: Added reactions to nootube videos",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "polls: fixed message in the poll participation success view",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "polls: FIxed question and their order not being saved",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "polls: better polls list & edit pages",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
     "version": "1.2.0-alpha",
-    "date": "2026-07-29T00:40:30+02:00",
+    "date": "2026-07-29T00:44:40+02:00",
     "changes": [
       {
         "type": "feature",
