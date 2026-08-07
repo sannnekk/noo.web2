@@ -3,7 +3,17 @@
     v-if="task"
     class="assigned-works-task-view"
   >
-    <task-statement-block :task="task" />
+    <task-statement-block :task="task">
+      <template
+        v-if="canSaveTask"
+        #actions
+      >
+        <save-task-button
+          :task-id="task.id"
+          :assigned-work-id="assignedWorkId!"
+        />
+      </template>
+    </task-statement-block>
 
     <task-answer-block
       v-if="answer && layout.answer !== 'hidden'"
@@ -58,6 +68,11 @@
 
 <script setup lang="ts">
 import type { IRichText } from '@/core/utils/richtext.utils'
+import saveTaskButton from '@/modules/task-cards/components/save-task-button.vue'
+import {
+  TaskCardsPermissions,
+  useTaskCardsPermissions
+} from '@/modules/task-cards/permissions'
 import { computed } from 'vue'
 import taskAnswerBlock from '../components/task-view/task-answer-block.vue'
 import taskHintBlock from '../components/task-view/task-hint-block.vue'
@@ -77,6 +92,8 @@ const props = defineProps<AssignedWorksTaskViewProps>()
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
+const { can } = useTaskCardsPermissions()
+
 const task = computed(() => assignedWorkDetailStore.getTask(props.taskId))
 const answer = computed<PossiblyUnsavedAnswer | undefined>(
   () => assignedWorkDetailStore.answers[props.taskId]
@@ -90,6 +107,17 @@ const layout = computed(() =>
 )
 
 const isAnswerChecked = computed(() => answer.value?.status === 'checked')
+
+const assignedWorkId = computed(() => assignedWorkDetailStore.assignedWork?.id)
+
+// A task is only worth putting aside once the student has seen it checked, so
+// the button waits for the whole work to be checked.
+const canSaveTask = computed(
+  () =>
+    can(TaskCardsPermissions.saveTask) &&
+    assignedWorkDetailStore.workIsChecked &&
+    Boolean(assignedWorkId.value)
+)
 
 const answerTitle = computed(() =>
   props.mode === 'check' ? 'Ответ ученика' : 'Ответ'

@@ -59,6 +59,12 @@ const allEntries: NavEntry[] = [
     route: { name: 'assigned-works.list' }
   },
   {
+    for: ['student'],
+    title: 'Карточки',
+    icon: 'cards',
+    route: { name: 'task-cards.list' }
+  },
+  {
     for: ['admin', 'teacher'],
     title: 'Работы',
     icon: 'list',

@@ -11,6 +11,7 @@
         {{ task.maxScore }}
         {{ pluralize(task.maxScore, ['балл', 'балла', 'баллов']) }}
       </span>
+      <slot name="actions" />
     </template>
 
     <noo-richtext-block :value="task.content" />

@@ -1,6 +1,7 @@
 import CardsQuizLayout from '@/layouts/cards-quiz-layout.vue'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
+import { TaskCardsPermissions, taskCardsPermissionPolicy } from './permissions'
 
 const module: ApplicationModule = {
   name: 'task-cards',
@@ -11,6 +12,9 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Карточки с заданиями',
         tabTitle: 'Карточки с заданиями',
+        roles: taskCardsPermissionPolicy.rolesFor(
+          TaskCardsPermissions.viewListPage
+        ),
         layout: PaneLayout
       },
       component: () => import('./pages/task-cards-list-page.vue')
@@ -21,6 +25,9 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Квиз',
         tabTitle: 'Квиз',
+        roles: taskCardsPermissionPolicy.rolesFor(
+          TaskCardsPermissions.viewQuizPage
+        ),
         layout: CardsQuizLayout
       },
       component: () => import('./pages/task-cards-quiz-page.vue')
