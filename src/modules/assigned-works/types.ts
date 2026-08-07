@@ -29,3 +29,28 @@ export type TaskGrid = {
 }[]
 
 export type AssignedWorkListTab = 'all' | 'not-made' | 'not-checked' | 'checked'
+
+/**
+ * How one block of the task view is presented: absent, shown as given, or open
+ * for editing.
+ */
+export type TaskBlockPresentation = 'hidden' | 'readonly' | 'editable'
+
+/**
+ * How one of the task's hints is presented. Collapsed means the reader has to
+ * ask for it — a hint given away unasked is not much of a hint.
+ */
+export type TaskHintPresentation = 'hidden' | 'collapsed' | 'expanded'
+
+/**
+ * What the task view shows, block by block. The single description of the
+ * difference between reading a task, solving it and checking it — see
+ * `resolveTaskViewLayout()`.
+ */
+export interface TaskViewLayout {
+  answer: TaskBlockPresentation
+  score: TaskBlockPresentation
+  mentorComment: TaskBlockPresentation
+  solveHint: TaskHintPresentation
+  explanation: TaskHintPresentation
+}

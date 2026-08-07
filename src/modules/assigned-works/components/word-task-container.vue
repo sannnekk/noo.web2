@@ -2,7 +2,7 @@
   <div class="word-task-container">
     <noo-text-input
       v-model="model"
-      label="Ваш ответ"
+      :placeholder="readonly ? 'Нет ответа' : 'Введите ответ'"
       :validators="[(value) => maxLength(value, 100)]"
       :readonly="readonly"
     />

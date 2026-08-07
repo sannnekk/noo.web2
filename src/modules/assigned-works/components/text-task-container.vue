@@ -1,12 +1,5 @@
 <template>
   <div class="text-task-container">
-    <noo-title
-      :size="4"
-      class="assigned-works-task-view__title"
-      no-margin
-    >
-      Ваш ответ
-    </noo-title>
     <noo-richtext-editor
       v-model="model"
       :placeholder="readonly ? 'Нет ответа' : 'Введите ваш ответ здесь...'"

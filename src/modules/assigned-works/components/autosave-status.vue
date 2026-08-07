@@ -48,6 +48,8 @@ const lastSavedAtLabel = computed(() => {
 
 <style scoped lang="sass">
 .autosave-block
+  margin-bottom: 1em
+
   &__is-loading
     display: flex
     align-items: center

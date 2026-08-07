@@ -31,11 +31,13 @@ import { ref } from 'vue'
 
 interface Props {
   variant?: 'normal' | 'inline'
+  /** Start open, for content worth reading before it is asked for. */
+  defaultOpen?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-const isOpen = ref(false)
+const isOpen = ref(props.defaultOpen ?? false)
 </script>
 
 <style scoped lang="sass">
