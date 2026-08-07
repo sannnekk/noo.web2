@@ -48,7 +48,7 @@ interface Props {
    * blocks of a task apart at a glance, so each block owns a colour of the
    * app's palette rather than a shade of its own.
    */
-  accent: string
+  accent?: string
   /** Short marker in front of the title, e.g. the task number. */
   badge?: string | number
 }

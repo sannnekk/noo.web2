@@ -262,6 +262,17 @@ watch(
   () => props.readonly,
   (readonly) => editor.value?.setEditable(!readonly)
 )
+
+function insertRichText(value: IRichText | null | undefined): void {
+  // Delta content predates this editor and has no node representation here.
+  if (!editor.value || value?.$type !== 'tiptap' || !value.content?.length) {
+    return
+  }
+
+  editor.value.chain().focus().insertContent(value.content).run()
+}
+
+defineExpose({ insertRichText })
 </script>
 
 <style lang="sass" scoped>

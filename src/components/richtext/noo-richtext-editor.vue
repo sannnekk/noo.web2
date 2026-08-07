@@ -17,6 +17,7 @@
     />
     <noo-tiptap-component
       v-else
+      ref="tiptap"
       v-model="tiptapModel"
       :placeholder="placeholder"
       :readonly="readonly"
@@ -31,8 +32,9 @@
 import { richTextIsEmpty, type IRichText } from '@/core/utils/richtext.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { Delta } from 'quill/core'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import type { MediaCategory } from '@/modules/media/api/media.types'
+import type NooTiptapComponent from './tiptap/noo-tiptap-component.vue'
 
 interface Props {
   modelValue?: IRichText | null
@@ -80,6 +82,13 @@ function toDelta(richText: IRichText | undefined | null): Delta {
     ? new Delta(richText)
     : new Delta().insert('')
 }
+
+const tiptap = useTemplateRef<InstanceType<typeof NooTiptapComponent>>('tiptap')
+
+defineExpose({
+  insertRichText: (value: IRichText | null | undefined) =>
+    tiptap.value?.insertRichText(value)
+})
 </script>
 
 <style lang="sass" scoped>

@@ -63,6 +63,7 @@ export interface AssignedWorkDetailStore {
   shiftDeadline: UseApiRequestReturn
   getTask: (taskId: string) => WorkTaskEntity | undefined
   updateAnswer: (taskId: string, patch: Partial<PossiblyUnsavedAnswer>) => void
+  totalScore: ComputedRef<number | null>
   workIsSolved: ComputedRef<boolean>
   workIsChecked: ComputedRef<boolean>
   workIsRemakeable: ComputedRef<boolean>
@@ -619,6 +620,38 @@ const useAssignedWorkDetailStore = defineStore(
     }
 
     /**
+     * The work's score.
+     *
+     * While checking, it is the running sum of what the tasks have been given,
+     * so the mentor sees the total move as they hand out points — the server
+     * only recomputes its own figure when the work is submitted. Everywhere
+     * else the server's figure is the one that counts.
+     */
+    const totalScore = computed<number | null>(() => {
+      if (viewMode.value !== 'check') {
+        return assignedWork.value?.score ?? null
+      }
+
+      const tasks = assignedWork.value?.work?.tasks
+
+      if (!tasks?.length) {
+        return assignedWork.value?.score ?? null
+      }
+
+      let total: number | null = null
+
+      for (const task of tasks) {
+        const score = answers.value[task.id]?.score
+
+        if (typeof score === 'number') {
+          total = (total ?? 0) + score
+        }
+      }
+
+      return total
+    })
+
+    /**
      * Checks if the work is solved or not.
      */
     const workIsSolved = computed<boolean>(
@@ -672,6 +705,7 @@ const useAssignedWorkDetailStore = defineStore(
       isAutosaveEnabled,
       getTask,
       updateAnswer,
+      totalScore,
       workIsSolved,
       workIsChecked,
       workIsRemakeable,

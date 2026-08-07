@@ -12,6 +12,10 @@ interface SnippetStore {
    * List of snippets available to the current user.
    */
   snippets: UseApiRequestReturn<void, SnippetEntity[]>
+  /**
+   * Loads the list unless it is already loaded or in flight.
+   */
+  init: () => Promise<void>
 }
 
 const useSnippetStore = defineStore(
@@ -23,11 +27,21 @@ const useSnippetStore = defineStore(
       SnippetService.get,
       undefined,
       (error) =>
-        uiStore.createApiErrorToast('Не удалось загрузить сниппеты', error)
+        uiStore.createApiErrorToast('Не удалось загрузить сниппеты', error),
+      { trackProgress: false }
     )
 
+    async function init(): Promise<void> {
+      if (snippets.data.value || snippets.isLoading.value) {
+        return
+      }
+
+      await snippets.execute()
+    }
+
     return {
-      snippets
+      snippets,
+      init
     }
   }
 )

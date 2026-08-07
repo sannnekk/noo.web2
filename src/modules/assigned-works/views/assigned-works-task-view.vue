@@ -91,10 +91,8 @@ const layout = computed(() =>
 
 const isAnswerChecked = computed(() => answer.value?.status === 'checked')
 
-// Whose answer it is depends on who is reading: the student sees their own, the
-// mentor checks somebody else's.
 const answerTitle = computed(() =>
-  props.mode === 'check' ? 'Ответ ученика' : 'Ваш ответ'
+  props.mode === 'check' ? 'Ответ ученика' : 'Ответ'
 )
 
 function updateAnswer(patch: Partial<PossiblyUnsavedAnswer>): void {

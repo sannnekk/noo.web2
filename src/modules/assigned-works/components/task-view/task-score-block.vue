@@ -1,16 +1,12 @@
 <template>
   <div class="task-score-block">
-    <noo-number-input
+    <noo-select-input
       v-if="!readonly"
       v-model="model"
       class="task-score-block__input"
       :label="`Баллы, максимум ${maxScore}`"
-      :min="0"
-      :max="maxScore"
-      :step="1"
+      :options="scoreOptions"
     />
-    <!-- Reused from the sidebar, where the same figure is given for the work as
-         a whole — the same shape, one task down. -->
     <noo-assigned-work-score
       v-else-if="isChecked"
       with-label
@@ -40,16 +36,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Props {
   maxScore: number
-  /** Until the answer is checked there is no score to show, only a promise of one. */
   isChecked?: boolean
   readonly?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const model = defineModel<number | null>('score', { default: null })
+
+const scoreOptions = computed(() => {
+  const options = []
+
+  for (let i = 0; i <= props.maxScore; i++) {
+    options.push({ label: String(i), value: i })
+  }
+
+  return options
+})
 </script>
 
 <style scoped lang="sass">

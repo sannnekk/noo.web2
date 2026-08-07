@@ -157,4 +157,15 @@ function getAnswerCheckStatus(
       font-size: 0.875rem
       font-weight: 500
       line-height: 0.8
+
+    // Six columns stay six columns on a phone, so every cell is much narrower —
+    // its contents step down to keep the number and its icon side by side.
+    +mobile
+      gap: 0.2em
+
+      &__icon
+        font-size: 0.8em
+
+      &__number
+        font-size: 0.75rem
 </style>

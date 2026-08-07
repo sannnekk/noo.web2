@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
+import { shallowRef, watch, type Component } from 'vue'
 
 export type IconName =
   | 'arrow-right'
@@ -75,15 +75,35 @@ interface Props {
 
 const props = defineProps<Props>()
 
-let icon = shallowRef('div')
+const icon = shallowRef<Component | string>('div')
 
-import(`./noo-icons/${props.name}-icon.vue`)
-  .then((module) => {
-    icon.value = module.default
-  })
-  .catch(() => {
-    icon.value = 'div'
-  })
+/**
+ * Icons are code-split, so every name means another async import. Reusing an
+ * icon instance under a new name (a list item whose state changed, for example)
+ * must swap the drawing too, and the counter keeps a slow earlier import from
+ * landing on top of a later one.
+ */
+let pendingRequest = 0
+
+watch(
+  () => props.name,
+  (name) => {
+    const request = ++pendingRequest
+
+    import(`./noo-icons/${name}-icon.vue`)
+      .then((module) => {
+        if (request === pendingRequest) {
+          icon.value = module.default
+        }
+      })
+      .catch(() => {
+        if (request === pendingRequest) {
+          icon.value = 'div'
+        }
+      })
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="sass" scoped>

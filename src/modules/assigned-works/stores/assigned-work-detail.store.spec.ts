@@ -303,3 +303,81 @@ describe('useAssignedWorkDetailStore — autosave', () => {
     expect(AssignedWorkService.saveAnswer).not.toHaveBeenCalled()
   })
 })
+
+describe('useAssignedWorkDetailStore — totalScore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: makeAssignedWork()
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  test('reports the score the server sent outside check mode', async () => {
+    const assignedWork = makeAssignedWork()
+
+    assignedWork.score = 4
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: assignedWork
+    })
+
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('read')
+
+    // Local answer scores must not bend the figure a reader is shown.
+    store.updateAnswer('t-1', { score: 5 })
+
+    expect(store.totalScore).toBe(4)
+  })
+
+  test('is null in check mode while no task has been scored', async () => {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('check')
+
+    expect(store.totalScore).toBeNull()
+  })
+
+  test('follows the scores the mentor hands out, task by task', async () => {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('check')
+
+    store.updateAnswer('t-1', { score: 3 })
+
+    expect(store.totalScore).toBe(3)
+
+    store.updateAnswer('t-2', { score: 5 })
+
+    expect(store.totalScore).toBe(8)
+
+    // Corrections count too — the total is derived, never accumulated.
+    store.updateAnswer('t-1', { score: 0 })
+
+    expect(store.totalScore).toBe(5)
+  })
+
+  test('falls back to the score the server reported when there are no tasks', async () => {
+    const assignedWork = makeAssignedWork()
+
+    assignedWork.work = null
+    assignedWork.score = 7
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: assignedWork
+    })
+
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('check')
+
+    expect(store.totalScore).toBe(7)
+  })
+})

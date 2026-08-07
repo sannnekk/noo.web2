@@ -143,7 +143,7 @@
     >
       <noo-assigned-work-score
         with-label
-        :score="assignedWorkDetailStore.assignedWork.score"
+        :score="assignedWorkDetailStore.totalScore"
         :max-score="assignedWorkDetailStore.assignedWork.maxScore"
       />
     </div>

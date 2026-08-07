@@ -36,10 +36,7 @@
         title="Копировать"
         @click="onCopy()"
       >
-        <noo-icon
-          :key="copyIcon"
-          :name="copyIcon"
-        />
+        <noo-icon :name="copyIcon" />
       </div>
       <div class="noo-input__input-after">
         <slot name="after" />

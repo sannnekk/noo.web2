@@ -14,7 +14,8 @@ const AssignedWorksPermissions = {
   showStudentInfo: 'showStudentInfo',
   showMentorInfo: 'showMentorInfo',
   addHelperMentor: 'canAddHelperMentor',
-  archive: 'canArchive'
+  archive: 'canArchive',
+  useSnippets: 'useSnippets'
 } as const
 
 type AssignedWorksPermission =
@@ -55,7 +56,8 @@ const assignedWorksPermissionPolicy = definePermissions({
     'mentor',
     'assistant',
     'student'
-  )
+  ),
+  [AssignedWorksPermissions.useSnippets]: roles('mentor')
 })
 
 const useAssignedWorksPermissions = createUsePermissions(
