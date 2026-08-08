@@ -1,5 +1,5 @@
 import { debouncedWatch } from '@vueuse/core'
-import { ref, shallowRef, type ShallowRef } from 'vue'
+import { ref, shallowRef, watch, type ShallowRef } from 'vue'
 import type { ApiError, ApiResponse } from '../api/api.utils'
 import { isApiError } from '../api/api.utils'
 import {
@@ -108,7 +108,13 @@ function useSearch<T>(
     })
   }
 
-  debouncedWatch([search, page, pageSize, filters], fetchData, {
+  const criteria = [search, pageSize, sort, sortDirection, filters]
+
+  watch(criteria, () => {
+    page.value = 1
+  })
+
+  debouncedWatch([...criteria, page], fetchData, {
     immediate,
     debounce
   })

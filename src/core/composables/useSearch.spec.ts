@@ -2,6 +2,7 @@ import type { ApiResponse } from '@/core/api/api.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { describe, expect, test, vi, type Mock } from 'vitest'
+import { nextTick } from 'vue'
 import { useSearch } from './useSearch'
 
 vi.mock('@vueuse/core', () => ({
@@ -102,6 +103,31 @@ describe('useSearch', () => {
     const params = pagination.toQuery()
 
     expect(params.get('status')).toBe('override')
+  })
+
+  test('returns to the first page when the criteria change', async () => {
+    const searchFn = vi.fn(
+      async (_pagination?: IPagination): Promise<ApiResponse<unknown[]>> => ({
+        data: [],
+        meta: { total: 0 }
+      })
+    )
+
+    const search = useSearch(searchFn, { immediate: false })
+
+    search.page.value = 3
+    search.search.value = 'query'
+    await nextTick()
+    expect(search.page.value).toBe(1)
+
+    search.page.value = 4
+    search.filters.value = [new EqualsFilter('status', 'active')]
+    await nextTick()
+    expect(search.page.value).toBe(1)
+
+    search.page.value = 2
+    await nextTick()
+    expect(search.page.value).toBe(2)
   })
 
   test('exposes error response', async () => {
