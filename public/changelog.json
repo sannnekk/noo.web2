@@ -1,7 +1,53 @@
 [
   {
+    "version": "1.3.0-alpha",
+    "date": "2026-08-08T03:08:40+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "task-cards: Added subject filter to card list",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "task-cards: Implemented quiz",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "task-cards: Implemented task cards list page & added save task button",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "assigned-works: Added snippets support in assigned work check",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added progress bar for heavy api requests",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "Fixed useSearch not returning to pge 1 after criteria change",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Changed task cards icon",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "assigned-works: Changed design of the assigned work detail page",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
     "version": "1.2.1-alpha",
-    "date": "2026-08-04T14:02:53+02:00",
+    "date": "2026-08-04T14:05:38+02:00",
     "changes": [
       {
         "type": "feature",
