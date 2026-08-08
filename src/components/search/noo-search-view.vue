@@ -1,7 +1,13 @@
 <template>
   <div class="noo-search-view">
-    <div class="noo-search-view__head">
-      <div class="noo-search-view__head__search-input">
+    <div
+      v-if="withSearch !== false || $slots.actions"
+      class="noo-search-view__head"
+    >
+      <div
+        v-if="withSearch !== false"
+        class="noo-search-view__head__search-input"
+      >
         <noo-search-input
           v-model="searchModel"
           :is-loading="isLoading"
@@ -71,6 +77,11 @@ export interface Props<
   error?: ApiError | null
   tryAgain?: () => void
   actions?: RowAction<T>[]
+  /**
+   * Set to false for lists that have nothing free-text to match on and are
+   * narrowed by filters alone. Defaults to showing the search input.
+   */
+  withSearch?: boolean
 }
 
 defineProps<Props<T>>()
