@@ -1,47 +1,38 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    version="1.1"
-    viewBox="0 0 24 24"
+    viewBox="-8 -8 100 108"
   >
-    <g class="moveable-backwards">
-      <rect
-        x="2.4"
-        y="6.4"
-        width="13.2"
-        height="15.2"
-        rx="2"
-        ry="2"
-        fill="var(--secondary)"
-      />
-    </g>
     <g class="moveable-forwards">
       <rect
-        x="8.4"
-        y="2.4"
-        width="13.2"
-        height="15.2"
-        rx="2"
-        ry="2"
         fill="var(--primary)"
-        stroke="var(--form-text-color)"
-        stroke-width="1.2"
+        x="16"
+        y="16"
+        width="68"
+        height="76"
+        rx="12"
+        ry="12"
+      />
+    </g>
+    <g class="moveable-backwards">
+      <rect
+        fill="none"
+        stroke="var(--secondary)"
+        stroke-width="8"
+        x="4"
+        y="4"
+        width="68"
+        height="76"
+        rx="12"
+        ry="12"
       />
       <path
-        d="M11.6 7.2h6.8M11.6 10h6.8M11.6 12.8h4"
-        stroke="var(--form-text-color)"
-        stroke-width="1.2"
-        stroke-linecap="round"
         fill="none"
+        stroke="var(--secondary)"
+        stroke-width="8"
+        stroke-linecap="round"
+        d="M20,26h36M20,42h36M20,58h20"
       />
     </g>
   </svg>
 </template>
-
-<style lang="sass" scoped>
-svg.animation
-  .moveable-forwards
-    transform: translate(1px, -1px)
-  .moveable-backwards
-    transform: translate(-1px, 1px)
-</style>
