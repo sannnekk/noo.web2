@@ -1,6 +1,8 @@
 import CardsQuizLayout from '@/layouts/cards-quiz-layout.vue'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
+import { DEFAULT_QUIZ_CARD_COUNT } from './constants'
+import type { TaskCardsQuizPageProps } from './pages/task-cards-quiz-page.vue'
 import { TaskCardsPermissions, taskCardsPermissionPolicy } from './permissions'
 
 const module: ApplicationModule = {
@@ -30,7 +32,17 @@ const module: ApplicationModule = {
         ),
         layout: CardsQuizLayout
       },
-      component: () => import('./pages/task-cards-quiz-page.vue')
+      component: () => import('./pages/task-cards-quiz-page.vue'),
+      props: (route): TaskCardsQuizPageProps => {
+        const count = Number(route.query.count)
+
+        return {
+          subjectId: route.query.subjectId
+            ? String(route.query.subjectId)
+            : null,
+          count: Number.isFinite(count) ? count : DEFAULT_QUIZ_CARD_COUNT
+        }
+      }
     }
   ]
 }

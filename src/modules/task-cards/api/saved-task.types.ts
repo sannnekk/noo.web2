@@ -1,4 +1,5 @@
 import type { ApiEntity } from '@/core/api/api.types'
+import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 import type { WorkEntity, WorkTaskEntity } from '@/modules/works/api/work.types'
 
 export interface SavedTaskEntity extends ApiEntity<'SavedTask'> {
@@ -27,4 +28,30 @@ export interface SavedTaskReference {
 export interface CreateSavedTaskPayload {
   taskId: string
   assignedWorkId: string
+}
+
+/**
+ * One subject a student has saved tasks on. What a quiz is set up from: which
+ * subjects are on offer and which hold enough cards to run.
+ */
+export interface SavedTaskSubjectSummary {
+  /** Null for tasks whose work has no subject. */
+  subject: SubjectEntity | null
+  savedTaskCount: number
+}
+
+/**
+ * The verdict on one quiz answer, scored by the same checker that scored the
+ * work the task came from.
+ */
+export interface SavedTaskAnswerCheck {
+  score: number
+  maxScore: number
+  isCorrect: boolean
+}
+
+export interface QuizDeckOptions {
+  /** Null draws from every subject. */
+  subjectId: string | null
+  count: number
 }

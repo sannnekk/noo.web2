@@ -16,7 +16,7 @@
       <template #actions>
         <noo-button
           v-if="items.length"
-          :to="{ name: 'task-cards.quiz' }"
+          @click="isQuizStartOpen = true"
         >
           Начать квиз
         </noo-button>
@@ -82,6 +82,8 @@
       </template>
     </noo-card-search-view>
 
+    <quiz-start-modal v-model:is-open="isQuizStartOpen" />
+
     <noo-sure-modal
       v-model:is-open="isRemoveOpen"
       @confirm="onConfirmRemove"
@@ -108,6 +110,7 @@ import { ref } from 'vue'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import { SavedTaskService } from '../api/saved-task.service'
 import type { SavedTaskEntity } from '../api/saved-task.types'
+import quizStartModal from '../components/quiz-start-modal.vue'
 
 interface Props {
   items: SavedTaskEntity[]
@@ -132,6 +135,8 @@ const search = defineModel<string>('search', {
 })
 
 const globalUiStore = useGlobalUIStore()
+
+const isQuizStartOpen = ref(false)
 
 const isRemoveOpen = ref(false)
 const removedTask = ref<SavedTaskEntity | null>(null)
