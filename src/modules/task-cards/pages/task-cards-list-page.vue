@@ -3,6 +3,7 @@
     <task-cards-list-view
       v-model:page="savedTaskSearch.page.value"
       v-model:search="savedTaskSearch.search.value"
+      v-model:filters="savedTaskSearch.filters.value"
       :items="savedTaskSearch.data.value"
       :total-count="savedTaskSearch.total.value"
       :is-loading="savedTaskSearch.isLoading.value"

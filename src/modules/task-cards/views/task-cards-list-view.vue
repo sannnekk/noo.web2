@@ -32,6 +32,13 @@
           Имея больше 5 сохраненных заданий по опредеоеллному предмету, вы
           сможете пройти квиз по ним.
         </noo-text-block>
+
+        <noo-search-filters v-model:filters="filters">
+          <noo-search-subject-filter
+            v-model:filters="filters"
+            filter-key="subjectId"
+          />
+        </noo-search-filters>
       </template>
 
       <template #empty>
@@ -106,6 +113,7 @@
 import type { DropdownAction } from '@/components/dialog/noo-dropdown.vue'
 import { isApiError, type ApiError } from '@/core/api/api.utils'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
+import type { IFilter } from '@/core/utils/pagination.utils'
 import { ref } from 'vue'
 import type { RouteLocationAsRelativeGeneric } from 'vue-router'
 import { SavedTaskService } from '../api/saved-task.service'
@@ -132,6 +140,10 @@ const page = defineModel<number>('page', {
 
 const search = defineModel<string>('search', {
   default: ''
+})
+
+const filters = defineModel<IFilter[] | undefined>('filters', {
+  default: undefined
 })
 
 const globalUiStore = useGlobalUIStore()
