@@ -1,11 +1,11 @@
 <template>
   <div class="noo-search-view">
     <div
-      v-if="withSearch !== false || $slots.actions"
+      v-if="withSearch || $slots.actions"
       class="noo-search-view__head"
     >
       <div
-        v-if="withSearch !== false"
+        v-if="withSearch"
         class="noo-search-view__head__search-input"
       >
         <noo-search-input
@@ -79,12 +79,16 @@ export interface Props<
   actions?: RowAction<T>[]
   /**
    * Set to false for lists that have nothing free-text to match on and are
-   * narrowed by filters alone. Defaults to showing the search input.
+   * narrowed by filters alone. Needs an explicit default: an absent boolean prop
+   * is cast to false, not undefined, which would hide the input everywhere the
+   * prop is omitted.
    */
   withSearch?: boolean
 }
 
-defineProps<Props<T>>()
+withDefaults(defineProps<Props<T>>(), {
+  withSearch: true
+})
 
 const searchModel = defineModel<string>('search', {
   default: ''

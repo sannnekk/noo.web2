@@ -9,6 +9,7 @@ import {
 import type { PollsEditPageProps } from './pages/polls-edit-page.vue'
 import type { PollResultsPageProps } from './pages/poll-results-page.vue'
 import type { PollParticipationPageProps } from './pages/poll-participation-page.vue'
+import type { PollParticipationDetailsPageProps } from './pages/poll-participation-details-page.vue'
 import { PollsPermissions, pollsPermissionPolicy } from './permissions'
 
 const module: ApplicationModule = {
@@ -108,9 +109,10 @@ const module: ApplicationModule = {
         layout: PaneLayout,
         roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)
       },
-      component: () => import('./pages/poll-participation-list-page.vue'),
-      props: (route): PollParticipationPageProps => ({
-        pollId: String(route.params.pollId)
+      component: () => import('./pages/poll-participation-details-page.vue'),
+      props: (route): PollParticipationDetailsPageProps => ({
+        pollId: String(route.params.pollId),
+        participationId: String(route.params.participationId)
       })
     }
   ]
