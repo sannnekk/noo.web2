@@ -43,6 +43,13 @@ export interface PollEntity extends ApiEntity<'Poll'> {
   expiresAt: Date | null
   isAuthRequired: boolean
   participationsCount: number
+  /**
+   * Whether the current user has already answered this poll. Only the API's
+   * single-poll endpoint fills this in, and never for a visitor who is not
+   * signed in — an anonymous one cannot be recognized before they identify
+   * themselves on the auth step.
+   */
+  hasParticipated: boolean
   questions?: PollQuestionEntity[]
 }
 

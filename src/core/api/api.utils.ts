@@ -3,7 +3,12 @@ import { appConfig } from '../config/app.config'
 import { GlobalEventBus } from '../events/event-bus'
 import { CookieStorage } from '../utils/cookies.utils'
 import type { LoginResponse } from './endpoints/auth.types'
-import { ApiErrorCodes } from './api-error-codes.data'
+import type { ApiErrorId } from './api-error-codes.data'
+import {
+  ApiErrorCodes,
+  describeApiErrorId,
+  isKnownApiErrorId
+} from './api-error-codes.data'
 import { reviveDates, serialize } from './serialization.utils'
 
 const REFRESH_PATH = '/auth/refresh'
@@ -72,6 +77,26 @@ export function isApiError<T>(
   response: ApiResponse<T>
 ): response is { error: ApiError } {
   return 'error' in response
+}
+
+/**
+ * Whether a response failed with one specific error code. Use it wherever a
+ * particular failure is handled rather than only shown — the id is checked
+ * against the known codes, so a renamed one is a type error here instead of a
+ * condition that quietly stops matching.
+ *
+ * @example
+ * ```ts
+ * if (isApiErrorOf(response, 'USER_ALREADY_VOTED')) {
+ *   // ...
+ * }
+ * ```
+ */
+export function isApiErrorOf<T>(
+  response: ApiResponse<T>,
+  id: ApiErrorId
+): response is { error: ApiError } {
+  return isApiError(response) && response.error.id === id
 }
 
 const api = axios.create({
@@ -150,10 +175,13 @@ function toApiError(error: {
     const message = exception?.message as string | undefined
     const payload = (exception?.payload as unknown) ?? null
 
-    const known = ApiErrorCodes[errorId]
-    let description = known?.description ?? ApiErrorCodes.fallback.description
+    const isKnown = isKnownApiErrorId(errorId)
+    const described = describeApiErrorId(errorId)
+    let description = described.description
 
-    if (!known && message) {
+    // An error this client has no texts for is better explained by whatever
+    // the API said than by the generic fallback line.
+    if (!isKnown && message) {
       description = message
     }
 
@@ -165,7 +193,7 @@ function toApiError(error: {
       id: errorId,
       logId,
       statusCode: error.response.status,
-      name: known?.name ?? ApiErrorCodes.fallback.name,
+      name: described.name,
       description,
       payload
     }

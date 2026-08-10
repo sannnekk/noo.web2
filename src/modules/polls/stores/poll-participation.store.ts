@@ -1,5 +1,5 @@
 import type { ApiError } from '@/core/api/api.utils'
-import { isApiError } from '@/core/api/api.utils'
+import { isApiError, isApiErrorOf } from '@/core/api/api.utils'
 import { useApiRequest } from '@/core/composables/useApiRequest'
 import { useAuthStore } from '@/core/stores/auth.store'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
@@ -64,6 +64,11 @@ interface PollParticipationStore {
    */
   discardDraft: () => void
   /**
+   * Whether this user has already answered the poll and so cannot answer it
+   * again.
+   */
+  hasParticipated: ComputedRef<boolean>
+  /**
    * Whether the poll still accepts answers.
    */
   isAvailable: ComputedRef<boolean>
@@ -114,6 +119,8 @@ const usePollParticipationStore = defineStore(
     const hasRestoredDraft = shallowRef(false)
     // Errors stay hidden until the first submit attempt, see `errorsFor()`.
     const isValidationVisible = shallowRef(false)
+    // Set when the API turned the answers away as a repeat participation.
+    const isDuplicateRejected = shallowRef(false)
     // Guards the draft watcher: only answers the visitor gave are worth
     // storing, never the ones `init()` and `reset()` write themselves.
     const isDraftPersisted = shallowRef(false)
@@ -130,13 +137,31 @@ const usePollParticipationStore = defineStore(
       return !!expiresAt && new Date(expiresAt).getTime() <= Date.now()
     })
 
+    // The poll itself only knows about the visitor when they were already
+    // signed in as it was loaded. Someone who signs in on the auth step is
+    // recognized by the API on submit instead, and `isDuplicateRejected`
+    // carries that answer back into the flow.
+    const hasParticipated = computed(
+      () => isDuplicateRejected.value || (poll.value?.hasParticipated ?? false)
+    )
+
     const isAvailable = computed(
-      () => !!poll.value && poll.value.isActive && !isExpired.value
+      () =>
+        !!poll.value &&
+        poll.value.isActive &&
+        !isExpired.value &&
+        !hasParticipated.value
     )
 
     const unavailabilityReason = computed<string | null>(() => {
       if (!poll.value || isAvailable.value) {
         return null
+      }
+
+      // The most specific reason wins: an expired poll the visitor already
+      // answered is still a poll they answered.
+      if (hasParticipated.value) {
+        return 'Вы уже проходили этот опрос. Пройти его повторно нельзя'
       }
 
       return isExpired.value
@@ -238,6 +263,7 @@ const usePollParticipationStore = defineStore(
       isSubmitting.value = false
       isSubmitted.value = false
       isValidationVisible.value = false
+      isDuplicateRejected.value = false
       hasRestoredDraft.value = false
     }
 
@@ -273,7 +299,12 @@ const usePollParticipationStore = defineStore(
       const currentPoll = poll.value
       const currentParticipant = participant.value
 
-      if (!currentPoll || !currentParticipant || isSubmitting.value) {
+      if (
+        !currentPoll ||
+        !currentParticipant ||
+        isSubmitting.value ||
+        !isAvailable.value
+      ) {
         return false
       }
 
@@ -302,6 +333,15 @@ const usePollParticipationStore = defineStore(
       isSubmitting.value = false
 
       if (isApiError(response)) {
+        // The visitor turns out to have answered this poll before — the
+        // answers on screen can never be sent, so the flow stops here rather
+        // than inviting another attempt.
+        if (isApiErrorOf(response, 'USER_ALREADY_VOTED')) {
+          isDuplicateRejected.value = true
+          isDraftPersisted.value = false
+          clearDraft(currentPoll.id, authStore.userId)
+        }
+
         uiStore.createApiErrorToast(
           'Не удалось отправить ответы',
           response.error
@@ -330,6 +370,7 @@ const usePollParticipationStore = defineStore(
       isSubmitted,
       hasRestoredDraft,
       discardDraft,
+      hasParticipated,
       isAvailable,
       unavailabilityReason,
       answeredCount,

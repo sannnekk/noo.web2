@@ -45,9 +45,20 @@
           </noo-text-block>
         </div>
 
-        <noo-warning-block v-if="!participationStore.isAvailable">
-          {{ participationStore.unavailabilityReason }}
-        </noo-warning-block>
+        <div
+          v-if="!participationStore.isAvailable"
+          class="poll-participation-page__unavailable"
+        >
+          <noo-warning-block>
+            {{ participationStore.unavailabilityReason }}
+          </noo-warning-block>
+          <noo-button
+            variant="secondary"
+            @click="goBack()"
+          >
+            Вернуться назад
+          </noo-button>
+        </div>
         <noo-animated-router-view v-else />
       </div>
     </noo-swap-animation>
@@ -56,6 +67,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { usePollParticipationStore } from '../stores/poll-participation.store'
 
 export interface PollParticipationPageProps {
@@ -64,10 +76,23 @@ export interface PollParticipationPageProps {
 
 const props = defineProps<PollParticipationPageProps>()
 
+const router = useRouter()
 const participationStore = usePollParticipationStore()
 
 async function init(): Promise<void> {
   await participationStore.init(props.pollId)
+}
+
+// Polls are usually opened from a link, so there is often nothing behind this
+// page — the platform itself is then the way out.
+function goBack(): void {
+  if (window.history.state?.back) {
+    router.back()
+
+    return
+  }
+
+  router.push({ name: 'root' })
 }
 
 onMounted(init)
@@ -96,6 +121,12 @@ onBeforeUnmount(participationStore.reset)
 
     &__text
       font-size: var(--step-0)
+
+  &__unavailable
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    gap: var(--space-s)
 
   &__header
     margin-bottom: var(--space-s)

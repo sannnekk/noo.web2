@@ -127,6 +127,7 @@ function createDraft(): PossiblyUnsavedPoll {
     expiresAt: null,
     isAuthRequired: false,
     participationsCount: 0,
+    hasParticipated: false,
     questions: []
   }
 }

@@ -1,10 +1,12 @@
-const ApiErrorCodes: Record<
-  string,
-  {
-    name: string
-    description: string
-  }
-> = {
+/**
+ * The user-facing texts of a single error code.
+ */
+interface ApiErrorDescription {
+  name: string
+  description: string
+}
+
+const ApiErrorCodes = {
   ALREADY_EXISTS: {
     name: 'Уже существует',
     description: 'Данный элемент уже существует в системе'
@@ -111,6 +113,29 @@ const ApiErrorCodes: Record<
     name: 'Неизвестная ошибка',
     description: 'Попробуйте позже или проверьте подключение к интернету'
   }
-} as const
+} as const satisfies Record<string, ApiErrorDescription>
 
-export { ApiErrorCodes }
+/**
+ * Id of an error code this client knows. Code that reacts to a specific error
+ * rather than just showing it types its id with this, so a typo or a renamed
+ * code is caught here instead of silently never matching.
+ */
+type ApiErrorId = keyof typeof ApiErrorCodes
+
+/**
+ * Whether the id is one this client has texts for. Ids arrive from the API, so
+ * any of them may name a code added to the backend after this client shipped.
+ */
+function isKnownApiErrorId(id: string): id is ApiErrorId {
+  return id in ApiErrorCodes
+}
+
+/**
+ * The texts for an error id, or the generic ones when the id is unknown here.
+ */
+function describeApiErrorId(id: string): ApiErrorDescription {
+  return isKnownApiErrorId(id) ? ApiErrorCodes[id] : ApiErrorCodes.fallback
+}
+
+export { ApiErrorCodes, describeApiErrorId, isKnownApiErrorId }
+export type { ApiErrorDescription, ApiErrorId }
