@@ -119,7 +119,7 @@ const actions = computed<DropdownAction[]>(() => [
   },
   {
     label: props.course.isArchived ? 'Вернуть из архива' : 'Архивировать',
-    icon: 'delete',
+    icon: 'archive',
     if: () => canManage.value,
     onClick: onToggleCourseArchive
   },
@@ -142,7 +142,7 @@ const actions = computed<DropdownAction[]>(() => [
     label: props.membership?.isArchivedByStudent
       ? 'Вернуть из архива'
       : 'Архивировать',
-    icon: 'delete',
+    icon: 'archive',
     if: () => canManageOwnMembership.value,
     onClick: onToggleArchive
   }

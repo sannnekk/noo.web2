@@ -13,6 +13,7 @@ declare module 'vue' {
     AlignJustifyIcon: typeof import('./src/components/icons/text-format-icons/align-justify-icon.vue')['default']
     AlignLeftIcon: typeof import('./src/components/icons/text-format-icons/align-left-icon.vue')['default']
     AlignRightIcon: typeof import('./src/components/icons/text-format-icons/align-right-icon.vue')['default']
+    ArchiveIcon: typeof import('./src/components/icons/noo-icons/archive-icon.vue')['default']
     ArrowLeftIcon: typeof import('./src/components/icons/noo-icons/arrow-left-icon.vue')['default']
     ArrowRightIcon: typeof import('./src/components/icons/noo-icons/arrow-right-icon.vue')['default']
     AttentionYellowIcon: typeof import('./src/components/icons/noo-icons/attention-yellow-icon.vue')['default']
