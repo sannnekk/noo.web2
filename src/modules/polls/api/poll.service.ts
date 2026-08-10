@@ -94,16 +94,17 @@ interface IPollService {
     participation: CreatePollParticipationPayload
   ) => Promise<ApiResponse>
   /**
-   * Fetches the polls a specific user has participated in.
+   * Fetches the participations of a specific user, each carrying the poll it belongs to.
+   * Only the user themselves, admins and teachers may read them.
    *
-   * @param userId The ID of the user whose participated polls to fetch.
+   * @param userId The ID of the user whose participations to fetch.
    * @param pagination Pagination object to paginate the results. If not provided, the default pagination will be used.
-   * @returns A promise that resolves to an ApiResponse containing an array of PollEntity objects.
+   * @returns A promise that resolves to an ApiResponse containing an array of PollParticipationEntity objects.
    */
-  getParticipatedPolls: (
+  getUserParticipations: (
     userId: string,
     pagination?: IPagination
-  ) => Promise<ApiResponse<PollEntity[]>>
+  ) => Promise<ApiResponse<PollParticipationEntity[]>>
 }
 
 async function get(
@@ -183,10 +184,10 @@ async function participate(
   return await Api.post(`${BASE_PATH}/${pollId}/participate`, participation)
 }
 
-async function getParticipatedPolls(
+async function getUserParticipations(
   userId: string,
   pagination?: IPagination
-): Promise<ApiResponse<PollEntity[]>> {
+): Promise<ApiResponse<PollParticipationEntity[]>> {
   return await Api.get(
     `${BASE_PATH}/user/${userId}/participation`,
     pagination ? pagination.toQuery() : undefined
@@ -204,5 +205,5 @@ export const PollService: IPollService = {
   getParticipations,
   getParticipation,
   participate,
-  getParticipatedPolls
+  getUserParticipations
 }

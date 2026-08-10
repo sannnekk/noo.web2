@@ -3,10 +3,8 @@
     <noo-sidebar-layout>
       <template #sidebar>
         <div class="poll-participation-details-page__sidebar">
-          <noo-back-button
-            :route="{ name: 'polls.results', params: { pollId } }"
-          >
-            Назад к результатам
+          <noo-back-button :route="backRoute">
+            {{ canViewResults ? 'Назад к результатам' : 'Назад в профиль' }}
           </noo-back-button>
 
           <template v-if="participation">
@@ -131,7 +129,7 @@ import { computed, watch } from 'vue'
 import { PollService } from '../api/poll.service'
 import type { PollAnswerEntity } from '../api/poll.types'
 import pollAnswerResultCard from '../components/poll-answer-result-card.vue'
-import { participatingUserTypes } from '../constants'
+import { PollsPermissions, usePollsPermissions } from '../permissions'
 
 export interface PollParticipationDetailsPageProps {
   pollId: string
@@ -139,6 +137,18 @@ export interface PollParticipationDetailsPageProps {
 }
 
 const props = defineProps<PollParticipationDetailsPageProps>()
+
+const { can } = usePollsPermissions()
+
+// Participants reach this page from their profile and cannot open the poll's
+// results, so they are sent back where they came from.
+const canViewResults = can(PollsPermissions.viewResultsPage)
+
+const backRoute = computed(() =>
+  canViewResults
+    ? { name: 'polls.results', params: { pollId: props.pollId } }
+    : { name: 'profile', query: { tabId: 'polls' } }
+)
 
 const poll = useApiRequest(PollService.getById)
 const participationRequest = useApiRequest(PollService.getParticipation)
@@ -152,18 +162,6 @@ const participantName = computed(
     participation.value?.user?.name ??
     participation.value?.userExternalIdentifier ??
     'Аноним'
-)
-
-const userTypeLabel = computed(() => {
-  const type = participation.value?.userType
-
-  return participatingUserTypes.find((t) => t.value === type)?.label ?? type
-})
-
-const userTypeColor = computed(() =>
-  participation.value?.userType === 'telegram-user'
-    ? 'var(--telegram)'
-    : 'var(--lila)'
 )
 
 const answersByQuestionId = computed<Record<string, PollAnswerEntity>>(() => {

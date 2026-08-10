@@ -3,6 +3,15 @@
     v-model:page="search.page.value"
     v-model:search="search.search.value"
     :columns="columns"
+    :row-link="
+      (participation) => ({
+        name: 'polls.participation',
+        params: {
+          pollId: participation.pollId,
+          participationId: participation.id
+        }
+      })
+    "
     :is-loading="search.isLoading.value"
     :items="search.data.value"
     :total-count="search.total.value"
@@ -10,16 +19,16 @@
     :try-again="search.reload"
   >
     <template #column-title="{ item }">
-      <noo-text-block class="poll-participations-list__title-cell">
-        {{ item.title }}
+      <noo-text-block class="poll-participations-list__cell">
+        {{ item.poll?.title ?? 'Опрос' }}
       </noo-text-block>
     </template>
     <template #column-isActive="{ item }">
-      <noo-active-tag :active="item.isActive" />
+      <noo-active-tag :active="item.poll?.isActive ?? false" />
     </template>
     <template #column-createdAt="{ item }">
       <noo-text-block
-        class="poll-participations-list__created-at-cell"
+        class="poll-participations-list__cell"
         dimmed
       >
         <noo-date
@@ -37,21 +46,23 @@ import type { EntityTableColumnType } from '@/components/entity-table/entity-tab
 import { useSearch } from '@/core/composables/useSearch'
 import { watch } from 'vue'
 import { PollService } from '../api/poll.service'
-import type { PollEntity } from '../api/poll.types'
+import type { PollParticipationEntity } from '../api/poll.types'
 
 interface Props {
-  /** The user whose participated polls are listed. */
+  /** The user whose participations are listed. */
   userId?: string
 }
 
 const props = defineProps<Props>()
 
-const search = useSearch<PollEntity>(
-  (pagination) => PollService.getParticipatedPolls(props.userId!, pagination),
+const search = useSearch<PollParticipationEntity>(
+  (pagination) => PollService.getUserParticipations(props.userId!, pagination),
   { immediate: false }
 )
 
-const columns: EntityTableColumnType<PollEntity>[] = [
+// The poll is what the reader recognises, so it leads the row; the participation
+// contributes the date it was filled in.
+const columns: EntityTableColumnType<PollParticipationEntity>[] = [
   {
     key: 'title',
     title: 'Название'
@@ -62,7 +73,7 @@ const columns: EntityTableColumnType<PollEntity>[] = [
   },
   {
     key: 'createdAt',
-    title: 'Дата создания'
+    title: 'Дата прохождения'
   }
 ]
 
@@ -79,7 +90,6 @@ watch(
 
 <style scoped lang="sass">
 .poll-participations-list
-  &__title-cell,
-  &__created-at-cell
+  &__cell
     margin: 0
 </style>

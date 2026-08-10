@@ -107,7 +107,9 @@ const module: ApplicationModule = {
         pageTitle: 'Ответы участника',
         tabTitle: 'Ответы участника',
         layout: PaneLayout,
-        roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)
+        roles: pollsPermissionPolicy.rolesFor(
+          PollsPermissions.viewParticipationPage
+        )
       },
       component: () => import('./pages/poll-participation-details-page.vue'),
       props: (route): PollParticipationDetailsPageProps => ({

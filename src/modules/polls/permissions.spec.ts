@@ -11,6 +11,12 @@ describe('polls permissions', () => {
     ).toEqual(['admin', 'teacher', 'student'])
   })
 
+  it('lets every role open a participation, so participants can read their own answers', () => {
+    expect(
+      pollsPermissionPolicy.rolesFor(PollsPermissions.viewParticipationPage)
+    ).toEqual(['admin', 'teacher', 'mentor', 'assistant', 'student'])
+  })
+
   it('restricts results and deletion to admins and teachers', () => {
     expect(
       pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)

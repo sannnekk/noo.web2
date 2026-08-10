@@ -106,10 +106,10 @@ describe('PollService', () => {
       expect(Api.post).toHaveBeenCalledWith('/poll/poll-1/participate', payload)
     })
 
-    test('getParticipatedPolls should request the user participation endpoint', async () => {
+    test('getUserParticipations should request the user participation endpoint', async () => {
       ;(Api.get as Mock).mockResolvedValue({ data: [] })
 
-      await PollService.getParticipatedPolls('user-1')
+      await PollService.getUserParticipations('user-1')
 
       expect(Api.get).toHaveBeenCalledWith(
         '/poll/user/user-1/participation',

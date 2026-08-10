@@ -22,13 +22,6 @@
           {{ question.description }}
         </noo-text-block>
       </div>
-      <span
-        class="poll-answer-result-card__head__type"
-        :title="`Тип ответа: ${typeLabel}`"
-      >
-        <noo-color-badge :color="typeColor" />
-        {{ typeLabel }}
-      </span>
     </div>
 
     <div class="poll-answer-result-card__answer">
@@ -41,16 +34,16 @@
         dimmed
         no-margin
       >
-        {{ question.isRequired ? 'Обязательный вопрос без ответа' : 'Без ответа' }}
+        {{
+          question.isRequired ? 'Обязательный вопрос без ответа' : 'Без ответа'
+        }}
       </noo-text-block>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { PollAnswerEntity, PollQuestionEntity } from '../api/poll.types'
-import { pollQuestionTypes } from '../constants'
 import pollAnswerValue from '../views/poll-answer-value.vue'
 
 interface Props {
@@ -59,23 +52,14 @@ interface Props {
   answer?: PollAnswerEntity
 }
 
-const props = defineProps<Props>()
-
-const questionType = computed(() =>
-  pollQuestionTypes.find((type) => type.value === props.question.type)
-)
-
-// Same accent the edit and participation pages give the question type, so the
-// results read as the poll the participant filled in.
-const typeColor = computed(() => questionType.value?.color ?? 'var(--text-light)')
-const typeLabel = computed(() => questionType.value?.label ?? props.question.type)
+defineProps<Props>()
 </script>
 
 <style scoped lang="sass">
 .poll-answer-result-card
   background-color: var(--lightest)
   border-radius: var(--border-radius)
-  border-left: 4px solid v-bind(typeColor)
+  border-left: 4px solid var(--primary)
   box-shadow: var(--block-shadow)
   padding: var(--space-s)
 
