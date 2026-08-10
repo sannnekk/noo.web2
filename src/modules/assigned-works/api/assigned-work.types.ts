@@ -148,3 +148,10 @@ export interface AssignedWorksMetadata {
     checked: number
   }
 }
+
+/**
+ * The slice of the assigned work list the API is asked for. Mirrors `AssignedWorkListTab`
+ * on the server, where each slice is defined once for both the list and its counter.
+ */
+export type AssignedWorkTabQuery =
+  'all' | 'not-solved' | 'not-checked' | 'checked'

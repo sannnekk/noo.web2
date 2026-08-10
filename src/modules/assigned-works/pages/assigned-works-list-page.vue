@@ -12,7 +12,7 @@
         <span class="assigned-works-list-page__tab-title">
           Все работы
           <noo-tab-counter
-            :count="assignedWorksListStore.metadata.data?.counts.all"
+            :count="assignedWorksListStore.counts.all"
             :is-loading="assignedWorksListStore.metadata.isLoading"
           />
         </span>
@@ -33,7 +33,7 @@
         <span class="assigned-works-list-page__tab-title">
           Нерешенные
           <noo-tab-counter
-            :count="assignedWorksListStore.metadata.data?.counts.notSolved"
+            :count="assignedWorksListStore.counts['not-made']"
             :is-loading="assignedWorksListStore.metadata.isLoading"
           />
         </span>
@@ -54,7 +54,7 @@
         <span class="assigned-works-list-page__tab-title">
           Непроверенные
           <noo-tab-counter
-            :count="assignedWorksListStore.metadata.data?.counts.notChecked"
+            :count="assignedWorksListStore.counts['not-checked']"
             :is-loading="assignedWorksListStore.metadata.isLoading"
           />
         </span>
@@ -75,7 +75,7 @@
         <span class="assigned-works-list-page__tab-title">
           Проверенные
           <noo-tab-counter
-            :count="assignedWorksListStore.metadata.data?.counts.checked"
+            :count="assignedWorksListStore.counts.checked"
             :is-loading="assignedWorksListStore.metadata.isLoading"
           />
         </span>
