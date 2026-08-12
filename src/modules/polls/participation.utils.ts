@@ -1,10 +1,13 @@
 import type { FileKind } from '@/components/files/file-kind.utils'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import type {
   CreatePollAnswerPayload,
   PollAnswerEntity,
-  PollQuestionEntity
+  PollAnswerValue,
+  PollQuestionEntity,
+  UpdatePollAnswerPayload
 } from './api/poll.types'
 import { pollFileTypeGroups, POLL_MAX_FILE_COUNT } from './constants'
 import type { PollAnswerInputValue } from './types'
@@ -218,6 +221,35 @@ function validateAnswer(
 }
 
 /**
+ * The value an answer is stored as. A file answer is the odd one out: its files
+ * are the answer and travel beside the value, so it carries nothing but the type.
+ */
+function toAnswerValue(
+  question: PollQuestionEntity,
+  value: PollAnswerInputValue
+): PollAnswerValue {
+  if (question.type === 'files' || !isAnswered(question, value)) {
+    return { type: question.type, value: null }
+  }
+
+  return { type: question.type, value }
+}
+
+/**
+ * The files of an answer, by id — empty for every question type but `files`.
+ */
+function toAnswerMediaIds(
+  question: PollQuestionEntity,
+  value: PollAnswerInputValue
+): string[] {
+  if (question.type !== 'files') {
+    return []
+  }
+
+  return toAnswerFiles(value).map((media) => media.id)
+}
+
+/**
  * Maps an answer onto the shape the API expects. Unanswered optional questions
  * are still sent, with a `null` value, so the participation mirrors the poll.
  */
@@ -225,23 +257,59 @@ function toAnswerPayload(
   question: PollQuestionEntity,
   value: PollAnswerInputValue
 ): CreatePollAnswerPayload {
-  // A file answer is its files: they are already uploaded, so the answer names
-  // them by id and carries no value of its own.
-  if (question.type === 'files') {
-    return {
-      pollQuestionId: question.id,
-      value: { type: question.type, value: null },
-      mediaIds: toAnswerFiles(value).map((media) => media.id)
-    }
-  }
-
   return {
     pollQuestionId: question.id,
-    value: isAnswered(question, value)
-      ? { type: question.type, value }
-      : { type: question.type, value: null },
-    mediaIds: []
+    value: toAnswerValue(question, value),
+    mediaIds: toAnswerMediaIds(question, value)
   }
+}
+
+/**
+ * The change to a single stored answer, as a patch of the fields that carry it.
+ * A file answer lives entirely in its files and the other types entirely in
+ * their value, so only the half that means anything is sent.
+ */
+function toAnswerPatch(
+  question: PollQuestionEntity,
+  value: PollAnswerInputValue
+): JsonPatchDocument<UpdatePollAnswerPayload> {
+  if (question.type === 'files') {
+    return [
+      {
+        op: 'replace',
+        path: '/mediaIds',
+        value: toAnswerMediaIds(question, value)
+      }
+    ]
+  }
+
+  return [
+    { op: 'replace', path: '/value', value: toAnswerValue(question, value) }
+  ]
+}
+
+/**
+ * A stored answer as the inputs hold it, the way back from
+ * {@link toAnswerPayload}. The poll may have been edited since it was answered,
+ * so a value that no longer fits its question is dropped rather than shown.
+ */
+function toAnswerInputValue(
+  question: PollQuestionEntity,
+  answer: PollAnswerEntity | undefined
+): PollAnswerInputValue {
+  if (!answer) {
+    return createEmptyAnswer(question)
+  }
+
+  if (question.type === 'files') {
+    return answer.medias ?? []
+  }
+
+  const stored = answer.value.value
+
+  return matchesQuestionType(question, stored)
+    ? stored
+    : createEmptyAnswer(question)
 }
 
 /**
@@ -305,7 +373,9 @@ export {
   matchesQuestionType,
   maxFileCount,
   toAnswerFiles,
+  toAnswerInputValue,
   toAnswerOptions,
+  toAnswerPatch,
   toAnswerPayload,
   toFileKinds,
   validateAnswer

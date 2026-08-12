@@ -9,6 +9,7 @@ const PollsPermissions = {
   viewEditPage: 'viewEditPage',
   viewResultsPage: 'viewResultsPage',
   viewParticipationPage: 'viewParticipationPage',
+  editParticipationAnswers: 'editParticipationAnswers',
   deletePoll: 'deletePoll'
 } as const
 
@@ -25,6 +26,7 @@ const pollsPermissionPolicy = definePermissions({
     'assistant',
     'student'
   ),
+  [PollsPermissions.editParticipationAnswers]: roles('admin', 'teacher'),
   [PollsPermissions.deletePoll]: roles('admin', 'teacher')
 })
 

@@ -11,7 +11,9 @@ import {
   isAnswered,
   isAnswerFilled,
   matchesQuestionType,
+  toAnswerInputValue,
   toAnswerOptions,
+  toAnswerPatch,
   toAnswerPayload,
   toFileKinds,
   validateAnswer
@@ -52,6 +54,22 @@ function makeMedia(id: string): MediaEntity {
     status: 'completed',
     url: ''
   } as MediaEntity
+}
+
+function makeAnswer(
+  type: PollQuestionType,
+  value: unknown,
+  medias: MediaEntity[] = []
+): PollAnswerEntity {
+  return {
+    _entityName: 'PollAnswer',
+    id: 'answer-1',
+    createdAt: new Date(),
+    updatedAt: null,
+    pollQuestionId: 'question-1',
+    value: { type, value },
+    medias
+  } as PollAnswerEntity
 }
 
 describe('participation utils', () => {
@@ -208,23 +226,73 @@ describe('participation utils', () => {
     })
   })
 
-  describe('isAnswerFilled', () => {
-    function makeAnswer(
-      type: PollQuestionType,
-      value: unknown,
-      medias: MediaEntity[] = []
-    ): PollAnswerEntity {
-      return {
-        _entityName: 'PollAnswer',
-        id: 'answer-1',
-        createdAt: new Date(),
-        updatedAt: null,
-        pollQuestionId: 'question-1',
-        value: { type, value },
-        medias
-      } as PollAnswerEntity
-    }
+  describe('toAnswerPatch', () => {
+    test('should patch the value of an ordinary answer', () => {
+      expect(toAnswerPatch(makeQuestion('text'), 'Ответ')).toEqual([
+        {
+          op: 'replace',
+          path: '/value',
+          value: { type: 'text', value: 'Ответ' }
+        }
+      ])
+    })
 
+    test('should patch an emptied answer to a null value', () => {
+      expect(toAnswerPatch(makeQuestion('text'), '')).toEqual([
+        { op: 'replace', path: '/value', value: { type: 'text', value: null } }
+      ])
+    })
+
+    test('should patch a files answer with the files it should end up with', () => {
+      expect(
+        toAnswerPatch(makeQuestion('files'), [makeMedia('media-1')])
+      ).toEqual([{ op: 'replace', path: '/mediaIds', value: ['media-1'] }])
+    })
+  })
+
+  describe('toAnswerInputValue', () => {
+    test('should hand a stored answer back to the input it came from', () => {
+      expect(
+        toAnswerInputValue(makeQuestion('text'), makeAnswer('text', 'Ответ'))
+      ).toBe('Ответ')
+      expect(
+        toAnswerInputValue(
+          makeQuestion('checkbox'),
+          makeAnswer('checkbox', true)
+        )
+      ).toBe(true)
+    })
+
+    test('should read a files answer from its attachments', () => {
+      const media = makeMedia('media-1')
+
+      expect(
+        toAnswerInputValue(
+          makeQuestion('files'),
+          makeAnswer('files', null, [media])
+        )
+      ).toEqual([media])
+    })
+
+    test('should start a question without a stored answer empty', () => {
+      expect(toAnswerInputValue(makeQuestion('text'), undefined)).toBeNull()
+      expect(
+        toAnswerInputValue(makeQuestion('multiple-choice'), undefined)
+      ).toEqual([])
+    })
+
+    test('should drop a value the question no longer accepts', () => {
+      const question = makeQuestion('single-choice', {
+        config: { options: ['Да', 'Нет'] }
+      })
+
+      expect(
+        toAnswerInputValue(question, makeAnswer('single-choice', 'Может быть'))
+      ).toBeNull()
+    })
+  })
+
+  describe('isAnswerFilled', () => {
     test('should treat a stored blank answer as unanswered', () => {
       expect(isAnswerFilled(undefined)).toBe(false)
       expect(isAnswerFilled(makeAnswer('text', null))).toBe(false)

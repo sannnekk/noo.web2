@@ -59,6 +59,35 @@
               </div>
               <noo-progress-bar :value="answeredPercent" />
             </div>
+
+            <div
+              v-if="canEditAnswers && questions.length"
+              class="poll-participation-details-page__sidebar__actions"
+            >
+              <noo-button
+                v-if="!isEditing"
+                variant="primary"
+                @click="start()"
+              >
+                Редактировать ответы
+              </noo-button>
+              <template v-else>
+                <noo-button
+                  variant="primary"
+                  :is-loading="isSaving"
+                  @click="save()"
+                >
+                  Сохранить
+                </noo-button>
+                <noo-button
+                  variant="secondary"
+                  :disabled="isSaving"
+                  @click="cancelEditing()"
+                >
+                  Отменить
+                </noo-button>
+              </template>
+            </div>
           </template>
 
           <div
@@ -96,19 +125,54 @@
         <noo-section
           v-else-if="participation"
           :title="pollTitle"
-          description="Ответы участника на вопросы"
+          :description="
+            isEditing
+              ? 'Изменение ответов участника'
+              : 'Ответы участника на вопросы'
+          "
         >
           <div
             v-if="questions.length"
             class="poll-participation-details-page__questions"
           >
-            <poll-answer-result-card
+            <template
               v-for="(question, index) in questions"
               :key="question.id"
-              :question="question"
-              :index="index"
-              :answer="answersByQuestionId[question.id]"
-            />
+            >
+              <poll-answer-card
+                v-if="isEditing && isEditable(question.id)"
+                v-model:value="values[question.id]"
+                :question="question"
+                :index="index"
+                :errors="errorsFor(question.id)"
+              />
+
+              <div
+                v-else-if="isEditing"
+                class="poll-participation-details-page__questions__locked"
+              >
+                <poll-answer-result-card
+                  :question="question"
+                  :index="index"
+                  :answer="answersByQuestionId[question.id]"
+                />
+                <noo-text-block
+                  size="small"
+                  dimmed
+                  no-margin
+                >
+                  Этот вопрос появился в опросе после того, как участник его
+                  прошел, поэтому ответить на него за участника нельзя
+                </noo-text-block>
+              </div>
+
+              <poll-answer-result-card
+                v-else
+                :question="question"
+                :index="index"
+                :answer="answersByQuestionId[question.id]"
+              />
+            </template>
           </div>
           <noo-text-block
             v-else
@@ -120,15 +184,33 @@
         </noo-section>
       </template>
     </noo-sidebar-layout>
+
+    <noo-sure-modal
+      v-model:is-open="isCancelModalOpen"
+      @confirm="cancel()"
+    >
+      <template #title>
+        <noo-title :size="3"> Отменить изменения </noo-title>
+      </template>
+      <template #content>
+        <noo-text-block dimmed>
+          Исправленные ответы не сохранены. Если вы выйдете из режима
+          редактирования, изменения будут потеряны.
+        </noo-text-block>
+      </template>
+      <template #confirm-action-text> Отменить изменения </template>
+    </noo-sure-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useApiRequest } from '@/core/composables/useApiRequest'
-import { computed, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import { PollService } from '../api/poll.service'
 import type { PollAnswerEntity } from '../api/poll.types'
+import pollAnswerCard from '../components/poll-answer-card.vue'
 import pollAnswerResultCard from '../components/poll-answer-result-card.vue'
+import { useParticipationAnswersEditor } from '../composables/useParticipationAnswersEditor'
 import { isAnswerFilled } from '../participation.utils'
 import { PollsPermissions, usePollsPermissions } from '../permissions'
 
@@ -144,6 +226,7 @@ const { can } = usePollsPermissions()
 // Participants reach this page from their profile and cannot open the poll's
 // results, so they are sent back where they came from.
 const canViewResults = can(PollsPermissions.viewResultsPage)
+const canEditAnswers = can(PollsPermissions.editParticipationAnswers)
 
 const backRoute = computed(() =>
   canViewResults
@@ -195,14 +278,45 @@ const error = computed(
   () => poll.error.value ?? participationRequest.error.value
 )
 
-function reload() {
-  poll.execute(props.pollId)
-  participationRequest.execute(props.participationId)
+async function reload() {
+  await Promise.all([
+    poll.execute(props.pollId),
+    participationRequest.execute(props.participationId)
+  ])
+}
+
+const {
+  isEditing,
+  isSaving,
+  values,
+  isEditable,
+  hasChanges,
+  errorsFor,
+  start,
+  cancel,
+  save
+} = useParticipationAnswersEditor({
+  questions,
+  answers: answersByQuestionId,
+  onSaved: reload
+})
+
+const isCancelModalOpen = shallowRef(false)
+
+function cancelEditing() {
+  if (hasChanges.value) {
+    isCancelModalOpen.value = true
+  } else {
+    cancel()
+  }
 }
 
 watch(
   () => [props.pollId, props.participationId],
-  () => reload(),
+  () => {
+    cancel()
+    reload()
+  },
   { immediate: true }
 )
 </script>
@@ -248,6 +362,16 @@ watch(
           font-weight: 400
           color: var(--text-light)
 
+    &__actions
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.25em
+      width: 100%
+
+      > *
+        width: 80%
+
     &__loading
       display: flex
       flex-direction: column
@@ -265,4 +389,9 @@ watch(
     display: flex
     flex-direction: column
     gap: var(--space-2xs)
+
+    &__locked
+      display: flex
+      flex-direction: column
+      gap: var(--space-3xs)
 </style>

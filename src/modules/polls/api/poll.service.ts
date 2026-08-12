@@ -7,7 +7,8 @@ import type {
   PollEntity,
   PollParticipationEntity,
   PossiblyUnsavedPoll,
-  PossiblyUnsavedQuestion
+  PossiblyUnsavedQuestion,
+  UpdatePollAnswerPayload
 } from './poll.types'
 
 const BASE_PATH = '/poll'
@@ -105,6 +106,18 @@ interface IPollService {
     userId: string,
     pagination?: IPagination
   ) => Promise<ApiResponse<PollParticipationEntity[]>>
+  /**
+   * Corrects a single answer of a participation that was already submitted.
+   * Only admins and teachers may do so.
+   *
+   * @param answerId The ID of the answer to update.
+   * @param patch The patch document to apply.
+   * @returns A promise that resolves to an ApiResponse indicating the success of the operation.
+   */
+  updateAnswer: (
+    answerId: string,
+    patch: JsonPatchDocument<UpdatePollAnswerPayload>
+  ) => Promise<ApiResponse>
 }
 
 async function get(
@@ -195,6 +208,13 @@ async function getUserParticipations(
   )
 }
 
+async function updateAnswer(
+  answerId: string,
+  patch: JsonPatchDocument<UpdatePollAnswerPayload>
+): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/answer/${answerId}`, patch)
+}
+
 export const PollService: IPollService = {
   createDraft,
   createQuestionDraft,
@@ -206,5 +226,6 @@ export const PollService: IPollService = {
   getParticipations,
   getParticipation,
   participate,
-  getUserParticipations
+  getUserParticipations,
+  updateAnswer
 }

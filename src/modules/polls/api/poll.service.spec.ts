@@ -107,6 +107,22 @@ describe('PollService', () => {
       expect(Api.post).toHaveBeenCalledWith('/poll/poll-1/participate', payload)
     })
 
+    test('updateAnswer should patch a single stored answer', async () => {
+      const patch = [
+        {
+          op: 'replace' as const,
+          path: '/value',
+          value: { type: 'text' as const, value: 'Исправлено' }
+        }
+      ]
+
+      ;(Api.patch as Mock).mockResolvedValue({ data: undefined })
+
+      await PollService.updateAnswer('answer-1', patch)
+
+      expect(Api.patch).toHaveBeenCalledWith('/poll/answer/answer-1', patch)
+    })
+
     test('getUserParticipations should request the user participation endpoint', async () => {
       ;(Api.get as Mock).mockResolvedValue({ data: [] })
 

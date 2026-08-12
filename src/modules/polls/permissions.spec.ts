@@ -17,9 +17,12 @@ describe('polls permissions', () => {
     ).toEqual(['admin', 'teacher', 'mentor', 'assistant', 'student'])
   })
 
-  it('restricts results and deletion to admins and teachers', () => {
+  it('restricts results, answer editing and deletion to admins and teachers', () => {
     expect(
       pollsPermissionPolicy.rolesFor(PollsPermissions.viewResultsPage)
+    ).toEqual(['admin', 'teacher'])
+    expect(
+      pollsPermissionPolicy.rolesFor(PollsPermissions.editParticipationAnswers)
     ).toEqual(['admin', 'teacher'])
     expect(pollsPermissionPolicy.rolesFor(PollsPermissions.deletePoll)).toEqual(
       ['admin', 'teacher']

@@ -108,6 +108,16 @@ export interface CreatePollAnswerPayload {
   mediaIds: string[]
 }
 
+/**
+ * The editable part of a stored answer. An answer is corrected in place, so the
+ * files are given as the whole list the answer should end up with rather than as
+ * additions to it.
+ */
+export interface UpdatePollAnswerPayload {
+  value: PollAnswerValue
+  mediaIds: string[]
+}
+
 export interface CreatePollParticipationPayload {
   userType: ParticipatingUserType
   userExternalIdentifier?: string | null
