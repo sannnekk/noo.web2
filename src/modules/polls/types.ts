@@ -1,14 +1,17 @@
 import type { ViewMode } from '@/core/composables/useViewMode'
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import type { ParticipatingUserType } from './api/poll.types'
 
 export type PollViewMode = ViewMode
 
 /**
  * An answer as the inputs hold it, before it is wrapped into a
- * {@link PollAnswerValue} for the API.
+ * {@link PollAnswerValue} for the API. A `files` answer is the odd one out: its
+ * files are uploaded as they are picked, so the input holds the media they
+ * became rather than a value to be sent along.
  */
 export type PollAnswerInputValue =
-  string | number | boolean | Date | string[] | null
+  string | number | boolean | Date | string[] | MediaEntity[] | null
 
 /**
  * Who is about to answer the poll. Filled in on the auth step and sent along

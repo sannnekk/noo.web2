@@ -94,7 +94,8 @@ describe('PollService', () => {
         answers: [
           {
             pollQuestionId: 'question-1',
-            value: { type: 'text' as const, value: 'Ответ' }
+            value: { type: 'text' as const, value: 'Ответ' },
+            mediaIds: []
           }
         ]
       }

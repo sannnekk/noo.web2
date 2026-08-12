@@ -90,6 +90,7 @@ import {
   detectFileKind,
   type FileKind,
   fileExtension,
+  formatBytes,
   isAllowedKind
 } from './file-kind.utils'
 
@@ -97,6 +98,8 @@ interface Props {
   label?: string
   types: FileKind[]
   maxCount: number
+  /** Largest file accepted, in bytes. Defaults to what the API allows at all. */
+  maxSize?: number
   crop?: boolean
   cropRatio?: number
   category: MediaCategory
@@ -105,6 +108,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   label: '',
+  maxSize: appConfig.maxFileSizeInBytes,
   crop: false,
   cropRatio: undefined,
   entityId: undefined
@@ -242,7 +246,7 @@ async function handleFiles(picked: File[]) {
       rejectedTypeCount += 1
       continue
     }
-    if (file.size > appConfig.maxFileSizeInBytes) {
+    if (file.size > props.maxSize) {
       rejectedSizeCount += 1
       continue
     }
@@ -257,7 +261,7 @@ async function handleFiles(picked: File[]) {
   }
   if (rejectedSizeCount > 0) {
     globalUiStore.createWarningToast(
-      'Файл слишком большой',
+      `Файл больше ${formatBytes(props.maxSize)}`,
       `Пропущено файлов: ${rejectedSizeCount}`
     )
   }

@@ -1,6 +1,22 @@
 <template>
+  <div
+    v-if="type === 'files' && files.length"
+    class="poll-answer-value poll-answer-value__files"
+  >
+    <noo-file-card
+      v-for="media in files"
+      :key="media.id"
+      :name="media.actualName ?? media.name"
+      :extension="media.extension"
+      :size="media.size"
+      :media="media"
+      :removable="false"
+      downloadable
+    />
+  </div>
+
   <noo-text-block
-    v-if="isEmpty"
+    v-else-if="isEmpty"
     class="poll-answer-value"
     dimmed
     no-margin
@@ -49,6 +65,10 @@ const props = defineProps<Props>()
 const type = computed(() => props.answer.value.type)
 const value = computed(() => props.answer.value.value)
 
+// A file answer keeps nothing in its value: the files are the answer, and they
+// are attached to it rather than stored in it.
+const files = computed(() => props.answer.medias ?? [])
+
 const isEmpty = computed(() => {
   const current = value.value
 
@@ -88,4 +108,9 @@ function stringify(input: unknown): string {
   &__list
     margin: 0
     padding-left: 1.2em
+
+  &__files
+    display: flex
+    flex-direction: column
+    gap: var(--space-3xs)
 </style>

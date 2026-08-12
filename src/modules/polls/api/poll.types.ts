@@ -1,5 +1,6 @@
 import type { ApiEntity } from '@/core/api/api.types'
 import type { PossiblyUnsavedEntity } from '@/core/utils/types.utils'
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import type { UserEntity } from '@/modules/users/api/user.types'
 
 export type PollQuestionType =
@@ -89,12 +90,22 @@ export interface PollAnswerValue {
 export interface PollAnswerEntity extends ApiEntity<'PollAnswer'> {
   pollQuestionId: string
   value: PollAnswerValue
+  /**
+   * Files attached to the answer. Only a `files` question ever has them — its
+   * `value` carries nothing but the type.
+   */
+  medias: MediaEntity[]
   pollQuestion?: PollQuestionEntity
 }
 
 export interface CreatePollAnswerPayload {
   pollQuestionId: string
   value: PollAnswerValue | null
+  /**
+   * Ids of the files answering a `files` question. They are uploaded while the
+   * poll is filled in, so only their ids travel with the answers.
+   */
+  mediaIds: string[]
 }
 
 export interface CreatePollParticipationPayload {

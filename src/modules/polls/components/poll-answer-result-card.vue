@@ -1,7 +1,7 @@
 <template>
   <div
     class="poll-answer-result-card"
-    :class="{ 'poll-answer-result-card--unanswered': !answer }"
+    :class="{ 'poll-answer-result-card--unanswered': !isFilled }"
   >
     <div class="poll-answer-result-card__head">
       <span class="poll-answer-result-card__head__index">{{ index + 1 }}</span>
@@ -26,7 +26,7 @@
 
     <div class="poll-answer-result-card__answer">
       <poll-answer-value
-        v-if="answer"
+        v-if="isFilled && answer"
         :answer="answer"
       />
       <noo-text-block
@@ -43,7 +43,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { PollAnswerEntity, PollQuestionEntity } from '../api/poll.types'
+import { isAnswerFilled } from '../participation.utils'
 import pollAnswerValue from '../views/poll-answer-value.vue'
 
 interface Props {
@@ -52,7 +54,11 @@ interface Props {
   answer?: PollAnswerEntity
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// Every question of a poll is answered on submit, blank ones included, so the
+// card reads the answer rather than its presence.
+const isFilled = computed(() => isAnswerFilled(props.answer))
 </script>
 
 <style scoped lang="sass">

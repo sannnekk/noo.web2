@@ -50,6 +50,20 @@ export function buildAcceptAttribute(kinds: FileKind[]): string {
   return kinds.flatMap((kind) => KIND_TO_ACCEPT[kind]).join(',')
 }
 
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} Б`
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} КБ`
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`
+  }
+
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} ГБ`
+}
+
 export function fileExtension(file: File): string {
   const dotIndex = file.name.lastIndexOf('.')
 

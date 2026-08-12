@@ -129,6 +129,7 @@ import { computed, watch } from 'vue'
 import { PollService } from '../api/poll.service'
 import type { PollAnswerEntity } from '../api/poll.types'
 import pollAnswerResultCard from '../components/poll-answer-result-card.vue'
+import { isAnswerFilled } from '../participation.utils'
 import { PollsPermissions, usePollsPermissions } from '../permissions'
 
 export interface PollParticipationDetailsPageProps {
@@ -176,8 +177,9 @@ const answersByQuestionId = computed<Record<string, PollAnswerEntity>>(() => {
 
 const answeredCount = computed(
   () =>
-    questions.value.filter((question) => answersByQuestionId.value[question.id])
-      .length
+    questions.value.filter((question) =>
+      isAnswerFilled(answersByQuestionId.value[question.id])
+    ).length
 )
 
 const answeredPercent = computed(() =>

@@ -51,20 +51,27 @@
       :max="question.config.maxRating"
     />
 
-    <noo-warning-block
+    <noo-file-uploader
       v-else-if="question.type === 'files'"
-      small
-    >
-      Ответы с файлами пока не поддерживаются. Опишите ответ в комментарии к
-      опросу или свяжитесь с организатором.
-    </noo-warning-block>
+      v-model="filesValue"
+      category="poll-answer-file"
+      :types="fileKinds"
+      :max-count="fileCount"
+      :max-size="question.config.maxFileSize ?? undefined"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed } from 'vue'
 import type { PollQuestionEntity } from '../api/poll.types'
-import { toAnswerOptions } from '../participation.utils'
+import {
+  maxFileCount,
+  toAnswerFiles,
+  toAnswerOptions,
+  toFileKinds
+} from '../participation.utils'
 import type { PollAnswerInputValue } from '../types'
 import pollRatingInput from './poll-rating-input.vue'
 
@@ -113,15 +120,29 @@ const choiceValue = computed<string | null>({
 })
 
 const choicesValue = computed<string[]>({
-  get: () => (Array.isArray(model.value) ? model.value : []),
+  get: () =>
+    Array.isArray(model.value)
+      ? model.value.filter((entry) => typeof entry === 'string')
+      : [],
   set: (value) => (model.value = value)
 })
+
+// Files are uploaded as they are picked, so what the input holds is the media
+// they became — the answer is sent as a list of their ids.
+const filesValue = computed<MediaEntity[]>({
+  get: () => toAnswerFiles(model.value),
+  set: (value) => (model.value = value)
+})
+
+const fileKinds = computed(() => toFileKinds(props.question))
+const fileCount = computed(() => maxFileCount(props.question))
 </script>
 
 <style scoped lang="sass">
 .poll-answer-input
   // The inputs carry their own bottom margin for stacked forms; inside a
   // question card the card itself owns the spacing.
-  :deep(.noo-input)
+  :deep(.noo-input),
+  :deep(.noo-file-uploader)
     margin-bottom: 0
 </style>

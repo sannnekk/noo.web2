@@ -64,6 +64,7 @@ import { triggerDownload } from '@/core/utils/download.utils'
 import { MediaService } from '@/modules/media/api/media.service'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, ref } from 'vue'
+import { formatBytes } from './file-kind.utils'
 
 interface Props {
   name: string
@@ -120,20 +121,6 @@ const iconName = computed<IconName>(() => {
 })
 
 const humanSize = computed(() => formatBytes(props.size))
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} Б`
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} КБ`
-  }
-  if (bytes < 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`
-  }
-
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} ГБ`
-}
 
 function onClick() {
   if (!props.clickable || props.error) {

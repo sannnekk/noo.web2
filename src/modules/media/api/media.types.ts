@@ -17,6 +17,7 @@ export type MediaCategory =
   | 'assigned-work-mentor-comment-rich-text'
   | 'help-rich-text'
   | 'snippet-rich-text'
+  | 'poll-answer-file'
 
 export interface MediaEntity extends ApiEntity<'Media'> {
   order: number

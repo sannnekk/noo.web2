@@ -1,5 +1,7 @@
+import type { MediaEntity } from '@/modules/media/api/media.types'
 import { describe, expect, test } from 'vitest'
 import type {
+  PollAnswerEntity,
   PollQuestionConfig,
   PollQuestionEntity,
   PollQuestionType
@@ -7,9 +9,11 @@ import type {
 import {
   createEmptyAnswer,
   isAnswered,
+  isAnswerFilled,
   matchesQuestionType,
   toAnswerOptions,
   toAnswerPayload,
+  toFileKinds,
   validateAnswer
 } from './participation.utils'
 
@@ -30,6 +34,24 @@ function makeQuestion(
     config: {} as PollQuestionConfig,
     ...overrides
   } as PollQuestionEntity
+}
+
+function makeMedia(id: string): MediaEntity {
+  return {
+    _entityName: 'Media',
+    id,
+    createdAt: new Date(),
+    updatedAt: null,
+    order: 0,
+    path: `poll-answer-file/${id}.pdf`,
+    name: `${id}.pdf`,
+    actualName: 'ответ.pdf',
+    extension: 'pdf',
+    size: 1024,
+    category: 'poll-answer-file',
+    status: 'completed',
+    url: ''
+  } as MediaEntity
 }
 
 describe('participation utils', () => {
@@ -98,6 +120,22 @@ describe('participation utils', () => {
       expect(validateAnswer(question, ['a', 'b', 'c', 'd'])).toHaveLength(1)
       expect(validateAnswer(question, ['a', 'b'])).toEqual([])
     })
+
+    test('should enforce the file count', () => {
+      const question = makeQuestion('files', { config: { maxFileCount: 1 } })
+
+      expect(validateAnswer(question, [makeMedia('media-1')])).toEqual([])
+      expect(
+        validateAnswer(question, [makeMedia('media-1'), makeMedia('media-2')])
+      ).toHaveLength(1)
+    })
+
+    test('should complain about a required files question left empty', () => {
+      const question = makeQuestion('files', { isRequired: true })
+
+      expect(validateAnswer(question, [])).toHaveLength(1)
+      expect(validateAnswer(question, [makeMedia('media-1')])).toEqual([])
+    })
   })
 
   describe('toAnswerPayload', () => {
@@ -106,7 +144,8 @@ describe('participation utils', () => {
 
       expect(toAnswerPayload(question, 'Ответ')).toEqual({
         pollQuestionId: 'question-1',
-        value: { type: 'text', value: 'Ответ' }
+        value: { type: 'text', value: 'Ответ' },
+        mediaIds: []
       })
     })
 
@@ -115,7 +154,18 @@ describe('participation utils', () => {
 
       expect(toAnswerPayload(question, null)).toEqual({
         pollQuestionId: 'question-1',
-        value: { type: 'single-choice', value: null }
+        value: { type: 'single-choice', value: null },
+        mediaIds: []
+      })
+    })
+
+    test('should send a files answer as the ids of its uploads', () => {
+      const question = makeQuestion('files')
+
+      expect(toAnswerPayload(question, [makeMedia('media-1')])).toEqual({
+        pollQuestionId: 'question-1',
+        value: { type: 'files', value: null },
+        mediaIds: ['media-1']
       })
     })
   })
@@ -136,6 +186,13 @@ describe('participation utils', () => {
       expect(matchesQuestionType(makeQuestion('text'), undefined)).toBe(false)
     })
 
+    test('should restore the uploads of a files draft', () => {
+      const question = makeQuestion('files')
+
+      expect(matchesQuestionType(question, [makeMedia('media-1')])).toBe(true)
+      expect(matchesQuestionType(question, ['media-1'])).toBe(false)
+    })
+
     test('should reject a choice the question no longer offers', () => {
       const single = makeQuestion('single-choice', {
         config: { options: ['Да', 'Нет'] }
@@ -148,6 +205,52 @@ describe('participation utils', () => {
       expect(matchesQuestionType(single, 'Может быть')).toBe(false)
       expect(matchesQuestionType(multiple, ['Да', 'Нет'])).toBe(true)
       expect(matchesQuestionType(multiple, ['Да', 'Может быть'])).toBe(false)
+    })
+  })
+
+  describe('isAnswerFilled', () => {
+    function makeAnswer(
+      type: PollQuestionType,
+      value: unknown,
+      medias: MediaEntity[] = []
+    ): PollAnswerEntity {
+      return {
+        _entityName: 'PollAnswer',
+        id: 'answer-1',
+        createdAt: new Date(),
+        updatedAt: null,
+        pollQuestionId: 'question-1',
+        value: { type, value },
+        medias
+      } as PollAnswerEntity
+    }
+
+    test('should treat a stored blank answer as unanswered', () => {
+      expect(isAnswerFilled(undefined)).toBe(false)
+      expect(isAnswerFilled(makeAnswer('text', null))).toBe(false)
+      expect(isAnswerFilled(makeAnswer('multiple-choice', []))).toBe(false)
+      expect(isAnswerFilled(makeAnswer('text', 'Ответ'))).toBe(true)
+    })
+
+    test('should read a files answer from its attachments', () => {
+      expect(isAnswerFilled(makeAnswer('files', null))).toBe(false)
+      expect(
+        isAnswerFilled(makeAnswer('files', null, [makeMedia('media-1')]))
+      ).toBe(true)
+    })
+  })
+
+  describe('toFileKinds', () => {
+    test('should offer every kind when the question names no types', () => {
+      expect(toFileKinds(makeQuestion('files'))).toEqual(['image', 'pdf'])
+    })
+
+    test('should narrow the kinds down to the configured mime types', () => {
+      const question = makeQuestion('files', {
+        config: { allowedFileTypes: ['application/pdf'] }
+      })
+
+      expect(toFileKinds(question)).toEqual(['pdf'])
     })
   })
 
