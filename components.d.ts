@@ -187,6 +187,7 @@ declare module 'vue' {
     NootubeIcon: typeof import('./src/components/icons/noo-icons/nootube-icon.vue')['default']
     NooTypingText: typeof import('./src/components/text/noo-typing-text.vue')['default']
     NooUnderConstructionBlock: typeof import('./src/components/blocks/noo-under-construction-block.vue')['default']
+    NooUnsavedChangesModal: typeof import('./src/components/modal/noo-unsaved-changes-modal.vue')['default']
     NooUploadedImage: typeof import('./src/components/images/noo-uploaded-image.vue')['default']
     NooUserAvatar: typeof import('./src/components/images/noo-user-avatar.vue')['default']
     NooUserCard: typeof import('./src/components/cards/noo-user-card.vue')['default']

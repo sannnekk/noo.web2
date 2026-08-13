@@ -45,7 +45,6 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Работа',
         tabTitle: 'Работа',
-        warnOnLeave: true,
         layout: PaneLayout,
         roles: assignedWorksPermissionPolicy.rolesFor(
           AssignedWorksPermissions.viewDetailPage

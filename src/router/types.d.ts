@@ -7,7 +7,6 @@ declare module 'vue-router' {
     roles?: UserRole[]
     pageTitle: string
     tabTitle: string
-    warnOnLeave?: boolean
     layout?: any | null
   }
 }

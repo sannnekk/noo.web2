@@ -185,27 +185,18 @@
       </template>
     </noo-sidebar-layout>
 
-    <noo-sure-modal
-      v-model:is-open="isCancelModalOpen"
-      @confirm="cancel()"
-    >
-      <template #title>
-        <noo-title :size="3"> Отменить изменения </noo-title>
-      </template>
-      <template #content>
-        <noo-text-block dimmed>
-          Исправленные ответы не сохранены. Если вы выйдете из режима
-          редактирования, изменения будут потеряны.
-        </noo-text-block>
-      </template>
-      <template #confirm-action-text> Отменить изменения </template>
-    </noo-sure-modal>
+    <noo-unsaved-changes-modal
+      v-model:is-open="isAsking"
+      :can-save="canSaveAnswers"
+      @decide="decide"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useApiRequest } from '@/core/composables/useApiRequest'
-import { computed, shallowRef, watch } from 'vue'
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
+import { computed, watch } from 'vue'
 import { PollService } from '../api/poll.service'
 import type { PollAnswerEntity } from '../api/poll.types'
 import pollAnswerCard from '../components/poll-answer-card.vue'
@@ -301,12 +292,18 @@ const {
   onSaved: reload
 })
 
-const isCancelModalOpen = shallowRef(false)
+const {
+  isAsking,
+  canSave: canSaveAnswers,
+  decide,
+  confirm
+} = useUnsavedChangesGuard({
+  hasChanges: () => hasChanges.value,
+  save
+})
 
-function cancelEditing() {
-  if (hasChanges.value) {
-    isCancelModalOpen.value = true
-  } else {
+async function cancelEditing() {
+  if (await confirm()) {
     cancel()
   }
 }

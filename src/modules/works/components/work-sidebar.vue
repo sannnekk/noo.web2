@@ -117,24 +117,23 @@
     </div>
   </div>
   <save-work-changes-modal v-model:is-open="saveChangesModalOpen" />
-  <noo-sure-modal
-    v-model:is-open="sureChangeModeModalOpen"
-    @confirm="onConfirmChangeModeToView()"
+  <noo-unsaved-changes-modal
+    v-model:is-open="isAsking"
+    :can-save="canSave"
+    :changes-count="changesCount"
+    @decide="decide"
   >
-    <template #title>
-      <noo-title :size="3"> Вернуться в режим просмотра </noo-title>
+    <template #changes>
+      <work-patch-list
+        :patch="workDetailStore.workPatchGenerator!.generate()"
+        :original="workDetailStore.workPatchGenerator!.getOriginal()"
+      />
     </template>
-    <template #content>
-      <noo-text-block dimmed>
-        У вас есть несохранённые изменения. Если вы вернётесь в режим просмотра,
-        все несохранённые изменения будут потеряны.
-      </noo-text-block>
-    </template>
-    <template #confirm-action-text> В режим просмотра </template>
-  </noo-sure-modal>
+  </noo-unsaved-changes-modal>
 </template>
 
 <script setup lang="ts">
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import type { ViewMode } from '@/core/composables/useViewMode'
 import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
 import { computed, shallowRef } from 'vue'
@@ -143,11 +142,25 @@ import { workTypes } from '../constants'
 import { useWorkDetailStore } from '../stores/work-detail.store'
 import saveWorkChangesModal from './save-work-changes-modal.vue'
 import taskGrid from './task-grid.vue'
+import workPatchList from './work-patch-list.vue'
 
 const saveChangesModalOpen = shallowRef(false)
-const sureChangeModeModalOpen = shallowRef(false)
 
 const workDetailStore = useWorkDetailStore()
+
+const changesCount = computed(
+  () => workDetailStore.workPatchGenerator?.countChanges() ?? 0
+)
+
+const { isAsking, canSave, decide, confirm } = useUnsavedChangesGuard({
+  hasChanges: () => workDetailStore.hasChanges(),
+  // A work that was never created is saved by being navigated to, which is no
+  // way to leave the page it is being left from.
+  canSave: () =>
+    workDetailStore.mode === 'edit' &&
+    workDetailStore.workValidationState.isValid === true,
+  save: () => workDetailStore.save()
+})
 
 const canAddTask = computed(() => {
   return (
@@ -164,14 +177,13 @@ const canSaveWork = computed(() => {
 /**
  * Change the current mode of the work view.
  */
-function changeMode(newMode: ViewMode): void {
-  if (
-    workDetailStore.mode !== 'view' &&
-    newMode === 'view' &&
-    workDetailStore.workPatchGenerator &&
-    workDetailStore.workPatchGenerator.countChanges() > 0
-  ) {
-    sureChangeModeModalOpen.value = true
+async function changeMode(newMode: ViewMode): Promise<void> {
+  if (workDetailStore.mode !== 'view' && newMode === 'view') {
+    if (!(await confirm())) {
+      return
+    }
+
+    revertToOriginalWork()
 
     return
   }
@@ -179,7 +191,7 @@ function changeMode(newMode: ViewMode): void {
   workDetailStore.mode = newMode
 }
 
-function onConfirmChangeModeToView() {
+function revertToOriginalWork() {
   const currentTaskId = workDetailStore.task?.id
 
   workDetailStore.task = null

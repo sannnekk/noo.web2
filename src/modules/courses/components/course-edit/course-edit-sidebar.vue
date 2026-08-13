@@ -144,19 +144,52 @@
       </noo-button>
     </div>
     <save-course-changes-modal v-model:is-open="saveChangesModalOpen" />
+    <noo-unsaved-changes-modal
+      v-model:is-open="isAsking"
+      :can-save="canSaveOnLeave"
+      :changes-count="changesCount"
+      @decide="decide"
+    >
+      <template #changes>
+        <course-patch-list
+          :patch="editCourseStore.coursePatchGenerator!.generate()"
+          :original="editCourseStore.coursePatchGenerator!.getOriginal()"
+        />
+      </template>
+    </noo-unsaved-changes-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, shallowRef } from 'vue'
 import { useCourseChapterFilter } from '../../composables/useCourseChapterFilter'
 import { useCourseEditStore } from '../../stores/course-edit.store.ts'
 import CourseEditChapterTree from './course-chapter-tree.vue'
+import CoursePatchList from './course-patch-list.vue'
 import SaveCourseChangesModal from './save-course-changes-modal.vue'
 
 const editCourseStore = useCourseEditStore()
 const saveChangesModalOpen = shallowRef(false)
+
+// Only the course's own edits can be listed; changed material contents are
+// drafts of their own and count towards the warning without appearing in it.
+const changesCount = computed(
+  () => editCourseStore.coursePatchGenerator?.countChanges() ?? 0
+)
+
+const {
+  isAsking,
+  canSave: canSaveOnLeave,
+  decide
+} = useUnsavedChangesGuard({
+  hasChanges: () => editCourseStore.hasUnsavedChanges,
+  // A course that was never created is saved by being navigated to, which is no
+  // way to leave the page it is being left from.
+  canSave: () => editCourseStore.mode === 'edit',
+  save: () => editCourseStore.save()
+})
 
 const chapterFilter = useCourseChapterFilter({
   chapters: () => editCourseStore.course?.chapters,

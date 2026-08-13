@@ -178,27 +178,18 @@
       Пожалуйста, попробуйте позже.
     </noo-text-block>
   </div>
-  <noo-sure-modal
-    v-model:is-open="sureChangeModeModalOpen"
-    @confirm="confirmCancel()"
-  >
-    <template #title>
-      <noo-title :size="3"> Вернуться в режим просмотра </noo-title>
-    </template>
-    <template #content>
-      <noo-text-block dimmed>
-        У вас есть несохранённые изменения. Если вы вернётесь в режим просмотра,
-        все несохранённые изменения будут потеряны.
-      </noo-text-block>
-    </template>
-    <template #confirm-action-text> В режим просмотра </template>
-  </noo-sure-modal>
+  <noo-unsaved-changes-modal
+    v-model:is-open="isAsking"
+    :can-save="canSave"
+    @decide="decide"
+  />
 </template>
 
 <script setup lang="ts">
 import type { LegendItem } from '@/components/inputs/noo-legend.vue'
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import { pluralize } from '@/core/utils/lang.utils'
-import { computed, shallowRef } from 'vue'
+import { computed } from 'vue'
 import pollQuestionCard from '../components/poll-question-card.vue'
 import { pollQuestionTypes } from '../constants'
 import { usePollEditStore } from '../stores/poll-edit.store'
@@ -210,7 +201,6 @@ export interface PollsEditPageProps {
 defineProps<PollsEditPageProps>()
 
 const pollEditStore = usePollEditStore()
-const sureChangeModeModalOpen = shallowRef(false)
 
 const isReadonlyMode = computed(() => pollEditStore.mode === 'view')
 
@@ -224,17 +214,18 @@ const questionTypeLegend = computed<LegendItem[]>(() =>
   )
 )
 
-function cancelEdit() {
-  if (pollEditStore.hasChanges()) {
-    sureChangeModeModalOpen.value = true
-  } else {
+const { isAsking, canSave, decide, confirm } = useUnsavedChangesGuard({
+  hasChanges: () => pollEditStore.hasChanges(),
+  // A poll that was never created has nowhere to be saved to but a new page of
+  // its own, which is no way to leave the one being left.
+  canSave: () => pollEditStore.mode === 'edit',
+  save: () => pollEditStore.save()
+})
+
+async function cancelEdit() {
+  if (await confirm()) {
     pollEditStore.cancelEdit()
   }
-}
-
-function confirmCancel() {
-  pollEditStore.cancelEdit()
-  sureChangeModeModalOpen.value = false
 }
 </script>
 

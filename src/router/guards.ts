@@ -53,23 +53,4 @@ function canRoleAccessGuard(
   return true
 }
 
-function warnOnLeaveGuard(
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized
-): NavigationGuardReturn {
-  if (from.meta.warnOnLeave) {
-    const confirmLeave = window.confirm(
-      'You have unsaved changes. Are you sure you want to leave?'
-    )
-
-    if (confirmLeave) {
-      return true
-    }
-
-    return false
-  }
-
-  return true
-}
-
-export { canRoleAccessGuard, isAuthenticatedGuard, warnOnLeaveGuard }
+export { canRoleAccessGuard, isAuthenticatedGuard }

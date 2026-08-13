@@ -77,11 +77,15 @@ interface WorkDetailStore {
    */
   removeTask: (key: string) => void
   /**
-   * Saves the current work.
+   * Whether the work carries edits that have not been saved yet.
+   */
+  hasChanges: () => boolean
+  /**
+   * Saves the current work, and reports whether it went through.
    * If in 'create' mode, it creates a new work.
    * If in 'edit' mode, it updates the existing work.
    */
-  save: () => Promise<void>
+  save: () => Promise<boolean>
   /**
    * Resets the store to its initial state.
    */
@@ -212,9 +216,13 @@ const useWorkDetailStore = defineStore(
       validateWork()
     }
 
-    async function save(): Promise<void> {
+    function hasChanges(): boolean {
+      return (workPatchGenerator.value?.countChanges() ?? 0) > 0
+    }
+
+    async function save(): Promise<boolean> {
       if (!work.value) {
-        return
+        return false
       }
 
       if (mode.value === 'create') {
@@ -230,7 +238,7 @@ const useWorkDetailStore = defineStore(
 
           setMode('create')
 
-          return
+          return false
         }
 
         if (response.data) {
@@ -242,7 +250,7 @@ const useWorkDetailStore = defineStore(
 
         uiStore.createSuccessToast('Работа успешно создана')
 
-        return
+        return true
       }
 
       if (mode.value === 'edit') {
@@ -261,12 +269,16 @@ const useWorkDetailStore = defineStore(
 
           setMode('edit')
 
-          return
+          return false
         }
 
         uiStore.createSuccessToast('Работа успешно обновлена')
         await init(work.value.id)
+
+        return true
       }
+
+      return false
     }
 
     function reset(): void {
@@ -291,6 +303,7 @@ const useWorkDetailStore = defineStore(
       removeTask,
       nextTask,
       previousTask,
+      hasChanges,
       save,
       reset
     }

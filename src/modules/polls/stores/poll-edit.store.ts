@@ -31,9 +31,9 @@ interface PollEditStore {
    */
   pollPatchGenerator: ShallowRef<PatchGenerator<PossiblyUnsavedPoll> | null>
   /**
-   * Saves the current poll.
+   * Saves the current poll, and reports whether it went through.
    */
-  save: () => Promise<void>
+  save: () => Promise<boolean>
   /**
    * Adds a new question to the current poll.
    */
@@ -133,9 +133,9 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
     setMode('view')
   }
 
-  async function save(): Promise<void> {
+  async function save(): Promise<boolean> {
     if (!poll.value) {
-      return
+      return false
     }
 
     uiStore.setLoading(true)
@@ -144,7 +144,7 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
       if (!pollPatchGenerator.value) {
         uiStore.setLoading(false)
 
-        return
+        return false
       }
 
       const response = await PollService.update(
@@ -160,34 +160,35 @@ const usePollEditStore = defineStore('polls:poll-edit', (): PollEditStore => {
           response.error
         )
 
-        return
+        return false
       }
 
       uiStore.createSuccessToast('Опрос сохранен')
       await init(poll.value.id)
-    } else {
-      const response = await PollService.create(poll.value)
 
-      uiStore.setLoading(false)
-
-      if (isApiError(response)) {
-        uiStore.createApiErrorToast(
-          'Не удалось сохранить опрос',
-          response.error
-        )
-
-        return
-      }
-
-      uiStore.createSuccessToast('Опрос сохранен')
-
-      if (response.data?.id) {
-        useRouter().push({
-          name: 'polls.edit',
-          params: { pollId: response.data.id }
-        })
-      }
+      return true
     }
+
+    const response = await PollService.create(poll.value)
+
+    uiStore.setLoading(false)
+
+    if (isApiError(response)) {
+      uiStore.createApiErrorToast('Не удалось сохранить опрос', response.error)
+
+      return false
+    }
+
+    uiStore.createSuccessToast('Опрос сохранен')
+
+    if (response.data?.id) {
+      useRouter().push({
+        name: 'polls.edit',
+        params: { pollId: response.data.id }
+      })
+    }
+
+    return true
   }
 
   function addQuestion(): void {

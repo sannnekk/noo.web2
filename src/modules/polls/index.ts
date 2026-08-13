@@ -74,7 +74,6 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Редактировать опрос',
         tabTitle: 'Редактировать опрос',
-        warnOnLeave: true,
         layout: PaneLayout,
         roles: pollsPermissionPolicy.rolesFor(PollsPermissions.viewEditPage)
       },

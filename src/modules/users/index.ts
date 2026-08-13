@@ -25,7 +25,6 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Пользователь',
         tabTitle: 'Пользователь',
-        warnOnLeave: true,
         layout: PaneLayout,
         roles: usersPermissionPolicy.rolesFor(UsersPermissions.viewDetailPage)
       },

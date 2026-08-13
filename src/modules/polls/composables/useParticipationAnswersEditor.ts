@@ -52,7 +52,10 @@ interface ParticipationAnswersEditor {
   errorsFor: (questionId: string) => ValidationError[]
   start: () => void
   cancel: () => void
-  save: () => Promise<void>
+  /**
+   * Stores every corrected answer, and reports whether they all went through.
+   */
+  save: () => Promise<boolean>
 }
 
 /**
@@ -132,9 +135,9 @@ function useParticipationAnswersEditor(
     setMode('view')
   }
 
-  async function save(): Promise<void> {
+  async function save(): Promise<boolean> {
     if (isSaving.value) {
-      return
+      return false
     }
 
     isValidationVisible.value = true
@@ -145,7 +148,7 @@ function useParticipationAnswersEditor(
         'Некоторые вопросы заполнены неверно'
       )
 
-      return
+      return false
     }
 
     const changed = changedQuestions.value
@@ -153,7 +156,7 @@ function useParticipationAnswersEditor(
     if (!changed.length) {
       cancel()
 
-      return
+      return true
     }
 
     isSaving.value = true
@@ -176,7 +179,7 @@ function useParticipationAnswersEditor(
         await options.onSaved()
         start()
 
-        return
+        return false
       }
     }
 
@@ -186,6 +189,8 @@ function useParticipationAnswersEditor(
     await options.onSaved()
 
     cancel()
+
+    return true
   }
 
   return {

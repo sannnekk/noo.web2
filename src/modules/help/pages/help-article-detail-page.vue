@@ -115,24 +115,15 @@
     <template #confirm-action-text> Удалить </template>
   </noo-sure-modal>
 
-  <noo-sure-modal
-    v-model:is-open="discardModalOpen"
-    @confirm="discardChanges()"
-  >
-    <template #title>
-      <noo-title :size="3"> Несохранённые изменения </noo-title>
-    </template>
-    <template #content>
-      <noo-text-block dimmed>
-        У вас есть несохранённые изменения. Если вы продолжите, они будут
-        потеряны.
-      </noo-text-block>
-    </template>
-    <template #confirm-action-text> Отменить изменения </template>
-  </noo-sure-modal>
+  <noo-unsaved-changes-modal
+    v-model:is-open="isAsking"
+    :can-save="canSave"
+    @decide="decide"
+  />
 </template>
 
 <script setup lang="ts">
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import { isStringOfLength } from '@/core/validators/string.utils'
 import { computed, shallowRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -152,10 +143,17 @@ const router = useRouter()
 const { can } = useHelpPermissions()
 
 const deleteModalOpen = shallowRef(false)
-const discardModalOpen = shallowRef(false)
 
 const canManage = computed(() => can(HelpPermissions.manageArticles))
 const isReadonly = computed(() => store.mode === 'view')
+
+const { isAsking, canSave, decide, confirm } = useUnsavedChangesGuard({
+  hasChanges: () => store.hasChanges(),
+  // An article that was never created is saved by being navigated to, which is
+  // no way to leave the page it is being left from.
+  canSave: () => store.mode === 'edit',
+  save: async () => !!(await store.save())
+})
 
 watch(
   () => props.articleSlug,
@@ -191,14 +189,10 @@ async function onSave(): Promise<void> {
   )
 }
 
-function onCancel(): void {
-  if (store.hasChanges()) {
-    discardModalOpen.value = true
-
-    return
+async function onCancel(): Promise<void> {
+  if (await confirm()) {
+    discardChanges()
   }
-
-  discardChanges()
 }
 
 function discardChanges(): void {

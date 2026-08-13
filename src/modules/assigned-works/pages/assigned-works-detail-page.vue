@@ -32,9 +32,16 @@
       </noo-text-block>
     </noo-error-block>
   </div>
+
+  <noo-unsaved-changes-modal
+    v-model:is-open="isAsking"
+    :can-save="canSave"
+    @decide="decide"
+  />
 </template>
 
 <script setup lang="ts">
+import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import { onUnmounted, watch } from 'vue'
 import assignedWorkSidebar from '../components/assigned-work-sidebar.vue'
 import AutosaveStatus from '../components/autosave-status.vue'
@@ -49,6 +56,14 @@ export interface AssignedWorkDetailPageProps {
 const props = defineProps<AssignedWorkDetailPageProps>()
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
+
+// Answers are autosaved as they are given, so this only ever has anything to
+// ask about between the last edit and the save it is still waiting on — or
+// after one that failed.
+const { isAsking, canSave, decide } = useUnsavedChangesGuard({
+  hasChanges: () => assignedWorkDetailStore.hasUnsavedChanges,
+  save: () => assignedWorkDetailStore.save()
+})
 
 watch(
   () => props.mode,

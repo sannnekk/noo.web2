@@ -68,7 +68,7 @@ interface CourseEditStore {
   /**
    * Saves the current course and all changed material contents.
    */
-  save: () => Promise<void>
+  save: () => Promise<boolean>
   /**
    * Opens material content for editing by material local key.
    */
@@ -461,9 +461,9 @@ const useCourseEditStore = defineStore(
       return true
     }
 
-    async function save(): Promise<void> {
+    async function save(): Promise<boolean> {
       if (!course.value) {
-        return
+        return false
       }
 
       if (mode.value === 'create') {
@@ -474,7 +474,7 @@ const useCourseEditStore = defineStore(
         if (!materialContentSaved) {
           mode.value = 'create'
 
-          return
+          return false
         }
 
         const response = await CourseService.create(course.value)
@@ -483,7 +483,7 @@ const useCourseEditStore = defineStore(
           uiStore.createApiErrorToast('Не удалось создать курс', response.error)
           mode.value = 'create'
 
-          return
+          return false
         }
 
         if (response.data) {
@@ -495,7 +495,7 @@ const useCourseEditStore = defineStore(
           uiStore.createSuccessToast('Курс успешно создан')
         }
 
-        return
+        return !!response.data
       }
 
       if (mode.value === 'edit') {
@@ -509,7 +509,7 @@ const useCourseEditStore = defineStore(
         if (!materialContentSaved) {
           mode.value = 'edit'
 
-          return
+          return false
         }
 
         const coursePatch = coursePatchGenerator.value!.generate()
@@ -528,17 +528,22 @@ const useCourseEditStore = defineStore(
             )
             mode.value = 'edit'
 
-            return
+            return false
           }
         } else if (!hadMaterialContentChanges) {
           mode.value = 'edit'
 
-          return
+          // Nothing was there to save, so nothing is left unsaved either.
+          return true
         }
 
         uiStore.createSuccessToast('Курс успешно обновлен')
         await init(course.value.id)
+
+        return true
       }
+
+      return false
     }
 
     return {

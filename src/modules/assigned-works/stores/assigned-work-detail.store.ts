@@ -54,11 +54,14 @@ export interface AssignedWorkDetailStore {
   markUnchecked: UseApiRequestReturn
   addHelperMentor: UseApiRequestReturn<AddHelperMentorOptions>
   saveStatus: ReturnType<typeof useSaveStatus>
-  isStateSaved: ComputedRef<boolean>
+  /**
+   * Whether any answer has been changed since it was last stored.
+   */
+  hasUnsavedChanges: ComputedRef<boolean>
   init: (assignedWorkId: string) => Promise<boolean>
   setMode: (mode: AssignedWorkViewMode) => void
   viewMode: Ref<AssignedWorkViewMode>
-  save: (options?: SaveOptions) => Promise<void>
+  save: (options?: SaveOptions) => Promise<boolean>
   isAutosaveEnabled: ComputedRef<boolean>
   shiftDeadline: UseApiRequestReturn
   getTask: (taskId: string) => WorkTaskEntity | undefined
@@ -96,7 +99,7 @@ const useAssignedWorkDetailStore = defineStore(
      * True if there are unsaved (user-modified) changes pending.
      * Pristine drafts (`_status === 'empty'`) are not considered dirty.
      */
-    const isStateSaved = computed<boolean>(() =>
+    const hasUnsavedChanges = computed<boolean>(() =>
       Object.values(answers.value).some(
         (answer) => answer._status === 'modified'
       )
@@ -172,16 +175,16 @@ const useAssignedWorkDetailStore = defineStore(
      * Tracks an in-flight save promise so concurrent save invocations are
      * serialized (e.g. manual save during a pending autosave debounce).
      */
-    let inFlightSave: Promise<void> | null = null
+    let inFlightSave: Promise<boolean> | null = null
 
     /**
-     * Saves the answers to the server.
+     * Saves the answers to the server, and reports whether they went through.
      *
      * Calls to `save` are serialized: if a save is already in flight, the new
      * call waits for it and then runs, ensuring later changes are not dropped
      * by a concurrent in-flight request.
      */
-    async function save(options: SaveOptions = {}): Promise<void> {
+    async function save(options: SaveOptions = {}): Promise<boolean> {
       const previous = inFlightSave
       const next = previous
         ? previous.catch(() => undefined).then(() => doSave(options))
@@ -199,9 +202,9 @@ const useAssignedWorkDetailStore = defineStore(
     /**
      * Actual save implementation. Do not call directly — go through `save`.
      */
-    async function doSave({ silent = false }: SaveOptions): Promise<void> {
+    async function doSave({ silent = false }: SaveOptions): Promise<boolean> {
       if (!assignedWork.value) {
-        return
+        return false
       }
 
       const changedAnswers = getChangedAnswers()
@@ -211,7 +214,7 @@ const useAssignedWorkDetailStore = defineStore(
           globalUiStore.createSuccessToast('Работа сохранена')
         }
 
-        return
+        return true
       }
 
       if (!silent) {
@@ -248,7 +251,7 @@ const useAssignedWorkDetailStore = defineStore(
           }
           saveStatus.endSave({ success: false })
 
-          return
+          return false
         }
 
         if (response.data) {
@@ -263,6 +266,8 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       saveStatus.endSave({ success: true })
+
+      return true
     }
 
     /**
@@ -701,7 +706,7 @@ const useAssignedWorkDetailStore = defineStore(
       markUnchecked,
       addHelperMentor,
       saveStatus,
-      isStateSaved,
+      hasUnsavedChanges,
       isAutosaveEnabled,
       getTask,
       updateAnswer,

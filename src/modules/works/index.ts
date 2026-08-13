@@ -25,7 +25,6 @@ const module: ApplicationModule = {
       meta: {
         pageTitle: 'Работа',
         tabTitle: 'Работа',
-        warnOnLeave: true,
         layout: PaneLayout,
         roles: worksPermissionPolicy.rolesFor(WorksPermissions.viewEditPage)
       },
