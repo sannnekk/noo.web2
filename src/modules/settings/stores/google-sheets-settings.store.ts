@@ -8,8 +8,14 @@ import { defineStore } from 'pinia'
 import { GoogleSheetsService } from '../api/google-sheets.service'
 import type {
   CreateGoogleSheetsIntegrationDto,
-  GoogleSheetsIntegrationEntity
+  GoogleSheetsIntegrationEntity,
+  UpdateGoogleSheetsIntegrationDto
 } from '../api/google-sheets.types'
+
+interface UpdatePayload {
+  id: string
+  changes: UpdateGoogleSheetsIntegrationDto
+}
 
 interface GoogleSheetsSettingsStore {
   /**
@@ -21,7 +27,11 @@ interface GoogleSheetsSettingsStore {
    */
   create: UseApiRequestReturn<CreateGoogleSheetsIntegrationDto, { id: string }>
   /**
-   * Triggers an integration to run immediately. Refreshes the list on success.
+   * Changes an integration's name, schedule or enabled state.
+   */
+  update: UseApiRequestReturn<UpdatePayload>
+  /**
+   * Queues an integration to run. Refreshes the list on success.
    */
   run: UseApiRequestReturn<string>
   /**
@@ -45,36 +55,49 @@ const useGoogleSheetsSettingsStore = defineStore(
     >(
       GoogleSheetsService.create,
       async () => {
-        uiStore.createSuccessToast('Интеграция создана')
+        uiStore.createSuccessToast('Выгрузка создана')
         await search.reload()
       },
       (error) =>
-        uiStore.createApiErrorToast('Не удалось создать интеграцию', error)
+        uiStore.createApiErrorToast('Не удалось создать выгрузку', error)
+    )
+
+    const update = useApiRequest<UpdatePayload>(
+      ({ id, changes }) => GoogleSheetsService.update(id, changes),
+      async () => {
+        uiStore.createSuccessToast('Выгрузка обновлена')
+        await search.reload()
+      },
+      (error) =>
+        uiStore.createApiErrorToast('Не удалось обновить выгрузку', error)
     )
 
     const run = useApiRequest<string>(
       GoogleSheetsService.run,
       async () => {
-        uiStore.createSuccessToast('Запуск интеграции инициирован')
+        // The export runs in the background; the list picks up its progress
+        // through the run state column.
+        uiStore.createSuccessToast('Выгрузка поставлена в очередь')
         await search.reload()
       },
       (error) =>
-        uiStore.createApiErrorToast('Не удалось запустить интеграцию', error)
+        uiStore.createApiErrorToast('Не удалось запустить выгрузку', error)
     )
 
     const remove = useApiRequest<string>(
       GoogleSheetsService.delete,
       async () => {
-        uiStore.createSuccessToast('Интеграция удалена')
+        uiStore.createSuccessToast('Выгрузка удалена')
         await search.reload()
       },
       (error) =>
-        uiStore.createApiErrorToast('Не удалось удалить интеграцию', error)
+        uiStore.createApiErrorToast('Не удалось удалить выгрузку', error)
     )
 
     return {
       search,
       create,
+      update,
       run,
       remove
     }

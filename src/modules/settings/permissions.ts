@@ -43,7 +43,10 @@ const settingsPermissionPolicy = definePermissions({
     'student'
   ),
   [SettingsPermissions.manageNotifications]: roles('admin', 'teacher'),
-  [SettingsPermissions.manageGoogleSheets]: roles('admin', 'teacher'),
+  // Mentors get in too, but only ever see and create the assigned-works export
+  // for their own students — enforced by the backend profile, and mirrored in
+  // the type list the create dialog offers.
+  [SettingsPermissions.manageGoogleSheets]: roles('admin', 'teacher', 'mentor'),
   [SettingsPermissions.manageSubjects]: roles('admin'),
   [SettingsPermissions.manageSnippets]: roles('mentor'),
   [SettingsPermissions.viewChangelog]: roles(

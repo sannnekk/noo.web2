@@ -1,8 +1,8 @@
 <template>
   <div class="google-sheets-settings-view">
     <noo-section
-      title="Интеграции с Google Sheets"
-      description="Здесь Вы можете настроить интеграцию с Google Sheets и Google Drive для экспорта данных из системы в таблицы. Вы сможете выбрать, какие данные экспортировать, и как часто обновлять эти данные в таблицах. Для настройки интеграции потребуется авторизоваться через Google"
+      title="Выгрузки в Google Sheets"
+      description="Здесь можно настроить регулярную выгрузку данных платформы в Google-таблицы. Платформа создаст таблицу в Вашем Google Диске и будет обновлять её по расписанию. При создании каждой выгрузки нужно заново подтвердить доступ в Google."
     >
       <noo-search-view
         v-model:search="store.search.search"
@@ -13,18 +13,34 @@
         :is-loading="store.search.isLoading"
         :error="store.search.error"
         :try-again="store.search.reload"
+        :actions="rowActions"
       >
         <template #actions>
           <noo-button
             variant="primary"
             @click="isCreateOpen = true"
           >
-            Добавить интеграцию
+            Добавить выгрузку
           </noo-button>
         </template>
         <template #column-name="{ item }">
           <noo-text-block no-margin>
             {{ item.name }}
+          </noo-text-block>
+          <noo-inline-link
+            v-if="item.spreadsheetUrl"
+            :href="item.spreadsheetUrl"
+            size="small"
+          >
+            Открыть таблицу
+          </noo-inline-link>
+          <noo-text-block
+            v-if="item.lastErrorText"
+            no-margin
+            size="small"
+            class="google-sheets-settings-view__error-text"
+          >
+            {{ item.lastErrorText }}
           </noo-text-block>
         </template>
         <template #column-type="{ item }">
@@ -35,12 +51,25 @@
             {{ googleSheetsIntegrationTypeLabels[item.type] }}
           </noo-text-block>
         </template>
-        <template #column-status="{ item }">
+        <template #column-schedule="{ item }">
           <noo-text-block
             no-margin
-            :class="`google-sheets-settings-view__status google-sheets-settings-view__status--${item.status}`"
+            dimmed
           >
+            {{ googleSheetsIntegrationScheduleLabels[item.schedule] }}
+          </noo-text-block>
+        </template>
+        <template #column-status="{ item }">
+          <noo-active-tag :active="item.status === 'active'">
             {{ googleSheetsIntegrationStatusLabels[item.status] }}
+          </noo-active-tag>
+          <noo-text-block
+            v-if="item.runState !== 'idle'"
+            no-margin
+            size="small"
+            dimmed
+          >
+            {{ googleSheetsIntegrationRunStateLabels[item.runState] }}
           </noo-text-block>
         </template>
         <template #column-lastRunAt="{ item }">
@@ -48,6 +77,7 @@
             v-if="item.lastRunAt"
             :value="item.lastRunAt"
             include-time
+            multiline
           />
           <noo-text-block
             v-else
@@ -57,36 +87,22 @@
           >
             ещё не запускалась
           </noo-text-block>
+          <noo-text-block
+            v-if="item.lastRowCount !== null"
+            no-margin
+            dimmed
+            size="small"
+          >
+            строк: {{ item.lastRowCount }}
+          </noo-text-block>
         </template>
         <template #column-googleAccount="{ item }">
           <noo-text-block
             no-margin
             dimmed
           >
-            {{ item.googleAccount }}
+            {{ item.googleAccount ?? '—' }}
           </noo-text-block>
-        </template>
-        <template #column-actions="{ item }">
-          <div class="google-sheets-settings-view__row-actions">
-            <noo-button
-              size="small"
-              variant="inline"
-              :disabled="isRowBusy(item.id)"
-              :is-loading="isRunning(item.id)"
-              @click="onRun(item.id)"
-            >
-              Запустить
-            </noo-button>
-            <noo-button
-              size="small"
-              variant="danger-inline"
-              :disabled="isRowBusy(item.id)"
-              :is-loading="isDeleting(item.id)"
-              @click="askDelete(item.id)"
-            >
-              Удалить
-            </noo-button>
-          </div>
         </template>
       </noo-search-view>
     </noo-section>
@@ -104,12 +120,12 @@
     @cancel="pendingDeleteId = null"
   >
     <template #title>
-      <noo-title :size="2">Удалить интеграцию?</noo-title>
+      <noo-title :size="2">Удалить выгрузку?</noo-title>
     </template>
     <template #content>
       <noo-text-block dimmed>
-        Интеграция будет удалена безвозвратно. Данные, ранее выгруженные в
-        Google Sheets, останутся в таблице.
+        Настройка выгрузки будет удалена безвозвратно. Сама Google-таблица и
+        выгруженные в неё данные останутся на Вашем Google Диске.
       </noo-text-block>
     </template>
     <template #confirm-action-text>Удалить</template>
@@ -118,45 +134,95 @@
 
 <script lang="ts" setup>
 import type { EntityTableColumnType } from '@/components/entity-table/entity-table-helpers'
-import { shallowRef, watch } from 'vue'
+import type { RowAction } from '@/components/entity-table/noo-entity-table.vue'
+import { computed, onUnmounted, shallowRef, watch } from 'vue'
 import GoogleSheetsCreateModal from '../components/google-sheets-create-modal.vue'
 import type {
   CreateGoogleSheetsIntegrationDto,
-  GoogleSheetsIntegrationEntity
+  GoogleSheetsIntegrationEntity,
+  GoogleSheetsIntegrationStatus
 } from '../api/google-sheets.types'
 import {
+  googleSheetsIntegrationRunStateLabels,
+  googleSheetsIntegrationScheduleLabels,
   googleSheetsIntegrationStatusLabels,
   googleSheetsIntegrationTypeLabels
 } from '../constants'
 import { useGoogleSheetsSettingsStore } from '../stores/google-sheets-settings.store'
+
+/** How often to re-check a run that is already in flight. */
+const RUNNING_POLL_INTERVAL = 5000
 
 const store = useGoogleSheetsSettingsStore()
 
 const isCreateOpen = shallowRef(false)
 const isDeleteOpen = shallowRef(false)
 const pendingDeleteId = shallowRef<string | null>(null)
-const runningId = shallowRef<string | null>(null)
 
 const columns: EntityTableColumnType<GoogleSheetsIntegrationEntity>[] = [
   { key: 'name', title: 'Название' },
   { key: 'type', title: 'Тип' },
+  { key: 'schedule', title: 'Расписание' },
   { key: 'status', title: 'Статус' },
-  { key: 'lastRunAt', title: 'Последний экспорт' },
-  { key: 'googleAccount', title: 'Google-аккаунт' },
-  { key: 'actions', title: '', width: '180px', disableLink: true }
+  { key: 'lastRunAt', title: 'Последняя выгрузка' },
+  { key: 'googleAccount', title: 'Google-аккаунт' }
 ]
 
-function isDeleting(id: string): boolean {
-  return store.remove.isLoading && pendingDeleteId.value === id
-}
+/**
+ * A run in flight owns the integration until the dispatcher releases it, so the
+ * actions that would interfere are hidden rather than shown disabled.
+ */
+const isIdle = (item: GoogleSheetsIntegrationEntity) => item.runState === 'idle'
 
-function isRunning(id: string): boolean {
-  return store.run.isLoading && runningId.value === id
-}
+const rowActions: RowAction<GoogleSheetsIntegrationEntity>[] = [
+  {
+    label: 'Запустить',
+    icon: 'arrow-right',
+    if: isIdle,
+    action: (item) => store.run.execute(item.id)
+  },
+  {
+    label: 'Включить',
+    icon: 'check-green',
+    if: (item) => isIdle(item) && item.status !== 'active',
+    action: (item) => setStatus(item, 'active')
+  },
+  {
+    label: 'Отключить',
+    icon: 'minus-yellow',
+    if: (item) => isIdle(item) && item.status === 'active',
+    action: (item) => setStatus(item, 'inactive')
+  },
+  {
+    label: 'Удалить',
+    icon: 'delete',
+    variant: 'danger',
+    if: isIdle,
+    action: (item) => askDelete(item.id)
+  }
+]
 
-function isRowBusy(id: string): boolean {
-  return isDeleting(id) || isRunning(id)
-}
+const hasRunningIntegrations = computed(() =>
+  (store.search.data ?? []).some((item) => item.runState !== 'idle')
+)
+
+// Runs happen in the background, so the list has to ask for their progress —
+// but only while something is actually running.
+let pollTimer: number | undefined
+
+watch(hasRunningIntegrations, (isRunning) => {
+  window.clearInterval(pollTimer)
+  pollTimer = undefined
+
+  if (isRunning) {
+    pollTimer = window.setInterval(
+      () => store.search.reload(),
+      RUNNING_POLL_INTERVAL
+    )
+  }
+})
+
+onUnmounted(() => window.clearInterval(pollTimer))
 
 async function onCreate(dto: CreateGoogleSheetsIntegrationDto): Promise<void> {
   await store.create.execute(dto)
@@ -166,9 +232,11 @@ async function onCreate(dto: CreateGoogleSheetsIntegrationDto): Promise<void> {
   }
 }
 
-function onRun(id: string): void {
-  runningId.value = id
-  store.run.execute(id)
+function setStatus(
+  item: GoogleSheetsIntegrationEntity,
+  status: GoogleSheetsIntegrationStatus
+): void {
+  store.update.execute({ id: item.id, changes: { status } })
 }
 
 function askDelete(id: string): void {
@@ -192,34 +260,16 @@ watch(
     }
   }
 )
-
-watch(
-  () => store.run.isLoading,
-  (loading) => {
-    if (!loading && runningId.value && !store.run.error) {
-      runningId.value = null
-    }
-  }
-)
 </script>
 
 <style lang="sass" scoped>
 .google-sheets-settings-view
-  &__row-actions
-    display: flex
-    flex-wrap: wrap
-    gap: 0.25em
-    justify-content: flex-end
+  // The table carries six columns of mostly secondary detail, so it reads
+  // better a step down from body size. Its paddings are in em, so they scale
+  // with it rather than leaving the rows loose.
+  :deep(.noo-entity-table)
+    font-size: 0.85em
 
-  &__status
-    text-transform: lowercase
-
-    &--active
-      color: var(--success-color, var(--text-color))
-
-    &--error
-      color: var(--danger-color, var(--text-color))
-
-    &--inactive
-      color: var(--text-light)
+  &__error-text
+    color: var(--danger-color, var(--text-color))
 </style>

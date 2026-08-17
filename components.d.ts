@@ -77,6 +77,7 @@ declare module 'vue' {
     NooColorBadge: typeof import('./src/components/utils/noo-color-badge.vue')['default']
     NooColorInput: typeof import('./src/components/inputs/noo-color-input.vue')['default']
     NooCourseCard: typeof import('./src/components/cards/noo-course-card.vue')['default']
+    NooCourseSelect: typeof import('./src/components/inputs/entity-select/noo-course-select.vue')['default']
     NooDate: typeof import('./src/components/text/noo-date.vue')['default']
     NooDateInput: typeof import('./src/components/inputs/noo-date-input.vue')['default']
     NooDialog: typeof import('./src/components/dialog/noo-dialog.vue')['default']

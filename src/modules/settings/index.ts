@@ -1,9 +1,24 @@
+import NoLayout from '@/layouts/no-layout.vue'
 import PaneLayout from '@/layouts/pane-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 
 const module: ApplicationModule = {
   name: 'settings',
   routes: [
+    {
+      // Where Google returns the consent popup. It only forwards the auth code
+      // to the window that opened it and closes, so it needs no session of its
+      // own — and must not bounce to the login page if the guard disagrees.
+      name: 'settings.googleAuthCallback',
+      path: '/google-auth-callback',
+      meta: {
+        pageTitle: 'Авторизация Google',
+        tabTitle: 'Авторизация Google',
+        layout: NoLayout,
+        noAuth: true
+      },
+      component: () => import('./pages/google-auth-callback-page.vue')
+    },
     {
       name: 'settings',
       path: '/settings/:tabId?',

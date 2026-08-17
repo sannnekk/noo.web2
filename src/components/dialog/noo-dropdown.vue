@@ -21,39 +21,56 @@
         </button>
       </slot>
     </div>
-    <transition name="noo-dropdown__fade">
-      <ul
-        v-if="isOpen && visibleActions.length"
-        class="noo-dropdown__menu"
-        :class="`noo-dropdown__menu--${align}`"
-      >
-        <li
-          v-for="(action, index) in visibleActions"
-          :key="index"
-          class="noo-dropdown__menu__item"
-          :class="{
-            'noo-dropdown__menu__item--danger': action.variant === 'danger',
-            'noo-dropdown__menu__item--disabled': action.disabled
-          }"
-          @click="select(action)"
+    <!--
+      Teleported to the body because the menu routinely opens inside a
+      scroll container — noo-search-view scrolls wide tables sideways, and a
+      horizontal overflow makes the browser clip vertically too, cutting the
+      menu off. Nothing a descendant can set escapes an ancestor's clip, so the
+      menu leaves the flow entirely and is positioned against the trigger.
+    -->
+    <teleport to="body">
+      <transition name="noo-dropdown__fade">
+        <ul
+          v-if="isOpen && visibleActions.length"
+          ref="menuRef"
+          class="noo-dropdown__menu"
+          :style="menuStyle"
         >
-          <noo-icon
-            v-if="action.icon"
-            :name="action.icon"
-            class="noo-dropdown__menu__item__icon"
-          />
-          <span class="noo-dropdown__menu__item__label">
-            {{ action.label }}
-          </span>
-        </li>
-      </ul>
-    </transition>
+          <li
+            v-for="(action, index) in visibleActions"
+            :key="index"
+            class="noo-dropdown__menu__item"
+            :class="{
+              'noo-dropdown__menu__item--danger': action.variant === 'danger',
+              'noo-dropdown__menu__item--disabled': action.disabled
+            }"
+            @click="select(action)"
+          >
+            <noo-icon
+              v-if="action.icon"
+              :name="action.icon"
+              class="noo-dropdown__menu__item__icon"
+            />
+            <span class="noo-dropdown__menu__item__label">
+              {{ action.label }}
+            </span>
+          </li>
+        </ul>
+      </transition>
+    </teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type CSSProperties
+} from 'vue'
 import type { IconName } from '../icons/noo-icon.vue'
 
 export interface DropdownAction {
@@ -76,15 +93,60 @@ const props = withDefaults(defineProps<Props>(), {
   triggerLabel: 'Действия'
 })
 
+const GAP = 4
+
 const visibleActions = computed(() =>
   props.actions.filter((action) => action.if?.() ?? true)
 )
 
 const rootRef = ref<HTMLElement | null>(null)
+const menuRef = ref<HTMLElement | null>(null)
 const isOpen = ref(false)
+const menuStyle = ref<CSSProperties>({})
 
 function toggle(): void {
-  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    close()
+
+    return
+  }
+
+  open()
+}
+
+async function open(): Promise<void> {
+  isOpen.value = true
+  positionMenu()
+
+  // The menu has to exist before its height can decide whether it opens
+  // downwards or flips above the trigger.
+  await nextTick()
+  positionMenu()
+}
+
+function positionMenu(): void {
+  const trigger = rootRef.value
+
+  if (!trigger) {
+    return
+  }
+
+  const rect = trigger.getBoundingClientRect()
+  const menuHeight = menuRef.value?.offsetHeight ?? 0
+  const opensUpwards =
+    menuHeight > 0 &&
+    rect.bottom + GAP + menuHeight > window.innerHeight &&
+    rect.top - GAP - menuHeight > 0
+
+  menuStyle.value = {
+    position: 'fixed',
+    top: opensUpwards
+      ? `${rect.top - GAP - menuHeight}px`
+      : `${rect.bottom + GAP}px`,
+    ...(props.align === 'right'
+      ? { right: `${window.innerWidth - rect.right}px` }
+      : { left: `${rect.left}px` })
+  }
 }
 
 function close(): void {
@@ -100,7 +162,28 @@ function select(action: DropdownAction): void {
   close()
 }
 
-onClickOutside(rootRef, close)
+// Fixed positioning does not follow the trigger, so anything that moves the
+// trigger closes the menu rather than leaving it stranded mid-page.
+function onViewportChange(): void {
+  if (isOpen.value) {
+    close()
+  }
+}
+
+onMounted(() => {
+  // Capture phase, so scrolling any ancestor container counts, not just the page.
+  window.addEventListener('scroll', onViewportChange, true)
+  window.addEventListener('resize', onViewportChange)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onViewportChange, true)
+  window.removeEventListener('resize', onViewportChange)
+})
+
+// The menu is no longer a descendant of the root, so it has to be excluded
+// from the outside-click check explicitly.
+onClickOutside(rootRef, close, { ignore: [menuRef] })
 </script>
 
 <style scoped lang="sass">
@@ -127,55 +210,50 @@ onClickOutside(rootRef, close)
       &--active
         background: var(--border-color)
 
-  &__menu
-    position: absolute
-    top: calc(100% + 0.25em)
-    min-width: 12em
-    list-style: none
-    margin: 0
-    padding: 0.3em 0
-    border-radius: var(--border-radius)
-    background: var(--form-background)
-    box-shadow: var(--block-shadow)
-    overflow: hidden
-    z-index: 4
+.noo-dropdown__menu
+  position: fixed
+  min-width: 12em
+  list-style: none
+  margin: 0
+  padding: 0.3em 0
+  border-radius: var(--border-radius)
+  background: var(--form-background)
+  box-shadow: var(--block-shadow)
+  overflow: hidden
+  // Above the modal layer, so a dropdown opened inside a dialog is not hidden
+  // behind it.
+  z-index: 1100
 
-    &--right
-      right: 0
+  &__item
+    display: flex
+    align-items: center
+    gap: 0.6em
+    padding: 0.5em 0.9em
+    cursor: pointer
+    font-size: 0.9em
+    line-height: 1.2em
+    color: var(--form-text-color)
+    white-space: nowrap
 
-    &--left
-      left: 0
+    &:hover
+      background: var(--light-background-color)
 
-    &__item
-      display: flex
-      align-items: center
-      gap: 0.6em
-      padding: 0.5em 0.9em
-      cursor: pointer
-      font-size: 0.9em
-      line-height: 1.2em
-      color: var(--form-text-color)
-      white-space: nowrap
+    &--danger
+      color: var(--danger)
+
+    &--disabled
+      opacity: 0.5
+      cursor: not-allowed
 
       &:hover
-        background: var(--light-background-color)
+        background: transparent
 
-      &--danger
-        color: var(--danger)
+.noo-dropdown__fade-enter-active,
+.noo-dropdown__fade-leave-active
+  transition: opacity 0.12s ease-in-out, transform 0.12s ease-in-out
 
-      &--disabled
-        opacity: 0.5
-        cursor: not-allowed
-
-        &:hover
-          background: transparent
-
-  &__fade-enter-active,
-  &__fade-leave-active
-    transition: opacity 0.12s ease-in-out, transform 0.12s ease-in-out
-
-  &__fade-enter-from,
-  &__fade-leave-to
-    opacity: 0
-    transform: translateY(-0.25em)
+.noo-dropdown__fade-enter-from,
+.noo-dropdown__fade-leave-to
+  opacity: 0
+  transform: translateY(-0.25em)
 </style>

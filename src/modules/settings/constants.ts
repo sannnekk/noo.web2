@@ -1,4 +1,7 @@
+import type { UserRole } from '@/core/api/endpoints/auth.types'
 import type {
+  GoogleSheetsIntegrationRunState,
+  GoogleSheetsIntegrationSchedule,
   GoogleSheetsIntegrationStatus,
   GoogleSheetsIntegrationType
 } from './api/google-sheets.types'
@@ -7,24 +10,49 @@ import type {
   UserTheme
 } from '@/core/api/endpoints/user-settings.types'
 
-const googleSheetsIntegrationTypes: {
+interface GoogleSheetsIntegrationTypeOption {
   label: string
   value: GoogleSheetsIntegrationType
-}[] = [
-  { label: 'Пользователи курса', value: 'user-course' },
-  { label: 'Работы пользователя', value: 'user-work' },
-  { label: 'Пользователи по роли', value: 'user-role' },
-  { label: 'Результаты опроса', value: 'poll-results' }
+  description: string
+  /** Roles allowed to create this export. Mirrors the profile's AllowedRoles. */
+  roles: UserRole[]
+}
+
+const googleSheetsIntegrationTypes: GoogleSheetsIntegrationTypeOption[] = [
+  {
+    label: 'Пользователи',
+    value: 'users',
+    description: 'Можно ограничить ролью, курсом и датой регистрации',
+    roles: ['admin', 'teacher']
+  },
+  {
+    label: 'Курсы',
+    value: 'courses',
+    description: 'Можно ограничить предметом и датой создания',
+    roles: ['admin', 'teacher']
+  },
+  {
+    label: 'Результаты опроса',
+    value: 'poll-results',
+    description: 'Все ответы на выбранный опрос, по колонке на вопрос',
+    roles: ['admin', 'teacher']
+  },
+  {
+    label: 'Работы учеников',
+    value: 'assigned-works',
+    description: 'Работы одного ученика или все работы куратора',
+    roles: ['admin', 'teacher', 'mentor']
+  }
 ]
 
 const googleSheetsIntegrationTypeLabels: Record<
   GoogleSheetsIntegrationType,
   string
 > = {
-  'user-course': 'Пользователи курса',
-  'user-work': 'Работы пользователя',
-  'user-role': 'Пользователи по роли',
-  'poll-results': 'Результаты опроса'
+  users: 'Пользователи',
+  courses: 'Курсы',
+  'poll-results': 'Результаты опроса',
+  'assigned-works': 'Работы учеников'
 }
 
 const googleSheetsIntegrationStatusLabels: Record<
@@ -32,33 +60,40 @@ const googleSheetsIntegrationStatusLabels: Record<
   string
 > = {
   active: 'Активна',
-  inactive: 'Неактивна',
+  inactive: 'Отключена',
   error: 'Ошибка'
 }
 
-const googleSheetsIntegrationSelectorMeta: Record<
-  GoogleSheetsIntegrationType,
-  { placeholder: string; tooltip: string }
+const googleSheetsIntegrationRunStateLabels: Record<
+  GoogleSheetsIntegrationRunState,
+  string
 > = {
-  'user-course': {
-    placeholder: 'ID курса',
-    tooltip: 'ID курса, пользователей которого нужно экспортировать'
-  },
-  'user-work': {
-    placeholder: 'ID пользователя',
-    tooltip: 'ID пользователя, работы которого нужно экспортировать'
-  },
-  'user-role': {
-    placeholder: 'Название роли',
-    tooltip: 'Роль, пользователей которой нужно экспортировать'
-  },
-  'poll-results': {
-    placeholder: 'ID опроса',
-    tooltip: 'ID опроса, результаты которого нужно экспортировать'
-  }
+  idle: '',
+  queued: 'В очереди',
+  running: 'Выполняется'
 }
 
-const defaultGoogleSheetsCronPattern = '0 */6 * * *'
+const googleSheetsIntegrationSchedules: {
+  label: string
+  value: GoogleSheetsIntegrationSchedule
+}[] = [
+  { label: 'Вручную', value: 'manual' },
+  { label: 'Каждый час', value: 'hourly' },
+  { label: 'Каждый день', value: 'daily' },
+  { label: 'Каждую неделю', value: 'weekly' }
+]
+
+const googleSheetsIntegrationScheduleLabels: Record<
+  GoogleSheetsIntegrationSchedule,
+  string
+> = {
+  manual: 'Вручную',
+  hourly: 'Каждый час',
+  daily: 'Каждый день',
+  weekly: 'Каждую неделю'
+}
+
+const defaultGoogleSheetsSchedule: GoogleSheetsIntegrationSchedule = 'daily'
 
 const userThemeOptions: { label: string; value: UserTheme }[] = [
   { label: 'Светлая', value: 'light' },
@@ -84,11 +119,15 @@ const fontSizeLabels: Record<FontSize, string> = {
   large: 'Крупный'
 }
 
+export type { GoogleSheetsIntegrationTypeOption }
+
 export {
-  defaultGoogleSheetsCronPattern,
+  defaultGoogleSheetsSchedule,
   fontSizeLabels,
   fontSizeOptions,
-  googleSheetsIntegrationSelectorMeta,
+  googleSheetsIntegrationRunStateLabels,
+  googleSheetsIntegrationScheduleLabels,
+  googleSheetsIntegrationSchedules,
   googleSheetsIntegrationStatusLabels,
   googleSheetsIntegrationTypeLabels,
   googleSheetsIntegrationTypes,
