@@ -124,4 +124,81 @@ describe('AuthService', () => {
       expect(result).toEqual(mockSuccessResponse)
     })
   })
+
+  describe('getExternalProviders', () => {
+    it('should list the providers the server offers', async () => {
+      const spy = vi.spyOn(Api, 'get').mockResolvedValue(mockSuccessResponse)
+
+      const result = await AuthService.getExternalProviders()
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/providers')
+      expect(result).toEqual(mockSuccessResponse)
+    })
+  })
+
+  describe('startExternalAuth', () => {
+    it('should start a login through the given provider', async () => {
+      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+
+      const result = await AuthService.startExternalAuth({
+        provider: 'yandex',
+        returnUrl: '/courses'
+      })
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/yandex/start', {
+        returnUrl: '/courses'
+      })
+      expect(result).toEqual(mockSuccessResponse)
+    })
+
+    it('should start a link through a separate endpoint', async () => {
+      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+
+      await AuthService.startExternalLink({ provider: 'vk' })
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/vk/link/start', {
+        returnUrl: undefined
+      })
+    })
+  })
+
+  describe('completeExternalAuth', () => {
+    it('should forward the callback parameters untouched', async () => {
+      const spy = vi.spyOn(Api, 'post').mockResolvedValue(mockSuccessResponse)
+      const parameters = {
+        state: 'state-token',
+        code: 'auth-code',
+        device_id: '42'
+      }
+
+      const result = await AuthService.completeExternalAuth({
+        provider: 'vk',
+        parameters
+      })
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/vk/callback', {
+        parameters
+      })
+      expect(result).toEqual(mockSuccessResponse)
+    })
+  })
+
+  describe('linked identities', () => {
+    it('should list the identities of the current user', async () => {
+      const spy = vi.spyOn(Api, 'get').mockResolvedValue(mockSuccessResponse)
+
+      const result = await AuthService.getLinkedIdentities()
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/identities')
+      expect(result).toEqual(mockSuccessResponse)
+    })
+
+    it('should unlink a provider', async () => {
+      const spy = vi.spyOn(Api, 'delete').mockResolvedValue(mockSuccessResponse)
+
+      await AuthService.unlinkIdentity('yandex')
+
+      expect(spy).toHaveBeenCalledWith('/auth/external/identities/yandex')
+    })
+  })
 })

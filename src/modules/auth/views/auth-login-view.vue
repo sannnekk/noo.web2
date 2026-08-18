@@ -46,6 +46,28 @@
           Войти
         </noo-button>
       </div>
+      <div
+        v-if="authStore.externalProviders.data?.length"
+        class="auth-login-view__form__providers"
+      >
+        <noo-text-block
+          size="small"
+          align="center"
+          dimmed
+        >
+          или войдите через
+        </noo-text-block>
+        <noo-social-login-button
+          v-for="provider in authStore.externalProviders.data"
+          :key="provider.provider"
+          :provider="provider.provider"
+          :title="provider.displayName"
+          :is-loading="authStore.startExternalAuth.isLoading"
+          @click="
+            authStore.startExternalAuth.execute({ provider: provider.provider })
+          "
+        />
+      </div>
       <div class="auth-login-view__form__actions">
         <noo-text-block
           size="medium"
@@ -70,7 +92,7 @@
 import type { LoginPayload } from '@/core/api/endpoints/auth.types'
 import { AppConstants } from '@/core/config/constants.config'
 import { useAuthStore } from '@/core/stores/auth.store'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const loginPayload = ref<LoginPayload>({
   usernameOrEmail: '',
@@ -78,6 +100,8 @@ const loginPayload = ref<LoginPayload>({
 })
 
 const authStore = useAuthStore()
+
+onMounted(authStore.loadExternalProviders)
 </script>
 
 <style scoped lang="sass">
@@ -95,4 +119,11 @@ const authStore = useAuthStore()
 
         +mobile
           width: 100%
+
+    &__providers
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.5em
+      margin: 1em 0
 </style>

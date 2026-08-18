@@ -3,10 +3,15 @@ import { computed, shallowRef, type ComputedRef, type ShallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { AuthService } from '../api/endpoints/auth.service'
 import type {
+  ExternalAuthCallbackPayload,
+  ExternalAuthProviderInfo,
+  ExternalAuthResult,
+  ExternalAuthUrl,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
   ResetPasswordPayload,
+  StartExternalAuthPayload,
   UserRole
 } from '../api/endpoints/auth.types'
 import {
@@ -60,6 +65,27 @@ export interface AuthStore {
    */
   logoutInPlace: UseApiRequestReturn
   roleIsOneOf: (roles: UserRole[]) => boolean
+  /**
+   * The external providers this deployment can sign users in with. Empty until
+   * {@link AuthStore.loadExternalProviders} has run.
+   */
+  externalProviders: UseApiRequestReturn<void, ExternalAuthProviderInfo[]>
+  loadExternalProviders: () => Promise<void>
+  /** Sends the browser to the provider; the page navigates away on success. */
+  startExternalAuth: UseApiRequestReturn<
+    StartExternalAuthPayload,
+    ExternalAuthUrl
+  >
+  /** The same, for attaching a provider to the session already open. */
+  startExternalLink: UseApiRequestReturn<
+    StartExternalAuthPayload,
+    ExternalAuthUrl
+  >
+  /** Redeems the callback the provider sent the browser back with. */
+  completeExternalAuth: UseApiRequestReturn<
+    ExternalAuthCallbackPayload,
+    ExternalAuthResult
+  >
 }
 
 const useAuthStore = defineStore('global:auth', (): AuthStore => {
@@ -250,6 +276,74 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     }
   )
 
+  // external providers
+  const externalProviders = useApiRequest<void, ExternalAuthProviderInfo[]>(
+    AuthService.getExternalProviders
+  )
+
+  // The list changes only with a deployment, so one fetch per page load is
+  // enough however many screens ask for it.
+  async function loadExternalProviders(): Promise<void> {
+    if (externalProviders.data.value || externalProviders.isLoading.value) {
+      return
+    }
+
+    await externalProviders.execute()
+  }
+
+  const startExternalAuth = useApiRequest<
+    StartExternalAuthPayload,
+    ExternalAuthUrl
+  >(
+    (payload) =>
+      AuthService.startExternalAuth({
+        ...payload,
+        returnUrl: payload.returnUrl ?? redirect.value
+      }),
+    (response) => {
+      // A full-page redirect rather than a popup: popup blockers and mobile
+      // browsers break the popup, and there is no page state worth keeping.
+      window.location.assign(response.data.url)
+    },
+    (error) => {
+      globalUiStore.createApiErrorToast('Не удалось начать вход', error)
+    }
+  )
+
+  const startExternalLink = useApiRequest<
+    StartExternalAuthPayload,
+    ExternalAuthUrl
+  >(
+    AuthService.startExternalLink,
+    (response) => {
+      window.location.assign(response.data.url)
+    },
+    (error) => {
+      globalUiStore.createApiErrorToast('Не удалось привязать аккаунт', error)
+    }
+  )
+
+  const completeExternalAuth = useApiRequest<
+    ExternalAuthCallbackPayload,
+    ExternalAuthResult
+  >(
+    AuthService.completeExternalAuth,
+    (response) => {
+      const result = response.data
+
+      // Null for a link, where the session that started it is still open.
+      if (result.session) {
+        setSession(result.session)
+      }
+
+      // Replaced, not pushed: going back to a spent callback would only fail.
+      router.replace(result.returnUrl ?? { name: 'root' })
+    },
+    (error) => {
+      globalUiStore.createApiErrorToast('Не удалось завершить вход', error)
+    }
+  )
+
   // set initial state from cookies
   userId.value = CookieStorage.get<string>(CookieStorage.StorageAliases.userId)
   userRole.value = CookieStorage.get<UserRole>(
@@ -279,7 +373,12 @@ const useAuthStore = defineStore('global:auth', (): AuthStore => {
     verifyEmail,
     resetPassword,
     logout,
-    logoutInPlace
+    logoutInPlace,
+    externalProviders,
+    loadExternalProviders,
+    startExternalAuth,
+    startExternalLink,
+    completeExternalAuth
   }
 })
 

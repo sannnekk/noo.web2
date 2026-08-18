@@ -68,6 +68,8 @@ export type IconName =
   | 'pin'
   | 'cards'
   | 'archive'
+  | 'yandex'
+  | 'vk'
 
 interface Props {
   name: IconName

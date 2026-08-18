@@ -43,7 +43,9 @@ defineEmits<Emits>()
 
 const src = computed(() => {
   switch (props.avatar?.avatarType) {
+    // Both are a plain remote URL rather than an uploaded media object.
     case 'telegram':
+    case 'external':
       return props.avatar.avatarUrl
     case 'custom':
       return props.avatar.media?.url

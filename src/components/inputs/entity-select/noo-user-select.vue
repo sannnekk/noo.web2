@@ -65,7 +65,7 @@ const idsModel = defineModel<string | string[] | null>('ids', {
 })
 
 function toLabel(user: UserEntity): string {
-  return user.name || user.username || user.email || user.id
+  return user.name || user.username || (user.email ?? user.id)
 }
 
 async function fetchUsers(query: string): Promise<UserEntity[]> {

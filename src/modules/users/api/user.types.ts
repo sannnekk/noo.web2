@@ -5,7 +5,8 @@ import type { SubjectEntity } from '@/modules/subjects/api/subject.types'
 
 export interface UserEntity extends ApiEntity<'User'> {
   username: string
-  email: string
+  /** Null for accounts created through a provider that reported no address. */
+  email: string | null
   phone: string | null
   name: string
   telegramId: string | null
@@ -41,7 +42,7 @@ export interface UserAvatarEntity extends ApiEntity<'UserAvatar'> {
   media: MediaEntity | null
 }
 
-export type UserAvatarType = 'telegram' | 'custom' | 'none'
+export type UserAvatarType = 'telegram' | 'custom' | 'none' | 'external'
 
 export interface MentorAssignmentEntity extends ApiEntity<'MentorAssignment'> {
   studentId: string

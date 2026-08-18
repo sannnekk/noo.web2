@@ -80,6 +80,30 @@
           Зарегистрироваться
         </noo-button>
       </div>
+      <div
+        v-if="authStore.externalProviders.data?.length"
+        class="auth-register-view__form__providers"
+      >
+        <noo-text-block
+          size="small"
+          align="center"
+          dimmed
+        >
+          или зарегистрируйтесь через
+        </noo-text-block>
+        <noo-social-login-button
+          v-for="provider in authStore.externalProviders.data"
+          :key="provider.provider"
+          :provider="provider.provider"
+          :title="provider.displayName"
+          :is-loading="authStore.startExternalAuth.isLoading"
+          @click="
+            authStore.startExternalAuth.execute({ provider: provider.provider })
+          "
+        >
+          Продолжить с {{ provider.displayName }}
+        </noo-social-login-button>
+      </div>
       <div class="auth-register-view__form__actions">
         <noo-text-block
           size="medium"
@@ -112,9 +136,11 @@ import {
   isValidUsername
 } from '@/core/validators/string.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const authStore = useAuthStore()
+
+onMounted(authStore.loadExternalProviders)
 
 const registerPayload = ref<RegisterPayload>({
   name: '',
@@ -167,4 +193,11 @@ function arePasswordsEqual(): ValidationError[] | true {
       button
         width: 100%
         margin: 0 auto
+
+    &__providers
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 0.5em
+      margin: 1em 0
 </style>

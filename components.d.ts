@@ -155,6 +155,7 @@ declare module 'vue' {
     NooSidebarLayout: typeof import('./src/components/layout/noo-sidebar-layout.vue')['default']
     NooSidebarSkeleton: typeof import('./src/components/utils/noo-sidebar-skeleton.vue')['default']
     NooSnippetCard: typeof import('./src/components/cards/noo-snippet-card.vue')['default']
+    NooSocialLoginButton: typeof import('./src/components/buttons/noo-social-login-button.vue')['default']
     NooSolveStatusTag: typeof import('./src/components/tags/noo-solve-status-tag.vue')['default']
     NooSubjectBlock: typeof import('./src/components/blocks/noo-subject-block.vue')['default']
     NooSubjectSelect: typeof import('./src/components/inputs/entity-select/noo-subject-select.vue')['default']
@@ -231,6 +232,8 @@ declare module 'vue' {
     UserIcon: typeof import('./src/components/icons/noo-icons/user-icon.vue')['default']
     UsersIcon: typeof import('./src/components/icons/noo-icons/users-icon.vue')['default']
     VideoIcon: typeof import('./src/components/icons/text-format-icons/video-icon.vue')['default']
+    VkIcon: typeof import('./src/components/icons/noo-icons/vk-icon.vue')['default']
     WelcomeIcon: typeof import('./src/components/icons/noo-icons/welcome-icon.vue')['default']
+    YandexIcon: typeof import('./src/components/icons/noo-icons/yandex-icon.vue')['default']
   }
 }

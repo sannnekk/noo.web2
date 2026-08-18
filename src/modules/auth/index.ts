@@ -1,9 +1,30 @@
+import type { ExternalAuthProvider } from '@/core/api/endpoints/auth.types'
 import NoLayout from '@/layouts/no-layout.vue'
 import type { ApplicationModule } from '@/types/ApplicationModule'
 
 const module: ApplicationModule = {
   name: 'auth',
   routes: [
+    {
+      // Where the external providers return the browser. A sibling of `auth`
+      // rather than a child, because the marketing shell around the auth pages
+      // has nothing to show here — and `noAuth`, or the guard would bounce the
+      // page and drop the authorization code with it.
+      name: 'auth.callback',
+      path: '/auth/callback/:provider',
+      meta: {
+        pageTitle: 'Вход',
+        tabTitle: 'Вход',
+        layout: NoLayout,
+        noAuth: true
+      },
+      props: (route) => {
+        return {
+          provider: route.params.provider as ExternalAuthProvider
+        }
+      },
+      component: () => import('./pages/auth-callback-page.vue')
+    },
     {
       name: 'auth',
       path: '/auth',
