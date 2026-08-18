@@ -6940,7 +6940,9 @@ components:
       enum:
         - not-checked
         - in-progress
-        - checked
+        - checked-in-deadline
+        - checked-after-deadline
+        - checked-automatically
       type: string
     AssignedWorkDTO:
       required:
@@ -7168,7 +7170,8 @@ components:
       enum:
         - not-solved
         - in-progress
-        - solved
+        - solved-in-deadline
+        - solved-after-deadline
       type: string
     AssignedWorksCounts:
       required:

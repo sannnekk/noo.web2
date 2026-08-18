@@ -138,6 +138,7 @@ import { useGlobalUIStore } from '@/core/stores/global-ui.store.ts'
 import { useRouter } from 'vue-router'
 import type { AssignedWorkViewMode } from '@/modules/assigned-works/types.ts'
 import { getLastAttempt } from '../utils.ts'
+import { workIsSolved } from '@/modules/assigned-works/utils.ts'
 
 interface Props {
   workAssignment: CourseWorkAssignmentEntity
@@ -180,7 +181,7 @@ async function toWorkClick() {
 
   if (lastAttempt) {
     assignedWorkId = lastAttempt.assignedWorkId
-    mode = lastAttempt.solveStatus == 'solved' ? 'read' : 'solve'
+    mode = workIsSolved(lastAttempt.solveStatus) ? 'read' : 'solve'
   } else {
     isLoading.value = true
     const response = await AssignedWorkService.create(props.workAssignment.id)

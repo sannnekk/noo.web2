@@ -63,7 +63,7 @@
       </div>
       <div class="assigned-work-sidebar__info__line">
         <noo-text-block
-          v-if="assignedWorkDetailStore.assignedWork.solveStatus === 'solved'"
+          v-if="assignedWorkDetailStore.workIsSolved"
           dimmed
           size="small"
         >

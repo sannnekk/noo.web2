@@ -28,6 +28,7 @@ import type {
 } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
 import type { AssignedWorkViewMode, PossiblyUnsavedAnswer } from '../types'
+import { workIsChecked as isChecked, workIsSolved as isSolved } from '../utils'
 
 /**
  * Debounce window (ms) after the last answer change before autosave runs.
@@ -659,15 +660,15 @@ const useAssignedWorkDetailStore = defineStore(
     /**
      * Checks if the work is solved or not.
      */
-    const workIsSolved = computed<boolean>(
-      () => assignedWork.value?.solveStatus === 'solved'
+    const workIsSolved = computed<boolean>(() =>
+      isSolved(assignedWork.value?.solveStatus)
     )
 
     /**
      * Checks if the work is checked or not.
      */
-    const workIsChecked = computed<boolean>(
-      () => assignedWork.value?.checkStatus === 'checked'
+    const workIsChecked = computed<boolean>(() =>
+      isChecked(assignedWork.value?.checkStatus)
     )
 
     /**

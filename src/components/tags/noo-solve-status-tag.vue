@@ -1,46 +1,36 @@
 <template>
   <div
-    class="noo-assigned-work-solve-status"
-    :class="{
-      'noo-assigned-work-solve-status--not-solved':
-        props.status === 'not-solved',
-      'noo-assigned-work-solve-status--in-progress':
-        props.status === 'in-progress',
-      'noo-assigned-work-solve-status--solved': props.status === 'solved'
-    }"
+    class="noo-solve-status-tag"
+    :class="`noo-solve-status-tag--${props.status}`"
   >
-    <span class="assigned-work-solve-solve-status__text">
+    <span class="noo-solve-status-tag__text">
       {{ statusText }}
     </span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { AssignedWorkEntity } from '@/modules/assigned-works/api/assigned-work.types'
+import type { SolveStatus } from '@/modules/assigned-works/api/assigned-work.types'
 import { computed } from 'vue'
 
 interface Props {
-  status: AssignedWorkEntity['solveStatus']
+  status: SolveStatus
 }
 
 const props = defineProps<Props>()
 
-const statusText = computed(() => {
-  switch (props.status) {
-    case 'not-solved':
-      return 'Не начата'
-    case 'in-progress':
-      return 'В процессе'
-    case 'solved':
-      return 'Сдана'
-    default:
-      return 'неизвестно'
-  }
-})
+const statusTexts: Record<SolveStatus, string> = {
+  'not-solved': 'Не начата',
+  'in-progress': 'В процессе',
+  'solved-in-deadline': 'Сдана в дедлайн',
+  'solved-after-deadline': 'Сдана после дедлайна'
+}
+
+const statusText = computed(() => statusTexts[props.status] ?? 'неизвестно')
 </script>
 
 <style lang="sass" scoped>
-.noo-assigned-work-solve-status
+.noo-solve-status-tag
   display: inline-block
   font-weight: normal
 
@@ -50,6 +40,9 @@ const statusText = computed(() => {
   &--in-progress
     color: var(--warning)
 
-  &--solved
+  &--solved-in-deadline
     color: var(--success)
+
+  &--solved-after-deadline
+    color: var(--danger)
 </style>

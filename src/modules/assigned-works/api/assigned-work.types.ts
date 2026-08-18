@@ -3,9 +3,15 @@ import type { IRichText } from '@/core/utils/richtext.utils'
 import type { UserEntity } from '@/modules/users/api/user.types'
 import type { WorkEntity, WorkType } from '@/modules/works/api/work.types'
 
-export type SolveStatus = 'not-solved' | 'in-progress' | 'solved'
+export type SolveStatus =
+  'not-solved' | 'in-progress' | 'solved-in-deadline' | 'solved-after-deadline'
 
-export type CheckStatus = 'not-checked' | 'in-progress' | 'checked'
+export type CheckStatus =
+  | 'not-checked'
+  | 'in-progress'
+  | 'checked-in-deadline'
+  | 'checked-after-deadline'
+  | 'checked-automatically'
 
 export interface DeadlineShiftHistory {
   shiftedAt: Date

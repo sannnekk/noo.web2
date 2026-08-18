@@ -10100,7 +10100,7 @@ export interface components {
         /** @enum {string} */
         AssignedWorkAnswerStatus: "not-submitted" | "submitted" | "checked";
         /** @enum {string} */
-        AssignedWorkCheckStatus: "not-checked" | "in-progress" | "checked";
+        AssignedWorkCheckStatus: "not-checked" | "in-progress" | "checked-in-deadline" | "checked-after-deadline" | "checked-automatically";
         AssignedWorkDTO: {
             readonly _entityName: string;
             id: components["schemas"]["Ulid"];
@@ -10195,7 +10195,7 @@ export interface components {
             meta?: unknown;
         };
         /** @enum {string} */
-        AssignedWorkSolveStatus: "not-solved" | "in-progress" | "solved";
+        AssignedWorkSolveStatus: "not-solved" | "in-progress" | "solved-in-deadline" | "solved-after-deadline";
         AssignedWorksCounts: {
             /** Format: int32 */
             all: number;
