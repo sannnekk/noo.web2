@@ -52,9 +52,11 @@ export const appConfig: AppConfig = Object.freeze({
   cdnUrl: isProduction
     ? 'https://cdn.noo-school.ru/uploads'
     : 'http://localhost:5050',
+  // Must match the dev server port in vite.config.ts and the API's App:BaseUrl:
+  // Yandex ID checks the redirect URI's scheme, host, port and path exactly.
   appUrl: isProduction
     ? 'https://new-alpha.noo-school.ru'
-    : 'http://localhost:5173',
+    : 'http://localhost:5189',
   apiUrl: isProduction
     ? 'https://api.new-alpha.noo-school.ru'
     : 'http://localhost:5001',

@@ -17,15 +17,17 @@ paths:
         - name: Type
           in: query
           schema:
-            $ref: "#/components/schemas/WorkType"
-        - name: SolveStatus
+            type: array
+            items:
+              $ref: "#/components/schemas/WorkType"
+        - name: Tab
           in: query
+          description: |-
+            Which slice of the list to return. Not an ordinary property filter: the tab
+            predicate is shared with the tab counters, so it is applied by
+            `AssignedWorkSearchSpecification` instead of being built from this property.
           schema:
-            $ref: "#/components/schemas/AssignedWorkSolveStatus"
-        - name: CheckStatus
-          in: query
-          schema:
-            $ref: "#/components/schemas/AssignedWorkCheckStatus"
+            $ref: "#/components/schemas/AssignedWorkListTab"
         - name: MentorId
           in: query
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
@@ -335,10 +337,8 @@ paths:
       summary: |-
         Gets the progress of an assigned work by its ID.
         Used when loading the whole assigned work is not needed.
-      description: >-
-        It returns an array of progress because there can be multiple
-        AssignedWork's as separate attempts
-
+      description: |-
+        It returns an array of progress because there can be multiple AssignedWork's as separate attempts
         for one WorkAssignment.
       parameters:
         - name: workAssignmentId
@@ -444,8 +444,9 @@ paths:
         or by mentors to save their comments on the assigned work.
         If the answer already exists, it will be updated.
         If the answer does not exist, it will be created.
-      description: It will also update the status of the assigned work to "In
-        Progress" if it was not already.
+      description:
+        It will also update the status of the assigned work to "In Progress"
+        if it was not already.
       parameters:
         - name: assignedWorkId
           in: path
@@ -499,17 +500,14 @@ paths:
     post:
       tags:
         - AssignedWork
-      summary: >-
+      summary: |-
         Saves a comment to an assigned work.
-
-        This is used by both students and mentors to comment on an assigned
-        work.
-
+        This is used by both students and mentors to comment on an assigned work.
         If the comment already exists, it will be updated.
-
         If the comment does not exist, it will be created.
-      description: It will also update the status of the assigned work to "In
-        Progress" if it was not already.
+      description:
+        It will also update the status of the assigned work to "In Progress"
+        if it was not already.
       parameters:
         - name: assignedWorkId
           in: path
@@ -646,12 +644,9 @@ paths:
       tags:
         - AssignedWork
       summary: Archives an assigned work.
-      description: >-
-        There is an archived flag in the assigned work for the following roles:
-        student, mentor, and assistant.
-
-        Toggling the archived flag for mentors will not affect the archived flag
-        for students and assistants and so on.
+      description: |-
+        There is an archived flag in the assigned work for the following roles: student, mentor, and assistant.
+        Toggling the archived flag for mentors will not affect the archived flag for students and assistants and so on.
       parameters:
         - name: assignedWorkId
           in: path
@@ -693,12 +688,9 @@ paths:
       tags:
         - AssignedWork
       summary: unarchives an assigned work.
-      description: >-
-        There is an archived flag in the assigned work for the following roles:
-        student, mentor, and assistant.
-
-        Toggling the archived flag for mentors will not affect the archived flag
-        for students and assistants and so on.
+      description: |-
+        There is an archived flag in the assigned work for the following roles: student, mentor, and assistant.
+        Toggling the archived flag for mentors will not affect the archived flag for students and assistants and so on.
       parameters:
         - name: assignedWorkId
           in: path
@@ -739,7 +731,8 @@ paths:
     patch:
       tags:
         - AssignedWork
-      summary: Adds a helper mentor to the assigned work so that they both can check
+      summary:
+        Adds a helper mentor to the assigned work so that they both can check
         the assigned work.
       parameters:
         - name: assignedWorkId
@@ -896,11 +889,9 @@ paths:
     patch:
       tags:
         - AssignedWork
-      summary: >-
+      summary: |-
         Changes the solve status of the assigned work back to in progress.
-
-        This is usually used when the assigned work was marked as solved by
-        mistake.
+        This is usually used when the assigned work was marked as solved by mistake.
       parameters:
         - name: assignedWorkId
           in: path
@@ -941,11 +932,9 @@ paths:
     patch:
       tags:
         - AssignedWork
-      summary: >-
+      summary: |-
         Changes the check status of the assigned work back to in progress.
-
-        This is usually used when the assigned work was marked as checked by
-        mistake.
+        This is usually used when the assigned work was marked as checked by mistake.
       parameters:
         - name: assignedWorkId
           in: path
@@ -1027,13 +1016,10 @@ paths:
     post:
       tags:
         - Auth
-      summary: >-
+      summary: |-
         Exchanges the httpOnly refresh-token cookie for a new access token,
-
         rotating the refresh token. Returns 401 if the refresh token is missing,
-
-        expired, or has already been used (in which case the session is
-        revoked).
+        expired, or has already been used (in which case the session is revoked).
       responses:
         "200":
           description: OK
@@ -1051,11 +1037,9 @@ paths:
     post:
       tags:
         - Auth
-      summary: >-
+      summary: |-
         Registers a new user with the provided details.
-
-        During registration, an email verification token is sent to the user's
-        email address.
+        During registration, an email verification token is sent to the user's email address.
       requestBody:
         content:
           application/json:
@@ -1108,7 +1092,8 @@ paths:
     patch:
       tags:
         - Auth
-      summary: Requests a password change by sending a reset token to the user's email
+      summary:
+        Requests a password change by sending a reset token to the user's email
         address.
       requestBody:
         content:
@@ -1142,8 +1127,9 @@ paths:
     patch:
       tags:
         - Auth
-      summary: Confirms a password change by validating the reset token and setting a
-        new password.
+      summary:
+        Confirms a password change by validating the reset token and setting
+        a new password.
       requestBody:
         content:
           application/json:
@@ -1176,11 +1162,9 @@ paths:
     patch:
       tags:
         - Auth
-      summary: >-
+      summary: |-
         Confirms an email change by validating the confirmation token.
-
-        This endpoint is used to finalize the email change process after the
-        user has requested it.
+        This endpoint is used to finalize the email change process after the user has requested it.
       requestBody:
         content:
           application/json:
@@ -1344,8 +1328,7 @@ paths:
     get:
       tags:
         - Course
-      summary: Retrieves a course and its chapter/material tree by its unique
-        identifier.
+      summary: Retrieves a course and its chapter/material tree by its unique identifier.
       parameters:
         - name: courseId
           in: path
@@ -1533,16 +1516,26 @@ paths:
           in: query
           schema:
             type: string
-        - name: CreatedAt
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
           in: query
           schema:
             type: string
             format: date-time
         - name: SubjectId
           in: query
-          description: Universally Unique Lexicographically Sortable Identifier (ULID).
           schema:
-            $ref: "#/components/schemas/Ulid"
+            type: array
+            items:
+              $ref: "#/components/schemas/Ulid"
+        - name: IsArchived
+          in: query
+          schema:
+            type: boolean
         - name: Authors.Search
           in: query
           schema:
@@ -1550,7 +1543,24 @@ paths:
         - name: Authors.Role
           in: query
           schema:
-            $ref: "#/components/schemas/UserRoles"
+            type: array
+            items:
+              $ref: "#/components/schemas/UserRoles"
+        - name: Authors.CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: Authors.CreatedAt.Max
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: AuthorId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
         - name: Page
           in: query
           schema:
@@ -1638,6 +1648,139 @@ paths:
                 $ref: "#/components/schemas/SerializedNooException"
         "403":
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/{courseId}/archive:
+    patch:
+      tags:
+        - Course
+      summary: Archives a course.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/{courseId}/unarchive:
+    patch:
+      tags:
+        - Course
+      summary: Restores a course from the archive.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/{courseId}/material/{materialId}/reaction:
+    patch:
+      tags:
+        - Course
+      summary: Toggles the current student's reaction on a course material.
+      parameters:
+        - name: courseId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: materialId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: reaction
+          in: query
+          schema:
+            $ref: "#/components/schemas/CourseMaterialReactionTypes"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1768,6 +1911,14 @@ paths:
           in: query
           schema:
             type: boolean
+        - name: IsArchivedByStudent
+          in: query
+          schema:
+            type: boolean
+        - name: IsPinnedByStudent
+          in: query
+          schema:
+            type: boolean
         - name: Page
           in: query
           schema:
@@ -1859,6 +2010,170 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /course/membership/{membershipId}/archive:
+    patch:
+      tags:
+        - Course
+      summary: Archives a course membership for the current student.
+      parameters:
+        - name: membershipId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/membership/{membershipId}/unarchive:
+    patch:
+      tags:
+        - Course
+      summary: Restores a course membership from the archive for the current student.
+      parameters:
+        - name: membershipId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/membership/{membershipId}/pin:
+    patch:
+      tags:
+        - Course
+      summary: Pins a course membership for the current student.
+      parameters:
+        - name: membershipId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /course/membership/{membershipId}/unpin:
+    patch:
+      tags:
+        - Course
+      summary: Unpins a course membership for the current student.
+      parameters:
+        - name: membershipId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /course/membership/{membershipId}:
     delete:
       tags:
@@ -1894,22 +2209,253 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /auth/external/providers:
+    get:
+      tags:
+        - ExternalAuth
+      summary: Lists the providers this environment can sign users in with.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalAuthProviderDTOIEnumerableApiResponseDTO"
+  /auth/external/{provider}/start:
+    post:
+      tags:
+        - ExternalAuth
+      summary:
+        Starts a login through the given provider and returns the URL to redirect
+        the browser to.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ExternalAuthProviderType"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalAuthUrlDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/external/{provider}/link/start:
+    post:
+      tags:
+        - ExternalAuth
+      summary: Starts linking the given provider to the account of the caller.
+      description: |-
+        A separate endpoint from the login start so the intent rides on the authorization
+        requirement instead of an optional bearer token.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ExternalAuthProviderType"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/StartExternalAuthDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalAuthUrlDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/external/{provider}/callback:
+    post:
+      tags:
+        - ExternalAuth
+      summary: Redeems the callback the provider sent the browser back with.
+      description: |-
+        Anonymous because a login callback has no session yet; the intent comes from the
+        server-side challenge, never from the request.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ExternalAuthProviderType"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExternalAuthCallbackDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/ExternalAuthCallbackDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/ExternalAuthCallbackDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalAuthResultDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/external/identities:
+    get:
+      tags:
+        - ExternalAuth
+      summary: Lists the providers linked to the account of the caller.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkedIdentityDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /auth/external/identities/{provider}:
+    delete:
+      tags:
+        - ExternalAuth
+      summary: Unlinks a provider from the account of the caller.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ExternalAuthProviderType"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /google-sheets/oauth-url:
+    get:
+      tags:
+        - GoogleSheetsIntegration
+      summary: Builds the Google consent URL to open before creating an integration.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoogleOAuthUrlDTOApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /google-sheets:
     get:
       tags:
         - GoogleSheetsIntegration
-      summary: Retrieves a list of Google Sheets integrations based on the provided
-        criteria.
+      summary: Retrieves Google Sheets integrations. Mentors only ever see their own.
       parameters:
         - name: Search
           in: query
           schema:
             type: string
-        - name: Entity
+        - name: Type
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/GoogleSheetsIntegrationType"
+        - name: Status
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/GoogleSheetsIntegrationStatus"
+        - name: LastRunAt.Min
           in: query
           schema:
             type: string
-        - name: LastRunAt
+            format: date-time
+        - name: LastRunAt.Max
           in: query
           schema:
             type: string
@@ -1968,7 +2514,9 @@ paths:
     post:
       tags:
         - GoogleSheetsIntegration
-      summary: Creates a new Google Sheets integration.
+      summary:
+        Creates a new Google Sheets integration from a freshly granted Google
+        consent.
       requestBody:
         content:
           application/json:
@@ -2005,11 +2553,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /google-sheets/{integrationId}/run:
-    post:
+  /google-sheets/{integrationId}:
+    patch:
       tags:
         - GoogleSheetsIntegration
-      summary: Runs a Google Sheets integration by its ID.
+      summary: Changes an integration's name, schedule, or enabled state.
+      parameters:
+        - name: integrationId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGoogleSheetsIntegrationDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGoogleSheetsIntegrationDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateGoogleSheetsIntegrationDTO"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    delete:
+      tags:
+        - GoogleSheetsIntegration
+      summary:
+        Deletes a Google Sheets integration. The spreadsheet itself is left
+        untouched.
       parameters:
         - name: integrationId
           in: path
@@ -2046,11 +2647,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /google-sheets/{integrationId}:
-    delete:
+  /google-sheets/{integrationId}/run:
+    post:
       tags:
         - GoogleSheetsIntegration
-      summary: Deletes a Google Sheets integration by its ID.
+      summary: |-
+        Queues an integration to run. The export itself happens in the background, so this
+        returns as soon as the run is scheduled rather than when the sheet is written.
       parameters:
         - name: integrationId
           in: path
@@ -2059,8 +2662,8 @@ paths:
           schema:
             $ref: "#/components/schemas/Ulid"
       responses:
-        "204":
-          description: No Content
+        "202":
+          description: Accepted
           content:
             application/json: {}
         "400":
@@ -2081,11 +2684,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /nootube/webhooks/kinescope:
     post:
       tags:
         - KinescopeWebhook
-      summary: Receives Kinescope webhook notifications (e.g. video processing status
+      summary:
+        Receives Kinescope webhook notifications (e.g. video processing status
         changes).
       parameters:
         - name: secret
@@ -2108,7 +2718,8 @@ paths:
     post:
       tags:
         - Media
-      summary: Issue a presigned upload URL plus the headers the client must include
+      summary:
+        Issue a presigned upload URL plus the headers the client must include
         on the PUT.
       requestBody:
         content:
@@ -2212,10 +2823,8 @@ paths:
     get:
       tags:
         - Media
-      summary: >-
-        Issue a short-lived presigned download URL after enforcing every access
-        rule
-
+      summary: |-
+        Issue a short-lived presigned download URL after enforcing every access rule
         registered for this media's category.
       parameters:
         - name: mediaId
@@ -2288,19 +2897,12 @@ paths:
     get:
       tags:
         - Media
-      summary: >-
-        Stable, embeddable URL for a media file. Enforces the same access rules
-        as
-
-        M:Noo.Api.Media.MediaController.GetDownloadUrlAsync(System.Ulid,System.Threading.CancellationToken),
-        then 302-redirects to a freshly presigned
-
-        download URL. The redirect is never cached, so each load resolves a
-        valid URL.
-      description: >-
-        Accepts the bearer header (for API/Swagger callers) or the httpOnly
-        media
-
+      summary: |-
+        Stable, embeddable URL for a media file. Enforces the same access rules as
+        M:Noo.Api.Media.MediaController.GetDownloadUrlAsync(System.Ulid,System.Threading.CancellationToken), then 302-redirects to a freshly presigned
+        download URL. The redirect is never cached, so each load resolves a valid URL.
+      description: |-
+        Accepts the bearer header (for API/Swagger callers) or the httpOnly media
         cookie, which the browser attaches to plain `<img>` requests.
       parameters:
         - name: mediaId
@@ -2342,7 +2944,12 @@ paths:
           in: query
           schema:
             type: string
-        - name: CreatedAt
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
           in: query
           schema:
             type: string
@@ -2404,12 +3011,9 @@ paths:
     post:
       tags:
         - Nootube
-      summary: >-
-        Creates a video and initializes an upload on the configured video
-        engine.
-
-        Returns the upload URL the client should stream the file to (e.g. a tus
-        endpoint).
+      summary: |-
+        Creates a video and initializes an upload on the configured video engine.
+        Returns the upload URL the client should stream the file to (e.g. a tus endpoint).
       requestBody:
         content:
           application/json:
@@ -2580,11 +3184,67 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /nootube/{videoId}/statistics:
+    get:
+      tags:
+        - Nootube
+      summary: |-
+        Gets playback statistics for a video over an optional period
+        (defaults to the video's whole lifetime).
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoStatisticsDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
   /nootube/{videoId}/finish:
     post:
       tags:
         - Nootube
-      summary: Marks a video upload as finished and syncs its metadata from the video
+      summary:
+        Marks a video upload as finished and syncs its metadata from the video
         engine.
       parameters:
         - name: videoId
@@ -2623,6 +3283,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
   /nootube/{videoId}/reaction:
+    get:
+      tags:
+        - Nootube
+      summary: |-
+        Gets the reactions of all users on a video together with the reaction of
+        the current user. Reaction counts are visible to everyone.
+      parameters:
+        - name: videoId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NooTubeVideoReactionsDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
     patch:
       tags:
         - Nootube
@@ -3210,12 +3914,22 @@ paths:
           in: query
           schema:
             type: string
-        - name: CreatedAt
+        - name: CreatedAt.Min
           in: query
           schema:
             type: string
             format: date-time
-        - name: UpdatedAt
+        - name: CreatedAt.Max
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: UpdatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: UpdatedAt.Max
           in: query
           schema:
             type: string
@@ -3320,7 +4034,9 @@ paths:
     get:
       tags:
         - Poll
-      summary: Get a paginated list of polls a specific user has participated in.
+      summary:
+        Get a paginated list of the polls a specific user has participated
+        in, as their participations.
       parameters:
         - name: userId
           in: path
@@ -3330,26 +4046,33 @@ paths:
             $ref: "#/components/schemas/Ulid"
         - name: Search
           in: query
+          description: |-
+            Matched against whatever identifies a participation in the list being read: the
+            participant when the list is a poll's results, the poll when it is a user's own
+            participations. Both sit on a related entity, and CompareTo silently drops
+            property paths it cannot resolve on the filtered entity, so the search is applied
+            by the specification of the respective list.
           schema:
             type: string
-        - name: CreatedAt
+        - name: PollId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: UserType
+          in: query
+          schema:
+            $ref: "#/components/schemas/ParticipatingUserType"
+        - name: CreatedAt.Min
           in: query
           schema:
             type: string
             format: date-time
-        - name: UpdatedAt
+        - name: CreatedAt.Max
           in: query
           schema:
             type: string
             format: date-time
-        - name: IsActive
-          in: query
-          schema:
-            type: boolean
-        - name: IsAuthRequired
-          in: query
-          schema:
-            type: boolean
         - name: Page
           in: query
           schema:
@@ -3368,12 +4091,9 @@ paths:
           in: query
           schema:
             enum:
-              - Title
-              - Description
+              - PollId
+              - UserType
               - CreatedAt
-              - UpdatedAt
-              - IsActive
-              - IsAuthRequired
             type: string
         - name: CombineWith
           in: query
@@ -3385,7 +4105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PollDTOIEnumerableApiResponseDTO"
+                $ref: "#/components/schemas/PollParticipationDTOIEnumerableApiResponseDTO"
         "401":
           description: Unauthorized
           content:
@@ -3540,6 +4260,12 @@ paths:
             $ref: "#/components/schemas/Ulid"
         - name: Search
           in: query
+          description: |-
+            Matched against whatever identifies a participation in the list being read: the
+            participant when the list is a poll's results, the poll when it is a user's own
+            participations. Both sit on a related entity, and CompareTo silently drops
+            property paths it cannot resolve on the filtered entity, so the search is applied
+            by the specification of the respective list.
           schema:
             type: string
         - name: PollId
@@ -3551,7 +4277,12 @@ paths:
           in: query
           schema:
             $ref: "#/components/schemas/ParticipatingUserType"
-        - name: CreatedAt
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
           in: query
           schema:
             type: string
@@ -3756,6 +4487,333 @@ paths:
                 $ref: "#/components/schemas/SerializedNooException"
         "404":
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task:
+    get:
+      tags:
+        - SavedTask
+      summary: Get a paginated list of the authenticated student's saved tasks.
+      parameters:
+        - name: Search
+          in: query
+          description: |-
+            Matched against the work's title and its subject's name. Both sit behind
+            the task rather than on the saved task itself, and CompareTo only
+            resolves properties of the filtered entity, so the search is applied by
+            Noo.Api.SavedTasks.Specifications.SavedTaskSpecification.
+          schema:
+            type: string
+        - name: SubjectId
+          in: query
+          description: |-
+            Subjects to keep. Behind the task like the search is, so it is applied by
+            the specification too.
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Ulid"
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedTaskDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+    post:
+      tags:
+        - SavedTask
+      summary: Save a task of a checked assigned work of the authenticated student.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavedTaskDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavedTaskDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateSavedTaskDTO"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponseDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task/reference:
+    get:
+      tags:
+        - SavedTask
+      summary: |-
+        Get the authenticated student's saved tasks as bare references,
+        optionally only the ones saved from one assigned work.
+      description: |-
+        Lets a work page tell saved tasks from unsaved ones without pulling the
+        saved tasks themselves, content and all.
+      parameters:
+        - name: assignedWorkId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedTaskReferenceDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task/subject:
+    get:
+      tags:
+        - SavedTask
+      summary: |-
+        Get the subjects the authenticated student has saved tasks on, with how
+        many on each. What a quiz is set up from.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedTaskSubjectDTOIEnumerableApiResponseDTO"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task/quiz:
+    get:
+      tags:
+        - SavedTask
+      summary: |-
+        Get a random deck of the authenticated student's saved tasks to run a
+        quiz on, optionally drawn from one subject only.
+      parameters:
+        - name: subjectId
+          in: query
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: count
+          in: query
+          schema:
+            maximum: 50
+            minimum: 5
+            type: integer
+            format: int32
+            default: 5
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedTaskDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task/{savedTaskId}/check:
+    post:
+      tags:
+        - SavedTask
+      summary: Check an answer to one saved task against its answer key.
+      parameters:
+        - name: savedTaskId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckSavedTaskAnswerDTO"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CheckSavedTaskAnswerDTO"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CheckSavedTaskAnswerDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedTaskAnswerCheckDTOApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /saved-task/{savedTaskId}:
+    delete:
+      tags:
+        - SavedTask
+      summary: Remove a saved task.
+      parameters:
+        - name: savedTaskId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -4101,8 +5159,9 @@ paths:
       tags:
         - Statistics
       summary: Retrieves the statistics of a specific student.
-      description: It returns 404 only if the student does not exist or is not a
-        student or a mentor.
+      description:
+        It returns 404 only if the student does not exist or is not a student
+        or a mentor.
       parameters:
         - name: userId
           in: path
@@ -4597,7 +5656,19 @@ paths:
         - name: Role
           in: query
           schema:
-            $ref: "#/components/schemas/UserRoles"
+            type: array
+            items:
+              $ref: "#/components/schemas/UserRoles"
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
+          in: query
+          schema:
+            type: string
+            format: date-time
         - name: Page
           in: query
           schema:
@@ -4807,12 +5878,11 @@ paths:
     patch:
       tags:
         - User
-      summary: >-
+      summary: |-
         Changes the role of a user by their unique identifier.
-
-        Only possible to change role if the user is a student, otherwise it will
-        throw a conflict error.
-      description: After role change, all the user sessions will be invalidated, the
+        Only possible to change role if the user is a student, otherwise it will throw a conflict error.
+      description:
+        After role change, all the user sessions will be invalidated, the
         user will be logged out.
       parameters:
         - name: userId
@@ -4990,13 +6060,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /user/{studentId}/mentor-assignment:
+  /user/{userId}/mentor-assignment:
     get:
       tags:
         - User
       summary: Retrieves a student's mentor assignments by their unique identifier.
       parameters:
-        - name: studentId
+        - name: userId
           in: path
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
@@ -5068,13 +6138,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
-  /user/{mentorId}/student-assignment:
+  /user/{userId}/student-assignment:
     get:
       tags:
         - User
       summary: Retrieves a mentor's assignments by their unique identifier.
       parameters:
-        - name: mentorId
+        - name: userId
           in: path
           description: Universally Unique Lexicographically Sortable Identifier (ULID).
           required: true
@@ -5151,8 +6221,9 @@ paths:
       tags:
         - User
       summary: Assigns a mentor to a student for a specific subject.
-      description: If a user already has a mentor assigned for the subject, it will be
-        unassigned and a new one will be assigned.
+      description:
+        If a user already has a mentor assigned for the subject, it will
+        be unassigned and a new one will be assigned.
       parameters:
         - name: studentId
           in: path
@@ -5254,12 +6325,9 @@ paths:
       tags:
         - User
       summary: Deletes a current user.
-      description: >-
-        The user is only soft-deleted, meaning their data is retained but they
-        can no longer log in and do not appear in user searches.
-
-        Also, the personal data of the user (such as email and name) will be
-        anonymized to protect their privacy
+      description: |-
+        The user is only soft-deleted, meaning their data is retained but they can no longer log in and do not appear in user searches.
+        Also, the personal data of the user (such as email and name) will be anonymized to protect their privacy
       requestBody:
         content:
           application/json:
@@ -5276,6 +6344,91 @@ paths:
           description: No Content
           content:
             application/json: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+  /user/{userId}/history:
+    get:
+      tags:
+        - UserHistory
+      summary:
+        "Gets a user's activity log, paginated.\n            \nThe `perspective`\
+        \ parameter picks the side: `subject` (the default) returns what\nhappened\
+        \ to the user, `actor` returns what the user did to others."
+      parameters:
+        - name: userId
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+        - name: Type
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/UserHistoryType"
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: Page
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: PerPage
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: SortBy
+          in: query
+          schema:
+            $ref: "#/components/schemas/Sorting"
+        - name: Sort
+          in: query
+          schema:
+            enum:
+              - CreatedAt
+            type: string
+        - name: CombineWith
+          in: query
+          schema:
+            $ref: "#/components/schemas/CombineType"
+        - name: perspective
+          in: query
+          description: Which side of an entry the user being viewed is on.
+          schema:
+            $ref: "#/components/schemas/UserHistoryPerspective"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserHistoryDTOIEnumerableApiResponseDTO"
         "400":
           description: Bad Request
           content:
@@ -5327,13 +6480,9 @@ paths:
       tags:
         - UserSettings
       summary: Update the current user settings.
-      description: >-
-        This update endpoint, unlike others, uses a full DTO instead of a patch
-        document.
-
-        This is because user settings are typically small and it's easier to
-        manage them as a whole. And they are always loaded as a whole
-
+      description: |-
+        This update endpoint, unlike others, uses a full DTO instead of a patch document.
+        This is because user settings are typically small and it's easier to manage them as a whole. And they are always loaded as a whole
         so partial updates are less relevant.
       requestBody:
         content:
@@ -5382,13 +6531,21 @@ paths:
         - name: Type
           in: query
           schema:
-            $ref: "#/components/schemas/WorkType"
+            type: array
+            items:
+              $ref: "#/components/schemas/WorkType"
         - name: SubjectId
           in: query
-          description: Universally Unique Lexicographically Sortable Identifier (ULID).
           schema:
-            $ref: "#/components/schemas/Ulid"
-        - name: CreatedAt
+            type: array
+            items:
+              $ref: "#/components/schemas/Ulid"
+        - name: CreatedAt.Min
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: CreatedAt.Max
           in: query
           schema:
             type: string
@@ -5670,6 +6827,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SerializedNooException"
+  /work/{id}/relation:
+    get:
+      tags:
+        - Work
+      summary: |-
+        Retrieves the list of materials with their chain via chapters up to a course
+        which has a work assignment with the given work id
+      parameters:
+        - name: id
+          in: path
+          description: Universally Unique Lexicographically Sortable Identifier (ULID).
+          required: true
+          schema:
+            $ref: "#/components/schemas/Ulid"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkRelationDTOIEnumerableApiResponseDTO"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerializedNooException"
 components:
   schemas:
     AddHelperMentorOptionsDTO:
@@ -5908,6 +7110,17 @@ components:
         - helper-mentor-added
         - main-mentor-changed
       type: string
+    AssignedWorkListTab:
+      enum:
+        - all
+        - not-solved
+        - not-checked
+        - checked
+      type: string
+      description: |-
+        A slice of the assigned work list as the user sees it: one tab of the list page,
+        with its own counter next to the title. What each of them contains is defined in
+        one place, `AssignedWorkTabCriteria`.
     AssignedWorkProgressDTO:
       type: object
       properties:
@@ -6137,6 +7350,14 @@ components:
         - optimization
         - refactor
       type: string
+    CheckSavedTaskAnswerDTO:
+      type: object
+      properties:
+        answer:
+          maxLength: 255
+          type: string
+          nullable: true
+      additionalProperties: false
     CombineType:
       enum:
         - and
@@ -6234,6 +7455,7 @@ components:
         - _entityName
         - createdAt
         - id
+        - isArchived
         - name
         - subjectId
       type: object
@@ -6266,6 +7488,8 @@ components:
           type: integer
           format: int32
           nullable: true
+        isArchived:
+          type: boolean
         subjectId:
           $ref: "#/components/schemas/Ulid"
         subject:
@@ -6274,6 +7498,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CourseChapterDTO"
+          nullable: true
+        authors:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDTO"
           nullable: true
         createdAt:
           type: string
@@ -6358,6 +7587,7 @@ components:
         - createdAt
         - id
         - isActive
+        - isPinned
         - order
         - publishAt
         - title
@@ -6380,6 +7610,8 @@ components:
           nullable: true
         isActive:
           type: boolean
+        isPinned:
+          type: boolean
         publishAt:
           type: string
           format: date-time
@@ -6387,6 +7619,8 @@ components:
           $ref: "#/components/schemas/Ulid"
         contentId:
           $ref: "#/components/schemas/Ulid"
+        myReaction:
+          $ref: "#/components/schemas/CourseMaterialReactionTypes"
         createdAt:
           type: string
           format: date-time
@@ -6395,6 +7629,11 @@ components:
           format: date-time
           nullable: true
       additionalProperties: false
+    CourseMaterialReactionTypes:
+      enum:
+        - check
+        - thinking
+      type: string
     CourseMembershipDTO:
       required:
         - _entityName
@@ -6403,6 +7642,8 @@ components:
         - id
         - isActive
         - isArchived
+        - isArchivedByStudent
+        - isPinnedByStudent
         - studentId
         - type
       type: object
@@ -6422,6 +7663,10 @@ components:
         isActive:
           type: boolean
         isArchived:
+          type: boolean
+        isArchivedByStudent:
+          type: boolean
+        isPinnedByStudent:
           type: boolean
         studentId:
           $ref: "#/components/schemas/Ulid"
@@ -6640,6 +7885,8 @@ components:
           nullable: true
         isActive:
           type: boolean
+        isPinned:
+          type: boolean
         publishAt:
           type: string
           format: date-time
@@ -6690,8 +7937,11 @@ components:
       additionalProperties: false
     CreateGoogleSheetsIntegrationDTO:
       required:
-        - cronPattern
+        - googleAuthCode
+        - googleAuthState
         - name
+        - schedule
+        - type
       type: object
       properties:
         name:
@@ -6700,23 +7950,22 @@ components:
           type: string
         type:
           $ref: "#/components/schemas/GoogleSheetsIntegrationType"
-        selectorValue:
-          type: string
-          nullable: true
-        spreadsheetId:
-          type: string
-          nullable: true
-        cronPattern:
+        parameters:
+          $ref: "#/components/schemas/ExportParametersDTO"
+        schedule:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationSchedule"
+        googleAuthCode:
           minLength: 1
           type: string
-        googleAuthData:
+          description: |-
+            The one-time authorization code from the Google consent popup. Required on every create:
+            each integration gets its own freshly granted refresh token rather than reusing one.
+        googleAuthState:
+          minLength: 1
           type: string
-          nullable: true
-        googleCredentials:
-          $ref: "#/components/schemas/GoogleOAuthCredentialsDTO"
-        googleOAthToken:
-          type: string
-          nullable: true
+          description: |-
+            The `state` handed out with the consent URL and echoed back by Google. Proves the
+            code was obtained by this user through this platform.
       additionalProperties: false
     CreateMentorAssignmentDTO:
       required:
@@ -6788,6 +8037,14 @@ components:
           $ref: "#/components/schemas/Ulid"
         value:
           $ref: "#/components/schemas/PollAnswerValue"
+        mediaIds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ulid"
+          description: |-
+            Files answering a Noo.Api.Polls.Types.PollQuestionType.Files question. They are
+            uploaded before the poll is submitted, so the answer only carries their ids.
+          nullable: true
       additionalProperties: false
     CreatePollDTO:
       required:
@@ -6853,10 +8110,26 @@ components:
           nullable: true
         isRequired:
           type: boolean
+        order:
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+          format: int32
         type:
           $ref: "#/components/schemas/PollQuestionType"
         config:
           $ref: "#/components/schemas/PollQuestionConfig"
+      additionalProperties: false
+    CreateSavedTaskDTO:
+      required:
+        - assignedWorkId
+        - taskId
+      type: object
+      properties:
+        taskId:
+          $ref: "#/components/schemas/Ulid"
+        assignedWorkId:
+          $ref: "#/components/schemas/Ulid"
       additionalProperties: false
     CreateSnippetDTO:
       type: object
@@ -6979,6 +8252,127 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    ExportParametersDTO:
+      type: object
+      properties:
+        role:
+          $ref: "#/components/schemas/UserRoles"
+        courseId:
+          $ref: "#/components/schemas/Ulid"
+        subjectId:
+          $ref: "#/components/schemas/Ulid"
+        createdFrom:
+          type: string
+          format: date-time
+          nullable: true
+        createdTo:
+          type: string
+          format: date-time
+          nullable: true
+        pollId:
+          $ref: "#/components/schemas/Ulid"
+        studentId:
+          $ref: "#/components/schemas/Ulid"
+        mentorId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+      description: |-
+        Selection criteria for an export. Which members are required depends on the export type and
+        is validated by that type's profile.
+    ExternalAuthCallbackDTO:
+      required:
+        - parameters
+      type: object
+      properties:
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          description: |-
+            The callback query string as the browser received it. Passed through untouched so
+            provider-specific parameters (VK's `device_id`) need no shared plumbing.
+      additionalProperties: false
+    ExternalAuthIntent:
+      enum:
+        - login
+        - link
+      type: string
+    ExternalAuthProviderDTO:
+      required:
+        - displayName
+        - provider
+      type: object
+      properties:
+        provider:
+          $ref: "#/components/schemas/ExternalAuthProviderType"
+        displayName:
+          minLength: 1
+          type: string
+      additionalProperties: false
+      description: A provider the current environment can actually sign users in with.
+    ExternalAuthProviderDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExternalAuthProviderDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    ExternalAuthProviderType:
+      enum:
+        - yandex
+        - vk
+      type: string
+    ExternalAuthResultDTO:
+      required:
+        - intent
+        - provider
+      type: object
+      properties:
+        intent:
+          $ref: "#/components/schemas/ExternalAuthIntent"
+        provider:
+          $ref: "#/components/schemas/ExternalAuthProviderType"
+        returnUrl:
+          type: string
+          nullable: true
+        session:
+          $ref: "#/components/schemas/LoginResponseDTO"
+      additionalProperties: false
+      description: |-
+        One callback endpoint serves both intents, because the browser lands on a single
+        registered redirect URI. The intent tells the frontend how to finish.
+    ExternalAuthResultDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ExternalAuthResultDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    ExternalAuthUrlDTO:
+      required:
+        - url
+      type: object
+      properties:
+        url:
+          minLength: 1
+          type: string
+          description:
+            The provider's authorization page. The browser is sent here
+            as a full-page redirect.
+      additionalProperties: false
+    ExternalAuthUrlDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ExternalAuthUrlDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
     FontSize:
       enum:
         - small
@@ -6996,31 +8390,40 @@ components:
         params:
           nullable: true
       additionalProperties: false
-    GoogleOAuthCredentialsDTO:
+    GoogleOAuthUrlDTO:
+      required:
+        - state
+        - url
       type: object
       properties:
-        authuser:
+        url:
+          minLength: 1
           type: string
-          nullable: true
-        code:
+        state:
+          minLength: 1
           type: string
-          nullable: true
-        prompt:
-          type: string
-          nullable: true
-        scope:
-          type: string
+          description: |-
+            Opaque value the frontend must hand back with the authorization code, so a code obtained
+            in someone else's browser cannot be replayed into this user's account.
+      additionalProperties: false
+    GoogleOAuthUrlDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/GoogleOAuthUrlDTO"
+        meta:
           nullable: true
       additionalProperties: false
     GoogleSheetsIntegrationDTO:
       required:
         - _entityName
         - createdAt
-        - cronPattern
-        - googleAccount
         - id
         - name
-        - selectorValue
+        - ownerId
+        - parameters
+        - runState
+        - schedule
         - status
         - type
       type: object
@@ -7030,31 +8433,43 @@ components:
           type: string
           readOnly: true
         id:
-          type: string
-          format: uuid
+          $ref: "#/components/schemas/Ulid"
         name:
           minLength: 1
           type: string
         type:
           $ref: "#/components/schemas/GoogleSheetsIntegrationType"
-        selectorValue:
-          minLength: 1
+        parameters:
+          $ref: "#/components/schemas/ExportParametersDTO"
+        schedule:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationSchedule"
+        nextRunAt:
           type: string
+          format: date-time
+          nullable: true
         lastRunAt:
           type: string
           format: date-time
           nullable: true
         status:
           $ref: "#/components/schemas/GoogleSheetsIntegrationStatus"
+        runState:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationRunState"
         lastErrorText:
           type: string
           nullable: true
-        cronPattern:
-          minLength: 1
-          type: string
+        lastRowCount:
+          type: integer
+          format: int32
+          nullable: true
         googleAccount:
-          minLength: 1
           type: string
+          nullable: true
+        spreadsheetUrl:
+          type: string
+          nullable: true
+        ownerId:
+          $ref: "#/components/schemas/Ulid"
         createdAt:
           type: string
           format: date-time
@@ -7074,6 +8489,23 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    GoogleSheetsIntegrationRunState:
+      enum:
+        - idle
+        - queued
+        - running
+      type: string
+      description: |-
+        Where an integration is in its run cycle. Deliberately separate from
+        Noo.Api.GoogleSheetsIntegrations.Types.GoogleSheetsIntegrationStatus: a run must never overwrite whether the user
+        has the integration enabled.
+    GoogleSheetsIntegrationSchedule:
+      enum:
+        - manual
+        - hourly
+        - daily
+        - weekly
+      type: string
     GoogleSheetsIntegrationStatus:
       enum:
         - active
@@ -7082,10 +8514,10 @@ components:
       type: string
     GoogleSheetsIntegrationType:
       enum:
-        - user-course
-        - user-work
-        - user-role
+        - users
+        - courses
         - poll-results
+        - assigned-works
       type: string
     IRichTextType:
       type: object
@@ -7125,6 +8557,42 @@ components:
           nullable: true
         message:
           type: string
+          nullable: true
+      additionalProperties: false
+    LinkedIdentityDTO:
+      required:
+        - linkedAt
+        - provider
+      type: object
+      properties:
+        provider:
+          $ref: "#/components/schemas/ExternalAuthProviderType"
+        email:
+          type: string
+          description:
+            The email the provider reported, for telling two linked accounts
+            apart.
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+        linkedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    LinkedIdentityDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkedIdentityDTO"
+          nullable: true
+        meta:
           nullable: true
       additionalProperties: false
     LoginDTO:
@@ -7185,6 +8653,7 @@ components:
         - assigned-work-mentor-comment-rich-text
         - help-rich-text
         - snippet-rich-text
+        - poll-answer-file
       type: string
     MediaDTO:
       required:
@@ -7438,6 +8907,118 @@ components:
         meta:
           nullable: true
       additionalProperties: false
+    NooTubeVideoReactionsDTO:
+      required:
+        - counts
+      type: object
+      properties:
+        myReaction:
+          $ref: "#/components/schemas/VideoReaction"
+        counts:
+          type: object
+          properties:
+            like:
+              type: integer
+              format: int32
+            dislike:
+              type: integer
+              format: int32
+            heart:
+              type: integer
+              format: int32
+            laugh:
+              type: integer
+              format: int32
+            sad:
+              type: integer
+              format: int32
+            mindblowing:
+              type: integer
+              format: int32
+          additionalProperties: false
+          description:
+            How many users picked each reaction. Reactions nobody picked
+            are omitted.
+      additionalProperties: false
+      description: |-
+        Reactions of every user on a single video. Unlike course material
+        reactions, video reaction counts are public: everyone who may watch the
+        video sees them.
+    NooTubeVideoReactionsDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/NooTubeVideoReactionsDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoStatisticsDTO:
+      required:
+        - from
+        - playerLoads
+        - timeline
+        - to
+        - uniqueViews
+        - views
+        - watchTimeSeconds
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        views:
+          type: integer
+          format: int64
+        uniqueViews:
+          type: integer
+          format: int64
+        watchTimeSeconds:
+          type: integer
+          format: int32
+        playerLoads:
+          type: integer
+          format: int64
+        timeline:
+          type: array
+          items:
+            $ref: "#/components/schemas/NooTubeVideoStatisticsPointDTO"
+      additionalProperties: false
+    NooTubeVideoStatisticsDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/NooTubeVideoStatisticsDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    NooTubeVideoStatisticsPointDTO:
+      required:
+        - date
+        - playerLoads
+        - uniqueViews
+        - views
+        - watchTimeSeconds
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        views:
+          type: integer
+          format: int64
+        uniqueViews:
+          type: integer
+          format: int64
+        watchTimeSeconds:
+          type: integer
+          format: int32
+        playerLoads:
+          type: integer
+          format: int64
+      additionalProperties: false
     NooTubeVideoUploadDTO:
       required:
         - externalId
@@ -7555,6 +9136,7 @@ components:
         - _entityName
         - createdAt
         - id
+        - medias
         - pollQuestionId
       type: object
       properties:
@@ -7568,6 +9150,13 @@ components:
           $ref: "#/components/schemas/Ulid"
         value:
           $ref: "#/components/schemas/PollAnswerValue"
+        medias:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaDTO"
+          description: |-
+            Files attached to the answer. Only a Noo.Api.Polls.Types.PollQuestionType.Files
+            question ever has them.
         createdAt:
           type: string
           format: date-time
@@ -7589,6 +9178,7 @@ components:
         - _entityName
         - createdAt
         - expiresAt
+        - hasParticipated
         - id
         - isActive
         - isAuthRequired
@@ -7630,6 +9220,13 @@ components:
         participationsCount:
           type: integer
           format: int32
+        hasParticipated:
+          type: boolean
+          description: |-
+            Whether the caller has already answered this poll. Only computed when a
+            single poll is fetched by its id, and always false for an anonymous
+            caller — an unauthenticated visitor cannot be recognized before they
+            identify themselves.
       additionalProperties: false
     PollDTOApiResponseDTO:
       type: object
@@ -7778,6 +9375,7 @@ components:
         - createdAt
         - id
         - isRequired
+        - order
         - title
         - type
       type: object
@@ -7788,6 +9386,9 @@ components:
           readOnly: true
         id:
           $ref: "#/components/schemas/Ulid"
+        order:
+          type: integer
+          format: int32
         title:
           minLength: 1
           type: string
@@ -7890,6 +9491,133 @@ components:
           type: string
         entityId:
           $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+    SavedTaskAnswerCheckDTO:
+      required:
+        - isCorrect
+        - maxScore
+        - score
+      type: object
+      properties:
+        score:
+          type: integer
+          format: int32
+        maxScore:
+          type: integer
+          format: int32
+        isCorrect:
+          type: boolean
+          description: |-
+            Whether the answer earned every point on offer. A partially scored answer
+            is not a right one as far as the quiz is concerned.
+      additionalProperties: false
+      description: |-
+        The verdict on one quiz answer, scored by the same checker that scores the
+        work it came from.
+    SavedTaskAnswerCheckDTOApiResponseDTO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/SavedTaskAnswerCheckDTO"
+        meta:
+          nullable: true
+      additionalProperties: false
+    SavedTaskDTO:
+      required:
+        - _entityName
+        - assignedWorkId
+        - createdAt
+        - id
+        - task
+        - taskId
+        - workId
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        taskId:
+          $ref: "#/components/schemas/Ulid"
+        task:
+          $ref: "#/components/schemas/WorkTaskDTO"
+        assignedWorkId:
+          $ref: "#/components/schemas/Ulid"
+        workId:
+          $ref: "#/components/schemas/Ulid"
+        work:
+          $ref: "#/components/schemas/WorkDTO"
+      additionalProperties: false
+    SavedTaskDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SavedTaskDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    SavedTaskReferenceDTO:
+      required:
+        - id
+        - taskId
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        taskId:
+          $ref: "#/components/schemas/Ulid"
+      additionalProperties: false
+      description: |-
+        A saved task stripped down to what a work page needs to tell saved tasks from
+        unsaved ones and to unsave them again — without pulling the tasks themselves,
+        content and all, a second time.
+    SavedTaskReferenceDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SavedTaskReferenceDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    SavedTaskSubjectDTO:
+      required:
+        - savedTaskCount
+      type: object
+      properties:
+        subject:
+          $ref: "#/components/schemas/SubjectDTO"
+        savedTaskCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+      description: |-
+        One subject a student has saved tasks on, with how many. What a quiz is set
+        up from: which subjects are on offer and which have enough cards to run.
+    SavedTaskSubjectDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SavedTaskSubjectDTO"
+          nullable: true
+        meta:
+          nullable: true
       additionalProperties: false
     ScoreSummaryDTO:
       type: object
@@ -8015,6 +9743,15 @@ components:
         - ascending
         - descending
       type: string
+    StartExternalAuthDTO:
+      type: object
+      properties:
+        returnUrl:
+          maxLength: 255
+          type: string
+          description: Relative path to land on once the callback succeeds.
+          nullable: true
+      additionalProperties: false
     StatisticsBlockDTO:
       required:
         - numberBlocks
@@ -8360,6 +10097,24 @@ components:
         value:
           nullable: true
       additionalProperties: false
+    UpdateGoogleSheetsIntegrationDTO:
+      type: object
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          nullable: true
+        schedule:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationSchedule"
+        status:
+          $ref: "#/components/schemas/GoogleSheetsIntegrationStatus"
+      additionalProperties: false
+      description: |-
+        The parts of an integration that can be changed after creation. Notably not the export type,
+        its parameters, or the Google account — changing any of those makes it a different export,
+        and the permission check that justified the original would not have been repeated.
+        Omitted members are left as they are.
     UpdateNooTubeVideoCommentDTOJsonPatchDocument:
       type: object
       properties:
@@ -8602,7 +10357,9 @@ components:
           type: object
           additionalProperties:
             type: string
-          description: Headers the client MUST include verbatim on the PUT request to S3.
+          description:
+            Headers the client MUST include verbatim on the PUT request
+            to S3.
         expiresAt:
           type: string
           format: date-time
@@ -8698,12 +10455,14 @@ components:
         - none
         - custom
         - telegram
+        - external
       type: string
     UserDTO:
       required:
         - _entityName
         - createdAt
         - id
+        - mentors
         - name
         - role
         - username
@@ -8737,6 +10496,13 @@ components:
           $ref: "#/components/schemas/UserRoles"
         avatar:
           $ref: "#/components/schemas/UserAvatarDTO"
+        mentors:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserMentorDTO"
+          description: |-
+            Mentors of the user, filled where the query loads them (the user
+            search). Only students have mentors, so it stays empty for everyone else.
         isBlocked:
           type: boolean
         isVerified:
@@ -8777,6 +10543,109 @@ components:
           minLength: 1
           type: string
       additionalProperties: false
+    UserHistoryDTO:
+      required:
+        - _entityName
+        - createdAt
+        - id
+        - subjectUserId
+        - type
+      type: object
+      properties:
+        _entityName:
+          minLength: 1
+          type: string
+          readOnly: true
+        id:
+          $ref: "#/components/schemas/Ulid"
+        type:
+          $ref: "#/components/schemas/UserHistoryType"
+        subjectUserId:
+          $ref: "#/components/schemas/Ulid"
+        actorUserId:
+          $ref: "#/components/schemas/Ulid"
+        actor:
+          $ref: "#/components/schemas/UserDTO"
+        payload:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    UserHistoryDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserHistoryDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    UserHistoryPerspective:
+      enum:
+        - subject
+        - actor
+      type: string
+      description: Which side of an entry the user being viewed is on.
+    UserHistoryType:
+      enum:
+        - registered
+        - email-confirmed
+        - email-changed
+        - password-changed
+        - password-reset
+        - profile-updated
+        - role-changed
+        - blocked
+        - unblocked
+        - verified
+        - added-to-course
+        - removed-from-course
+        - mentor-assigned
+        - mentor-unassigned
+        - work-assigned
+        - work-solved
+        - work-checked
+        - work-sent-on-recheck
+        - work-sent-on-resolve
+      type: string
+      description:
+        "The kinds of event recorded in a user's activity log.\n      \
+        \      \nStored as a string rather than a MySQL ENUM, so adding a kind needs\
+        \ no schema migration.\nSerialized to kebab-case over the wire by the global\
+        \ enum converter."
+    UserMentorDTO:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/Ulid"
+        name:
+          minLength: 1
+          type: string
+        subjectName:
+          type: string
+          nullable: true
+        subjectColor:
+          type: string
+          nullable: true
+      additionalProperties: false
+      description: |-
+        A mentor of a student, as shown next to the student in the user list. Flat
+        and minimal on purpose: listings only name the mentor, link to them and
+        colour them by subject. Everything else about an assignment lives in
+        Noo.Api.Users.DTO.MentorAssignmentDTO.
     UserRoles:
       enum:
         - admin
@@ -8847,6 +10716,7 @@ components:
         - _entityName
         - createdAt
         - id
+        - maxScore
         - title
         - type
       type: object
@@ -8872,6 +10742,9 @@ components:
         description:
           type: string
           nullable: true
+        maxScore:
+          type: integer
+          format: int32
         subjectId:
           $ref: "#/components/schemas/Ulid"
         subject:
@@ -8897,6 +10770,38 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WorkDTO"
+          nullable: true
+        meta:
+          nullable: true
+      additionalProperties: false
+    WorkRelationDTO:
+      required:
+        - assignment
+        - courseId
+        - materialId
+        - path
+      type: object
+      properties:
+        courseId:
+          $ref: "#/components/schemas/Ulid"
+        materialId:
+          $ref: "#/components/schemas/Ulid"
+        subject:
+          $ref: "#/components/schemas/SubjectDTO"
+        path:
+          type: array
+          items:
+            type: string
+        assignment:
+          $ref: "#/components/schemas/CourseWorkAssignmentDTO"
+      additionalProperties: false
+    WorkRelationDTOIEnumerableApiResponseDTO:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkRelationDTO"
           nullable: true
         meta:
           nullable: true

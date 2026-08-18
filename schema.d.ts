@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/assigned-work/of-user/{userId}": {
+    "/assigned-work": {
         parameters: {
             query?: never;
             header?: never;
@@ -15,20 +15,26 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    Type?: components["schemas"]["WorkType"][];
+                    /**
+                     * @description Which slice of the list to return. Not an ordinary property filter: the tab
+                     *     predicate is shared with the tab counters, so it is applied by
+                     *     `AssignedWorkSearchSpecification` instead of being built from this property.
+                     */
+                    Tab?: components["schemas"]["AssignedWorkListTab"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    MentorId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    StudentId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Title" | "CreatedAt" | "SolvedAt" | "CheckedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    userId: components["schemas"]["Ulid"];
-                };
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;
@@ -62,6 +68,233 @@ export interface paths {
                 };
                 /** @description Forbidden */
                 403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assigned-work/{userId}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get metadata of assigned works */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AssignedWorksMetadataDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assigned-work/{workAssignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Creates an assigned work instance by a work assignment ID.
+         *     This is used when a student starts working on a work
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    workAssignmentId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdResponseDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assigned-work/{assignedWorkId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets the assigned work history entries, paginated */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    AssignedWorkId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "AssignedWorkId";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    assignedWorkId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AssignedWorkHistoryDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -217,22 +450,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/assigned-work/{assignedWorkId}/progress": {
+    "/assigned-work/{workAssignmentId}/progress": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Gets the progress of an assigned work by its ID.
-         *     Used when loading the whole assigned work is not needed */
+        /**
+         * Gets the progress of an assigned work by its ID.
+         *     Used when loading the whole assigned work is not needed.
+         * @description It returns an array of progress because there can be multiple AssignedWork's as separate attempts
+         *     for one WorkAssignment.
+         */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    assignedWorkId: components["schemas"]["Ulid"];
+                    workAssignmentId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -244,7 +481,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AssignedWorkProgressDTOApiResponseDTO"];
+                        "application/json": components["schemas"]["AssignedWorkProgressDTOIEnumerableApiResponseDTO"];
                     };
                 };
                 /** @description Bad Request */
@@ -302,8 +539,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Remakes an assigned work.
-         *     Returns the ID of the newly created assigned work. */
+        /**
+         * Remakes an assigned work.
+         *     Returns the ID of the newly created assigned work.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1114,8 +1353,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Changes the solve status of the assigned work back to in progress.
-         *     This is usually used when the assigned work was marked as solved by mistake. */
+        /**
+         * Changes the solve status of the assigned work back to in progress.
+         *     This is usually used when the assigned work was marked as solved by mistake.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1190,8 +1431,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Changes the check status of the assigned work back to in progress.
-         *     This is usually used when the assigned work was marked as checked by mistake. */
+        /**
+         * Changes the check status of the assigned work back to in progress.
+         *     This is usually used when the assigned work was marked as checked by mistake.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1322,6 +1565,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Exchanges the httpOnly refresh-token cookie for a new access token,
+         *     rotating the refresh token. Returns 401 if the refresh token is missing,
+         *     expired, or has already been used (in which case the session is revoked).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LoginResponseDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -1331,8 +1623,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Registers a new user with the provided details.
-         *     During registration, an email verification token is sent to the user's email address. */
+        /**
+         * Registers a new user with the provided details.
+         *     During registration, an email verification token is sent to the user's email address.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1390,8 +1684,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Checks if the username is already taken.
-         *     Returns true if the username is free, otherwise false */
+        /**
+         * Checks if the username is already taken.
+         *     Returns true if the username is free, otherwise false
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1542,7 +1838,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/auth/confirm-email-change": {
+    "/auth/confirm-email": {
         parameters: {
             query?: never;
             header?: never;
@@ -1555,8 +1851,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Confirms an email change by validating the confirmation token.
-         *     This endpoint is used to finalize the email change process after the user has requested it. */
+        /**
+         * Confirms an email change by validating the confirmation token.
+         *     This endpoint is used to finalize the email change process after the user has requested it.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1884,6 +2182,199 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        /** Deletes a course. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    courseId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Updates a course. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    courseId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/{courseId}/content/{contentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieves a material content by its unique identifier. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    contentId: components["schemas"]["Ulid"];
+                    courseId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CourseMaterialContentDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1901,14 +2392,22 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    SubjectId?: components["schemas"]["Ulid"][];
+                    IsArchived?: boolean;
+                    "Authors.Search"?: string;
+                    "Authors.Role"?: components["schemas"]["UserRoles"][];
+                    "Authors.CreatedAt.Min"?: string;
+                    "Authors.CreatedAt.Max"?: string;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    AuthorId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Name" | "CreatedAt" | "SubjectId";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -1922,7 +2421,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["CourseModelIEnumerableApiResponseDTO"];
+                        "application/json": components["schemas"]["CourseDTOIEnumerableApiResponseDTO"];
                     };
                 };
                 /** @description Bad Request */
@@ -1932,6 +2431,1324 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates a course. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateCourseDTO"];
+                    "text/json": components["schemas"]["CreateCourseDTO"];
+                    "application/*+json": components["schemas"]["CreateCourseDTO"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdResponseDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/course/{courseId}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Archives a course. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    courseId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/{courseId}/unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Restores a course from the archive. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    courseId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/{courseId}/material/{materialId}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggles the current student's reaction on a course material. */
+        patch: {
+            parameters: {
+                query?: {
+                    reaction?: components["schemas"]["CourseMaterialReactionTypes"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    courseId: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    materialId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/material-content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Creates a course material content. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateCourseMaterialContentDTO"];
+                    "text/json": components["schemas"]["CreateCourseMaterialContentDTO"];
+                    "application/*+json": components["schemas"]["CreateCourseMaterialContentDTO"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdResponseDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/course/material-content/{contentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Updates a course material content. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    contentId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Searches the course memberships. */
+        get: {
+            parameters: {
+                query?: {
+                    Search?: string;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    CourseId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    AssignerId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    StudentId?: components["schemas"]["Ulid"];
+                    IsActive?: boolean;
+                    IsArchived?: boolean;
+                    IsArchivedByStudent?: boolean;
+                    IsPinnedByStudent?: boolean;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "AssignerId" | "CreatedAt" | "CourseId";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CourseMembershipDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates a course membership for a user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateCourseMembershipDTO"];
+                    "text/json": components["schemas"]["CreateCourseMembershipDTO"];
+                    "application/*+json": components["schemas"]["CreateCourseMembershipDTO"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CourseMembershipDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/course/membership/{membershipId}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Archives a course membership for the current student. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    membershipId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/membership/{membershipId}/unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Restores a course membership from the archive for the current student. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    membershipId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/membership/{membershipId}/pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Pins a course membership for the current student. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    membershipId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/membership/{membershipId}/unpin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Unpins a course membership for the current student. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    membershipId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/course/membership/{membershipId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Removes a course membership for a user */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    membershipId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the providers this environment can sign users in with. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExternalAuthProviderDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/{provider}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Starts a login through the given provider and returns the URL to redirect the browser to. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: components["schemas"]["ExternalAuthProviderType"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["StartExternalAuthDTO"];
+                    "text/json": components["schemas"]["StartExternalAuthDTO"];
+                    "application/*+json": components["schemas"]["StartExternalAuthDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExternalAuthUrlDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/{provider}/link/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Starts linking the given provider to the account of the caller.
+         * @description A separate endpoint from the login start so the intent rides on the authorization
+         *     requirement instead of an optional bearer token.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: components["schemas"]["ExternalAuthProviderType"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["StartExternalAuthDTO"];
+                    "text/json": components["schemas"]["StartExternalAuthDTO"];
+                    "application/*+json": components["schemas"]["StartExternalAuthDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExternalAuthUrlDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/{provider}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redeems the callback the provider sent the browser back with.
+         * @description Anonymous because a login callback has no session yet; the intent comes from the
+         *     server-side challenge, never from the request.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: components["schemas"]["ExternalAuthProviderType"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ExternalAuthCallbackDTO"];
+                    "text/json": components["schemas"]["ExternalAuthCallbackDTO"];
+                    "application/*+json": components["schemas"]["ExternalAuthCallbackDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExternalAuthResultDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/identities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the providers linked to the account of the caller. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LinkedIdentityDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/external/identities/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unlinks a provider from the account of the caller. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    provider: components["schemas"]["ExternalAuthProviderType"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/google-sheets/oauth-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Builds the Google consent URL to open before creating an integration. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GoogleOAuthUrlDTOApiResponseDTO"];
                     };
                 };
                 /** @description Unauthorized */
@@ -1969,18 +3786,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Retrieves a list of Google Sheets integrations based on the provided criteria. */
+        /** Retrieves Google Sheets integrations. Mentors only ever see their own. */
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    Type?: components["schemas"]["GoogleSheetsIntegrationType"][];
+                    Status?: components["schemas"]["GoogleSheetsIntegrationStatus"][];
+                    "LastRunAt.Min"?: string;
+                    "LastRunAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Name" | "CreatedAt" | "LastRunAt";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -2027,7 +3846,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** Creates a new Google Sheets integration. */
+        /** Creates a new Google Sheets integration from a freshly granted Google consent. */
         post: {
             parameters: {
                 query?: never;
@@ -2087,7 +3906,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/google-sheets/{integrationId}/run": {
+    "/google-sheets/{integrationId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2096,8 +3915,9 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Runs a Google Sheets integration by its ID. */
-        post: {
+        post?: never;
+        /** Deletes a Google Sheets integration. The spreadsheet itself is left untouched. */
+        delete: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -2156,24 +3976,10 @@ export interface paths {
                 };
             };
         };
-        delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/google-sheets/{integrationId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes a Google Sheets integration by its ID. */
-        delete: {
+        /** Changes an integration's name, schedule, or enabled state. */
+        patch: {
             parameters: {
                 query?: never;
                 header?: never;
@@ -2183,7 +3989,13 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateGoogleSheetsIntegrationDTO"];
+                    "text/json": components["schemas"]["UpdateGoogleSheetsIntegrationDTO"];
+                    "application/*+json": components["schemas"]["UpdateGoogleSheetsIntegrationDTO"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -2221,8 +4033,495 @@ export interface paths {
                         "application/json": components["schemas"]["SerializedNooException"];
                     };
                 };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
             };
         };
+        trace?: never;
+    };
+    "/google-sheets/{integrationId}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queues an integration to run. The export itself happens in the background, so this
+         *     returns as soon as the run is scheduled rather than when the sheet is written.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    integrationId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nootube/webhooks/kinescope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receives Kinescope webhook notifications (e.g. video processing status changes). */
+        post: {
+            parameters: {
+                query?: {
+                    secret?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["KinescopeWebhook"];
+                    "text/json": components["schemas"]["KinescopeWebhook"];
+                    "application/*+json": components["schemas"]["KinescopeWebhook"];
+                };
+            };
+            responses: never;
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Issue a presigned upload URL plus the headers the client must include on the PUT. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RequestUploadDTO"];
+                    "text/json": components["schemas"]["RequestUploadDTO"];
+                    "application/*+json": components["schemas"]["RequestUploadDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UploadTicketDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unsupported Media Type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/{mediaId}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm that a previously requested upload has completed in S3.
+         *     Returns a presigned GET URL for the uploaded object.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    mediaId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CompleteUploadDTO"];
+                    "text/json": components["schemas"]["CompleteUploadDTO"];
+                    "application/*+json": components["schemas"]["CompleteUploadDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MediaDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/{mediaId}/download-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Issue a short-lived presigned download URL after enforcing every access rule
+         *     registered for this media's category.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    mediaId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DownloadUrlDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/{mediaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete the file from S3 and remove the DB record. Owner or admin only. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    mediaId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/media/{mediaId}/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stable, embeddable URL for a media file. Enforces the same access rules as
+         *     M:Noo.Api.Media.MediaController.GetDownloadUrlAsync(System.Ulid,System.Threading.CancellationToken), then 302-redirects to a freshly presigned
+         *     download URL. The redirect is never cached, so each load resolves a valid URL.
+         * @description Accepts the bearer header (for API/Swagger callers) or the httpOnly media
+         *     cookie, which the browser attaches to plain `<img>` requests.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    mediaId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Found */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2235,17 +4534,19 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Gets a list of videos, paginated */
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Type?: components["schemas"]["VideoFilterType"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Title" | "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -2292,11 +4593,912 @@ export interface paths {
             };
         };
         put?: never;
+        /**
+         * Creates a video and initializes an upload on the configured video engine.
+         *     Returns the upload URL the client should stream the file to (e.g. a tus endpoint).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateNooTubeVideoDTO"];
+                    "text/json": components["schemas"]["CreateNooTubeVideoDTO"];
+                    "application/*+json": components["schemas"]["CreateNooTubeVideoDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NooTubeVideoUploadDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nootube/{videoId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets a video by its ID. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NooTubeVideoDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /** Deletes a video. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Updates a video. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/nootube/{videoId}/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gets playback statistics for a video over an optional period
+         *     (defaults to the video's whole lifetime).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NooTubeVideoStatisticsDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/nootube/{videoId}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Marks a video upload as finished and syncs its metadata from the video engine. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nootube/{videoId}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gets the reactions of all users on a video together with the reaction of
+         *     the current user. Reaction counts are visible to everyone.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NooTubeVideoReactionsDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggles a reaction for a video */
+        patch: {
+            parameters: {
+                query?: {
+                    reaction?: components["schemas"]["VideoReaction"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/nootube/{videoId}/favourite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggles whether a video is in the current user's favourites. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/nootube/{videoId}/comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets a paginated list of comments for a video. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    VideoId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "VideoId";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NooTubeVideoCommentDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates a comment for a video. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    videoId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateNooTubeVideoCommentDTO"];
+                    "text/json": components["schemas"]["CreateNooTubeVideoCommentDTO"];
+                    "application/*+json": components["schemas"]["CreateNooTubeVideoCommentDTO"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nootube/{videoId}/comment/{commentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Deletes a comment. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    commentId: components["schemas"]["Ulid"];
+                    videoId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Updates a comment. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    commentId: components["schemas"]["Ulid"];
+                    videoId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/notification": {
@@ -2310,14 +5512,14 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    IsRead?: boolean;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    UserId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "IsRead" | "UserId";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -2488,6 +5690,69 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/notification/mark-all-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Mark all of the current user's notifications as read */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2702,14 +5967,18 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    "UpdatedAt.Min"?: string;
+                    "UpdatedAt.Max"?: string;
+                    IsActive?: boolean;
+                    IsAuthRequired?: boolean;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Title" | "Description" | "CreatedAt" | "UpdatedAt" | "IsActive" | "IsAuthRequired";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -2807,7 +6076,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/poll/{id}": {
+    "/poll/user/{userId}/participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a paginated list of the polls a specific user has participated in, as their participations. */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Matched against whatever identifies a participation in the list being read: the
+                     *     participant when the list is a poll's results, the poll when it is a user's own
+                     *     participations. Both sit on a related entity, and CompareTo silently drops
+                     *     property paths it cannot resolve on the filtered entity, so the search is applied
+                     *     by the specification of the respective list.
+                     */
+                    Search?: string;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    PollId?: components["schemas"]["Ulid"];
+                    UserType?: components["schemas"]["ParticipatingUserType"];
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "PollId" | "UserType" | "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PollParticipationDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/poll/{pollId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2821,7 +6166,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    pollId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -2867,22 +6212,7 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/poll/{pollId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
+        /** Delete a poll by its ID. */
         delete: {
             parameters: {
                 query?: never;
@@ -3005,6 +6335,902 @@ export interface paths {
         };
         trace?: never;
     };
+    "/poll/{pollId}/participation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the results of a specific poll. */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Matched against whatever identifies a participation in the list being read: the
+                     *     participant when the list is a poll's results, the poll when it is a user's own
+                     *     participations. Both sit on a related entity, and CompareTo silently drops
+                     *     property paths it cannot resolve on the filtered entity, so the search is applied
+                     *     by the specification of the respective list.
+                     */
+                    Search?: string;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    PollId?: components["schemas"]["Ulid"];
+                    UserType?: components["schemas"]["ParticipatingUserType"];
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "PollId" | "UserType" | "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    pollId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PollParticipationDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/poll/participation/{participationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get poll participation result by participation ID. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    participationId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PollParticipationDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/poll/{pollId}/participate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a participation in a poll. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    pollId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreatePollParticipationDTO"];
+                    "text/json": components["schemas"]["CreatePollParticipationDTO"];
+                    "application/*+json": components["schemas"]["CreatePollParticipationDTO"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/poll/answer/{answerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a poll answer */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    answerId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/saved-task": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a paginated list of the authenticated student's saved tasks. */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Matched against the work's title and its subject's name. Both sit behind
+                     *     the task rather than on the saved task itself, and CompareTo only
+                     *     resolves properties of the filtered entity, so the search is applied by
+                     *     Noo.Api.SavedTasks.Specifications.SavedTaskSpecification.
+                     */
+                    Search?: string;
+                    /**
+                     * @description Subjects to keep. Behind the task like the search is, so it is applied by
+                     *     the specification too.
+                     */
+                    SubjectId?: components["schemas"]["Ulid"][];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTaskDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Save a task of a checked assigned work of the authenticated student. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateSavedTaskDTO"];
+                    "text/json": components["schemas"]["CreateSavedTaskDTO"];
+                    "application/*+json": components["schemas"]["CreateSavedTaskDTO"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdResponseDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved-task/reference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the authenticated student's saved tasks as bare references,
+         *     optionally only the ones saved from one assigned work.
+         * @description Lets a work page tell saved tasks from unsaved ones without pulling the
+         *     saved tasks themselves, content and all.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    assignedWorkId?: components["schemas"]["Ulid"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTaskReferenceDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved-task/subject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the subjects the authenticated student has saved tasks on, with how
+         *     many on each. What a quiz is set up from.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTaskSubjectDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved-task/quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a random deck of the authenticated student's saved tasks to run a
+         *     quiz on, optionally drawn from one subject only.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    subjectId?: components["schemas"]["Ulid"];
+                    count?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTaskDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved-task/{savedTaskId}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check an answer to one saved task against its answer key. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    savedTaskId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CheckSavedTaskAnswerDTO"];
+                    "text/json": components["schemas"]["CheckSavedTaskAnswerDTO"];
+                    "application/*+json": components["schemas"]["CheckSavedTaskAnswerDTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTaskAnswerCheckDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/saved-task/{savedTaskId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a saved task. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    savedTaskId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/session/{userId}/online": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets users online information */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OnlineInfoDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/session": {
         parameters: {
             query?: never;
@@ -3053,8 +7279,10 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        /** Deleted the current user session.
-         *     Typically used to log out the user. */
+        /**
+         * Deleted the current user session.
+         *     Typically used to log out the user.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -3141,6 +7369,15 @@ export interface paths {
                 };
                 /** @description Forbidden */
                 403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3281,7 +7518,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Deletes an existing snippet for the authenticated user. */
+        /** Deletes a snippet for the authenticated user. */
         delete: {
             parameters: {
                 query?: never;
@@ -3424,6 +7661,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
+                    workType?: components["schemas"]["WorkType"];
                     from?: string;
                     to?: string;
                 };
@@ -3479,7 +7717,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/statistics/student/{studentId}": {
+    "/statistics/user/{userId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3488,7 +7726,7 @@ export interface paths {
         };
         /**
          * Retrieves the statistics of a specific student.
-         * @description It returns 404 only if the student does not exist or is not a student.
+         * @description It returns 404 only if the student does not exist or is not a student or a mentor.
          */
         get: {
             parameters: {
@@ -3499,79 +7737,8 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    studentId: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["StatisticsDTOApiResponseDTO"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/statistics/mentor/{mentorId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieves the statistics of a specific mentor.
-         * @description It returns 404 only if the mentor does not exist or is not a mentor.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    from?: string;
-                    to?: string;
-                };
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    mentorId: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
+                    workType: components["schemas"]["WorkType"];
                 };
                 cookie?: never;
             };
@@ -3634,14 +7801,12 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Name";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -3739,7 +7904,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/subject/{id}": {
+    "/subject/{subjectId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3753,7 +7918,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    subjectId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -3815,7 +7980,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    subjectId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -3877,199 +8042,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json-patch+json": {
-                        op: string;
-                        path: string;
-                        value?: Record<string, never>;
-                    }[];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/support": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retrieves a tree of support categories. */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SupportCategoryDTOIEnumerableApiResponseDTO"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/support/article/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retrieves a support article by its ID. */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SupportArticleDTOApiResponseDTO"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /** Deletes a support article by its ID. */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /** Updates a support article by its ID using a JSON Patch document. */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    subjectId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -4139,7 +8112,44 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Retrieves a list of all support articles by category */
+        get: {
+            parameters: {
+                query?: {
+                    Search?: string;
+                    Category?: components["schemas"]["SupportCategory"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Order";
+                    CombineWith?: components["schemas"]["CombineType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SupportArticleDTOListApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
         put?: never;
         /** Creates a new support article. */
         post: {
@@ -4201,212 +8211,21 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/support/category": {
+    "/support/article/{articleSlug}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Creates a new support category. */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CreateSupportCategoryDTO"];
-                    "text/json": components["schemas"]["CreateSupportCategoryDTO"];
-                    "application/*+json": components["schemas"]["CreateSupportCategoryDTO"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["IdResponseDTOApiResponseDTO"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/support/category/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes a support category by its ID. */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /** Updates a support category by its ID using a JSON Patch document. */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json-patch+json": {
-                        op: string;
-                        path: string;
-                        value?: Record<string, never>;
-                    }[];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/user/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retrieves the current user's information based on the authenticated user's ID. */
+        /** Retrieves a support article by its slug */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    articleSlug: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -4417,34 +8236,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["UserDTOApiResponseDTO"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
+                        "application/json": components["schemas"]["SupportArticleDTOApiResponseDTO"];
                     };
                 };
                 /** @description Not Found */
@@ -4460,13 +8252,31 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        /** Deletes the current user's account.
-         *     It won't delete the user from the database, but mark it as deleted and remove all personal data. */
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/support/article/{articleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Deletes a support article by its ID. */
         delete: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    articleId: components["schemas"]["Ulid"];
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -4489,69 +8299,6 @@ export interface paths {
                         "application/json": components["schemas"]["SerializedNooException"];
                     };
                 };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/user/me/email": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Updates the current user's email address. */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UpdateEmailDTO"];
-                    "text/json": components["schemas"]["UpdateEmailDTO"];
-                    "application/*+json": components["schemas"]["UpdateEmailDTO"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
                 /** @description Forbidden */
                 403: {
                     headers: {
@@ -4561,216 +8308,28 @@ export interface paths {
                         "application/json": components["schemas"]["SerializedNooException"];
                     };
                 };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
             };
         };
-        trace?: never;
-    };
-    "/user/me/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
-        /** Updates the current user's password. */
+        /** Updates a support article by its ID using a JSON Patch document. */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    articleId: components["schemas"]["Ulid"];
+                };
                 cookie?: never;
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["UpdatePasswordDTO"];
-                    "text/json": components["schemas"]["UpdatePasswordDTO"];
-                    "application/*+json": components["schemas"]["UpdatePasswordDTO"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/user/me/telegram": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Updates the current user's Telegram data like username, avatar and telegram ID */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["UpdateTelegramDTO"];
-                    "text/json": components["schemas"]["UpdateTelegramDTO"];
-                    "application/*+json": components["schemas"]["UpdateTelegramDTO"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": unknown;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SerializedNooException"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/user/me/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "multipart/form-data": components["schemas"]["UpdateAvatarDTO"];
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
                 };
             };
             responses: {
@@ -4834,14 +8393,15 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    Role?: components["schemas"]["UserRoles"][];
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Name" | "Username" | "Email" | "TelegramUsername" | "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -4895,20 +8455,21 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/user/{username}": {
+    "/user/{userId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Retrieves a user by their unique username */
+        /** Retrieves a user by their id */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    username: string;
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -4966,10 +8527,68 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Patches a user by their unique identifier. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
-    "/user/{id}/role": {
+    "/user/{userId}/avatar": {
         parameters: {
             query?: never;
             header?: never;
@@ -4982,23 +8601,109 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Changes the role of a user by their unique identifier.
-         *     Only possible to change role if the user is a student, otherwise it will throw a conflict error. */
+        /** Updates a user's avatar by their unique identifier. */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["UserRoles"];
-                    "text/json": components["schemas"]["UserRoles"];
-                    "application/*+json": components["schemas"]["UserRoles"];
+                    "application/json-patch+json": {
+                        op: string;
+                        path: string;
+                        value?: Record<string, never>;
+                    }[];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/user/{userId}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Changes the role of a user by their unique identifier.
+         *     Only possible to change role if the user is a student, otherwise it will throw a conflict error.
+         * @description After role change, all the user sessions will be invalidated, the user will be logged out.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ChangeRoleDTO"];
+                    "text/json": components["schemas"]["ChangeRoleDTO"];
+                    "application/*+json": components["schemas"]["ChangeRoleDTO"];
                 };
             };
             responses: {
@@ -5060,7 +8765,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/user/{id}/block": {
+    "/user/{userId}/block": {
         parameters: {
             query?: never;
             header?: never;
@@ -5080,7 +8785,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5135,7 +8840,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/user/{id}/unblock": {
+    "/user/{userId}/unblock": {
         parameters: {
             query?: never;
             header?: never;
@@ -5155,7 +8860,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5210,7 +8915,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/user/{id}/verify-manual": {
+    "/user/{userId}/verify-manual": {
         parameters: {
             query?: never;
             header?: never;
@@ -5230,7 +8935,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5285,7 +8990,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/user/{id}/mentor-assignment": {
+    "/user/{userId}/mentor-assignment": {
         parameters: {
             query?: never;
             header?: never;
@@ -5296,19 +9001,22 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    SubjectId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    MentorId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    StudentId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "SubjectId" | "MentorId" | "StudentId";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5360,7 +9068,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/user/{id}/student-assignment": {
+    "/user/{userId}/student-assignment": {
         parameters: {
             query?: never;
             header?: never;
@@ -5371,19 +9079,22 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    SubjectId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    MentorId?: components["schemas"]["Ulid"];
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    StudentId?: components["schemas"]["Ulid"];
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "SubjectId" | "MentorId" | "StudentId";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    userId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5435,7 +9146,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/user/{id}/assignment-mentor": {
+    "/user/{studentId}/assign-mentor": {
         parameters: {
             query?: never;
             header?: never;
@@ -5448,14 +9159,17 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Assigns a mentor to a student for a specific subject. */
+        /**
+         * Assigns a mentor to a student for a specific subject.
+         * @description If a user already has a mentor assigned for the subject, it will be unassigned and a new one will be assigned.
+         */
         patch: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    studentId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5525,7 +9239,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/user/{id}/unassign-mentor": {
+    "/user/{assignmentId}/unassign-mentor": {
         parameters: {
             query?: never;
             header?: never;
@@ -5545,7 +9259,7 @@ export interface paths {
                 header?: never;
                 path: {
                     /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
-                    id: components["schemas"]["Ulid"];
+                    assignmentId: components["schemas"]["Ulid"];
                 };
                 cookie?: never;
             };
@@ -5598,6 +9312,161 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/user/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deletes a current user.
+         * @description The user is only soft-deleted, meaning their data is retained but they can no longer log in and do not appear in user searches.
+         *     Also, the personal data of the user (such as email and name) will be anonymized to protect their privacy
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UserDeletionDTO"];
+                    "text/json": components["schemas"]["UserDeletionDTO"];
+                    "application/*+json": components["schemas"]["UserDeletionDTO"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/{userId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gets a user's activity log, paginated.
+         *
+         *     The `perspective` parameter picks the side: `subject` (the default) returns what
+         *     happened to the user, `actor` returns what the user did to others.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    Type?: components["schemas"]["UserHistoryType"][];
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
+                    /** @description Which side of an entry the user being viewed is on. */
+                    perspective?: components["schemas"]["UserHistoryPerspective"];
+                };
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    userId: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserHistoryDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/user-settings": {
@@ -5656,7 +9525,12 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update the current user settings. */
+        /**
+         * Update the current user settings.
+         * @description This update endpoint, unlike others, uses a full DTO instead of a patch document.
+         *     This is because user settings are typically small and it's easier to manage them as a whole. And they are always loaded as a whole
+         *     so partial updates are less relevant.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -5723,14 +9597,16 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    page?: number;
-                    limit?: number;
-                    Skip?: number;
-                    Take?: number;
-                    search?: string;
-                    Sort?: string;
-                    sortOrder?: components["schemas"]["SortOrder"];
-                    Filters?: components["schemas"]["Filter"][];
+                    Search?: string;
+                    Type?: components["schemas"]["WorkType"][];
+                    SubjectId?: components["schemas"]["Ulid"][];
+                    "CreatedAt.Min"?: string;
+                    "CreatedAt.Max"?: string;
+                    Page?: number;
+                    PerPage?: number;
+                    SortBy?: components["schemas"]["Sorting"];
+                    Sort?: "Title" | "Type" | "SubjectId" | "CreatedAt";
+                    CombineWith?: components["schemas"]["CombineType"];
                 };
                 header?: never;
                 path?: never;
@@ -5844,8 +9720,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Retrieves a specific work by its ID.
-         *     It will also include the work's associated tasks */
+        /**
+         * Retrieves a specific work by its ID.
+         *     It will also include the work's associated tasks
+         */
         get: {
             parameters: {
                 query?: never;
@@ -6039,72 +9917,200 @@ export interface paths {
         };
         trace?: never;
     };
+    "/work/{id}/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieves statistics of a particular work by its id */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    id: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WorkStatisticsDTOApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/work/{id}/relation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieves the list of materials with their chain via chapters up to a course
+         *     which has a work assignment with the given work id
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Universally Unique Lexicographically Sortable Identifier (ULID). */
+                    id: components["schemas"]["Ulid"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WorkRelationDTOIEnumerableApiResponseDTO"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SerializedNooException"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         AddHelperMentorOptionsDTO: {
             mentorId: components["schemas"]["Ulid"];
-            notifyMentor?: boolean;
-            notifyStudent?: boolean;
         };
-        AssignedWorkAnswerModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        AssignedWorkAnswerDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             richTextContent?: components["schemas"]["IRichTextType"];
             wordContent?: string | null;
             mentorComment?: components["schemas"]["IRichTextType"];
             /** Format: int32 */
             score?: number | null;
             /** Format: int32 */
-            maxScore?: number;
+            maxScore: number;
             status: components["schemas"]["AssignedWorkAnswerStatus"];
             detailedScore?: {
                 [key: string]: number;
             } | null;
-            taskId?: components["schemas"]["Ulid"];
-            task?: components["schemas"]["WorkTaskModel"];
+            taskId: components["schemas"]["Ulid"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
         };
         /** @enum {string} */
-        AssignedWorkAnswerStatus: "not-submitted" | "submitted";
+        AssignedWorkAnswerStatus: "not-submitted" | "submitted" | "checked";
         /** @enum {string} */
         AssignedWorkCheckStatus: "not-checked" | "in-progress" | "checked";
-        AssignedWorkCommentModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            content?: components["schemas"]["IRichTextType"];
-            assignedWorkAsMainMentor?: components["schemas"]["AssignedWorkModel"];
-            assignedWorkAsHelperMentor?: components["schemas"]["AssignedWorkModel"];
-            assignedWorkAsStudent?: components["schemas"]["AssignedWorkModel"];
-        };
-        AssignedWorkDTO: Record<string, never>;
-        AssignedWorkDTOApiResponseDTO: {
-            data?: components["schemas"]["AssignedWorkDTO"];
-            meta?: unknown;
-        };
-        AssignedWorkDTOIEnumerableApiResponseDTO: {
-            data?: components["schemas"]["AssignedWorkDTO"][] | null;
-            meta?: unknown;
-        };
-        AssignedWorkModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        AssignedWorkDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             title: string;
-            type: string;
+            type: components["schemas"]["WorkType"];
             /** Format: int32 */
             attempt: number;
             solveStatus: components["schemas"]["AssignedWorkSolveStatus"];
             /** Format: date-time */
-            solveDeadlineAt?: string | null;
+            soldeDeadlineAt?: string | null;
             /** Format: date-time */
             solvedAt?: string | null;
             checkStatus: components["schemas"]["AssignedWorkCheckStatus"];
@@ -6115,98 +10121,115 @@ export interface components {
             /** Format: int32 */
             score?: number | null;
             /** Format: int32 */
-            maxScore?: number;
+            maxScore: number;
             isArchivedByStudent: boolean;
             isArchivedByMentors: boolean;
-            isArchivedByAssistants?: boolean;
-            excludedTaskIds?: string[] | null;
+            isArchivedByAssistants: boolean;
             studentCommentId?: components["schemas"]["Ulid"];
             mainMentorCommentId?: components["schemas"]["Ulid"];
             helperMentorCommentId?: components["schemas"]["Ulid"];
-            studentId?: components["schemas"]["Ulid"];
+            studentId: components["schemas"]["Ulid"];
             mainMentorId?: components["schemas"]["Ulid"];
             helperMentorId?: components["schemas"]["Ulid"];
-            workId?: components["schemas"]["Ulid"];
-            work?: components["schemas"]["WorkModel"];
-            student?: components["schemas"]["UserModel"];
-            mainMentor?: components["schemas"]["UserModel"];
-            helperMentor?: components["schemas"]["UserModel"];
-            studentComment?: components["schemas"]["AssignedWorkCommentModel"];
-            mainMentorComment?: components["schemas"]["AssignedWorkCommentModel"];
-            helperMentorComment?: components["schemas"]["AssignedWorkCommentModel"];
-            answers?: components["schemas"]["AssignedWorkAnswerModel"][] | null;
-            statusHistory?: components["schemas"]["AssignedWorkStatusHistoryModel"][] | null;
-            events?: components["schemas"]["CalendarEventModel"][] | null;
+            student?: components["schemas"]["UserDTO"];
+            mainMentor?: components["schemas"]["UserDTO"];
+            helperMentor?: components["schemas"]["UserDTO"];
+            work?: components["schemas"]["WorkDTO"];
+            answers?: components["schemas"]["AssignedWorkAnswerDTO"][] | null;
         };
+        AssignedWorkDTOApiResponseDTO: {
+            data?: components["schemas"]["AssignedWorkDTO"];
+            meta?: unknown;
+        };
+        AssignedWorkDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["AssignedWorkDTO"][] | null;
+            meta?: unknown;
+        };
+        AssignedWorkHistoryDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            type: components["schemas"]["AssignedWorkHistoryType"];
+            /** Format: date-time */
+            changedAt: string;
+            value?: {
+                [key: string]: string;
+            } | null;
+            changedBy?: components["schemas"]["UserDTO"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+        };
+        AssignedWorkHistoryDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["AssignedWorkHistoryDTO"][] | null;
+            meta?: unknown;
+        };
+        /** @enum {string} */
+        AssignedWorkHistoryType: "created" | "started-solving" | "solve-deadline-shifted" | "solved" | "started-checking" | "check-deadline-shifted" | "checked" | "sent-on-recheck" | "sent-on-resolve" | "helper-mentor-added" | "main-mentor-changed";
+        /**
+         * @description A slice of the assigned work list as the user sees it: one tab of the list page,
+         *     with its own counter next to the title. What each of them contains is defined in
+         *     one place, `AssignedWorkTabCriteria`.
+         * @enum {string}
+         */
+        AssignedWorkListTab: "all" | "not-solved" | "not-checked" | "checked";
         AssignedWorkProgressDTO: {
-            id?: components["schemas"]["Ulid"];
-            solve_status?: components["schemas"]["AssignedWorkSolveStatus"];
+            assignedWorkId?: components["schemas"]["Ulid"];
+            solveStatus?: components["schemas"]["AssignedWorkSolveStatus"];
             /** Format: date-time */
-            solved_at?: string | null;
-            check_status?: components["schemas"]["AssignedWorkCheckStatus"];
+            solvedAt?: string | null;
+            checkStatus?: components["schemas"]["AssignedWorkCheckStatus"];
             /** Format: date-time */
-            checked_at?: string | null;
+            checkedAt?: string | null;
             /** Format: int32 */
             score?: number | null;
             /** Format: int32 */
-            max_score?: number | null;
+            maxScore?: number | null;
+            /** Format: int32 */
+            attempt?: number;
+            /** Format: date-time */
+            createdAt?: string;
         };
-        AssignedWorkProgressDTOApiResponseDTO: {
-            data?: components["schemas"]["AssignedWorkProgressDTO"];
+        AssignedWorkProgressDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["AssignedWorkProgressDTO"][] | null;
             meta?: unknown;
         };
         /** @enum {string} */
         AssignedWorkSolveStatus: "not-solved" | "in-progress" | "solved";
-        AssignedWorkStatusHistoryModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            status?: components["schemas"]["AssignedWorkStatusHistoryType"];
-            /** Format: date-time */
-            changedAt?: string;
-            value?: {
-                [key: string]: string;
-            } | null;
-            assignedWorkId?: components["schemas"]["Ulid"];
-            changedById?: components["schemas"]["Ulid"];
-            assignedWork?: components["schemas"]["AssignedWorkModel"];
-            changedBy?: components["schemas"]["UserModel"];
+        AssignedWorksCounts: {
+            /** Format: int32 */
+            all: number;
+            /** Format: int32 */
+            notSolved: number;
+            /** Format: int32 */
+            notChecked: number;
+            /** Format: int32 */
+            checked: number;
         };
-        /** @enum {string} */
-        AssignedWorkStatusHistoryType: "started-solving" | "solve-deadline-shifted" | "solved" | "started-checking" | "check-deadline-shifted" | "checked" | "sent-on-recheck" | "sent-on-resolve";
+        AssignedWorksMetadataDTO: {
+            counts: components["schemas"]["AssignedWorksCounts"];
+        };
+        AssignedWorksMetadataDTOApiResponseDTO: {
+            data?: components["schemas"]["AssignedWorksMetadataDTO"];
+            meta?: unknown;
+        };
         BooleanApiResponseDTO: {
             data?: boolean;
             meta?: unknown;
         };
-        BulkCreateNotificationsDTO: Record<string, never>;
+        BulkCreateNotificationsDTO: {
+            userIds: components["schemas"]["Ulid"][];
+            type: string;
+            title: string;
+            message?: string | null;
+            isBanner: boolean;
+            link?: components["schemas"]["FrontendLink"];
+            linkText?: string | null;
+            channels?: components["schemas"]["NotificationChannelType"][] | null;
+        };
         CalendarEventDTO: {
-            id?: components["schemas"]["Ulid"];
-            assignedWorkId?: components["schemas"]["Ulid"];
-            type?: components["schemas"]["CalendarEventType"];
-            title?: string | null;
-            description?: string | null;
-            /** Format: date-time */
-            startDateTime?: string;
-            /** Format: date-time */
-            endDateTime?: string | null;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        CalendarEventDTOIEnumerableApiResponseDTO: {
-            data?: components["schemas"]["CalendarEventDTO"][] | null;
-            meta?: unknown;
-        };
-        CalendarEventModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            userId: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             assignedWorkId?: components["schemas"]["Ulid"];
             type: components["schemas"]["CalendarEventType"];
             title: string;
@@ -6215,8 +10238,14 @@ export interface components {
             startDateTime: string;
             /** Format: date-time */
             endDateTime?: string | null;
-            user?: components["schemas"]["UserModel"];
-            assignedWork?: components["schemas"]["AssignedWorkModel"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+        };
+        CalendarEventDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["CalendarEventDTO"][] | null;
+            meta?: unknown;
         };
         /** @enum {string} */
         CalendarEventType: "custom" | "assigned-work-check-deadline" | "assigned-work-solve-deadline" | "assigned-work-cheked" | "assigned-work-solved";
@@ -6230,8 +10259,21 @@ export interface components {
             data?: components["schemas"]["ChangeLogDTO"][] | null;
             meta?: unknown;
         };
+        ChangeRoleDTO: {
+            newRole: components["schemas"]["UserRoles"];
+        };
         /** @enum {string} */
         ChangeType: "feature" | "bug-fix" | "optimization" | "refactor";
+        CheckSavedTaskAnswerDTO: {
+            answer?: string | null;
+        };
+        /** @enum {string} */
+        CombineType: "and" | "or";
+        CompleteUploadDTO: {
+            /** Format: int64 */
+            size: number;
+            etag?: string | null;
+        };
         ConfirmEmailChangeDTO: {
             token: string;
         };
@@ -6239,156 +10281,280 @@ export interface components {
             token: string;
             newPassword: string;
         };
-        CourseChapterModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        CourseChapterDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: int32 */
             order: number;
             title: string;
             color?: string | null;
             isActive: boolean;
-            courseId: components["schemas"]["Ulid"];
+            /** Format: date-time */
+            publishAt?: string | null;
             parentChapterId?: components["schemas"]["Ulid"];
-            course?: components["schemas"]["CourseModel"];
-            parentChapter?: components["schemas"]["CourseChapterModel"];
-            subChapters?: components["schemas"]["CourseChapterModel"][] | null;
-            materials?: components["schemas"]["CourseMaterialModel"][] | null;
+            subChapters: components["schemas"]["CourseChapterDTO"][];
+            materials: components["schemas"]["CourseMaterialDTO"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
         };
         CourseDTO: {
-            id?: components["schemas"]["Ulid"];
-            name?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            name: string;
             /** Format: date-time */
-            startDate?: string;
+            startDate?: string | null;
             /** Format: date-time */
-            endDate?: string;
+            endDate?: string | null;
             description?: string | null;
             thumbnailId?: components["schemas"]["Ulid"];
             thumbnail?: components["schemas"]["MediaDTO"];
             /** Format: int32 */
             memberCount?: number | null;
-            subjectId?: components["schemas"]["Ulid"];
+            isArchived: boolean;
+            subjectId: components["schemas"]["Ulid"];
             subject?: components["schemas"]["SubjectDTO"];
+            chapters?: components["schemas"]["CourseChapterDTO"][] | null;
+            authors?: components["schemas"]["UserDTO"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
         };
         CourseDTOApiResponseDTO: {
             data?: components["schemas"]["CourseDTO"];
             meta?: unknown;
         };
-        CourseMaterialContentModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            content?: components["schemas"]["IRichTextType"];
-            workId?: components["schemas"]["Ulid"];
-            isWorkAvailable: boolean;
-            /** Format: date-time */
-            workSolveDeadlineAt?: string | null;
-            /** Format: date-time */
-            workCheckDeadlineAt?: string | null;
-            work?: components["schemas"]["WorkModel"];
-            material?: components["schemas"]["CourseMaterialModel"];
+        CourseDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["CourseDTO"][] | null;
+            meta?: unknown;
         };
-        CourseMaterialModel: {
-            id?: components["schemas"]["Ulid"];
+        CourseMaterialContentDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            content: components["schemas"]["IRichTextType"];
+            poll?: components["schemas"]["PollDTO"];
+            nooTubeVideos: components["schemas"]["NooTubeVideoDTO"][];
+            medias: components["schemas"]["MediaDTO"][];
+            workAssignments: components["schemas"]["CourseWorkAssignmentDTO"][];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
+        };
+        CourseMaterialContentDTOApiResponseDTO: {
+            data?: components["schemas"]["CourseMaterialContentDTO"];
+            meta?: unknown;
+        };
+        CourseMaterialDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: int32 */
             order: number;
             title: string;
-            titleColor: string;
+            titleColor?: string | null;
             isActive: boolean;
+            isPinned: boolean;
             /** Format: date-time */
-            publishAt?: string | null;
+            publishAt: string;
             chapterId: components["schemas"]["Ulid"];
-            contentId: components["schemas"]["Ulid"];
-            chapter?: components["schemas"]["CourseChapterModel"];
-            content?: components["schemas"]["CourseMaterialContentModel"];
-            reactions?: components["schemas"]["CourseMaterialReactionModel"][] | null;
-        };
-        CourseMaterialReactionModel: {
-            id?: components["schemas"]["Ulid"];
+            contentId?: components["schemas"]["Ulid"];
+            myReaction?: components["schemas"]["CourseMaterialReactionTypes"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            materialId?: components["schemas"]["Ulid"];
-            userId?: components["schemas"]["Ulid"];
-            reaction?: components["schemas"]["CourseMaterialReactionTypes"];
-            material?: components["schemas"]["CourseMaterialModel"];
-            user?: components["schemas"]["UserModel"];
         };
         /** @enum {string} */
         CourseMaterialReactionTypes: "check" | "thinking";
-        CourseMembershipModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        CourseMembershipDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            type: components["schemas"]["CourseMembershipType"];
+            courseId: components["schemas"]["Ulid"];
+            course?: components["schemas"]["CourseDTO"];
             isActive: boolean;
-            isArchived?: boolean;
-            courseId?: components["schemas"]["Ulid"];
-            studentId?: components["schemas"]["Ulid"];
+            isArchived: boolean;
+            isArchivedByStudent: boolean;
+            isPinnedByStudent: boolean;
+            studentId: components["schemas"]["Ulid"];
+            student?: components["schemas"]["UserDTO"];
             assignerId?: components["schemas"]["Ulid"];
-            course?: components["schemas"]["CourseModel"];
-            student?: components["schemas"]["UserModel"];
-            assigner?: components["schemas"]["UserModel"];
-        };
-        CourseModel: {
-            id?: components["schemas"]["Ulid"];
+            assigner?: components["schemas"]["UserDTO"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            name: string;
-            /** Format: date-time */
-            startDate?: string;
-            /** Format: date-time */
-            endDate?: string;
-            description?: string | null;
-            thumbnailId?: components["schemas"]["Ulid"];
-            subjectId?: components["schemas"]["Ulid"];
-            thumbnail?: components["schemas"]["MediaModel"];
-            chapters?: components["schemas"]["CourseChapterModel"][] | null;
-            editors?: components["schemas"]["UserModel"][] | null;
-            authors?: components["schemas"]["UserModel"][] | null;
-            memberships?: components["schemas"]["CourseMembershipModel"][] | null;
-            subject?: components["schemas"]["SubjectModel"];
         };
-        CourseModelIEnumerableApiResponseDTO: {
-            data?: components["schemas"]["CourseModel"][] | null;
+        CourseMembershipDTOApiResponseDTO: {
+            data?: components["schemas"]["CourseMembershipDTO"];
             meta?: unknown;
+        };
+        CourseMembershipDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["CourseMembershipDTO"][] | null;
+            meta?: unknown;
+        };
+        /** @enum {string} */
+        CourseMembershipType: "manual-assigned" | "external-assigned" | "subscription";
+        CourseWorkAssignmentDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            workId?: components["schemas"]["Ulid"];
+            work?: components["schemas"]["WorkDTO"];
+            note?: string | null;
+            isActive: boolean;
+            /** Format: date-time */
+            deactivatedAt?: string | null;
+            /** Format: date-time */
+            solveDeadlineAt?: string | null;
+            /** Format: date-time */
+            checkDeadlineAt?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
         };
         CreateCalendarEventDTO: {
             title?: string | null;
             description?: string | null;
+            type?: components["schemas"]["CalendarEventType"];
             /** Format: date-time */
-            dateTime?: string;
+            startDateTime?: string;
+            /** Format: date-time */
+            endDateTime?: string | null;
+            assignedWorkId?: components["schemas"]["Ulid"];
         };
-        CreateGoogleSheetsIntegrationDTO: Record<string, never>;
+        CreateCourseChapterDTO: {
+            /** Format: int32 */
+            order: number;
+            title: string;
+            color?: string | null;
+            isActive: boolean;
+            /** Format: date-time */
+            publishAt?: string | null;
+            subChapters?: components["schemas"]["CreateCourseChapterDTO"][] | null;
+            materials?: components["schemas"]["CreateCourseMaterialDTO"][] | null;
+        };
+        CreateCourseDTO: {
+            name: string;
+            /** Format: date-time */
+            startDate?: string | null;
+            /** Format: date-time */
+            endDate?: string | null;
+            description?: string | null;
+            thumbnailId?: components["schemas"]["Ulid"];
+            subjectId: components["schemas"]["Ulid"];
+            chapters?: components["schemas"]["CreateCourseChapterDTO"][] | null;
+        };
+        CreateCourseMaterialContentDTO: {
+            content: components["schemas"]["IRichTextType"];
+            pollId?: components["schemas"]["Ulid"];
+            nootubeVideoIds?: components["schemas"]["Ulid"][] | null;
+            mediaIds?: components["schemas"]["Ulid"][] | null;
+            workAssignments?: components["schemas"]["CreateCourseWorkAssignmentDTO"][] | null;
+        };
+        CreateCourseMaterialDTO: {
+            /** Format: int32 */
+            order: number;
+            title: string;
+            titleColor?: string | null;
+            isActive: boolean;
+            isPinned?: boolean;
+            /** Format: date-time */
+            publishAt?: string | null;
+        };
+        CreateCourseMembershipDTO: {
+            studentId: components["schemas"]["Ulid"];
+            courseId: components["schemas"]["Ulid"];
+            notifyStudent?: boolean;
+        };
+        CreateCourseWorkAssignmentDTO: {
+            /** Format: int32 */
+            order: number;
+            workId: components["schemas"]["Ulid"];
+            note?: string | null;
+            isActive: boolean;
+            /** Format: date-time */
+            deactivatedAt?: string | null;
+            /** Format: date-time */
+            solveDeadlineAt?: string | null;
+            /** Format: date-time */
+            checkDeadlineAt?: string | null;
+        };
+        CreateGoogleSheetsIntegrationDTO: {
+            name: string;
+            type: components["schemas"]["GoogleSheetsIntegrationType"];
+            parameters?: components["schemas"]["ExportParametersDTO"];
+            schedule: components["schemas"]["GoogleSheetsIntegrationSchedule"];
+            /**
+             * @description The one-time authorization code from the Google consent popup. Required on every create:
+             *     each integration gets its own freshly granted refresh token rather than reusing one.
+             */
+            googleAuthCode: string;
+            /**
+             * @description The `state` handed out with the consent URL and echoed back by Google. Proves the
+             *     code was obtained by this user through this platform.
+             */
+            googleAuthState: string;
+        };
         CreateMentorAssignmentDTO: {
             studentId: components["schemas"]["Ulid"];
             mentorId: components["schemas"]["Ulid"];
             subjectId: components["schemas"]["Ulid"];
         };
+        CreateNooTubeVideoCommentDTO: {
+            content: string;
+        };
+        CreateNooTubeVideoDTO: {
+            title: string;
+            serviceType?: components["schemas"]["NooTubeServiceType"];
+            description?: string | null;
+            thumbnailId?: components["schemas"]["Ulid"];
+            /** Format: int64 */
+            fileSize: number;
+            fileName?: string | null;
+            isActive: boolean;
+            isListed: boolean;
+            /** Format: date-time */
+            publishedAt?: string | null;
+        };
+        CreatePollAnswerDTO: {
+            pollQuestionId: components["schemas"]["Ulid"];
+            value?: components["schemas"]["PollAnswerValue"];
+            /**
+             * @description Files answering a Noo.Api.Polls.Types.PollQuestionType.Files question. They are
+             *     uploaded before the poll is submitted, so the answer only carries their ids.
+             */
+            mediaIds?: components["schemas"]["Ulid"][] | null;
+        };
         CreatePollDTO: {
             title: string;
             description?: string | null;
             isActive: boolean;
+            /** Format: date-time */
+            expiresAt?: string | null;
+            isAuthRequired: boolean;
             questions: components["schemas"]["CreatePollQuestionDTO"][];
+        };
+        CreatePollParticipationDTO: {
+            userType?: components["schemas"]["ParticipatingUserType"];
+            userExternalIdentifier?: string | null;
+            userExternalData?: unknown;
+            answers: components["schemas"]["CreatePollAnswerDTO"][];
         };
         CreatePollQuestionDTO: {
             title: string;
             description?: string | null;
             isRequired?: boolean;
+            /** Format: int32 */
+            order?: number;
             type: components["schemas"]["PollQuestionType"];
             config?: components["schemas"]["PollQuestionConfig"];
+        };
+        CreateSavedTaskDTO: {
+            taskId: components["schemas"]["Ulid"];
+            assignedWorkId: components["schemas"]["Ulid"];
         };
         CreateSnippetDTO: {
             name?: string | null;
@@ -6396,15 +10562,11 @@ export interface components {
         };
         CreateSupportArticleDTO: {
             title: string;
+            /** Format: int32 */
+            order: number;
             content?: components["schemas"]["IRichTextType"];
             isActive?: boolean;
-            categoryId?: components["schemas"]["Ulid"];
-        };
-        CreateSupportCategoryDTO: {
-            name: string;
-            isPinned?: boolean;
-            isActive?: boolean;
-            parentId?: components["schemas"]["Ulid"];
+            category?: components["schemas"]["SupportCategory"];
         };
         CreateWorkDTO: {
             title: string;
@@ -6429,20 +10591,133 @@ export interface components {
         };
         /** @enum {string} */
         DeviceType: "unknown" | "desktop" | "mobile" | "tablet";
-        Filter: {
-            field?: string | null;
-            type?: components["schemas"]["FilterType"];
-            values?: unknown[] | null;
+        DownloadUrlDTO: {
+            url: string;
+        };
+        DownloadUrlDTOApiResponseDTO: {
+            data?: components["schemas"]["DownloadUrlDTO"];
+            meta?: unknown;
+        };
+        /**
+         * @description Selection criteria for an export. Which members are required depends on the export type and
+         *     is validated by that type's profile.
+         */
+        ExportParametersDTO: {
+            role?: components["schemas"]["UserRoles"];
+            courseId?: components["schemas"]["Ulid"];
+            subjectId?: components["schemas"]["Ulid"];
+            /** Format: date-time */
+            createdFrom?: string | null;
+            /** Format: date-time */
+            createdTo?: string | null;
+            pollId?: components["schemas"]["Ulid"];
+            studentId?: components["schemas"]["Ulid"];
+            mentorId?: components["schemas"]["Ulid"];
+        };
+        ExternalAuthCallbackDTO: {
+            /**
+             * @description The callback query string as the browser received it. Passed through untouched so
+             *     provider-specific parameters (VK's `device_id`) need no shared plumbing.
+             */
+            parameters: {
+                [key: string]: string;
+            };
         };
         /** @enum {string} */
-        FilterType: "equals" | "not-equals" | "range" | "contains" | "array";
+        ExternalAuthIntent: "login" | "link";
+        /** @description A provider the current environment can actually sign users in with. */
+        ExternalAuthProviderDTO: {
+            provider: components["schemas"]["ExternalAuthProviderType"];
+            displayName: string;
+        };
+        ExternalAuthProviderDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["ExternalAuthProviderDTO"][] | null;
+            meta?: unknown;
+        };
+        /** @enum {string} */
+        ExternalAuthProviderType: "yandex" | "vk";
+        /**
+         * @description One callback endpoint serves both intents, because the browser lands on a single
+         *     registered redirect URI. The intent tells the frontend how to finish.
+         */
+        ExternalAuthResultDTO: {
+            intent: components["schemas"]["ExternalAuthIntent"];
+            provider: components["schemas"]["ExternalAuthProviderType"];
+            returnUrl?: string | null;
+            session?: components["schemas"]["LoginResponseDTO"];
+        };
+        ExternalAuthResultDTOApiResponseDTO: {
+            data?: components["schemas"]["ExternalAuthResultDTO"];
+            meta?: unknown;
+        };
+        ExternalAuthUrlDTO: {
+            /** @description The provider's authorization page. The browser is sent here as a full-page redirect. */
+            url: string;
+        };
+        ExternalAuthUrlDTOApiResponseDTO: {
+            data?: components["schemas"]["ExternalAuthUrlDTO"];
+            meta?: unknown;
+        };
         /** @enum {string} */
         FontSize: "small" | "normal" | "large";
-        GoogleSheetsIntegrationDTO: Record<string, never>;
+        FrontendLink: {
+            name: string;
+            params?: unknown;
+        };
+        GoogleOAuthUrlDTO: {
+            url: string;
+            /**
+             * @description Opaque value the frontend must hand back with the authorization code, so a code obtained
+             *     in someone else's browser cannot be replayed into this user's account.
+             */
+            state: string;
+        };
+        GoogleOAuthUrlDTOApiResponseDTO: {
+            data?: components["schemas"]["GoogleOAuthUrlDTO"];
+            meta?: unknown;
+        };
+        GoogleSheetsIntegrationDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            name: string;
+            type: components["schemas"]["GoogleSheetsIntegrationType"];
+            parameters: components["schemas"]["ExportParametersDTO"];
+            schedule: components["schemas"]["GoogleSheetsIntegrationSchedule"];
+            /** Format: date-time */
+            nextRunAt?: string | null;
+            /** Format: date-time */
+            lastRunAt?: string | null;
+            status: components["schemas"]["GoogleSheetsIntegrationStatus"];
+            runState: components["schemas"]["GoogleSheetsIntegrationRunState"];
+            lastErrorText?: string | null;
+            /** Format: int32 */
+            lastRowCount?: number | null;
+            googleAccount?: string | null;
+            spreadsheetUrl?: string | null;
+            ownerId: components["schemas"]["Ulid"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+        };
         GoogleSheetsIntegrationDTOIEnumerableApiResponseDTO: {
             data?: components["schemas"]["GoogleSheetsIntegrationDTO"][] | null;
             meta?: unknown;
         };
+        /**
+         * @description Where an integration is in its run cycle. Deliberately separate from
+         *     Noo.Api.GoogleSheetsIntegrations.Types.GoogleSheetsIntegrationStatus: a run must never overwrite whether the user
+         *     has the integration enabled.
+         * @enum {string}
+         */
+        GoogleSheetsIntegrationRunState: "idle" | "queued" | "running";
+        /** @enum {string} */
+        GoogleSheetsIntegrationSchedule: "manual" | "hourly" | "daily" | "weekly";
+        /** @enum {string} */
+        GoogleSheetsIntegrationStatus: "active" | "inactive" | "error";
+        /** @enum {string} */
+        GoogleSheetsIntegrationType: "users" | "courses" | "poll-results" | "assigned-works";
+        /** @description Represents a rich text type for use in rich text fields. */
         IRichTextType: Record<string, never>;
         IdResponseDTO: {
             id?: components["schemas"]["Ulid"];
@@ -6451,50 +10726,84 @@ export interface components {
             data?: components["schemas"]["IdResponseDTO"];
             meta?: unknown;
         };
+        KinescopeWebhook: {
+            event?: string | null;
+            data?: components["schemas"]["KinescopeWebhookData"];
+        };
+        KinescopeWebhookData: {
+            id?: string | null;
+            status?: string | null;
+            message?: string | null;
+        };
+        LinkedIdentityDTO: {
+            provider: components["schemas"]["ExternalAuthProviderType"];
+            /** @description The email the provider reported, for telling two linked accounts apart. */
+            email?: string | null;
+            displayName?: string | null;
+            /** Format: date-time */
+            lastLoginAt?: string | null;
+            /** Format: date-time */
+            linkedAt: string;
+        };
+        LinkedIdentityDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["LinkedIdentityDTO"][] | null;
+            meta?: unknown;
+        };
         LoginDTO: {
             usernameOrEmail: string;
             password: string;
         };
         LoginResponseDTO: {
-            accessToken?: string | null;
+            accessToken: string;
             /** Format: date-time */
-            expiresAt?: string;
-            userInfo?: components["schemas"]["UserInfoDTO"];
+            expiresAt: string;
+            userId: components["schemas"]["Ulid"];
+            userRole: components["schemas"]["UserRoles"];
         };
         LoginResponseDTOApiResponseDTO: {
             data?: components["schemas"]["LoginResponseDTO"];
             meta?: unknown;
         };
-        MediaDTO: Record<string, never>;
-        MediaModel: {
-            id?: components["schemas"]["Ulid"];
+        /** @enum {string} */
+        MediaCategory: "user-avatar" | "video-cover" | "video-rich-text" | "course-cover" | "course-attachment" | "course-rich-text" | "work-rich-text" | "profile-background" | "assigned-work-student-rich-text" | "assigned-work-mentor-rich-text" | "assigned-work-student-comment-rich-text" | "assigned-work-mentor-comment-rich-text" | "help-rich-text" | "snippet-rich-text" | "poll-answer-file";
+        MediaDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            path: string;
+            name: string;
+            actualName: string;
+            extension: string;
+            /** Format: int64 */
+            size?: number;
+            /** Format: int32 */
+            order: number;
+            category: components["schemas"]["MediaCategory"];
+            status: components["schemas"]["MediaStatus"];
+            entityId?: components["schemas"]["Ulid"];
+            ownerId: components["schemas"]["Ulid"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            /** Format: int32 */
-            order: number;
-            hash?: string | null;
-            path: string;
-            name: string;
-            actualName?: string | null;
-            extension: string;
-            /** Format: int64 */
-            size?: number;
-            courses?: components["schemas"]["CourseModel"][] | null;
-            nooTubeVideoThumbnail?: components["schemas"]["NooTubeVideoModel"];
-            userAvatar?: components["schemas"]["UserAvatarModel"];
+            url: string;
         };
+        MediaDTOApiResponseDTO: {
+            data?: components["schemas"]["MediaDTO"];
+            meta?: unknown;
+        };
+        /** @enum {string} */
+        MediaStatus: "pending" | "completed";
         MentorAssignmentDTO: {
-            id?: components["schemas"]["Ulid"];
-            studentId?: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            studentId: components["schemas"]["Ulid"];
             student?: components["schemas"]["UserDTO"];
-            mentorId?: components["schemas"]["Ulid"];
+            mentorId: components["schemas"]["Ulid"];
             mentor?: components["schemas"]["UserDTO"];
-            subjectId?: components["schemas"]["Ulid"];
+            subjectId: components["schemas"]["Ulid"];
             subject?: components["schemas"]["SubjectDTO"];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
         };
@@ -6502,72 +10811,26 @@ export interface components {
             data?: components["schemas"]["MentorAssignmentDTO"][] | null;
             meta?: unknown;
         };
-        MentorAssignmentModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            mentorId?: components["schemas"]["Ulid"];
-            studentId?: components["schemas"]["Ulid"];
-            subjectId?: components["schemas"]["Ulid"];
-            student?: components["schemas"]["UserModel"];
-            subject?: components["schemas"]["SubjectModel"];
-            mentor?: components["schemas"]["UserModel"];
-        };
         /** @enum {string} */
-        NooTubeServiceType: "noo-tube" | "you-tube" | "vk-video" | "rutube";
+        NooTubeServiceType: "kinescope";
         NooTubeVideoCommentDTO: {
-            id?: components["schemas"]["Ulid"];
-            user_id?: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            userId: components["schemas"]["Ulid"];
             user?: components["schemas"]["UserDTO"];
-            content?: string | null;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        NooTubeVideoCommentModel: {
-            id?: components["schemas"]["Ulid"];
+            content: string;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            videoId: components["schemas"]["Ulid"];
-            userId: components["schemas"]["Ulid"];
-            content: string;
-            video?: components["schemas"]["NooTubeVideoModel"];
-            user?: components["schemas"]["UserModel"];
         };
-        NooTubeVideoDTO: {
-            id?: components["schemas"]["Ulid"];
-            title?: string | null;
-            description?: string | null;
-            thumbnailId?: components["schemas"]["Ulid"];
-            externalIdentifier?: string | null;
-            externalUrl?: string | null;
-            externalThumbnailUrl?: string | null;
-            serviceType?: components["schemas"]["NooTubeServiceType"];
-            state?: components["schemas"]["VideoState"];
-            /** Format: int32 */
-            duration?: number | null;
-            /** Format: date-time */
-            publishedAt?: string;
-            uploadedById?: components["schemas"]["Ulid"];
-            uploadedBy?: components["schemas"]["UserDTO"];
-            thumbnail?: components["schemas"]["MediaDTO"];
-            comments?: components["schemas"]["NooTubeVideoCommentDTO"][] | null;
-        };
-        NooTubeVideoDTOIEnumerableApiResponseDTO: {
-            data?: components["schemas"]["NooTubeVideoDTO"][] | null;
+        NooTubeVideoCommentDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoCommentDTO"][] | null;
             meta?: unknown;
         };
-        NooTubeVideoModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        NooTubeVideoDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             title: string;
             description?: string | null;
             thumbnailId?: components["schemas"]["Ulid"];
@@ -6578,55 +10841,119 @@ export interface components {
             state: components["schemas"]["VideoState"];
             /** Format: int32 */
             duration?: number | null;
+            isActive: boolean;
+            isListed: boolean;
+            isFavourite: boolean;
             /** Format: date-time */
-            publishedAt?: string | null;
-            uploadedById?: components["schemas"]["Ulid"];
-            uploadedByUser?: components["schemas"]["UserModel"];
-            thumbnail?: components["schemas"]["MediaModel"];
-            comments?: components["schemas"]["NooTubeVideoCommentModel"][] | null;
-            reactions?: components["schemas"]["NooTubeVideoReactionModel"][] | null;
-        };
-        NooTubeVideoReactionModel: {
-            id?: components["schemas"]["Ulid"];
+            publishedAt: string;
+            uploadedById: components["schemas"]["Ulid"];
+            uploadedBy?: components["schemas"]["UserDTO"];
+            thumbnail?: components["schemas"]["MediaDTO"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            userId: components["schemas"]["Ulid"];
-            videoId: components["schemas"]["Ulid"];
-            reaction?: components["schemas"]["VideoReaction"];
-            user?: components["schemas"]["UserModel"];
-            video?: components["schemas"]["NooTubeVideoModel"];
         };
+        NooTubeVideoDTOApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoDTO"];
+            meta?: unknown;
+        };
+        NooTubeVideoDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoDTO"][] | null;
+            meta?: unknown;
+        };
+        /**
+         * @description Reactions of every user on a single video. Unlike course material
+         *     reactions, video reaction counts are public: everyone who may watch the
+         *     video sees them.
+         */
+        NooTubeVideoReactionsDTO: {
+            myReaction?: components["schemas"]["VideoReaction"];
+            /** @description How many users picked each reaction. Reactions nobody picked are omitted. */
+            counts: {
+                /** Format: int32 */
+                like?: number;
+                /** Format: int32 */
+                dislike?: number;
+                /** Format: int32 */
+                heart?: number;
+                /** Format: int32 */
+                laugh?: number;
+                /** Format: int32 */
+                sad?: number;
+                /** Format: int32 */
+                mindblowing?: number;
+            };
+        };
+        NooTubeVideoReactionsDTOApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoReactionsDTO"];
+            meta?: unknown;
+        };
+        NooTubeVideoStatisticsDTO: {
+            /** Format: date-time */
+            from: string;
+            /** Format: date-time */
+            to: string;
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            uniqueViews: number;
+            /** Format: int32 */
+            watchTimeSeconds: number;
+            /** Format: int64 */
+            playerLoads: number;
+            timeline: components["schemas"]["NooTubeVideoStatisticsPointDTO"][];
+        };
+        NooTubeVideoStatisticsDTOApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoStatisticsDTO"];
+            meta?: unknown;
+        };
+        NooTubeVideoStatisticsPointDTO: {
+            /** Format: date-time */
+            date: string;
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            uniqueViews: number;
+            /** Format: int32 */
+            watchTimeSeconds: number;
+            /** Format: int64 */
+            playerLoads: number;
+        };
+        NooTubeVideoUploadDTO: {
+            videoId: components["schemas"]["Ulid"];
+            uploadUrl: string;
+            externalId: string;
+        };
+        NooTubeVideoUploadDTOApiResponseDTO: {
+            data?: components["schemas"]["NooTubeVideoUploadDTO"];
+            meta?: unknown;
+        };
+        /** @enum {string} */
+        NotificationChannelType: "http" | "telegram";
         NotificationDTO: {
-            id?: components["schemas"]["Ulid"];
-            type?: string | null;
-            title?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            type: string;
+            title: string;
             message?: string | null;
-            is_read?: boolean;
-            is_banner?: boolean;
-            link?: string | null;
-            link_text?: string | null;
+            isRead: boolean;
+            isBanner: boolean;
+            link?: components["schemas"]["FrontendLink"];
+            linkText?: string | null;
         };
         NotificationDTOIEnumerableApiResponseDTO: {
             data?: components["schemas"]["NotificationDTO"][] | null;
             meta?: unknown;
         };
-        NotificationModel: {
-            id?: components["schemas"]["Ulid"];
+        OnlineInfoDTO: {
+            isOnline: boolean;
             /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            userId: components["schemas"]["Ulid"];
-            type: string;
-            title: string;
-            message: string;
-            isRead: boolean;
-            isBanner: boolean;
-            link?: string | null;
-            linkText?: string | null;
-            user?: components["schemas"]["UserModel"];
+            lastOnlineAt?: string | null;
+        };
+        OnlineInfoDTOApiResponseDTO: {
+            data?: components["schemas"]["OnlineInfoDTO"];
+            meta?: unknown;
         };
         /** @enum {string} */
         ParticipatingUserType: "authenticated-user" | "telegram-user";
@@ -6635,30 +10962,48 @@ export interface components {
             author?: string | null;
             description?: string | null;
         };
-        PollAnswerModel: {
-            id?: components["schemas"]["Ulid"];
+        PollAnswerDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            pollQuestionId: components["schemas"]["Ulid"];
+            value?: components["schemas"]["PollAnswerValue"];
+            /**
+             * @description Files attached to the answer. Only a Noo.Api.Polls.Types.PollQuestionType.Files
+             *     question ever has them.
+             */
+            medias: components["schemas"]["MediaDTO"][];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            pollQuestionId: components["schemas"]["Ulid"];
-            value: components["schemas"]["PollAnswerValue"];
-            pollQuestion?: components["schemas"]["PollQuestionModel"];
         };
         PollAnswerValue: {
             type?: components["schemas"]["PollQuestionType"];
             value?: unknown;
         };
         PollDTO: {
-            id?: components["schemas"]["Ulid"];
-            title?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            title: string;
             description?: string | null;
-            isActive?: boolean;
+            isActive: boolean;
             /** Format: date-time */
-            createdAt?: string;
+            expiresAt: string;
+            isAuthRequired: boolean;
             /** Format: date-time */
-            updatedAt?: string;
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
             questions?: components["schemas"]["PollQuestionDTO"][] | null;
+            /** Format: int32 */
+            participationsCount: number;
+            /**
+             * @description Whether the caller has already answered this poll. Only computed when a
+             *     single poll is fetched by its id, and always false for an anonymous
+             *     caller — an unauthenticated visitor cannot be recognized before they
+             *     identify themselves.
+             */
+            hasParticipated: boolean;
         };
         PollDTOApiResponseDTO: {
             data?: components["schemas"]["PollDTO"];
@@ -6668,33 +11013,29 @@ export interface components {
             data?: components["schemas"]["PollDTO"][] | null;
             meta?: unknown;
         };
-        PollModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            title: string;
-            description?: string | null;
-            isActive: boolean;
-            isAuthRequired: boolean;
-            questions?: components["schemas"]["PollQuestionModel"][] | null;
-            participations?: components["schemas"]["PollParticipationModel"][] | null;
-        };
-        PollParticipationModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+        PollParticipationDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             pollId: components["schemas"]["Ulid"];
+            poll?: components["schemas"]["PollDTO"];
+            userId?: components["schemas"]["Ulid"];
             userType: components["schemas"]["ParticipatingUserType"];
             userExternalIdentifier?: string | null;
-            userExternalData?: components["schemas"]["PollUserExternalData"];
-            userId?: components["schemas"]["Ulid"];
-            poll?: components["schemas"]["PollModel"];
-            user?: components["schemas"]["UserModel"];
-            answers?: components["schemas"]["PollAnswerModel"][] | null;
+            userExternalData?: unknown;
+            user?: components["schemas"]["UserDTO"];
+            answers?: components["schemas"]["PollAnswerDTO"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+        };
+        PollParticipationDTOApiResponseDTO: {
+            data?: components["schemas"]["PollParticipationDTO"];
+            meta?: unknown;
+        };
+        PollParticipationDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["PollParticipationDTO"][] | null;
+            meta?: unknown;
         };
         PollQuestionConfig: {
             type: components["schemas"]["PollQuestionType"];
@@ -6725,37 +11066,22 @@ export interface components {
             maxFileCount?: number | null;
         };
         PollQuestionDTO: {
-            id?: components["schemas"]["Ulid"];
-            title?: string | null;
-            description?: string | null;
-            isRequired?: boolean;
-            type?: components["schemas"]["PollQuestionType"];
-            config?: components["schemas"]["PollQuestionConfig"];
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        PollQuestionModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: int32 */
             order: number;
-            pollId: components["schemas"]["Ulid"];
             title: string;
             description?: string | null;
             isRequired: boolean;
             type: components["schemas"]["PollQuestionType"];
             config?: components["schemas"]["PollQuestionConfig"];
-            poll?: components["schemas"]["PollModel"];
-            answers?: components["schemas"]["PollAnswerModel"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
         };
         /** @enum {string} */
         PollQuestionType: "checkbox" | "single-choice" | "multiple-choice" | "text" | "number" | "date" | "date-time" | "rating" | "files";
-        PollUserExternalData: Record<string, never>;
         RegisterDTO: {
             name: string;
             username: string;
@@ -6775,6 +11101,80 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        RequestUploadDTO: {
+            category: components["schemas"]["MediaCategory"];
+            fileName: string;
+            contentType: string;
+            entityId?: components["schemas"]["Ulid"];
+        };
+        /**
+         * @description The verdict on one quiz answer, scored by the same checker that scores the
+         *     work it came from.
+         */
+        SavedTaskAnswerCheckDTO: {
+            /** Format: int32 */
+            score: number;
+            /** Format: int32 */
+            maxScore: number;
+            /**
+             * @description Whether the answer earned every point on offer. A partially scored answer
+             *     is not a right one as far as the quiz is concerned.
+             */
+            isCorrect: boolean;
+        };
+        SavedTaskAnswerCheckDTOApiResponseDTO: {
+            data?: components["schemas"]["SavedTaskAnswerCheckDTO"];
+            meta?: unknown;
+        };
+        SavedTaskDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+            taskId: components["schemas"]["Ulid"];
+            task: components["schemas"]["WorkTaskDTO"];
+            assignedWorkId: components["schemas"]["Ulid"];
+            workId: components["schemas"]["Ulid"];
+            work?: components["schemas"]["WorkDTO"];
+        };
+        SavedTaskDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["SavedTaskDTO"][] | null;
+            meta?: unknown;
+        };
+        /**
+         * @description A saved task stripped down to what a work page needs to tell saved tasks from
+         *     unsaved ones and to unsave them again — without pulling the tasks themselves,
+         *     content and all, a second time.
+         */
+        SavedTaskReferenceDTO: {
+            id: components["schemas"]["Ulid"];
+            taskId: components["schemas"]["Ulid"];
+        };
+        SavedTaskReferenceDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["SavedTaskReferenceDTO"][] | null;
+            meta?: unknown;
+        };
+        /**
+         * @description One subject a student has saved tasks on, with how many. What a quiz is set
+         *     up from: which subjects are on offer and which have enough cards to run.
+         */
+        SavedTaskSubjectDTO: {
+            subject?: components["schemas"]["SubjectDTO"];
+            /** Format: int32 */
+            savedTaskCount: number;
+        };
+        SavedTaskSubjectDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["SavedTaskSubjectDTO"][] | null;
+            meta?: unknown;
+        };
+        ScoreSummaryDTO: {
+            /** Format: double */
+            absolute?: number | null;
+            /** Format: double */
+            percentage?: number | null;
+        };
         SerializedNooException: {
             id?: string | null;
             logId?: string | null;
@@ -6784,32 +11184,18 @@ export interface components {
             payload?: unknown;
         };
         SessionDTO: {
-            id?: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: date-time */
-            lastRequestAt?: string;
+            lastRequestAt: string;
             device?: string | null;
             os?: string | null;
             browser?: string | null;
-            deviceType?: components["schemas"]["DeviceType"];
+            deviceType: components["schemas"]["DeviceType"];
         };
         SessionDTOIEnumerableApiResponseDTO: {
             data?: components["schemas"]["SessionDTO"][] | null;
             meta?: unknown;
-        };
-        SessionModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            ipAddress?: string | null;
-            userAgent?: string | null;
-            device?: string | null;
-            deviceType?: components["schemas"]["DeviceType"];
-            os?: string | null;
-            browser?: string | null;
-            userId: components["schemas"]["Ulid"];
-            user?: components["schemas"]["UserModel"];
         };
         ShiftAssignedWorkDeadlineOptionsDTO: {
             /** Format: date-time */
@@ -6817,52 +11203,56 @@ export interface components {
             notifyOthers?: boolean;
         };
         SnippetDTO: {
-            id?: components["schemas"]["Ulid"];
-            name?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            name: string;
             content?: components["schemas"]["IRichTextType"];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt?: string | null;
         };
         SnippetDTOIEnumerableApiResponseDTO: {
             data?: components["schemas"]["SnippetDTO"][] | null;
             meta?: unknown;
         };
-        SnippetModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            name?: string | null;
-            content?: components["schemas"]["IRichTextType"];
-            userId?: components["schemas"]["Ulid"];
-            user?: components["schemas"]["UserModel"];
-        };
         /** @enum {string} */
-        SortOrder: "ascending" | "descending";
+        Sorting: "ascending" | "descending";
+        StartExternalAuthDTO: {
+            /** @description Relative path to land on once the callback succeeds. */
+            returnUrl?: string | null;
+        };
         StatisticsBlockDTO: {
-            title?: string | null;
+            title: string;
             description?: string | null;
             graph?: components["schemas"]["StatisticsGraphDTO"];
-            numberBlocks?: components["schemas"]["StatisticsNumberBlockDTO"][] | null;
+            numberBlocks: components["schemas"]["StatisticsNumberBlockDTO"][];
         };
         StatisticsDTO: {
-            blocks?: components["schemas"]["StatisticsBlockDTO"][] | null;
+            blocks: components["schemas"]["StatisticsBlockDTO"][];
         };
         StatisticsDTOApiResponseDTO: {
             data?: components["schemas"]["StatisticsDTO"];
             meta?: unknown;
         };
-        StatisticsGraphDTO: Record<string, never>;
+        StatisticsGraphDTO: {
+            label: string;
+            lines: components["schemas"]["StatisticsGraphLineDTO"][];
+        };
+        StatisticsGraphLineDTO: {
+            name: string;
+            values: {
+                [key: string]: number | null;
+            };
+        };
         StatisticsNumberBlockDTO: {
-            title?: string | null;
+            title: string;
             description?: string | null;
-            value?: string | null;
+            /** Format: double */
+            value?: number | null;
             units?: string | null;
             subValues?: {
-                [key: string]: number;
+                [key: string]: number | null;
             } | null;
         };
         StringApiResponseDTO: {
@@ -6874,13 +11264,14 @@ export interface components {
             color: string;
         };
         SubjectDTO: {
-            id?: components["schemas"]["Ulid"];
-            name?: string | null;
-            color?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            name: string;
+            color: string;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt?: string | null;
         };
         SubjectDTOApiResponseDTO: {
             data?: components["schemas"]["SubjectDTO"];
@@ -6889,18 +11280,6 @@ export interface components {
         SubjectDTOIEnumerableApiResponseDTO: {
             data?: components["schemas"]["SubjectDTO"][] | null;
             meta?: unknown;
-        };
-        SubjectModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            name: string;
-            color: string;
-            mentorAssignments?: components["schemas"]["MentorAssignmentModel"][] | null;
-            works?: components["schemas"]["WorkModel"][] | null;
-            courses?: components["schemas"]["CourseModel"][] | null;
         };
         SubjectUpdateDTOJsonPatchDocument: {
             readonly operations?: components["schemas"]["SubjectUpdateDTOOperation"][] | null;
@@ -6912,36 +11291,36 @@ export interface components {
             value?: unknown;
         };
         SupportArticleDTO: {
-            id?: components["schemas"]["Ulid"];
-            title?: string | null;
-            content?: components["schemas"]["IRichTextType"];
-            isActive?: boolean;
-            categoryId?: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            slug: string;
+            /** Format: int32 */
+            order: number;
+            id: components["schemas"]["Ulid"];
+            title: string;
+            content: components["schemas"]["IRichTextType"];
+            isActive: boolean;
+            category: components["schemas"]["SupportCategory"];
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
-            updatedAt?: string;
+            updatedAt?: string | null;
         };
         SupportArticleDTOApiResponseDTO: {
             data?: components["schemas"]["SupportArticleDTO"];
             meta?: unknown;
         };
-        SupportCategoryDTO: {
-            id?: components["schemas"]["Ulid"];
-            name?: string | null;
-            isPinned?: boolean;
-            isActive?: boolean;
-            parentId?: components["schemas"]["Ulid"];
-            children?: components["schemas"]["SupportCategoryDTO"][] | null;
-            articles?: components["schemas"]["SupportArticleDTO"][] | null;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        SupportCategoryDTOIEnumerableApiResponseDTO: {
-            data?: components["schemas"]["SupportCategoryDTO"][] | null;
+        SupportArticleDTOListApiResponseDTO: {
+            data?: components["schemas"]["SupportArticleDTO"][] | null;
             meta?: unknown;
+        };
+        /** @enum {string} */
+        SupportCategory: "courses" | "payment" | "works";
+        TaskSummaryDTO: {
+            taskId: components["schemas"]["Ulid"];
+            /** Format: double */
+            averageScore?: number | null;
+            /** Format: int32 */
+            maxScore: number;
         };
         /**
          * Format: ulid
@@ -6949,13 +11328,61 @@ export interface components {
          * @example 01ARZ3NDEKTSV4RRFFQ69G5FAV
          */
         Ulid: string;
-        UpdateAvatarDTO: Record<string, never>;
-        UpdateEmailDTO: {
-            /** Format: email */
-            email: string;
+        UpdateCourseDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateCourseDTOOperation"][] | null;
         };
-        UpdatePasswordDTO: {
-            password: string;
+        UpdateCourseDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
+        };
+        UpdateCourseMaterialContentDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateCourseMaterialContentDTOOperation"][] | null;
+        };
+        UpdateCourseMaterialContentDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
+        };
+        /**
+         * @description The parts of an integration that can be changed after creation. Notably not the export type,
+         *     its parameters, or the Google account — changing any of those makes it a different export,
+         *     and the permission check that justified the original would not have been repeated.
+         *     Omitted members are left as they are.
+         */
+        UpdateGoogleSheetsIntegrationDTO: {
+            name?: string | null;
+            schedule?: components["schemas"]["GoogleSheetsIntegrationSchedule"];
+            status?: components["schemas"]["GoogleSheetsIntegrationStatus"];
+        };
+        UpdateNooTubeVideoCommentDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateNooTubeVideoCommentDTOOperation"][] | null;
+        };
+        UpdateNooTubeVideoCommentDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
+        };
+        UpdateNooTubeVideoDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateNooTubeVideoDTOOperation"][] | null;
+        };
+        UpdateNooTubeVideoDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
+        };
+        UpdatePollAnswerDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdatePollAnswerDTOOperation"][] | null;
+        };
+        UpdatePollAnswerDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
         };
         UpdatePollDTOJsonPatchDocument: {
             readonly operations?: components["schemas"]["UpdatePollDTOOperation"][] | null;
@@ -6984,27 +11411,23 @@ export interface components {
             from?: string | null;
             value?: unknown;
         };
-        UpdateSupportCategoryDTOJsonPatchDocument: {
-            readonly operations?: components["schemas"]["UpdateSupportCategoryDTOOperation"][] | null;
+        UpdateUserAvatarDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateUserAvatarDTOOperation"][] | null;
         };
-        UpdateSupportCategoryDTOOperation: {
+        UpdateUserAvatarDTOOperation: {
             path?: string | null;
             op?: string | null;
             from?: string | null;
             value?: unknown;
         };
-        /** @description DTO for updating Telegram user information.
-         *     Does not follow the same pattern as other DTOs because it is generated by Telegram. */
-        UpdateTelegramDTO: {
-            username?: string | null;
-            id: string;
-            /** Format: uri */
-            photo_url?: string | null;
-            first_name?: string | null;
-            last_name?: string | null;
-            /** Format: int64 */
-            auth_date?: number;
-            hash?: string | null;
+        UpdateUserDTOJsonPatchDocument: {
+            readonly operations?: components["schemas"]["UpdateUserDTOOperation"][] | null;
+        };
+        UpdateUserDTOOperation: {
+            path?: string | null;
+            op?: string | null;
+            from?: string | null;
+            value?: unknown;
         };
         UpdateWorkDTOJsonPatchDocument: {
             readonly operations?: components["schemas"]["UpdateWorkDTOOperation"][] | null;
@@ -7014,6 +11437,20 @@ export interface components {
             op?: string | null;
             from?: string | null;
             value?: unknown;
+        };
+        UploadTicketDTO: {
+            mediaId: components["schemas"]["Ulid"];
+            uploadUrl: string;
+            /** @description Headers the client MUST include verbatim on the PUT request to S3. */
+            headers: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        UploadTicketDTOApiResponseDTO: {
+            data?: components["schemas"]["UploadTicketDTO"];
+            meta?: unknown;
         };
         UpsertAssignedWorkAnswerDTO: {
             id?: components["schemas"]["Ulid"];
@@ -7034,33 +11471,40 @@ export interface components {
             id?: components["schemas"]["Ulid"];
             content?: components["schemas"]["IRichTextType"];
         };
-        UserAvatarModel: {
-            id?: components["schemas"]["Ulid"];
+        UserAvatarDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            avatarType: components["schemas"]["UserAvatarType"];
+            avatarUrl?: string | null;
+            mediaId?: string | null;
+            media?: components["schemas"]["MediaDTO"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            avatarType: components["schemas"]["UserAvatarType"];
-            avatarUrl?: string | null;
-            mediaId?: components["schemas"]["Ulid"];
-            userId: components["schemas"]["Ulid"];
-            media?: components["schemas"]["MediaModel"];
-            user?: components["schemas"]["UserModel"];
         };
         /** @enum {string} */
-        UserAvatarType: "none" | "custom" | "telegram";
+        UserAvatarType: "none" | "custom" | "telegram" | "external";
         UserDTO: {
-            id?: components["schemas"]["Ulid"];
-            username?: string | null;
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            username: string;
             email?: string | null;
-            name?: string | null;
+            phone?: string | null;
+            name: string;
             telegramId?: string | null;
             telegramUsername?: string | null;
-            role?: components["schemas"]["UserRoles"];
+            role: components["schemas"]["UserRoles"];
+            avatar?: components["schemas"]["UserAvatarDTO"];
+            /**
+             * @description Mentors of the user, filled where the query loads them (the user
+             *     search). Only students have mentors, so it stays empty for everyone else.
+             */
+            mentors: components["schemas"]["UserMentorDTO"][];
             isBlocked?: boolean;
             isVerified?: boolean;
             /** Format: date-time */
-            createdAt?: string;
+            createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
         };
@@ -7072,82 +11516,89 @@ export interface components {
             data?: components["schemas"]["UserDTO"][] | null;
             meta?: unknown;
         };
-        UserInfoDTO: {
-            id?: components["schemas"]["Ulid"];
-            name?: string | null;
-            username?: string | null;
-            email?: string | null;
-            role?: components["schemas"]["UserRoles"];
+        UserDeletionDTO: {
+            password: string;
         };
-        UserModel: {
-            id?: components["schemas"]["Ulid"];
+        UserHistoryDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
+            type: components["schemas"]["UserHistoryType"];
+            subjectUserId: components["schemas"]["Ulid"];
+            actorUserId?: components["schemas"]["Ulid"];
+            actor?: components["schemas"]["UserDTO"];
+            payload?: {
+                [key: string]: string;
+            } | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
+        };
+        UserHistoryDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["UserHistoryDTO"][] | null;
+            meta?: unknown;
+        };
+        /**
+         * @description Which side of an entry the user being viewed is on.
+         * @enum {string}
+         */
+        UserHistoryPerspective: "subject" | "actor";
+        /**
+         * @description The kinds of event recorded in a user's activity log.
+         *
+         *     Stored as a string rather than a MySQL ENUM, so adding a kind needs no schema migration.
+         *     Serialized to kebab-case over the wire by the global enum converter.
+         * @enum {string}
+         */
+        UserHistoryType: "registered" | "email-confirmed" | "email-changed" | "password-changed" | "password-reset" | "profile-updated" | "role-changed" | "blocked" | "unblocked" | "verified" | "added-to-course" | "removed-from-course" | "mentor-assigned" | "mentor-unassigned" | "work-assigned" | "work-solved" | "work-checked" | "work-sent-on-recheck" | "work-sent-on-resolve";
+        /**
+         * @description A mentor of a student, as shown next to the student in the user list. Flat
+         *     and minimal on purpose: listings only name the mentor, link to them and
+         *     colour them by subject. Everything else about an assignment lives in
+         *     Noo.Api.Users.DTO.MentorAssignmentDTO.
+         */
+        UserMentorDTO: {
+            id: components["schemas"]["Ulid"];
             name: string;
-            username: string;
-            /** Format: email */
-            email: string;
-            telegramId?: string | null;
-            telegramUsername?: string | null;
-            passwordHash: string;
-            role: components["schemas"]["UserRoles"];
-            isBlocked: boolean;
-            isVerified: boolean;
-            coursesAsAuthor?: components["schemas"]["CourseModel"][] | null;
-            coursesAsEditor?: components["schemas"]["CourseModel"][] | null;
-            avatar?: components["schemas"]["UserAvatarModel"];
-            coursesAsMember?: components["schemas"]["CourseMembershipModel"][] | null;
-            coursesAsAssigner?: components["schemas"]["CourseMembershipModel"][] | null;
-            courseMaterialReactions?: components["schemas"]["CourseMaterialReactionModel"][] | null;
-            sessions?: components["schemas"]["SessionModel"][] | null;
-            snippets?: components["schemas"]["SnippetModel"][] | null;
-            pollParticipations?: components["schemas"]["PollParticipationModel"][] | null;
-            calendarEvents?: components["schemas"]["CalendarEventModel"][] | null;
-            notifications?: components["schemas"]["NotificationModel"][] | null;
-            settings?: components["schemas"]["UserSettingsModel"];
-            uploadedVideos?: components["schemas"]["NooTubeVideoModel"][] | null;
-            nooTubeVideoComments?: components["schemas"]["NooTubeVideoCommentModel"][] | null;
-            nooTubeVideoReactions?: components["schemas"]["NooTubeVideoReactionModel"][] | null;
-            assignedWorkHistoryChanges?: components["schemas"]["AssignedWorkStatusHistoryModel"][] | null;
+            subjectName?: string | null;
+            subjectColor?: string | null;
         };
         /** @enum {string} */
         UserRoles: "admin" | "teacher" | "mentor" | "assistant" | "student";
         UserSettingsDTO: {
             theme?: components["schemas"]["UserTheme"];
             fontSize?: components["schemas"]["FontSize"];
+            backgroundImage?: components["schemas"]["MediaDTO"];
         };
         UserSettingsDTOApiResponseDTO: {
             data?: components["schemas"]["UserSettingsDTO"];
             meta?: unknown;
         };
-        UserSettingsModel: {
-            id?: components["schemas"]["Ulid"];
+        UserSettingsUpdateDTO: {
+            theme?: components["schemas"]["UserTheme"];
+            fontSize?: components["schemas"]["FontSize"];
+            backgroundImageId?: components["schemas"]["Ulid"];
+        };
+        /** @enum {string} */
+        UserTheme: "light" | "dark" | "system";
+        /** @enum {string} */
+        VideoFilterType: "all" | "favourite" | "own";
+        /** @enum {string} */
+        VideoReaction: "like" | "dislike" | "heart" | "laugh" | "sad" | "mindblowing";
+        /** @enum {string} */
+        VideoState: "not-uploaded" | "uploading" | "encoding" | "uploaded" | "published";
+        WorkDTO: {
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
-            userId: components["schemas"]["Ulid"];
-            theme?: string | null;
-            fontSize?: string | null;
-            user?: components["schemas"]["UserModel"];
-        };
-        UserSettingsUpdateDTO: {
-            theme?: components["schemas"]["UserTheme"];
-            fontSize?: components["schemas"]["FontSize"];
-        };
-        /** @enum {string} */
-        UserTheme: "light" | "dark" | "system-default";
-        /** @enum {string} */
-        VideoReaction: "like" | "dislike" | "heart" | "laugh" | "sad" | "mindblowing";
-        /** @enum {string} */
-        VideoState: "not-uploaded" | "uploading" | "uploaded" | "published";
-        WorkDTO: {
-            id?: components["schemas"]["Ulid"];
-            title?: string | null;
-            type?: string | null;
+            title: string;
+            type: components["schemas"]["WorkType"];
             description?: string | null;
+            /** Format: int32 */
+            maxScore: number;
             subjectId?: components["schemas"]["Ulid"];
             subject?: components["schemas"]["SubjectDTO"];
             tasks?: components["schemas"]["WorkTaskDTO"][] | null;
@@ -7160,60 +11611,55 @@ export interface components {
             data?: components["schemas"]["WorkDTO"][] | null;
             meta?: unknown;
         };
-        WorkModel: {
-            id?: components["schemas"]["Ulid"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt?: string | null;
-            title: string;
-            type: components["schemas"]["WorkType"];
-            description?: string | null;
-            subjectId?: components["schemas"]["Ulid"];
-            tasks?: components["schemas"]["WorkTaskModel"][] | null;
-            subject?: components["schemas"]["SubjectModel"];
-            courseMaterialContents?: components["schemas"]["CourseMaterialContentModel"][] | null;
+        WorkRelationDTO: {
+            courseId: components["schemas"]["Ulid"];
+            materialId: components["schemas"]["Ulid"];
+            subject?: components["schemas"]["SubjectDTO"];
+            path: string[];
+            assignment: components["schemas"]["CourseWorkAssignmentDTO"];
+        };
+        WorkRelationDTOIEnumerableApiResponseDTO: {
+            data?: components["schemas"]["WorkRelationDTO"][] | null;
+            meta?: unknown;
+        };
+        WorkStatisticsDTO: {
+            taskSummaries: components["schemas"]["TaskSummaryDTO"][];
+            averageWorkScore: components["schemas"]["ScoreSummaryDTO"];
+            medianWorkScore: components["schemas"]["ScoreSummaryDTO"];
+            /** Format: int32 */
+            workSolveCount: number;
+            work: components["schemas"]["WorkDTO"];
+        };
+        WorkStatisticsDTOApiResponseDTO: {
+            data?: components["schemas"]["WorkStatisticsDTO"];
+            meta?: unknown;
         };
         /** @enum {string} */
         WorkTaskCheckStrategy: "manual" | "exact-match-or-zero" | "exact-match-with-wrong-character" | "multiple-choice" | "sequence";
         WorkTaskDTO: {
-            id?: components["schemas"]["Ulid"];
-            type?: components["schemas"]["WorkTaskType"];
-            /** Format: int32 */
-            order?: number;
-            /** Format: int32 */
-            maxScore?: number;
-            content?: components["schemas"]["IRichTextType"];
-            rightAnswer?: string[] | null;
-            solveHint?: components["schemas"]["IRichTextType"];
-            explanation?: components["schemas"]["IRichTextType"];
-            checkStrategy?: components["schemas"]["WorkTaskCheckStrategy"];
-            showAnswerBeforeCheck?: boolean;
-            checkOneByOne?: boolean;
-        };
-        WorkTaskModel: {
-            id?: components["schemas"]["Ulid"];
+            readonly _entityName: string;
+            id: components["schemas"]["Ulid"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt?: string | null;
+            type: components["schemas"]["WorkTaskType"];
             /** Format: int32 */
             order: number;
-            content: components["schemas"]["IRichTextType"];
-            solveHint?: components["schemas"]["IRichTextType"];
-            explanation?: components["schemas"]["IRichTextType"];
-            rightAnswers?: string[] | null;
-            type: components["schemas"]["WorkTaskType"];
-            checkStrategy: components["schemas"]["WorkTaskCheckStrategy"];
             /** Format: int32 */
             maxScore: number;
+            /** Format: double */
+            averageScore?: number | null;
+            content: components["schemas"]["IRichTextType"];
+            rightAnswers?: string[] | null;
+            solveHint?: components["schemas"]["IRichTextType"];
+            explanation?: components["schemas"]["IRichTextType"];
+            checkStrategy: components["schemas"]["WorkTaskCheckStrategy"];
             showAnswerBeforeCheck?: boolean;
             checkOneByOne?: boolean;
-            workId?: components["schemas"]["Ulid"];
-            work?: components["schemas"]["WorkModel"];
         };
         /** @enum {string} */
-        WorkTaskType: "word" | "text" | "essay" | "final-essay";
+        WorkTaskType: "word" | "text" | "essay" | "final-essay" | "dictation";
         /** @enum {string} */
         WorkType: "test" | "mini-test" | "phrase" | "trial-work" | "second-part";
     };
