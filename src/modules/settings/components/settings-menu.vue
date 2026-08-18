@@ -69,6 +69,13 @@ const menuItems: MenuItem[] = [
     permission: SettingsPermissions.manageTelegramSettings
   },
   {
+    title: 'Привязанные аккаунты',
+    description: 'Вход через Яндекс ID и VK ID без пароля',
+    icon: 'change-user',
+    to: { name: 'settings.connectedAccounts' },
+    permission: SettingsPermissions.manageConnectedAccounts
+  },
+  {
     title: 'Оплата',
     description: 'Просмотр истории покупок и управление подпиской',
     icon: 'payment',

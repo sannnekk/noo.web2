@@ -51,6 +51,17 @@ const module: ApplicationModule = {
         },
 
         {
+          name: 'settings.connectedAccounts',
+          path: 'connected-accounts',
+          meta: {
+            pageTitle: 'Привязанные аккаунты',
+            tabTitle: 'Привязанные аккаунты'
+          },
+          component: () =>
+            import('./views/connected-accounts-settings-view.vue')
+        },
+
+        {
           name: 'settings.payment',
           path: 'payment',
           meta: {

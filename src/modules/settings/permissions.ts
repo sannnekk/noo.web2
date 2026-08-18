@@ -7,6 +7,7 @@ import {
 const SettingsPermissions = {
   manageAccountSettings: 'manageAccountSettings',
   manageTelegramSettings: 'manageTelegramSettings',
+  manageConnectedAccounts: 'manageConnectedAccounts',
   managePaymentSettings: 'managePaymentSettings',
   managePersonalizationSettings: 'managePersonalizationSettings',
   manageNotifications: 'manageNotifications',
@@ -28,6 +29,13 @@ const settingsPermissionPolicy = definePermissions({
     'student'
   ),
   [SettingsPermissions.manageTelegramSettings]: roles(
+    'admin',
+    'teacher',
+    'assistant',
+    'mentor',
+    'student'
+  ),
+  [SettingsPermissions.manageConnectedAccounts]: roles(
     'admin',
     'teacher',
     'assistant',
