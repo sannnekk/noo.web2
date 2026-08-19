@@ -82,7 +82,6 @@ export interface AssignedWorkDetailStore {
   viewMode: Ref<AssignedWorkViewMode>
   save: (options?: SaveOptions) => Promise<boolean>
   isAutosaveEnabled: ComputedRef<boolean>
-  shiftDeadline: UseApiRequestReturn
   getTask: (taskId: string) => WorkTaskEntity | undefined
   updateAnswer: (taskId: string, patch: Partial<PossiblyUnsavedAnswer>) => void
   totalScore: ComputedRef<number | null>
@@ -383,39 +382,6 @@ const useAssignedWorkDetailStore = defineStore(
       },
       (error) => {
         globalUiStore.createApiErrorToast('Не удалось проверить работу', error)
-      }
-    )
-
-    /**
-     * Shifts the deadline request
-     */
-    const shiftDeadline = useApiRequest(
-      () => {
-        const newDeadline = DateHelpers.addDays(
-          assignedWork.value!.solveDeadlineAt,
-          AssignedWorkConfig.solveDeadlineShift
-        )
-
-        if (!newDeadline) {
-          return Promise.resolve({
-            error: {
-              id: 'INVALID_DEADLINE',
-              statusCode: 0,
-              name: 'Invalid deadline',
-              description:
-                'Невозможно сдвинуть дедлайн: текущий дедлайн отсутствует',
-              payload: null
-            } as ApiError
-          })
-        }
-
-        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
-          newDeadline,
-          notifyOthers: true
-        })
-      },
-      () => {
-        globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
       }
     )
 
@@ -877,7 +843,6 @@ const useAssignedWorkDetailStore = defineStore(
       markChecked,
       markSolved,
       remake,
-      shiftDeadline,
       shiftSolveDeadline,
       shiftCheckDeadline,
       markUnsolved,

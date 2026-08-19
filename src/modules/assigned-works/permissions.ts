@@ -11,8 +11,6 @@ const AssignedWorksPermissions = {
   viewDetailPage: 'viewDetailPage',
   useStudentMode: 'useStudentMode',
   useMentorMode: 'useMentorMode',
-  showStudentInfo: 'showStudentInfo',
-  showMentorInfo: 'showMentorInfo',
   addHelperMentor: 'canAddHelperMentor',
   archive: 'canArchive',
   useSnippets: 'useSnippets'
@@ -34,18 +32,6 @@ const assignedWorksPermissionPolicy = definePermissions({
   ),
   [AssignedWorksPermissions.useStudentMode]: roles('student'),
   [AssignedWorksPermissions.useMentorMode]: roles('mentor'),
-  [AssignedWorksPermissions.showStudentInfo]: roles(
-    'admin',
-    'teacher',
-    'assistant',
-    'mentor'
-  ),
-  [AssignedWorksPermissions.showMentorInfo]: roles(
-    'admin',
-    'teacher',
-    'assistant',
-    'student'
-  ),
   [AssignedWorksPermissions.addHelperMentor]: roles(
     'admin',
     'teacher',
