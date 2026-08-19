@@ -3,6 +3,7 @@
     <div
       v-if="disabled"
       class="noo-draggable-list__disabled"
+      :class="listClass"
     >
       <div
         v-for="(item, index) in model"
@@ -21,6 +22,7 @@
     >
       <draggable
         v-model="model"
+        :class="listClass"
         :handle="handle"
         :group="group"
         :animation="200"
@@ -56,6 +58,12 @@ interface Props {
   itemKey?: string
   disabled?: boolean
   gap?: string
+  /**
+   * Class for the element the items sit directly in, so a caller can lay them out
+   * as something other than a stack — a grid, say. Set from the caller's scoped
+   * styles with `:deep()`, the element being rendered in here.
+   */
+  listClass?: string
 }
 
 type Emits = (event: 'reorder') => void

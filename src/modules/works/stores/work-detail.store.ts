@@ -77,6 +77,11 @@ interface WorkDetailStore {
    */
   removeTask: (key: string) => void
   /**
+   * Numbers the tasks by the position they now sit in. Call after the task list
+   * has been rearranged — the sequence is carried by `order`, nothing else.
+   */
+  reorderTasks: () => void
+  /**
    * Whether the work carries edits that have not been saved yet.
    */
   hasChanges: () => boolean
@@ -191,12 +196,16 @@ const useWorkDetailStore = defineStore(
 
     /**
      * Numbers the tasks by their position, so what the editor shows as "Задание №3"
-     * is the third one. Removing a task from the middle would otherwise leave the
-     * ones after it carrying the numbers they had, and the patch would store the
-     * gap. The server settles the same thing on save; this is so the editor is not
-     * showing something else in the meantime.
+     * is the third one.
+     *
+     * Called after anything that moves a task: adding, removing, or dragging one
+     * into a new place. The position is the only way sequence is expressed — the
+     * patch document keys tasks by id, so a task that merely moved produces no
+     * operation of its own until its `order` changes. The server settles the same
+     * thing on save; this is so the editor is not showing something else in the
+     * meantime.
      */
-    function renumberTasks(): void {
+    function reorderTasks(): void {
       work.value?.tasks?.forEach((task, index) => {
         task.order = index + 1
       })
@@ -211,7 +220,7 @@ const useWorkDetailStore = defineStore(
         WorkService.createTaskDraft(type, work.value.tasks.length + 1)
       )
 
-      renumberTasks()
+      reorderTasks()
       validateWork()
       taskValidation.validate()
     }
@@ -227,7 +236,7 @@ const useWorkDetailStore = defineStore(
 
       work.value.tasks = work.value.tasks.filter((t) => t._key !== key)
 
-      renumberTasks()
+      reorderTasks()
       validateWork()
     }
 
@@ -316,6 +325,7 @@ const useWorkDetailStore = defineStore(
       init,
       addTask,
       removeTask,
+      reorderTasks,
       nextTask,
       previousTask,
       hasChanges,

@@ -1,31 +1,35 @@
 <template>
   <div class="task-grid">
     <noo-scrollable-block max-height="250px">
-      <div class="task-grid__grid">
-        <div
-          v-for="task in tasks"
-          :key="task._key"
-          class="task-grid__grid__item"
-          :class="{
-            'task-grid__grid__item--active': task._key === activeTaskKey,
-            'task-grid__grid__item--invalid': invalidTaskKeys.includes(
-              task._key
-            ),
-            'task-grid__grid__item--word': task.type === 'word',
-            'task-grid__grid__item--text': task.type === 'text',
-            'task-grid__grid__item--essay': task.type === 'essay',
-            'task-grid__grid__item--final-essay': task.type === 'final-essay',
-            'task-grid__grid__item--dictation': task.type === 'dictation'
-          }"
-          @click="$emit('task-clicked', task)"
-        >
-          <noo-new-tag
-            v-if="!task.id && showNewLabel"
-            class="task-grid__grid__item__new-label"
-          />
-          <span class="task-grid__grid__item__number">{{ task.order }}</span>
-        </div>
-      </div>
+      <noo-draggable-list
+        v-model="tasks"
+        list-class="task-grid__grid"
+        item-key="_key"
+        :disabled="readonly"
+        @reorder="$emit('reorder')"
+      >
+        <template #default="{ item: task }">
+          <div
+            class="task-grid__grid__item"
+            :class="{
+              'task-grid__grid__item--active': task._key === activeTaskKey,
+              'task-grid__grid__item--invalid': invalidTaskKeys.includes(
+                task._key
+              ),
+              'task-grid__grid__item--draggable': !readonly,
+              [`task-grid__grid__item--${task.type}`]: true
+            }"
+            :title="readonly ? undefined : 'Перетащите, чтобы поменять порядок'"
+            @click="$emit('task-clicked', task)"
+          >
+            <noo-new-tag
+              v-if="!task.id && showNewLabel"
+              class="task-grid__grid__item__new-label"
+            />
+            <span class="task-grid__grid__item__number">{{ task.order }}</span>
+          </div>
+        </template>
+      </noo-draggable-list>
     </noo-scrollable-block>
     <div class="task-grid__legend">
       <noo-legend :items="legend" />
@@ -45,25 +49,38 @@ interface LegendItem {
 }
 
 interface Props {
-  tasks: PossiblyUnsavedWorkTask[]
   activeTaskKey?: string
   showNewLabel?: boolean
+  /** Without this the grid is a picker only; with it, tasks can be dragged into order. */
+  readonly?: boolean
 }
 
-type Emits = (event: 'task-clicked', task: PossiblyUnsavedWorkTask) => void
+interface Emits {
+  (event: 'task-clicked', task: PossiblyUnsavedWorkTask): void
+  (event: 'reorder'): void
+}
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 defineEmits<Emits>()
 
+/**
+ * The tasks, in the sequence the grid shows them. Dragging rewrites the array;
+ * the numbers on the squares only catch up once whoever owns the list has
+ * renumbered them, which is what `reorder` is for.
+ */
+const tasks = defineModel<PossiblyUnsavedWorkTask[]>('tasks', {
+  required: true
+})
+
 const legend = computed<LegendItem[]>(() => {
   return taskTypes.filter((type) =>
-    props.tasks.some((task) => task.type === type.value)
+    tasks.value.some((task) => task.type === type.value)
   )
 })
 
 const invalidTaskKeys = computed(() => {
-  return props.tasks
+  return tasks.value
     .filter((task) => !validateWorkTaskState(task).isValid)
     .map((task) => task._key)
 })
@@ -83,12 +100,15 @@ const taskTypeColors = taskTypes.reduce(
   &__legend
     margin-top: 0.5em
 
-  &__grid
+  // The grid container is rendered by noo-draggable-list, so it is out of this
+  // component's scope and has to be reached into.
+  &:deep(.task-grid__grid)
     display: grid
     grid-template-columns: repeat(6, 1fr)
     gap: 0.75em
     padding: 0.5em 0.3em 0.5em 0
 
+  &__grid
     &__item
       display: flex
       flex-direction: column
@@ -116,6 +136,12 @@ const taskTypeColors = taskTypes.reduce(
       &--invalid
         background-color: var(--danger) !important
         color: var(--white) !important
+
+      &--draggable
+        cursor: grab
+
+        &:active
+          cursor: grabbing
 
       &--word
         border-color: v-bind('taskTypeColors["word"]')

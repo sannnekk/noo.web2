@@ -78,10 +78,12 @@
       class="work-sidebar__task-grid"
     >
       <task-grid
-        :tasks="workDetailStore.work.tasks"
+        v-model:tasks="workDetailStore.work.tasks"
         :active-task-key="workDetailStore.task?._key"
         :show-new-label="workDetailStore.mode !== 'create'"
+        :readonly="!canEditTasks"
         @task-clicked="workDetailStore.task = $event"
+        @reorder="workDetailStore.reorderTasks()"
       />
     </div>
     <div class="work-sidebar__actions">
@@ -162,11 +164,17 @@ const { isAsking, canSave, decide, confirm } = useUnsavedChangesGuard({
   save: () => workDetailStore.save()
 })
 
+// Tasks are only rearranged while the work is being written; in view mode the
+// grid stays what it always was, a way of getting to a task.
+const canEditTasks = computed(
+  () => workDetailStore.mode === 'create' || workDetailStore.mode === 'edit'
+)
+
 const canAddTask = computed(() => {
   return (
     typeof workDetailStore.work?.tasks !== 'undefined' &&
     workDetailStore.work.tasks.length < workConfig.maxTaskPerWork &&
-    (workDetailStore.mode === 'create' || workDetailStore.mode === 'edit')
+    canEditTasks.value
   )
 })
 

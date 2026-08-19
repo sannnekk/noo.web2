@@ -70,4 +70,37 @@ describe('useWorkDetailStore — task numbering', () => {
 
     expect(ordersOf(store)).toEqual([])
   })
+
+  /**
+   * Dragging in the grid rearranges the array itself; `reorderTasks` is what turns
+   * that new sequence into the numbers that get saved. Nothing else carries it —
+   * the patch document keys tasks by id, so a task that only moved says nothing.
+   */
+  test('takes its numbering from the sequence the tasks now sit in', () => {
+    const store = newWorkWith(3)
+    const [first, second, third] = store.work!.tasks!.map((task) => task._key)
+
+    // What a drag of the last task to the front leaves behind.
+    store.work!.tasks!.reverse()
+    store.reorderTasks()
+
+    expect(store.work!.tasks!.map((task) => task._key)).toEqual([
+      third,
+      second,
+      first
+    ])
+    expect(ordersOf(store)).toEqual([1, 2, 3])
+  })
+
+  test('gives a moved task the number of the place it landed in', () => {
+    const store = newWorkWith(3)
+    const moved = store.work!.tasks![2]
+
+    store.work!.tasks!.splice(2, 1)
+    store.work!.tasks!.splice(0, 0, moved)
+    store.reorderTasks()
+
+    expect(moved.order).toBe(1)
+    expect(ordersOf(store)).toEqual([1, 2, 3])
+  })
 })
