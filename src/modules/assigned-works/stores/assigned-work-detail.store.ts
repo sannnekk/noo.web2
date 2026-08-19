@@ -5,10 +5,8 @@ import {
   type UseApiRequestReturn
 } from '@/core/composables/useApiRequest'
 import { useSaveStatus } from '@/core/composables/useSaveStatus'
-import { getPrincipal } from '@/core/permissions/principal'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { DateHelpers } from '@/core/utils/dates'
-import { uid } from '@/core/utils/id.utils'
 import type { IRichText } from '@/core/utils/richtext.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
 import { debouncedWatch } from '@vueuse/core'
@@ -26,10 +24,11 @@ import { AssignedWorkService } from '../api/assigned-work.service'
 import type {
   AddHelperMentorOptions,
   AssignedWorkAnswerEntity,
-  AssignedWorkCommentEntity,
   AssignedWorkEntity,
   AssignedWorkRemakeOptions
 } from '../api/assigned-work.types'
+import { useAnswerDrafts } from '../composables/useAnswerDrafts'
+import { useCommentDraft } from '../composables/useCommentDraft'
 import { AssignedWorkConfig } from '../config'
 import type {
   AssignedWorkCommentSeat,
@@ -109,27 +108,31 @@ const useAssignedWorkDetailStore = defineStore(
     const assignedWork = shallowRef<AssignedWorkEntity>()
 
     /**
-     * Map of the answers with task IDs as keys.
+     * Bumped on every user edit. Watched (with debouncing) to trigger autosave.
+     * The drafts themselves are deliberately NOT watched deeply: seeding them and
+     * writing back saved ids would otherwise look like edits.
      */
-    const answers = ref<Record<string, PossiblyUnsavedAnswer>>({})
+    const autosaveTrigger = ref(0)
 
-    /**
-     * The current user's comment on the work as a whole. Only one of the three
-     * comments a work carries is ever editable here — the one belonging to the
-     * seat the user holds on this work.
-     */
-    const ownComment = ref<PossiblyUnsavedComment>(createCommentDraft())
+    function onDraftChange(): void {
+      autosaveTrigger.value++
+    }
+
+    const answerDrafts = useAnswerDrafts(
+      () => assignedWork.value,
+      onDraftChange
+    )
+    const commentDraft = useCommentDraft(
+      () => assignedWork.value,
+      onDraftChange
+    )
 
     /**
      * True if there are unsaved (user-modified) changes pending.
      * Pristine drafts (`_status === 'empty'`) are not considered dirty.
      */
     const hasUnsavedChanges = computed<boolean>(
-      () =>
-        ownComment.value._status === 'modified' ||
-        Object.values(answers.value).some(
-          (answer) => answer._status === 'modified'
-        )
+      () => answerDrafts.hasChanges.value || commentDraft.hasChanges.value
     )
 
     /**
@@ -165,9 +168,8 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       assignedWork.value = apiResponse.data
-      setSavedAnswers(apiResponse.data.answers ?? [])
-      setEmptyAnswers()
-      setSavedOwnComment()
+      answerDrafts.seed()
+      commentDraft.seed()
 
       return true
     }
@@ -235,8 +237,8 @@ const useAssignedWorkDetailStore = defineStore(
         return false
       }
 
-      const changedAnswers = getChangedAnswers()
-      const commentIsChanged = ownComment.value._status === 'modified'
+      const changedAnswers = answerDrafts.changed.value
+      const commentIsChanged = commentDraft.hasChanges.value
 
       if (changedAnswers.length === 0 && !commentIsChanged) {
         if (!silent) {
@@ -295,19 +297,19 @@ const useAssignedWorkDetailStore = defineStore(
         }
       }
 
-      setSavedAnswerIds(answerIdsByTaskId)
+      answerDrafts.markSaved(answerIdsByTaskId)
 
       if (commentIsChanged) {
         const response = await AssignedWorkService.saveComment(
           assignedWork.value.id,
-          { content: ownComment.value.content }
+          { content: commentDraft.draft.value.content }
         )
 
         if (isApiError(response)) {
           return fail(response.error)
         }
 
-        setSavedCommentId(response.data?.id)
+        commentDraft.markSaved(response.data?.id)
       }
 
       if (!silent) {
@@ -318,14 +320,6 @@ const useAssignedWorkDetailStore = defineStore(
 
       return true
     }
-
-    /**
-     * Increments on every user-initiated answer change. Watched (with
-     * debouncing) to trigger autosave. We intentionally do NOT watch the
-     * `answers` ref deeply because initialization and post-save state writes
-     * would otherwise trigger spurious autosaves.
-     */
-    const autosaveTrigger = ref(0)
 
     /**
      * Autosave is allowed only while the user is actively solving or checking
@@ -407,99 +401,89 @@ const useAssignedWorkDetailStore = defineStore(
     )
 
     /**
-     * Shifts the solve deadline of the assigned work.
+     * Builds one of the two deadline shifts. They differ only in which date they
+     * move, by how much, and what they say about it — everything else, including
+     * the work having no deadline to move in the first place, is the same.
+     *
+     * @param carryCheckDeadlineBy Days to drag the check deadline along by, for
+     *   the solve shift: giving a student longer to answer gives their mentor
+     *   longer to check.
      */
-    const shiftSolveDeadline = useApiRequest(
-      () => {
-        const newDeadline = DateHelpers.addDays(
-          assignedWork.value!.solveDeadlineAt,
-          AssignedWorkConfig.solveDeadlineShift
-        )
+    function useDeadlineShift(options: {
+      field: 'solveDeadlineAt' | 'checkDeadlineAt'
+      days: number
+      successMessage: string
+      failureMessage: string
+      missingDeadlineMessage: string
+      carryCheckDeadlineBy?: number
+    }): UseApiRequestReturn {
+      const shifted = () =>
+        DateHelpers.addDays(assignedWork.value![options.field], options.days)
 
-        if (!newDeadline) {
-          return Promise.resolve({
-            error: {
-              id: 'INVALID_DEADLINE',
-              statusCode: 0,
-              name: 'Invalid deadline',
-              description:
-                'Невозможно сдвинуть дедлайн: текущий дедлайн отсутствует',
-              payload: null
-            } as ApiError
+      return useApiRequest(
+        () => {
+          const newDeadline = shifted()
+
+          if (!newDeadline) {
+            return Promise.resolve({
+              error: {
+                id: 'INVALID_DEADLINE',
+                statusCode: 0,
+                name: 'Invalid deadline',
+                description: options.missingDeadlineMessage,
+                payload: null
+              } as ApiError
+            })
+          }
+
+          return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
+            newDeadline,
+            notifyOthers: true
           })
-        }
+        },
+        () => {
+          globalUiStore.createSuccessToast(options.successMessage)
 
-        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
-          newDeadline,
-          notifyOthers: true
-        })
-      },
-      () => {
-        globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
-        // Replaced rather than written into: `assignedWork` is a shallowRef, so
-        // a nested write moves the value without telling anything reading it.
-        assignedWork.value = {
-          ...assignedWork.value!,
-          solveDeadlineAt: DateHelpers.addDays(
-            assignedWork.value!.solveDeadlineAt,
-            AssignedWorkConfig.solveDeadlineShift
-          ),
-          checkDeadlineAt: DateHelpers.addDays(
-            assignedWork.value!.checkDeadlineAt,
-            AssignedWorkConfig.checkDeadlineShiftWhileSolveDeadlineShift
-          )
+          // Replaced rather than written into: `assignedWork` is a shallowRef, so
+          // a nested write moves the value without telling anything reading it.
+          assignedWork.value = {
+            ...assignedWork.value!,
+            [options.field]: shifted(),
+            ...(options.carryCheckDeadlineBy === undefined
+              ? {}
+              : {
+                  checkDeadlineAt: DateHelpers.addDays(
+                    assignedWork.value!.checkDeadlineAt,
+                    options.carryCheckDeadlineBy
+                  )
+                })
+          }
+        },
+        (error) => {
+          globalUiStore.createApiErrorToast(options.failureMessage, error)
         }
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast('Не удалось сдвинуть дедлайн', error)
-      }
-    )
+      )
+    }
 
-    /**
-     * Shifts the check deadline of the assigned work.
-     */
-    const shiftCheckDeadline = useApiRequest(
-      () => {
-        const newDeadline = DateHelpers.addDays(
-          assignedWork.value!.checkDeadlineAt,
-          AssignedWorkConfig.checkDeadlineShift
-        )
+    const shiftSolveDeadline = useDeadlineShift({
+      field: 'solveDeadlineAt',
+      days: AssignedWorkConfig.solveDeadlineShift,
+      successMessage: 'Дедлайн успешно сдвинут',
+      failureMessage: 'Не удалось сдвинуть дедлайн',
+      missingDeadlineMessage:
+        'Невозможно сдвинуть дедлайн: текущий дедлайн отсутствует',
+      carryCheckDeadlineBy:
+        AssignedWorkConfig.checkDeadlineShiftWhileSolveDeadlineShift
+    })
 
-        if (!newDeadline) {
-          return Promise.resolve({
-            error: {
-              id: 'INVALID_DEADLINE',
-              statusCode: 0,
-              name: 'Invalid deadline',
-              description:
-                'Невозможно сдвинуть дедлайн проверки: текущий дедлайн отсутствует',
-              payload: null
-            } as ApiError
-          })
-        }
-
-        return AssignedWorkService.shiftDeadline(assignedWork.value!.id, {
-          newDeadline,
-          notifyOthers: true
-        })
-      },
-      () => {
-        globalUiStore.createSuccessToast('Дедлайн проверки успешно сдвинут')
-        assignedWork.value = {
-          ...assignedWork.value!,
-          checkDeadlineAt: DateHelpers.addDays(
-            assignedWork.value!.checkDeadlineAt,
-            AssignedWorkConfig.checkDeadlineShift
-          )
-        }
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast(
-          'Не удалось сдвинуть дедлайн проверки',
-          error
-        )
-      }
-    )
+    const shiftCheckDeadline = useDeadlineShift({
+      field: 'checkDeadlineAt',
+      days: AssignedWorkConfig.checkDeadlineShift,
+      successMessage: 'Дедлайн проверки успешно сдвинут',
+      failureMessage: 'Не удалось сдвинуть дедлайн проверки',
+      missingDeadlineMessage:
+        'Невозможно сдвинуть дедлайн проверки: текущий дедлайн отсутствует'
+    })
 
     /**
      * Marks the assigned work as unsolved.
@@ -561,206 +545,25 @@ const useAssignedWorkDetailStore = defineStore(
      */
     function reset(): void {
       assignedWork.value = undefined
-      answers.value = {}
-      ownComment.value = createCommentDraft()
+      answerDrafts.reset()
+      commentDraft.reset()
       saveStatus.reset()
       inFlightSave = null
     }
-
-    /**
-     * Which of the work's three comments belongs to the current user. Null for
-     * anyone only looking on (an admin, a teacher, an assistant), who therefore
-     * has no comment of their own to write.
-     */
-    const ownCommentSeat = computed<AssignedWorkCommentSeat | null>(() => {
-      const principal = getPrincipal()
-      const work = assignedWork.value
-
-      if (!principal || !work) {
-        return null
-      }
-
-      if (work.studentId === principal.id) {
-        return 'student'
-      }
-
-      if (work.mainMentorId === principal.id) {
-        return 'main-mentor'
-      }
-
-      if (work.helperMentorId === principal.id) {
-        return 'helper-mentor'
-      }
-
-      return null
-    })
 
     /**
      * A comment is written in the same modes as the answers it accompanies: the
      * student writes theirs while solving, the mentors theirs while checking.
      */
     const canEditOwnComment = computed<boolean>(
-      () => isAutosaveEnabled.value && ownCommentSeat.value !== null
+      () => isAutosaveEnabled.value && commentDraft.seat.value !== null
     )
-
-    /**
-     * The comment of one seat as it should be displayed. The user's own comment
-     * comes from the draft they are editing, everyone else's from the work.
-     */
-    function commentOf(seat: AssignedWorkCommentSeat): IRichText | null {
-      if (seat === ownCommentSeat.value) {
-        return ownComment.value.content
-      }
-
-      return savedCommentOf(seat)?.content ?? null
-    }
-
-    /**
-     * Applies a change to the user's own comment and marks it as unsaved.
-     * All comment edits must go through this to keep the dirty flag in sync.
-     */
-    function updateComment(content: IRichText | null): void {
-      ownComment.value = {
-        ...ownComment.value,
-        content,
-        _status: 'modified'
-      }
-      autosaveTrigger.value++
-    }
-
-    function createCommentDraft(): PossiblyUnsavedComment {
-      return {
-        _entityName: 'AssignedWorkComment',
-        _key: uid(),
-        _status: 'empty',
-        content: null
-      }
-    }
-
-    /**
-     * The comment stored on the work for one seat, as it was last loaded.
-     */
-    function savedCommentOf(
-      seat: AssignedWorkCommentSeat
-    ): AssignedWorkCommentEntity | null | undefined {
-      switch (seat) {
-        case 'student':
-          return assignedWork.value?.studentComment
-        case 'main-mentor':
-          return assignedWork.value?.mainMentorComment
-        case 'helper-mentor':
-          return assignedWork.value?.helperMentorComment
-      }
-    }
-
-    /**
-     * Seeds the draft from the comment the user has already written on this
-     * work, if any.
-     */
-    function setSavedOwnComment(): void {
-      const seat = ownCommentSeat.value
-      const saved = seat ? savedCommentOf(seat) : null
-
-      ownComment.value = saved
-        ? {
-            ...saved,
-            _key: saved.id,
-            _status: 'saved'
-          }
-        : createCommentDraft()
-    }
-
-    /**
-     * Marks the comment as saved and sets the ID the server gave it.
-     */
-    function setSavedCommentId(commentId: string | undefined): void {
-      ownComment.value = {
-        ...ownComment.value,
-        id: commentId ?? ownComment.value.id,
-        _status: 'saved'
-      }
-    }
-
-    /**
-     * Gets the answers that are not saved yet.
-     *
-     * @returns The array of changed answers
-     */
-    function getChangedAnswers(): PossiblyUnsavedAnswer[] {
-      return Object.values(answers.value).filter(
-        (answer) => answer._status === 'modified'
-      )
-    }
 
     /**
      * Gets the task by ID.
      */
     function getTask(taskId: string): WorkTaskEntity | undefined {
       return assignedWork.value?.work?.tasks?.find((task) => task.id === taskId)
-    }
-
-    /**
-     * Applies a partial update to an answer and marks it as unsaved.
-     * All answer field mutations must go through this to keep the dirty flag in sync.
-     */
-    function updateAnswer(
-      taskId: string,
-      patch: Partial<PossiblyUnsavedAnswer>
-    ): void {
-      const answer = answers.value[taskId]
-
-      if (!answer) {
-        return
-      }
-
-      Object.assign(answer, patch, { _status: 'modified' })
-      autosaveTrigger.value++
-    }
-
-    /**
-     * Sets the saved answers to the store.
-     *
-     * @param newAnswers The array of assigned work answers to set.
-     */
-    function setSavedAnswers(newAnswers: AssignedWorkAnswerEntity[]): void {
-      answers.value = newAnswers.reduce<Record<string, PossiblyUnsavedAnswer>>(
-        (acc, answer) => {
-          acc[answer.taskId] = {
-            ...answer,
-            _key: answer.id,
-            _status: 'saved'
-          }
-
-          return acc
-        },
-        {}
-      )
-    }
-
-    /**
-     * Sets empty answers for all tasks in the assigned work.
-     * This is used to initialize the answers when the assigned work is loaded.
-     */
-    function setEmptyAnswers(): void {
-      for (const task of assignedWork.value?.work?.tasks ?? []) {
-        if (!answers.value[task.id]) {
-          answers.value[task.id] = AssignedWorkService.createAnswerDraft(task)
-        }
-      }
-    }
-
-    /**
-     * Marks the answers as saved and sets their IDs.
-     *
-     * @param answerIds The map with task IDs as keys and answer IDs as values.
-     */
-    function setSavedAnswerIds(answerIds: Record<string, string>): void {
-      for (const [taskId, answerId] of Object.entries(answerIds)) {
-        const answer = answers.value[taskId]
-
-        answer.id = answerId
-        answer._status = 'saved'
-      }
     }
 
     /**
@@ -776,23 +579,7 @@ const useAssignedWorkDetailStore = defineStore(
         return assignedWork.value?.score ?? null
       }
 
-      const tasks = assignedWork.value?.work?.tasks
-
-      if (!tasks?.length) {
-        return assignedWork.value?.score ?? null
-      }
-
-      let total: number | null = null
-
-      for (const task of tasks) {
-        const score = answers.value[task.id]?.score
-
-        if (typeof score === 'number') {
-          total = (total ?? 0) + score
-        }
-      }
-
-      return total
+      return answerDrafts.scoreGiven.value ?? assignedWork.value?.score ?? null
     })
 
     /**
@@ -816,26 +603,14 @@ const useAssignedWorkDetailStore = defineStore(
       () => assignedWork.value?.work?.type === 'test'
     )
 
-    /**
-     * Checks whether every task has an answer (saved or pending). Pristine
-     * drafts (`_status === 'empty'`) count as unanswered.
-     */
-    const allTasksAreSolved = computed<boolean>(() => {
-      return (
-        assignedWork.value?.work?.tasks?.every(
-          (task) => answers.value[task.id]?._status !== 'empty'
-        ) ?? false
-      )
-    })
-
     return {
       assignedWork,
-      answers,
-      ownComment,
-      ownCommentSeat,
+      answers: answerDrafts.answers,
+      ownComment: commentDraft.draft,
+      ownCommentSeat: commentDraft.seat,
       canEditOwnComment,
-      commentOf,
-      updateComment,
+      commentOf: commentDraft.contentOf,
+      updateComment: commentDraft.update,
       init,
       setMode,
       viewMode,
@@ -852,12 +627,12 @@ const useAssignedWorkDetailStore = defineStore(
       hasUnsavedChanges,
       isAutosaveEnabled,
       getTask,
-      updateAnswer,
+      updateAnswer: answerDrafts.update,
       totalScore,
       workIsSolved,
       workIsChecked,
       workIsRemakeable,
-      allTasksAreSolved,
+      allTasksAreSolved: answerDrafts.allTasksAreAnswered,
       reset
     }
   }

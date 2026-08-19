@@ -1,5 +1,5 @@
 import { useSearch } from '@/core/composables/useSearch'
-import { EqualsFilter, type IFilter } from '@/core/utils/pagination.utils'
+import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { mapValues } from 'lodash'
 import { defineStore } from 'pinia'
 import { computed, type ComputedRef } from 'vue'
@@ -18,18 +18,21 @@ import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { isApiError } from '@/core/api/api.utils'
 import type { AssignedWorkListTab } from '../types'
 
+type TabSearches = Record<
+  AssignedWorkListTab,
+  ReturnType<typeof useSearch<AssignedWorkEntity>>
+>
+
 interface AssignedWorkListStore {
   metadata: UseApiRequestReturn<void, AssignedWorksMetadata>
+  /** One paginated search per tab, keyed the same way everything else here is. */
+  searches: TabSearches
   /**
    * Archives every given work, then reloads what the list is showing so the
    * rows that just left the user's view actually go.
    */
   archive: (works: AssignedWorkEntity[]) => Promise<void>
   counts: ComputedRef<Record<AssignedWorkListTab, number | undefined>>
-  allSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
-  notMadeSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
-  notCheckedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
-  checkedSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   onTabChange: (newTab: AssignedWorkListTab) => void
 }
 
@@ -51,10 +54,6 @@ const tabQueries: Record<
   checked: { apiTab: 'checked', counter: 'checked' }
 }
 
-function tabFilters(tab: AssignedWorkListTab): IFilter[] {
-  return [new EqualsFilter<AssignedWorkTabQuery>('Tab', tabQueries[tab].apiTab)]
-}
-
 const useAssignedWorkListStore = defineStore(
   'assigned-works:assigned-work-list',
   (): AssignedWorkListStore => {
@@ -71,6 +70,15 @@ const useAssignedWorkListStore = defineStore(
 
       return mapValues(tabQueries, ({ counter }) => fetchedCounts?.[counter])
     })
+
+    // Only the tab the page opens on loads eagerly; the rest wait until the user
+    // asks for them (see `onTabChange`).
+    const searches = mapValues(tabQueries, ({ apiTab }, tab) =>
+      useSearch((pagination) => AssignedWorkService.get(pagination), {
+        immediate: tab === 'all',
+        initialFilters: [new EqualsFilter<AssignedWorkTabQuery>('Tab', apiTab)]
+      })
+    ) as TabSearches
 
     async function archive(works: AssignedWorkEntity[]): Promise<void> {
       const results = await Promise.all(
@@ -93,59 +101,20 @@ const useAssignedWorkListStore = defineStore(
       }
 
       await Promise.all([
-        allSearch.reload(),
-        notMadeSearch.reload(),
-        notCheckedSearch.reload(),
-        checkedSearch.reload(),
+        ...Object.values(searches).map((search) => search.reload()),
         metadata.execute()
       ])
     }
 
     function onTabChange(newTab: AssignedWorkListTab) {
-      switch (newTab) {
-        case 'all':
-          allSearch.reloadIfEmpty()
-          break
-        case 'not-made':
-          notMadeSearch.reloadIfEmpty()
-          break
-        case 'not-checked':
-          notCheckedSearch.reloadIfEmpty()
-          break
-        case 'checked':
-          checkedSearch.reloadIfEmpty()
-          break
-      }
+      searches[newTab].reloadIfEmpty()
     }
-
-    const allSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination),
-      { immediate: true, initialFilters: tabFilters('all') }
-    )
-
-    const notMadeSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination),
-      { immediate: false, initialFilters: tabFilters('not-made') }
-    )
-
-    const notCheckedSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination),
-      { immediate: false, initialFilters: tabFilters('not-checked') }
-    )
-
-    const checkedSearch = useSearch(
-      (pagination) => AssignedWorkService.get(pagination),
-      { immediate: false, initialFilters: tabFilters('checked') }
-    )
 
     return {
       metadata,
       archive,
       counts,
-      allSearch,
-      notMadeSearch,
-      notCheckedSearch,
-      checkedSearch,
+      searches,
       onTabChange
     }
   }

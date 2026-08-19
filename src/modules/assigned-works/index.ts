@@ -6,12 +6,11 @@ import {
   assignedWorkModeGuard
 } from './guards'
 import type { AssignedWorkDetailPageProps } from './pages/assigned-works-detail-page.vue'
-import type { AssignedWorkListPageProps } from './pages/assigned-works-list-page.vue'
 import {
   AssignedWorksPermissions,
   assignedWorksPermissionPolicy
 } from './permissions'
-import type { AssignedWorkListTab, AssignedWorkViewMode } from './types'
+import type { AssignedWorkViewMode } from './types'
 import type { AssignedWorksTaskViewProps } from './views/assigned-works-task-view.vue'
 
 const module: ApplicationModule = {
@@ -28,16 +27,10 @@ const module: ApplicationModule = {
           AssignedWorksPermissions.viewListPage
         )
       },
+      // The tab lives in the route param, which `noo-tabs-layout` reads for
+      // itself, so the page needs nothing passed in.
       component: () => import('./pages/assigned-works-list-page.vue'),
-      beforeEnter: [assignedWorkListTabGuard],
-      props: (route): AssignedWorkListPageProps => {
-        return {
-          tabId:
-            route.params.tab.length > 0
-              ? (String(route.params.tab) as AssignedWorkListTab)
-              : 'all'
-        }
-      }
+      beforeEnter: [assignedWorkListTabGuard]
     },
     {
       name: 'assigned-works.detail',

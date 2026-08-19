@@ -56,9 +56,4 @@ function workIsChecked(status: CheckStatus | undefined): boolean {
   )
 }
 
-export {
-  answerIsNotEmpty,
-  percentageScore,
-  workIsChecked,
-  workIsSolved
-}
+export { answerIsNotEmpty, percentageScore, workIsChecked, workIsSolved }
