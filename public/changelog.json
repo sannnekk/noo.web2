@@ -1,7 +1,128 @@
 [
   {
+    "version": "1.4.0-alpha",
+    "date": "2026-08-19T22:19:57+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "hotkeys: Extended shortcuts to assigned works, course and poll editors and every search box",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "hotkeys: Added keyboard shortcuts with a header widget listing the ones a page offers",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "works: Made work tasks reorderable by dragging them in the task grid",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "assigned-works: Added the answer reveal and one-by-one check buttons to the task view",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "assigned-works: Implemented assigned work comments",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "settings: Added connected accounts settings tab",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "auth: Added social login buttons, callback route and store actions",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Added poll answers edit for teachers & admins",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Added files support",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Added handling for user cant participate twice",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "Added archive icon",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Mentors and students can now see their poll participations",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "polls: Fixed poll results list and detail pages",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "users: Added user history",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "works: Renumbered tasks in the editor when one is added or removed",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "assigned-works: Restored the reactivity and wiring the list and action buttons had lost",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "assigned-works: Fixed issue with overall counting used in tabs & refactored filter logic",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "richtext: Dropped Quill Delta support, leaving the rich text abstraction in place",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "settings: Made the theme a local preference instead of a saved one",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "assigned-works: Pulled the answer and comment drafts out of the detail store and keyed the list by tab",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "assigned-works: Moved from solved and checked statuses to more detailed ones",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "google-sheets: Refactored google sheets support",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "Made warnng on exit uniform across the app",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
     "version": "1.3.0-alpha",
-    "date": "2026-08-08T03:08:40+02:00",
+    "date": "2026-08-08T11:06:29+02:00",
     "changes": [
       {
         "type": "feature",
