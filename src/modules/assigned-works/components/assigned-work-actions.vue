@@ -197,8 +197,14 @@ interface AssignedWorkAction {
 const { can } = useAssignedWorksPermissions()
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
-const { workIsSolved, workIsChecked, workIsRemakeable } =
-  assignedWorkDetailStore
+// Read through the store rather than destructured out of it: a setup store
+// unwraps its computeds, so `const { workIsChecked } = store` would hand back
+// the boolean as it stands right now and never move again.
+const workIsSolved = computed(() => assignedWorkDetailStore.workIsSolved)
+const workIsChecked = computed(() => assignedWorkDetailStore.workIsChecked)
+const workIsRemakeable = computed(
+  () => assignedWorkDetailStore.workIsRemakeable
+)
 const isStudent = can(AssignedWorksPermissions.useStudentMode)
 const isMentor = can(AssignedWorksPermissions.useMentorMode)
 const mode = computed(() => assignedWorkDetailStore.viewMode)
@@ -212,7 +218,7 @@ const hasCheckDeadline = computed(
 const actions: AssignedWorkAction[] = [
   {
     key: 'to-solve-mode',
-    if: () => !workIsSolved && isStudent && mode.value == 'read',
+    if: () => !workIsSolved.value && isStudent && mode.value == 'read',
     size: 'medium',
     variant: 'primary',
     label: 'Перейти к выполнению',
@@ -221,7 +227,10 @@ const actions: AssignedWorkAction[] = [
   {
     key: 'to-check-mode',
     if: () =>
-      workIsSolved && !workIsChecked && isMentor && mode.value == 'read',
+      workIsSolved.value &&
+      !workIsChecked.value &&
+      isMentor &&
+      mode.value == 'read',
     size: 'medium',
     variant: 'primary',
     label: 'Перейти к проверке',
@@ -229,7 +238,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'submit-work',
-    if: () => !workIsSolved && isStudent && mode.value == 'solve',
+    if: () => !workIsSolved.value && isStudent && mode.value == 'solve',
     size: 'large',
     variant: 'primary',
     label: 'Сдать работу',
@@ -237,7 +246,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'save-state',
-    if: () => !workIsSolved && isStudent && mode.value == 'solve',
+    if: () => !workIsSolved.value && isStudent && mode.value == 'solve',
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить без сдачи',
@@ -246,7 +255,7 @@ const actions: AssignedWorkAction[] = [
   {
     key: 'shift-solve-deadline',
     if: () =>
-      !workIsSolved &&
+      !workIsSolved.value &&
       isStudent &&
       mode.value == 'solve' &&
       hasSolveDeadline.value,
@@ -258,7 +267,10 @@ const actions: AssignedWorkAction[] = [
   {
     key: 'remake',
     if: () =>
-      workIsSolved && workIsRemakeable && isStudent && mode.value == 'read',
+      workIsSolved.value &&
+      workIsRemakeable.value &&
+      isStudent &&
+      mode.value == 'read',
     size: 'medium',
     variant: 'tertiary',
     label: 'Переделать работу',
@@ -266,7 +278,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'check-work',
-    if: () => !workIsChecked && isMentor && mode.value == 'check',
+    if: () => !workIsChecked.value && isMentor && mode.value == 'check',
     size: 'large',
     variant: 'primary',
     label: 'Отправить проверку',
@@ -274,7 +286,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'save-state',
-    if: () => !workIsChecked && isMentor && mode.value == 'check',
+    if: () => !workIsChecked.value && isMentor && mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить',
@@ -283,7 +295,10 @@ const actions: AssignedWorkAction[] = [
   {
     key: 'add-helper-mentor',
     if: () =>
-      !workIsChecked && workIsSolved && isMentor && mode.value == 'check',
+      !workIsChecked.value &&
+      workIsSolved.value &&
+      isMentor &&
+      mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
     label: 'Добавить помогающего куратора',
@@ -292,7 +307,7 @@ const actions: AssignedWorkAction[] = [
   {
     key: 'shift-check-deadline',
     if: () =>
-      !workIsChecked &&
+      !workIsChecked.value &&
       isMentor &&
       mode.value == 'check' &&
       hasCheckDeadline.value,
@@ -315,7 +330,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'mark-unsolved',
-    if: () => isMentor && !workIsChecked && workIsSolved,
+    if: () => isMentor && !workIsChecked.value && workIsSolved.value,
     size: 'medium',
     variant: 'tertiary',
     label: 'Отправить на доработку',
@@ -323,7 +338,7 @@ const actions: AssignedWorkAction[] = [
   },
   {
     key: 'mark-unchecked',
-    if: () => isMentor && workIsChecked,
+    if: () => isMentor && workIsChecked.value,
     size: 'medium',
     variant: 'tertiary',
     label: 'Отменить проверку',

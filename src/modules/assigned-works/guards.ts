@@ -4,7 +4,8 @@ import {
   assignedWorksPermissionPolicy
 } from './permissions'
 import { useAssignedWorkDetailStore } from './stores/assigned-work-detail.store'
-import type { AssignedWorkViewMode } from './types'
+import { assignedWorkListTabs } from './types'
+import type { AssignedWorkListTab, AssignedWorkViewMode } from './types'
 
 async function assignedWorkDetailInitGuard(
   to: RouteLocationNormalized
@@ -90,10 +91,9 @@ function assignedWorkListTabGuard(
   to: RouteLocationNormalized
 ): NavigationGuardReturn {
   const tab = to.params.tab as string
-  const validTabs = ['all', 'my', 'solved', 'checked']
 
   // if tab is not valid, redirect to all tab
-  if (!validTabs.includes(tab)) {
+  if (!assignedWorkListTabs.includes(tab as AssignedWorkListTab)) {
     return {
       name: 'assigned-works.list',
       params: { tab: 'all' }

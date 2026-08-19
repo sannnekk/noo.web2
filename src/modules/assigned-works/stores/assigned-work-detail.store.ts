@@ -470,14 +470,19 @@ const useAssignedWorkDetailStore = defineStore(
       },
       () => {
         globalUiStore.createSuccessToast('Дедлайн успешно сдвинут')
-        assignedWork.value!.solveDeadlineAt = DateHelpers.addDays(
-          assignedWork.value!.solveDeadlineAt,
-          AssignedWorkConfig.solveDeadlineShift
-        )
-        assignedWork.value!.checkDeadlineAt = DateHelpers.addDays(
-          assignedWork.value!.checkDeadlineAt,
-          AssignedWorkConfig.checkDeadlineShiftWhileSolveDeadlineShift
-        )
+        // Replaced rather than written into: `assignedWork` is a shallowRef, so
+        // a nested write moves the value without telling anything reading it.
+        assignedWork.value = {
+          ...assignedWork.value!,
+          solveDeadlineAt: DateHelpers.addDays(
+            assignedWork.value!.solveDeadlineAt,
+            AssignedWorkConfig.solveDeadlineShift
+          ),
+          checkDeadlineAt: DateHelpers.addDays(
+            assignedWork.value!.checkDeadlineAt,
+            AssignedWorkConfig.checkDeadlineShiftWhileSolveDeadlineShift
+          )
+        }
       },
       (error) => {
         globalUiStore.createApiErrorToast('Не удалось сдвинуть дедлайн', error)
@@ -514,10 +519,13 @@ const useAssignedWorkDetailStore = defineStore(
       },
       () => {
         globalUiStore.createSuccessToast('Дедлайн проверки успешно сдвинут')
-        assignedWork.value!.checkDeadlineAt = DateHelpers.addDays(
-          assignedWork.value!.checkDeadlineAt,
-          AssignedWorkConfig.checkDeadlineShift
-        )
+        assignedWork.value = {
+          ...assignedWork.value!,
+          checkDeadlineAt: DateHelpers.addDays(
+            assignedWork.value!.checkDeadlineAt,
+            AssignedWorkConfig.checkDeadlineShift
+          )
+        }
       },
       (error) => {
         globalUiStore.createApiErrorToast(

@@ -14,10 +14,17 @@ import {
   type UseApiRequestReturn
 } from '@/core/composables/useApiRequest'
 import { useAuthStore } from '@/core/stores/auth.store'
+import { useGlobalUIStore } from '@/core/stores/global-ui.store'
+import { isApiError } from '@/core/api/api.utils'
 import type { AssignedWorkListTab } from '../types'
 
 interface AssignedWorkListStore {
   metadata: UseApiRequestReturn<void, AssignedWorksMetadata>
+  /**
+   * Archives every given work, then reloads what the list is showing so the
+   * rows that just left the user's view actually go.
+   */
+  archive: (works: AssignedWorkEntity[]) => Promise<void>
   counts: ComputedRef<Record<AssignedWorkListTab, number | undefined>>
   allSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
   notMadeSearch: ReturnType<typeof useSearch<AssignedWorkEntity>>
@@ -52,6 +59,7 @@ const useAssignedWorkListStore = defineStore(
   'assigned-works:assigned-work-list',
   (): AssignedWorkListStore => {
     const authStore = useAuthStore()
+    const globalUiStore = useGlobalUIStore()
     const userId = computed(() => authStore.userId!)
 
     const metadata = useApiRequest(() =>
@@ -63,6 +71,35 @@ const useAssignedWorkListStore = defineStore(
 
       return mapValues(tabQueries, ({ counter }) => fetchedCounts?.[counter])
     })
+
+    async function archive(works: AssignedWorkEntity[]): Promise<void> {
+      const results = await Promise.all(
+        works.map((work) => AssignedWorkService.archive(work.id))
+      )
+
+      const failed = results.filter(isApiError)
+
+      if (failed.length > 0) {
+        globalUiStore.createApiErrorToast(
+          failed.length === works.length
+            ? 'Не удалось архивировать работы'
+            : `Не удалось архивировать работы: ${failed.length} из ${works.length}`,
+          failed[0].error
+        )
+      } else {
+        globalUiStore.createSuccessToast(
+          works.length === 1 ? 'Работа архивирована' : 'Работы архивированы'
+        )
+      }
+
+      await Promise.all([
+        allSearch.reload(),
+        notMadeSearch.reload(),
+        notCheckedSearch.reload(),
+        checkedSearch.reload(),
+        metadata.execute()
+      ])
+    }
 
     function onTabChange(newTab: AssignedWorkListTab) {
       switch (newTab) {
@@ -103,6 +140,7 @@ const useAssignedWorkListStore = defineStore(
 
     return {
       metadata,
+      archive,
       counts,
       allSearch,
       notMadeSearch,

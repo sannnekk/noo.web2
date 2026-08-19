@@ -44,7 +44,19 @@ export type TaskGrid = {
   checkStatus: 'none' | 'correct' | 'incorrect' | 'partially-correct'
 }[]
 
-export type AssignedWorkListTab = 'all' | 'not-made' | 'not-checked' | 'checked'
+/**
+ * The tabs of the list page, in the order it renders them. The page's slots
+ * (`#tab-<name>`), the store's per-tab queries and the route guard are all keyed
+ * off this, so a tab cannot exist in one of them and not the others.
+ */
+export const assignedWorkListTabs = [
+  'all',
+  'not-made',
+  'not-checked',
+  'checked'
+] as const
+
+export type AssignedWorkListTab = (typeof assignedWorkListTabs)[number]
 
 /**
  * How one block of the task view is presented: absent, shown as given, or open

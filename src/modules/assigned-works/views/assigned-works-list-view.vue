@@ -52,13 +52,6 @@
                       Снять выделение
                     </noo-button>
                     <noo-button
-                      v-if="can(AssignedWorksPermissions.addHelperMentor)"
-                      variant="inline"
-                      @click="onAddHelperMentor()"
-                    >
-                      Добавить помогающего куратора
-                    </noo-button>
-                    <noo-button
                       v-if="can(AssignedWorksPermissions.archive)"
                       variant="danger"
                       @click="onArchive()"
@@ -213,10 +206,7 @@ interface Props {
   isLoading?: boolean
 }
 
-interface Emits {
-  (e: 'archive', items: AssignedWorkEntity[]): void
-  (e: 'add-helper-mentor', items: AssignedWorkEntity[]): void
-}
+type Emits = (e: 'archive', items: AssignedWorkEntity[]) => void
 
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
@@ -273,15 +263,6 @@ function onArchive() {
 
   if (selectedWorks.length > 0) {
     emits('archive', selectedWorks)
-    selectedItems.value = {}
-  }
-}
-
-function onAddHelperMentor() {
-  const selectedWorks = getSelectedWorks()
-
-  if (selectedWorks.length > 0) {
-    emits('add-helper-mentor', selectedWorks)
     selectedItems.value = {}
   }
 }

@@ -9,6 +9,7 @@ import {
   type Mock
 } from 'vitest'
 import type { IRichText } from '@/core/utils/richtext.utils'
+import { computed, watchEffect } from 'vue'
 import type { AssignedWorkEntity } from '../api/assigned-work.types'
 
 vi.mock('vue-router', () => ({
@@ -569,5 +570,74 @@ describe('useAssignedWorkDetailStore — totalScore', () => {
     store.setMode('check')
 
     expect(store.totalScore).toBe(7)
+  })
+})
+
+describe('useAssignedWorkDetailStore — deadlines', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    principal.value = { id: 'student-1', role: 'student' }
+    ;(AssignedWorkService.shiftDeadline as Mock).mockResolvedValue({
+      data: undefined
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    principal.value = null
+  })
+
+  async function initWithDeadlines() {
+    const assignedWork = makeAssignedWork()
+
+    assignedWork.solveDeadlineAt = new Date('2026-01-01T00:00:00.000Z')
+    assignedWork.checkDeadlineAt = new Date('2026-01-05T00:00:00.000Z')
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: assignedWork
+    })
+
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+
+    return store
+  }
+
+  /**
+   * `assignedWork` is a shallowRef, so the shifted date used to be written into
+   * the object in place — the value moved but the sidebar showing it never
+   * heard about it.
+   */
+  test('shifting the solve deadline reaches whatever is reading it', async () => {
+    const store = await initWithDeadlines()
+
+    const shown: (Date | null | undefined)[] = []
+    const deadline = computed(() => store.assignedWork?.solveDeadlineAt)
+    watchEffect(() => shown.push(deadline.value), { flush: 'sync' })
+
+    await store.shiftSolveDeadline.execute()
+
+    expect(shown).toHaveLength(2)
+    expect(shown[1]).not.toEqual(shown[0])
+    expect(store.assignedWork!.checkDeadlineAt).not.toEqual(
+      new Date('2026-01-05T00:00:00.000Z')
+    )
+  })
+
+  test('shifting the check deadline reaches whatever is reading it', async () => {
+    const store = await initWithDeadlines()
+
+    const shown: (Date | null | undefined)[] = []
+    const deadline = computed(() => store.assignedWork?.checkDeadlineAt)
+    watchEffect(() => shown.push(deadline.value), { flush: 'sync' })
+
+    await store.shiftCheckDeadline.execute()
+
+    expect(shown).toHaveLength(2)
+    expect(shown[1]).not.toEqual(shown[0])
+    // The solve deadline is not the one being moved.
+    expect(store.assignedWork!.solveDeadlineAt).toEqual(
+      new Date('2026-01-01T00:00:00.000Z')
+    )
   })
 })
