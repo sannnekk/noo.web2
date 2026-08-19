@@ -261,4 +261,41 @@ describe('AssignedWorkService', () => {
       )
     })
   })
+
+  describe('getTaskAnswerKey', () => {
+    test('asks the work for one task answer key', async () => {
+      ;(Api.get as Mock).mockResolvedValue({
+        data: { taskId: 't1', rightAnswers: ['a'] }
+      })
+
+      const result = await AssignedWorkService.getTaskAnswerKey('aw1', 't1')
+
+      expect(Api.get).toHaveBeenCalledWith(
+        '/assigned-work/aw1/task/t1/answer-key'
+      )
+      expect(!isApiError(result) && result.data).toEqual({
+        taskId: 't1',
+        rightAnswers: ['a']
+      })
+    })
+  })
+
+  describe('checkTask', () => {
+    test('posts to the one-task check endpoint', async () => {
+      const verdict = {
+        taskId: 't1',
+        answerId: 'a1',
+        score: 5,
+        maxScore: 5,
+        isCorrect: true
+      }
+
+      ;(Api.post as Mock).mockResolvedValue({ data: verdict })
+
+      const result = await AssignedWorkService.checkTask('aw1', 't1')
+
+      expect(Api.post).toHaveBeenCalledWith('/assigned-work/aw1/task/t1/check')
+      expect(!isApiError(result) && result.data).toEqual(verdict)
+    })
+  })
 })

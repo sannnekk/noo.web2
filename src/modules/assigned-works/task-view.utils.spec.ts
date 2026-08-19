@@ -101,4 +101,29 @@ describe('task view layout', () => {
       }
     })
   })
+
+  describe('a task checked on its own, mid-solve', () => {
+    // `checkOneByOne` lets a task be finished while the rest of the work is not.
+    const layout = resolveTaskViewLayout({
+      mode: 'solve',
+      answerStatus: 'checked'
+    })
+
+    test('closes the answer to further edits', () => {
+      expect(layout.answer).toBe('readonly')
+    })
+
+    test('shows the score it was just given', () => {
+      expect(layout.score).toBe('readonly')
+    })
+
+    test('opens the explanation, there being nothing left to work out', () => {
+      expect(layout.explanation).toBe('expanded')
+      expect(layout.solveHint).toBe('expanded')
+    })
+
+    test('still has no mentor comment to show', () => {
+      expect(layout.mentorComment).toBe('hidden')
+    })
+  })
 })

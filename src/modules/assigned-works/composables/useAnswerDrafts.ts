@@ -1,7 +1,10 @@
 import { uid } from '@/core/utils/id.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import type { AssignedWorkEntity } from '../api/assigned-work.types'
+import type {
+  AssignedWorkEntity,
+  TaskCheckResult
+} from '../api/assigned-work.types'
 import type { PossiblyUnsavedAnswer } from '../types'
 
 export interface UseAnswerDraftsReturn {
@@ -25,6 +28,11 @@ export interface UseAnswerDraftsReturn {
   seed: () => void
   /** Marks the given answers stored, under the ids the server gave them. */
   markSaved: (answerIdsByTaskId: Record<string, string>) => void
+  /**
+   * Records the verdict on a task checked on its own. The answer is finished from
+   * then on: scored, and closed to further edits.
+   */
+  markChecked: (taskId: string, verdict: TaskCheckResult) => void
   reset: () => void
 }
 
@@ -114,6 +122,19 @@ function useAnswerDrafts(
     }
   }
 
+  function markChecked(taskId: string, verdict: TaskCheckResult): void {
+    const answer = answers.value[taskId]
+
+    if (!answer) {
+      return
+    }
+
+    answer.id = verdict.answerId
+    answer.score = verdict.score
+    answer.status = 'checked'
+    answer._status = 'saved'
+  }
+
   // A work whose tasks have not loaded has nothing to call answered.
   const allTasksAreAnswered = computed<boolean>(
     () =>
@@ -149,6 +170,7 @@ function useAnswerDrafts(
     update,
     seed,
     markSaved,
+    markChecked,
     reset
   }
 }

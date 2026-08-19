@@ -14,6 +14,8 @@ import type {
   IdResponseDto,
   ReplaceMainMentorOptions,
   ShiftAssignedWorkDeadlineOptions,
+  TaskAnswerKey,
+  TaskCheckResult,
   UpsertAssignedWorkAnswerDto,
   UpsertAssignedWorkCommentDto
 } from './assigned-work.types'
@@ -95,6 +97,26 @@ interface IAssignedWorkService {
     assignedWorkId: string,
     answer: UpsertAssignedWorkAnswerDto
   ): Promise<ApiResponse<IdResponseDto>>
+  /**
+   * Gets the answer key of one task, for tasks that offer it before the work is checked.
+   *
+   * @param assignedWorkId The work the task belongs to.
+   * @param taskId The task to reveal the answer of.
+   */
+  getTaskAnswerKey(
+    assignedWorkId: string,
+    taskId: string
+  ): Promise<ApiResponse<TaskAnswerKey>>
+  /**
+   * Checks one task on its own and records the result. The answer is locked afterwards.
+   *
+   * @param assignedWorkId The work the task belongs to.
+   * @param taskId The task to check.
+   */
+  checkTask(
+    assignedWorkId: string,
+    taskId: string
+  ): Promise<ApiResponse<TaskCheckResult>>
   /** Save (upsert) a comment for an assigned work. */
   saveComment(
     assignedWorkId: string,
@@ -235,6 +257,24 @@ async function saveComment(
   )
 }
 
+async function getTaskAnswerKey(
+  assignedWorkId: string,
+  taskId: string
+): Promise<ApiResponse<TaskAnswerKey>> {
+  return await Api.get(
+    `${BASE_PATH}/${assignedWorkId}/task/${taskId}/answer-key`
+  )
+}
+
+async function checkTask(
+  assignedWorkId: string,
+  taskId: string
+): Promise<ApiResponse<TaskCheckResult>> {
+  return await Api.post<void, TaskCheckResult>(
+    `${BASE_PATH}/${assignedWorkId}/task/${taskId}/check`
+  )
+}
+
 async function archive(id: string): Promise<ApiResponse> {
   return await Api.patch(`${BASE_PATH}/${id}/archive`)
 }
@@ -288,6 +328,8 @@ export const AssignedWorkService: IAssignedWorkService = {
   markChecked,
   saveAnswer,
   saveComment,
+  getTaskAnswerKey,
+  checkTask,
   archive,
   unarchive,
   addMentor,

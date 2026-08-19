@@ -37,6 +37,8 @@ vi.mock('../api/assigned-work.service', () => ({
     markUnchecked: vi.fn(),
     remake: vi.fn(),
     shiftDeadline: vi.fn(),
+    getTaskAnswerKey: vi.fn(),
+    checkTask: vi.fn(),
     addMentor: vi.fn()
   }
 }))
@@ -626,5 +628,154 @@ describe('useAssignedWorkDetailStore — deadlines', () => {
     expect(store.assignedWork!.solveDeadlineAt).toEqual(
       new Date('2026-01-01T00:00:00.000Z')
     )
+  })
+})
+
+describe('useAssignedWorkDetailStore — checking one task on its own', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    principal.value = { id: 'student-1', role: 'student' }
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: makeAssignedWork()
+    })
+    mockSaveAnswerOk()
+    ;(AssignedWorkService.checkTask as Mock).mockResolvedValue({
+      data: {
+        taskId: 't-1',
+        answerId: 'answer-1',
+        score: 4,
+        maxScore: 5,
+        isCorrect: false
+      }
+    })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    principal.value = null
+  })
+
+  async function solvingStore() {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('solve')
+
+    return store
+  }
+
+  test('saves what the student typed before asking for a verdict on it', async () => {
+    const store = await solvingStore()
+
+    store.updateAnswer('t-1', { wordContent: 'my answer' })
+
+    expect(await store.checkTask('t-1')).toBe(true)
+
+    // What the server scores has to be what the student can see.
+    expect(AssignedWorkService.saveAnswer).toHaveBeenCalledTimes(1)
+    const saveCall = (AssignedWorkService.saveAnswer as Mock).mock
+      .invocationCallOrder[0]
+    const checkCall = (AssignedWorkService.checkTask as Mock).mock
+      .invocationCallOrder[0]
+
+    expect(saveCall).toBeLessThan(checkCall)
+    expect(AssignedWorkService.checkTask).toHaveBeenCalledWith('aw-1', 't-1')
+  })
+
+  test('locks the answer under the verdict the server gave', async () => {
+    const store = await solvingStore()
+
+    store.updateAnswer('t-1', { wordContent: 'my answer' })
+    await store.checkTask('t-1')
+
+    expect(store.answers['t-1']).toMatchObject({
+      id: 'answer-1',
+      score: 4,
+      status: 'checked',
+      _status: 'saved'
+    })
+    // Nothing is left pending, so autosave has nothing more to send.
+    expect(store.hasUnsavedChanges).toBe(false)
+  })
+
+  test('leaves the answer alone when the check fails', async () => {
+    ;(AssignedWorkService.checkTask as Mock).mockResolvedValueOnce({
+      error: { id: 'BOOM', statusCode: 409, name: 'err', payload: null }
+    })
+
+    const store = await solvingStore()
+
+    store.updateAnswer('t-1', { wordContent: 'my answer' })
+
+    expect(await store.checkTask('t-1')).toBe(false)
+    expect(store.answers['t-1'].status).toBe('not-submitted')
+    expect(store.answers['t-1'].score).toBeNull()
+  })
+
+  test('does not check when saving the answer failed first', async () => {
+    ;(AssignedWorkService.saveAnswer as Mock).mockResolvedValueOnce({
+      error: { id: 'BOOM', statusCode: 500, name: 'err', payload: null }
+    })
+
+    const store = await solvingStore()
+
+    store.updateAnswer('t-1', { wordContent: 'my answer' })
+
+    expect(await store.checkTask('t-1')).toBe(false)
+    expect(AssignedWorkService.checkTask).not.toHaveBeenCalled()
+  })
+
+  test('refuses a second check while the first is still in flight', async () => {
+    let release: ((value: unknown) => void) | null = null
+    ;(AssignedWorkService.checkTask as Mock).mockImplementation(async () => {
+      await new Promise((resolve) => {
+        release = resolve
+      })
+
+      return {
+        data: {
+          taskId: 't-1',
+          answerId: 'a',
+          score: 1,
+          maxScore: 5,
+          isCorrect: false
+        }
+      }
+    })
+
+    const store = await solvingStore()
+
+    store.updateAnswer('t-1', { wordContent: 'my answer' })
+
+    const first = store.checkTask('t-1')
+
+    // The save runs first, so wait for the check itself to be in flight.
+    await vi.waitUntil(
+      () => (AssignedWorkService.checkTask as Mock).mock.calls.length === 1
+    )
+    expect(store.taskBeingChecked).toBe('t-1')
+    expect(await store.checkTask('t-1')).toBe(false)
+
+    release!(undefined)
+    await first
+
+    expect(store.taskBeingChecked).toBeNull()
+    expect(AssignedWorkService.checkTask).toHaveBeenCalledTimes(1)
+  })
+
+  test('asks the server for an answer key rather than reading one off the work', async () => {
+    ;(AssignedWorkService.getTaskAnswerKey as Mock).mockResolvedValue({
+      data: { taskId: 't-1', rightAnswers: ['the answer'] }
+    })
+
+    const store = await solvingStore()
+
+    await store.revealTaskAnswer.execute('t-1')
+
+    expect(AssignedWorkService.getTaskAnswerKey).toHaveBeenCalledWith(
+      'aw-1',
+      't-1'
+    )
+    expect(store.revealTaskAnswer.data?.rightAnswers).toEqual(['the answer'])
   })
 })

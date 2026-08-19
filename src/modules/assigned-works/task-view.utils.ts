@@ -7,7 +7,9 @@ interface TaskViewLayoutInput {
    * Status of the answer to this one task, not of the work around it. The API
    * moves every answer to `submitted` when the work is handed in and to
    * `checked` when it is marked checked, so a task nobody answered stays
-   * `not-submitted` even inside a work that was handed in.
+   * `not-submitted` even inside a work that was handed in. A task marked
+   * `checkOneByOne` reaches `checked` on its own, while the work around it is
+   * still being solved.
    */
   answerStatus: AssignedWorkAnswerStatus
 }
@@ -34,15 +36,24 @@ function resolveTaskViewLayout({
 }: TaskViewLayoutInput): TaskViewLayout {
   switch (mode) {
     // Nothing but the task and the answer being written, with the hint within
-    // reach for whoever gets stuck.
+    // reach for whoever gets stuck — unless this task was checked on its own, in
+    // which case it is finished mid-work and reads like a checked one.
     case 'solve':
-      return {
-        answer: 'editable',
-        score: 'hidden',
-        mentorComment: 'hidden',
-        solveHint: 'collapsed',
-        explanation: 'hidden'
-      }
+      return answerStatus === 'checked'
+        ? {
+            answer: 'readonly',
+            score: 'readonly',
+            mentorComment: 'hidden',
+            solveHint: 'expanded',
+            explanation: 'expanded'
+          }
+        : {
+            answer: 'editable',
+            score: 'hidden',
+            mentorComment: 'hidden',
+            solveHint: 'collapsed',
+            explanation: 'hidden'
+          }
 
     // Reading mode with the mentor's two fields opened up: the explanation is
     // what the answer is being checked against, so it belongs here.

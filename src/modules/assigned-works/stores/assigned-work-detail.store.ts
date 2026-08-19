@@ -25,7 +25,8 @@ import type {
   AddHelperMentorOptions,
   AssignedWorkAnswerEntity,
   AssignedWorkEntity,
-  AssignedWorkRemakeOptions
+  AssignedWorkRemakeOptions,
+  TaskAnswerKey
 } from '../api/assigned-work.types'
 import { useAnswerDrafts } from '../composables/useAnswerDrafts'
 import { useCommentDraft } from '../composables/useCommentDraft'
@@ -61,6 +62,18 @@ export interface AssignedWorkDetailStore {
   ownComment: Ref<PossiblyUnsavedComment>
   ownCommentSeat: ComputedRef<AssignedWorkCommentSeat | null>
   canEditOwnComment: ComputedRef<boolean>
+  /**
+   * Asks the server for the answer key of one task. Only tasks that offer it will
+   * answer — the key is not in the work the student was given.
+   */
+  revealTaskAnswer: UseApiRequestReturn<string, TaskAnswerKey>
+  /**
+   * Has one task checked on its own. Saves first, so what the server scores is what
+   * the student last typed, and locks the answer once it comes back.
+   */
+  checkTask: (taskId: string) => Promise<boolean>
+  /** The task whose check is in flight, so its button alone can show it. */
+  taskBeingChecked: Ref<string | null>
   commentOf: (seat: AssignedWorkCommentSeat) => IRichText | null
   updateComment: (content: IRichText | null) => void
   markSolved: UseApiRequestReturn
@@ -349,6 +362,61 @@ const useAssignedWorkDetailStore = defineStore(
       { debounce: AUTOSAVE_DEBOUNCE_MS }
     )
 
+    const revealTaskAnswer = useApiRequest<string, TaskAnswerKey>(
+      (taskId) =>
+        AssignedWorkService.getTaskAnswerKey(assignedWork.value!.id, taskId),
+      undefined,
+      (error) => {
+        globalUiStore.createApiErrorToast('Не удалось показать ответ', error)
+      }
+    )
+
+    const taskBeingChecked = ref<string | null>(null)
+
+    /**
+     * Checks one task on its own and locks its answer. Reports whether the check
+     * went through.
+     */
+    async function checkTask(taskId: string): Promise<boolean> {
+      if (!assignedWork.value || taskBeingChecked.value) {
+        return false
+      }
+
+      taskBeingChecked.value = taskId
+
+      try {
+        // The answer the server scores must be the one the student can see, so
+        // anything still pending goes first.
+        if (!(await save({ silent: true }))) {
+          return false
+        }
+
+        const response = await AssignedWorkService.checkTask(
+          assignedWork.value.id,
+          taskId
+        )
+
+        if (isApiError(response)) {
+          globalUiStore.createApiErrorToast(
+            'Не удалось проверить задание',
+            response.error
+          )
+
+          return false
+        }
+
+        if (response.data) {
+          answerDrafts.markChecked(taskId, response.data)
+        }
+
+        globalUiStore.createSuccessToast('Задание проверено')
+
+        return true
+      } finally {
+        taskBeingChecked.value = null
+      }
+    }
+
     /**
      * Marks the assigned work as solved.
      */
@@ -609,6 +677,9 @@ const useAssignedWorkDetailStore = defineStore(
       ownComment: commentDraft.draft,
       ownCommentSeat: commentDraft.seat,
       canEditOwnComment,
+      revealTaskAnswer,
+      checkTask,
+      taskBeingChecked,
       commentOf: commentDraft.contentOf,
       updateComment: commentDraft.update,
       init,

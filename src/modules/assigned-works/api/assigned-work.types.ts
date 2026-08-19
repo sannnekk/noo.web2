@@ -145,6 +145,25 @@ export interface UpsertAssignedWorkCommentDto {
   content: IRichText | null
 }
 
+/**
+ * The answer key of one task, asked for a task at a time. It never travels with the
+ * work itself while a student is still solving it.
+ */
+export interface TaskAnswerKey {
+  taskId: string
+  rightAnswers: string[]
+}
+
+/** The verdict on one task checked on its own. */
+export interface TaskCheckResult {
+  taskId: string
+  answerId: string
+  score: number
+  maxScore: number
+  /** Whether the answer earned every point on offer. */
+  isCorrect: boolean
+}
+
 export interface IdResponseDto {
   id: string
 }

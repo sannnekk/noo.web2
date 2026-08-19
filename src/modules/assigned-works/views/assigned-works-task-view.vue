@@ -5,15 +5,41 @@
   >
     <task-statement-block :task="task">
       <template
-        v-if="canSaveTask"
+        v-if="canSaveTask || canRevealAnswer || canCheckOnItsOwn"
         #actions
       >
+        <noo-button
+          v-if="canRevealAnswer"
+          variant="tertiary"
+          size="small"
+          @click="revealAnswer()"
+        >
+          Показать ответ
+        </noo-button>
+        <noo-button
+          v-if="canCheckOnItsOwn"
+          variant="secondary"
+          size="small"
+          :is-loading="isBeingChecked"
+          @click="assignedWorkDetailStore.checkTask(task.id)"
+        >
+          Проверить задание
+        </noo-button>
         <save-task-button
+          v-if="canSaveTask"
           :task-id="task.id"
           :assigned-work-id="assignedWorkId!"
         />
       </template>
     </task-statement-block>
+
+    <noo-text-block
+      v-if="task.checkOneByOne && !isAnswerChecked && mode === 'solve'"
+      dimmed
+      size="small"
+    >
+      Это задание проверяется отдельно: после проверки ответ изменить нельзя.
+    </noo-text-block>
 
     <task-answer-block
       v-if="answer && layout.answer !== 'hidden'"
@@ -57,6 +83,13 @@
         :presentation="layout.explanation"
       />
     </div>
+    <task-answer-key-modal
+      v-model:is-open="isAnswerKeyOpen"
+      :right-answers="revealed?.rightAnswers ?? []"
+      :is-loading="assignedWorkDetailStore.revealTaskAnswer.isLoading"
+      :error="assignedWorkDetailStore.revealTaskAnswer.error"
+      :try-again="revealAnswer"
+    />
   </div>
   <div
     v-else
@@ -73,8 +106,9 @@ import {
   TaskCardsPermissions,
   useTaskCardsPermissions
 } from '@/modules/task-cards/permissions'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import taskAnswerBlock from '../components/task-view/task-answer-block.vue'
+import taskAnswerKeyModal from '../components/task-view/task-answer-key-modal.vue'
 import taskHintBlock from '../components/task-view/task-hint-block.vue'
 import taskMentorCommentBlock from '../components/task-view/task-mentor-comment-block.vue'
 import taskScoreBlock from '../components/task-view/task-score-block.vue'
@@ -122,6 +156,34 @@ const canSaveTask = computed(
 const answerTitle = computed(() =>
   props.mode === 'check' ? 'Ответ ученика' : 'Ответ'
 )
+
+// Both are the student's own doing, and only while they are still solving: once the
+// answer is checked there is nothing left to reveal or to check.
+const canRevealAnswer = computed(
+  () => props.mode === 'solve' && !!task.value?.showAnswerBeforeCheck
+)
+
+const canCheckOnItsOwn = computed(
+  () =>
+    props.mode === 'solve' &&
+    !!task.value?.checkOneByOne &&
+    !isAnswerChecked.value
+)
+
+const isBeingChecked = computed(
+  () => assignedWorkDetailStore.taskBeingChecked === props.taskId
+)
+
+const isAnswerKeyOpen = ref(false)
+
+const revealed = computed(
+  () => assignedWorkDetailStore.revealTaskAnswer.data ?? null
+)
+
+async function revealAnswer(): Promise<void> {
+  isAnswerKeyOpen.value = true
+  await assignedWorkDetailStore.revealTaskAnswer.execute(props.taskId)
+}
 
 function updateAnswer(patch: Partial<PossiblyUnsavedAnswer>): void {
   assignedWorkDetailStore.updateAnswer(props.taskId, patch)
