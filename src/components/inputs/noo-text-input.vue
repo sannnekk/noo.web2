@@ -18,6 +18,7 @@
         <slot name="before" />
       </div>
       <input
+        ref="input"
         v-model="model"
         class="noo-input__input"
         :class="{
@@ -70,6 +71,19 @@ type Emits = (e: 'enter-press') => void
 const props = defineProps<Props>()
 
 defineEmits<Emits>()
+
+const input = ref<HTMLInputElement | null>(null)
+
+/**
+ * Puts the caret in the field, over whatever is already there so the next
+ * keystroke replaces it. For the shortcut that jumps to a search box.
+ */
+function focus(): void {
+  input.value?.focus()
+  input.value?.select()
+}
+
+defineExpose({ focus })
 
 const validationErrors = ref<ValidationError[]>([])
 const allErrors = computed(() => [

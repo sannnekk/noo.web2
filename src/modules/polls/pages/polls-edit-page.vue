@@ -187,6 +187,7 @@
 
 <script setup lang="ts">
 import type { LegendItem } from '@/components/inputs/noo-legend.vue'
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import { pluralize } from '@/core/utils/lang.utils'
 import { computed } from 'vue'
@@ -221,6 +222,24 @@ const { isAsking, canSave, decide, confirm } = useUnsavedChangesGuard({
   canSave: () => pollEditStore.mode === 'edit',
   save: () => pollEditStore.save()
 })
+
+// The poll saves outright rather than through a modal, so the shortcut does what
+// the button does and nothing more.
+useHotkeys(() => [
+  {
+    combo: 'mod+s',
+    description: 'Сохранить опрос',
+    when: () => !isReadonlyMode.value,
+    allowInEditable: true,
+    handler: () => pollEditStore.save()
+  },
+  {
+    combo: 'mod+Enter',
+    description: 'Добавить вопрос',
+    when: () => !isReadonlyMode.value,
+    handler: () => pollEditStore.addQuestion()
+  }
+])
 
 async function cancelEdit() {
   if (await confirm()) {

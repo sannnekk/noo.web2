@@ -38,7 +38,9 @@
 
 <script setup lang="ts">
 import type { IconName } from '@/components/icons/noo-icon.vue'
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
 import type { PossiblyUnsavedAnswer, TaskGrid } from '../types'
 import { answerIsNotEmpty } from '../utils'
@@ -69,6 +71,54 @@ function icon(item: TaskGrid[number]): IconName | undefined {
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
 const taskGrid = computed(getTaskGrid)
+
+const route = useRoute()
+const router = useRouter()
+
+// The grid is the order the tasks are in, so stepping through it is what moving
+// between them means. Which one is open is read off the address rather than kept
+// again here, so the shortcuts and the links above cannot disagree.
+const currentIndex = computed(() =>
+  taskGrid.value.findIndex((item) => item.taskId === route.params.taskId)
+)
+
+function taskIdAt(offset: number): string | undefined {
+  if (currentIndex.value === -1) {
+    return undefined
+  }
+
+  return taskGrid.value[currentIndex.value + offset]?.taskId
+}
+
+function goToTask(offset: number): void {
+  const taskId = taskIdAt(offset)
+
+  if (!taskId) {
+    return
+  }
+
+  router.push({
+    name: 'assigned-works.detail.task',
+    params: { taskId }
+  })
+}
+
+// No `allowInEditable`: the arrows belong to the answer being written whenever
+// the caret is in it.
+useHotkeys(() => [
+  {
+    combo: 'mod+ArrowRight',
+    description: 'Следующее задание',
+    when: () => !!taskIdAt(1),
+    handler: () => goToTask(1)
+  },
+  {
+    combo: 'mod+ArrowLeft',
+    description: 'Предыдущее задание',
+    when: () => !!taskIdAt(-1),
+    handler: () => goToTask(-1)
+  }
+])
 
 /**
  * Gets the task grid for the assigned work.

@@ -173,6 +173,7 @@ import type {
   ButtonSize,
   ButtonType
 } from '@/components/buttons/noo-button.vue'
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { computed, ref, shallowRef } from 'vue'
 import type { AddHelperMentorOptions } from '../api/assigned-work.types'
 import { type AssignedWorkRemakeOptions } from '../api/assigned-work.types'
@@ -190,6 +191,8 @@ interface AssignedWorkAction {
   size: ButtonSize
   variant: ButtonType
   label: string
+  /** The shortcut that reaches it, where it is worth reaching by key. */
+  hotkey?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: () => any
 }
@@ -250,6 +253,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить без сдачи',
+    hotkey: 'mod+s',
     handler: () => assignedWorkDetailStore.save()
   },
   {
@@ -290,6 +294,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Сохранить',
+    hotkey: 'mod+s',
     handler: () => assignedWorkDetailStore.save()
   },
   {
@@ -353,6 +358,22 @@ const actions: AssignedWorkAction[] = [
     handler: () => (modals.history.isOpen.value = true)
   }
 ] as const
+
+// The shortcuts are the action list read back: an action carrying a `hotkey`
+// answers to it under exactly the conditions that put its button on screen.
+useHotkeys(() =>
+  actions
+    .filter((action) => !!action.hotkey)
+    .map((action) => ({
+      combo: action.hotkey!,
+      description: action.label,
+      when: action.if,
+      // These are the work's own commands rather than editing ones, so they stay
+      // within reach while an answer is being written.
+      allowInEditable: true,
+      handler: action.handler
+    }))
+)
 
 const availableActions = computed<AssignedWorkAction[]>(() =>
   actions.filter((action) => action.if())

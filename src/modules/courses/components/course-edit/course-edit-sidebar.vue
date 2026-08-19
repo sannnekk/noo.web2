@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { computed, shallowRef } from 'vue'
@@ -203,6 +204,21 @@ const chapterFilter = useCourseChapterFilter({
 const canSave = computed(
   () => editCourseStore.mode === 'create' || editCourseStore.mode === 'edit'
 )
+
+// Reaches for the same modal the save button opens, under the same condition.
+useHotkeys(() => [
+  {
+    combo: 'mod+s',
+    description: 'Сохранить курс',
+    when: () => canSave.value,
+    // Material contents are written in the editor next to this sidebar, which is
+    // exactly where saving is most often wanted.
+    allowInEditable: true,
+    handler: () => {
+      saveChangesModalOpen.value = true
+    }
+  }
+])
 
 const coverFiles = computed<MediaEntity[]>({
   get: () => {

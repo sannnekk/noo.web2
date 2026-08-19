@@ -6,6 +6,7 @@
     @keydown="$emit('keydown', $event)"
   >
     <noo-text-input
+      ref="input"
       v-model="model"
       label=""
       placeholder="Поиск..."
@@ -39,7 +40,9 @@
 </template>
 
 <script setup lang="ts">
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { ref } from 'vue'
+import type NooTextInput from '../inputs/noo-text-input.vue'
 
 interface Props {
   isLoading?: boolean
@@ -57,6 +60,30 @@ const model = defineModel<string | undefined>({
 })
 
 const isOnHover = ref(false)
+const input = ref<InstanceType<typeof NooTextInput> | null>(null)
+
+function focus(): void {
+  input.value?.focus()
+}
+
+/**
+ * Declared here rather than on each page, so every search in the application
+ * answers to the same key without anyone having to remember to wire it up.
+ * Where a page has more than one — a modal opening over a list, say — the one
+ * mounted last takes the shortcut, which is the one the visitor is looking at.
+ */
+useHotkeys(() => [
+  {
+    combo: 'mod+k',
+    description: 'Перейти к поиску',
+    // Reachable mid-sentence: jumping to the search is a way out of the field
+    // being typed in, not something to do only once it has been left.
+    allowInEditable: true,
+    handler: focus
+  }
+])
+
+defineExpose({ focus })
 </script>
 
 <style scoped lang="sass">
