@@ -189,6 +189,19 @@ const useWorkDetailStore = defineStore(
       moveTaskBy(-1)
     }
 
+    /**
+     * Numbers the tasks by their position, so what the editor shows as "Задание №3"
+     * is the third one. Removing a task from the middle would otherwise leave the
+     * ones after it carrying the numbers they had, and the patch would store the
+     * gap. The server settles the same thing on save; this is so the editor is not
+     * showing something else in the meantime.
+     */
+    function renumberTasks(): void {
+      work.value?.tasks?.forEach((task, index) => {
+        task.order = index + 1
+      })
+    }
+
     function addTask(type: WorkTaskType = 'word'): void {
       if (!work.value?.tasks) {
         return
@@ -198,6 +211,7 @@ const useWorkDetailStore = defineStore(
         WorkService.createTaskDraft(type, work.value.tasks.length + 1)
       )
 
+      renumberTasks()
       validateWork()
       taskValidation.validate()
     }
@@ -213,6 +227,7 @@ const useWorkDetailStore = defineStore(
 
       work.value.tasks = work.value.tasks.filter((t) => t._key !== key)
 
+      renumberTasks()
       validateWork()
     }
 
