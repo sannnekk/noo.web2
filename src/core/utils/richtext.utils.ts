@@ -1,16 +1,16 @@
 import type { JSONContent } from '@tiptap/vue-3'
-import { Delta, type Op } from 'quill/core'
 import { z } from 'zod'
 
-export type RichTextType = 'delta' | 'tiptap'
-
-interface DeltaContentType {
-  ops: Op[]
-}
-
-export interface IDeltaRichText extends DeltaContentType {
-  $type: 'delta'
-}
+/**
+ * The editors whose output can be stored. Every value carries its own `$type`,
+ * so more than one format can sit in the database at a time — tiptap is simply
+ * the only one served today, Quill's Delta having been the other until its
+ * content was rewritten and it was removed.
+ *
+ * Adding another editor is a variant here, a schema below, and a branch in
+ * `noo-richtext-editor.vue` picking the component that understands it.
+ */
+export type RichTextType = 'tiptap'
 
 export interface ITiptapRichText {
   $type: 'tiptap'
@@ -18,17 +18,7 @@ export interface ITiptapRichText {
   content?: JSONContent[]
 }
 
-export type IRichText = IDeltaRichText | ITiptapRichText
-
-const DeltaRichTextSchema = z.object({
-  $type: z.literal('delta'),
-  ops: z.array(
-    z.object({
-      insert: z.union([z.string(), z.object({})]),
-      attributes: z.record(z.any()).optional()
-    })
-  )
-})
+export type IRichText = ITiptapRichText
 
 const TiptapRichTextSchema = z.object({
   $type: z.literal('tiptap'),
@@ -36,10 +26,7 @@ const TiptapRichTextSchema = z.object({
   content: z.array(z.any()).optional()
 })
 
-const RichTextSchema = z.discriminatedUnion('$type', [
-  DeltaRichTextSchema,
-  TiptapRichTextSchema
-])
+const RichTextSchema = z.discriminatedUnion('$type', [TiptapRichTextSchema])
 
 function richTextsAreEqual(
   richText1: IRichText | null | undefined,
@@ -53,14 +40,6 @@ function richTextIsEmpty(richText: IRichText | null | undefined): boolean {
     return true
   }
 
-  if (richText.$type === 'tiptap') {
-    return isTiptapEmpty(richText)
-  }
-
-  return isDeltaEmptyOrWhitespace(richText)
-}
-
-function isTiptapEmpty(richText: ITiptapRichText): boolean {
   return !tiptapNodeHasContent(richText)
 }
 
@@ -109,40 +88,7 @@ function richTextToTiptap(
   return { type: richText.type, content: richText.content }
 }
 
-function isDeltaEmptyOrWhitespace(
-  delta: DeltaContentType | undefined | null
-): boolean {
-  if (!delta) {
-    return true
-  }
-  if (delta.ops.length === 0) {
-    return true
-  }
-
-  for (const op of delta.ops) {
-    if (op.insert instanceof Object) {
-      return false
-    }
-    if (op.insert?.trim() !== '') {
-      return false
-    }
-  }
-
-  return true
-}
-
-function emptyDelta(): Delta {
-  return new Delta().insert('\n')
-}
-
-function emptyRichText(type: RichTextType = 'tiptap'): IRichText {
-  if (type === 'delta') {
-    return {
-      $type: 'delta',
-      ...emptyDelta()
-    }
-  }
-
+function emptyRichText(): IRichText {
   return { $type: 'tiptap', type: 'doc', content: [] }
 }
 
@@ -163,9 +109,7 @@ function isRichtext(value: unknown): value is IRichText {
     return false
   }
 
-  return (
-    '$type' in value && (value.$type === 'delta' || value.$type === 'tiptap')
-  )
+  return '$type' in value && value.$type === 'tiptap'
 }
 
 export {

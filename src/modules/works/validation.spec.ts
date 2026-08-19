@@ -7,8 +7,9 @@ import { validateWorkState, validateWorkTaskState } from './utils'
 const validSubjectId = '01ARZ3NDEKTSV4RRFFQ69G5FAV'
 
 const nonEmptyRichText: IRichText = {
-  $type: 'delta',
-  ops: [{ insert: 'Текст' }]
+  $type: 'tiptap',
+  type: 'doc',
+  content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Текст' }] }]
 }
 
 const validTask: PossiblyUnsavedWorkTask = {

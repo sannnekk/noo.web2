@@ -264,7 +264,7 @@ watch(
 )
 
 function insertRichText(value: IRichText | null | undefined): void {
-  // Delta content predates this editor and has no node representation here.
+  // A value in a format this editor does not speak has no nodes to insert.
   if (!editor.value || value?.$type !== 'tiptap' || !value.content?.length) {
     return
   }

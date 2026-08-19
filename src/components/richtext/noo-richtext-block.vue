@@ -1,11 +1,8 @@
 <template>
-  <noo-quill-component
-    v-if="value?.$type === 'delta'"
-    :model-value="value as unknown as Delta"
-    readonly
-  />
+  <!-- Rendered by the editor whose format the value names. One today; a second
+       would be another branch on `$type`. -->
   <noo-tiptap-component
-    v-else-if="value?.$type === 'tiptap'"
+    v-if="value?.$type === 'tiptap'"
     :model-value="value"
     readonly
   />
@@ -13,7 +10,6 @@
 
 <script setup lang="ts">
 import type { IRichText } from '@/core/utils/richtext.utils'
-import type { Delta } from 'quill/core'
 
 interface Props {
   value: IRichText | null | undefined

@@ -136,7 +136,6 @@ declare module 'vue' {
     NooPollSelect: typeof import('./src/components/inputs/entity-select/noo-poll-select.vue')['default']
     NooProfileWidget: typeof import('./src/components/widgets/noo-profile-widget.vue')['default']
     NooProgressBar: typeof import('./src/components/utils/noo-progress-bar.vue')['default']
-    NooQuillComponent: typeof import('./src/components/richtext/quill/noo-quill-component.vue')['default']
     NooRichtextBlock: typeof import('./src/components/richtext/noo-richtext-block.vue')['default']
     NooRichtextEditor: typeof import('./src/components/richtext/noo-richtext-editor.vue')['default']
     NooRichtextIcon: typeof import('./src/components/icons/noo-richtext-icon.vue')['default']
