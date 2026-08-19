@@ -6,7 +6,7 @@
       @click="toggle"
     >
       <noo-icon
-        v-if="mode === 'dark'"
+        v-if="resolved === 'dark'"
         name="moon"
       />
       <noo-icon
@@ -17,7 +17,7 @@
         v-if="withName"
         class="noo-theme-toggle-widget__label"
       >
-        {{ mode === 'dark' ? 'Тёмная' : 'Светлая' }} тема
+        {{ resolved === 'dark' ? 'Тёмная' : 'Светлая' }} тема
       </span>
     </button>
   </div>
@@ -32,7 +32,7 @@ interface Props {
 
 defineProps<Props>()
 
-const { mode, toggle } = useTheme()
+const { resolved, toggle } = useTheme()
 </script>
 
 <style scoped lang="sass">

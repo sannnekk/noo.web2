@@ -5,8 +5,7 @@ import { UserSettingsService } from '../api/endpoints/user-settings.service'
 import type {
   FontSize,
   UserSettings,
-  UserSettingsUpdate,
-  UserTheme
+  UserSettingsUpdate
 } from '../api/endpoints/user-settings.types'
 import {
   useApiRequest,
@@ -14,7 +13,6 @@ import {
 } from '../composables/useApiRequest'
 import { useGlobalUIStore } from './global-ui.store'
 
-export const defaultUserTheme: UserTheme = 'system'
 export const defaultFontSize: FontSize = 'normal'
 
 interface PersonalizationSettingsStore {
@@ -47,7 +45,6 @@ interface PersonalizationSettingsStore {
 
 function getDefaults(): UserSettings {
   return {
-    theme: defaultUserTheme,
     fontSize: defaultFontSize,
     backgroundImage: null
   }
@@ -62,7 +59,6 @@ const usePersonalizationSettingsStore = defineStore(
 
     function bindDraft(value: UserSettings): void {
       draft.value = {
-        theme: value.theme ?? defaultUserTheme,
         fontSize: value.fontSize ?? defaultFontSize,
         backgroundImage: value.backgroundImage ?? null
       }
@@ -84,7 +80,6 @@ const usePersonalizationSettingsStore = defineStore(
     const save = useApiRequest(
       () => {
         const dto: UserSettingsUpdate = {
-          theme: draft.value.theme,
           fontSize: draft.value.fontSize,
           backgroundImageId: draft.value.backgroundImage?.id ?? null
         }
@@ -109,7 +104,6 @@ const usePersonalizationSettingsStore = defineStore(
 
       return !_.isEqual(
         {
-          theme: loaded.theme ?? defaultUserTheme,
           fontSize: loaded.fontSize ?? defaultFontSize,
           backgroundImage: loaded.backgroundImage ?? null
         },

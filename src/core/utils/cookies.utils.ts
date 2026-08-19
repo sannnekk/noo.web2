@@ -3,8 +3,7 @@ import Cookie from 'js-cookie'
 const StorageAliases = {
   userId: 'noo.userId',
   userRole: 'noo.userRole',
-  apiToken: 'noo.apiToken',
-  theme: 'noo.theme'
+  apiToken: 'noo.apiToken'
 } as const
 
 function set<T>(key: string, value: T): void {

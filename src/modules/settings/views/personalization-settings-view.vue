@@ -2,7 +2,7 @@
   <div class="personalization-settings-view">
     <noo-section
       title="Настройки темы"
-      description="Здесь Вы можете настроить внешний вид платформы под себя. Выберите светлую или тёмную тему или используйте системную. Настройте картинку на фон. Ваши настройки будут сохранены и применены при каждом входе в систему."
+      description="Здесь Вы можете настроить внешний вид платформы под себя. Тема оформления запоминается в этом браузере и применяется сразу. Размер шрифта и картинка на фон сохраняются в Вашем аккаунте и применяются при каждом входе в систему."
     >
       <div
         v-if="isInitialLoading"
@@ -29,7 +29,7 @@
             vertical-align="top"
           >
             <noo-select-input
-              v-model="store.draft.theme"
+              v-model="theme"
               label="Тема оформления"
               :options="userThemeOptions"
             />
@@ -90,14 +90,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useTheme, type Theme } from '@/core/composables/useTheme'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { useTheme } from '@/core/composables/useTheme'
 import type { MediaEntity } from '@/modules/media/api/media.types'
 import { fontSizeOptions, userThemeOptions } from '../constants'
 import { usePersonalizationSettingsStore } from '@/core/stores/personalization-settings.store'
 
 const store = usePersonalizationSettingsStore()
-const { setTheme } = useTheme()
+
+// The theme is this browser's, so it applies as it is picked and there is nothing
+// to save — unlike the rest of the form, which goes to the account.
+const { mode: theme } = useTheme()
 
 const backgroundImage = computed({
   get: () => (store.draft.backgroundImage ? [store.draft.backgroundImage] : []),
@@ -110,27 +113,6 @@ const isInitialLoading = computed(
 )
 const loadError = computed(() => !store.settings.data && !!store.settings.error)
 const canSave = computed(() => store.hasUnsavedChanges && !store.save.isLoading)
-
-function resolveSystemTheme(): Theme {
-  if (typeof window === 'undefined' || !window.matchMedia) {
-    return 'light'
-  }
-
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
-}
-
-watch(
-  () => store.draft.theme,
-  (theme) => {
-    if (!theme) {
-      return
-    }
-
-    setTheme(theme === 'system' ? resolveSystemTheme() : theme)
-  }
-)
 
 onMounted(() => {
   store.init()

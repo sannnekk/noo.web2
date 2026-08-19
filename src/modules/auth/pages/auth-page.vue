@@ -94,9 +94,10 @@ const authStore = useAuthStore()
 
 authStore.setRedirect(props.redirect)
 
-const { setTheme } = useTheme()
+// The auth screen is drawn light whatever the reader prefers elsewhere.
+const { mode } = useTheme()
 
-setTheme('light')
+mode.value = 'light'
 </script>
 
 <style scoped lang="sass">

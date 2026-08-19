@@ -5,10 +5,8 @@ import type {
   GoogleSheetsIntegrationStatus,
   GoogleSheetsIntegrationType
 } from './api/google-sheets.types'
-import type {
-  FontSize,
-  UserTheme
-} from '@/core/api/endpoints/user-settings.types'
+import type { FontSize } from '@/core/api/endpoints/user-settings.types'
+import type { Theme } from '@/core/composables/useTheme'
 
 interface GoogleSheetsIntegrationTypeOption {
   label: string
@@ -95,17 +93,11 @@ const googleSheetsIntegrationScheduleLabels: Record<
 
 const defaultGoogleSheetsSchedule: GoogleSheetsIntegrationSchedule = 'daily'
 
-const userThemeOptions: { label: string; value: UserTheme }[] = [
+const userThemeOptions: { label: string; value: Theme }[] = [
   { label: 'Светлая', value: 'light' },
   { label: 'Тёмная', value: 'dark' },
   { label: 'Системная', value: 'system' }
 ]
-
-const userThemeLabels: Record<UserTheme, string> = {
-  light: 'Светлая',
-  dark: 'Тёмная',
-  system: 'Системная'
-}
 
 const fontSizeOptions: { label: string; value: FontSize }[] = [
   { label: 'Маленький', value: 'small' },
@@ -131,6 +123,5 @@ export {
   googleSheetsIntegrationStatusLabels,
   googleSheetsIntegrationTypeLabels,
   googleSheetsIntegrationTypes,
-  userThemeLabels,
   userThemeOptions
 }
