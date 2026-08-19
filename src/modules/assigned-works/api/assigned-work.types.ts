@@ -137,9 +137,12 @@ export interface UpsertAssignedWorkAnswerDto {
   taskId: string
 }
 
+/**
+ * Only the text: which of the work's three comments it lands in is decided by
+ * the seat the caller holds on that work, never by the request.
+ */
 export interface UpsertAssignedWorkCommentDto {
-  id?: string
-  content?: IRichText
+  content: IRichText | null
 }
 
 export interface IdResponseDto {

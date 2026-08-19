@@ -248,7 +248,7 @@ describe('AssignedWorkService', () => {
     test('should post comment to comment endpoint', async () => {
       const mockAssignedWorkId = 'aw1'
       const payload: UpsertAssignedWorkCommentDto = {
-        id: 'c1'
+        content: null
       }
 
       ;(Api.post as Mock).mockResolvedValue({ data: { id: 'comment-id' } })

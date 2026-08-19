@@ -5,8 +5,11 @@ import {
   type UseApiRequestReturn
 } from '@/core/composables/useApiRequest'
 import { useSaveStatus } from '@/core/composables/useSaveStatus'
+import { getPrincipal } from '@/core/permissions/principal'
 import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { DateHelpers } from '@/core/utils/dates'
+import { uid } from '@/core/utils/id.utils'
+import type { IRichText } from '@/core/utils/richtext.utils'
 import type { WorkTaskEntity } from '@/modules/works/api/work.types'
 import { debouncedWatch } from '@vueuse/core'
 import { defineStore } from 'pinia'
@@ -23,11 +26,17 @@ import { AssignedWorkService } from '../api/assigned-work.service'
 import type {
   AddHelperMentorOptions,
   AssignedWorkAnswerEntity,
+  AssignedWorkCommentEntity,
   AssignedWorkEntity,
   AssignedWorkRemakeOptions
 } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
-import type { AssignedWorkViewMode, PossiblyUnsavedAnswer } from '../types'
+import type {
+  AssignedWorkCommentSeat,
+  AssignedWorkViewMode,
+  PossiblyUnsavedAnswer,
+  PossiblyUnsavedComment
+} from '../types'
 import { workIsChecked as isChecked, workIsSolved as isSolved } from '../utils'
 
 /**
@@ -46,6 +55,15 @@ interface SaveOptions {
 export interface AssignedWorkDetailStore {
   assignedWork: ShallowRef<AssignedWorkEntity | undefined>
   answers: Ref<Record<string, PossiblyUnsavedAnswer>>
+  /**
+   * The current user's own comment on the work as a whole, as they are writing
+   * it. The other participants' comments are read off `assignedWork`.
+   */
+  ownComment: Ref<PossiblyUnsavedComment>
+  ownCommentSeat: ComputedRef<AssignedWorkCommentSeat | null>
+  canEditOwnComment: ComputedRef<boolean>
+  commentOf: (seat: AssignedWorkCommentSeat) => IRichText | null
+  updateComment: (content: IRichText | null) => void
   markSolved: UseApiRequestReturn
   markChecked: UseApiRequestReturn
   remake: UseApiRequestReturn<AssignedWorkRemakeOptions, { id: string }>
@@ -97,13 +115,22 @@ const useAssignedWorkDetailStore = defineStore(
     const answers = ref<Record<string, PossiblyUnsavedAnswer>>({})
 
     /**
+     * The current user's comment on the work as a whole. Only one of the three
+     * comments a work carries is ever editable here — the one belonging to the
+     * seat the user holds on this work.
+     */
+    const ownComment = ref<PossiblyUnsavedComment>(createCommentDraft())
+
+    /**
      * True if there are unsaved (user-modified) changes pending.
      * Pristine drafts (`_status === 'empty'`) are not considered dirty.
      */
-    const hasUnsavedChanges = computed<boolean>(() =>
-      Object.values(answers.value).some(
-        (answer) => answer._status === 'modified'
-      )
+    const hasUnsavedChanges = computed<boolean>(
+      () =>
+        ownComment.value._status === 'modified' ||
+        Object.values(answers.value).some(
+          (answer) => answer._status === 'modified'
+        )
     )
 
     /**
@@ -141,6 +168,7 @@ const useAssignedWorkDetailStore = defineStore(
       assignedWork.value = apiResponse.data
       setSavedAnswers(apiResponse.data.answers ?? [])
       setEmptyAnswers()
+      setSavedOwnComment()
 
       return true
     }
@@ -209,8 +237,9 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       const changedAnswers = getChangedAnswers()
+      const commentIsChanged = ownComment.value._status === 'modified'
 
-      if (changedAnswers.length === 0) {
+      if (changedAnswers.length === 0 && !commentIsChanged) {
         if (!silent) {
           globalUiStore.createSuccessToast('Работа сохранена')
         }
@@ -223,6 +252,22 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       saveStatus.beginSave()
+
+      /**
+       * Reports a failed save once, whatever it was that failed to go through.
+       */
+      function fail(error: ApiError): false {
+        if (!silent) {
+          globalUiStore.setLoading(false)
+          globalUiStore.createApiErrorToast(
+            'Не удалось сохранить работу',
+            error
+          )
+        }
+        saveStatus.endSave({ success: false })
+
+        return false
+      }
 
       const answerIdsByTaskId: Record<string, string> = {}
 
@@ -243,16 +288,7 @@ const useAssignedWorkDetailStore = defineStore(
         )
 
         if (isApiError(response)) {
-          if (!silent) {
-            globalUiStore.setLoading(false)
-            globalUiStore.createApiErrorToast(
-              'Не удалось сохранить работу',
-              response.error
-            )
-          }
-          saveStatus.endSave({ success: false })
-
-          return false
+          return fail(response.error)
         }
 
         if (response.data) {
@@ -261,6 +297,19 @@ const useAssignedWorkDetailStore = defineStore(
       }
 
       setSavedAnswerIds(answerIdsByTaskId)
+
+      if (commentIsChanged) {
+        const response = await AssignedWorkService.saveComment(
+          assignedWork.value.id,
+          { content: ownComment.value.content }
+        )
+
+        if (isApiError(response)) {
+          return fail(response.error)
+        }
+
+        setSavedCommentId(response.data?.id)
+      }
 
       if (!silent) {
         globalUiStore.setLoading(false)
@@ -298,7 +347,7 @@ const useAssignedWorkDetailStore = defineStore(
           return
         }
 
-        if (getChangedAnswers().length === 0) {
+        if (!hasUnsavedChanges.value) {
           return
         }
 
@@ -539,8 +588,123 @@ const useAssignedWorkDetailStore = defineStore(
     function reset(): void {
       assignedWork.value = undefined
       answers.value = {}
+      ownComment.value = createCommentDraft()
       saveStatus.reset()
       inFlightSave = null
+    }
+
+    /**
+     * Which of the work's three comments belongs to the current user. Null for
+     * anyone only looking on (an admin, a teacher, an assistant), who therefore
+     * has no comment of their own to write.
+     */
+    const ownCommentSeat = computed<AssignedWorkCommentSeat | null>(() => {
+      const principal = getPrincipal()
+      const work = assignedWork.value
+
+      if (!principal || !work) {
+        return null
+      }
+
+      if (work.studentId === principal.id) {
+        return 'student'
+      }
+
+      if (work.mainMentorId === principal.id) {
+        return 'main-mentor'
+      }
+
+      if (work.helperMentorId === principal.id) {
+        return 'helper-mentor'
+      }
+
+      return null
+    })
+
+    /**
+     * A comment is written in the same modes as the answers it accompanies: the
+     * student writes theirs while solving, the mentors theirs while checking.
+     */
+    const canEditOwnComment = computed<boolean>(
+      () => isAutosaveEnabled.value && ownCommentSeat.value !== null
+    )
+
+    /**
+     * The comment of one seat as it should be displayed. The user's own comment
+     * comes from the draft they are editing, everyone else's from the work.
+     */
+    function commentOf(seat: AssignedWorkCommentSeat): IRichText | null {
+      if (seat === ownCommentSeat.value) {
+        return ownComment.value.content
+      }
+
+      return savedCommentOf(seat)?.content ?? null
+    }
+
+    /**
+     * Applies a change to the user's own comment and marks it as unsaved.
+     * All comment edits must go through this to keep the dirty flag in sync.
+     */
+    function updateComment(content: IRichText | null): void {
+      ownComment.value = {
+        ...ownComment.value,
+        content,
+        _status: 'modified'
+      }
+      autosaveTrigger.value++
+    }
+
+    function createCommentDraft(): PossiblyUnsavedComment {
+      return {
+        _entityName: 'AssignedWorkComment',
+        _key: uid(),
+        _status: 'empty',
+        content: null
+      }
+    }
+
+    /**
+     * The comment stored on the work for one seat, as it was last loaded.
+     */
+    function savedCommentOf(
+      seat: AssignedWorkCommentSeat
+    ): AssignedWorkCommentEntity | null | undefined {
+      switch (seat) {
+        case 'student':
+          return assignedWork.value?.studentComment
+        case 'main-mentor':
+          return assignedWork.value?.mainMentorComment
+        case 'helper-mentor':
+          return assignedWork.value?.helperMentorComment
+      }
+    }
+
+    /**
+     * Seeds the draft from the comment the user has already written on this
+     * work, if any.
+     */
+    function setSavedOwnComment(): void {
+      const seat = ownCommentSeat.value
+      const saved = seat ? savedCommentOf(seat) : null
+
+      ownComment.value = saved
+        ? {
+            ...saved,
+            _key: saved.id,
+            _status: 'saved'
+          }
+        : createCommentDraft()
+    }
+
+    /**
+     * Marks the comment as saved and sets the ID the server gave it.
+     */
+    function setSavedCommentId(commentId: string | undefined): void {
+      ownComment.value = {
+        ...ownComment.value,
+        id: commentId ?? ownComment.value.id,
+        _status: 'saved'
+      }
     }
 
     /**
@@ -693,6 +857,11 @@ const useAssignedWorkDetailStore = defineStore(
     return {
       assignedWork,
       answers,
+      ownComment,
+      ownCommentSeat,
+      canEditOwnComment,
+      commentOf,
+      updateComment,
       init,
       setMode,
       viewMode,

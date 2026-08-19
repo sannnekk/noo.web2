@@ -8,6 +8,7 @@ import {
   vi,
   type Mock
 } from 'vitest'
+import type { IRichText } from '@/core/utils/richtext.utils'
 import type { AssignedWorkEntity } from '../api/assigned-work.types'
 
 vi.mock('vue-router', () => ({
@@ -18,10 +19,17 @@ vi.mock('vue-router', () => ({
   })
 }))
 
+const principal = { value: null as { id: string; role: string } | null }
+
+vi.mock('@/core/permissions/principal', () => ({
+  getPrincipal: () => principal.value
+}))
+
 vi.mock('../api/assigned-work.service', () => ({
   AssignedWorkService: {
     getById: vi.fn(),
     saveAnswer: vi.fn(),
+    saveComment: vi.fn(),
     createAnswerDraft: vi.fn((task: { id: string; maxScore: number }) => ({
       _entityName: 'AssignedWorkAnswer',
       _key: `key-${task.id}`,
@@ -89,6 +97,14 @@ function makeAssignedWork(): AssignedWorkEntity {
   } as unknown as AssignedWorkEntity
 }
 
+function makeRichText(text: string): IRichText {
+  return {
+    $type: 'tiptap',
+    type: 'doc',
+    content: [{ type: 'paragraph', content: [{ type: 'text', text }] }]
+  }
+}
+
 function mockSaveAnswerOk() {
   let counter = 0
   ;(AssignedWorkService.saveAnswer as Mock).mockImplementation(async () => {
@@ -103,19 +119,28 @@ async function flushTimers() {
   await vi.runAllTimersAsync()
 }
 
+function mockSaveCommentOk() {
+  ;(AssignedWorkService.saveComment as Mock).mockResolvedValue({
+    data: { id: 'comment-1' }
+  })
+}
+
 describe('useAssignedWorkDetailStore — autosave', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     setActivePinia(createPinia())
+    principal.value = { id: 'student-1', role: 'student' }
     ;(AssignedWorkService.getById as Mock).mockResolvedValue({
       data: makeAssignedWork()
     })
     mockSaveAnswerOk()
+    mockSaveCommentOk()
   })
 
   afterEach(() => {
     vi.useRealTimers()
     vi.clearAllMocks()
+    principal.value = null
   })
 
   test('autosaves a single combined request after debounce when in solve mode', async () => {
@@ -301,6 +326,171 @@ describe('useAssignedWorkDetailStore — autosave', () => {
     await store.save()
 
     expect(AssignedWorkService.saveAnswer).not.toHaveBeenCalled()
+    expect(AssignedWorkService.saveComment).not.toHaveBeenCalled()
+  })
+
+  test('autosaves the work comment alongside the answers', async () => {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('solve')
+
+    store.updateComment(makeRichText('half'))
+    store.updateComment(makeRichText('whole'))
+
+    expect(store.hasUnsavedChanges).toBe(true)
+    expect(AssignedWorkService.saveComment).not.toHaveBeenCalled()
+
+    await flushTimers()
+
+    // Both edits collapse into ONE save, same as the answers do.
+    expect(AssignedWorkService.saveComment).toHaveBeenCalledTimes(1)
+    expect(AssignedWorkService.saveComment).toHaveBeenCalledWith('aw-1', {
+      content: makeRichText('whole')
+    })
+    // A comment on its own must not drag the untouched answers along.
+    expect(AssignedWorkService.saveAnswer).not.toHaveBeenCalled()
+
+    expect(store.ownComment._status).toBe('saved')
+    expect(store.ownComment.id).toBe('comment-1')
+    expect(store.hasUnsavedChanges).toBe(false)
+  })
+
+  test('does not autosave the comment in read mode', async () => {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('read')
+
+    store.updateComment(makeRichText('should-not-save'))
+
+    await flushTimers()
+
+    expect(AssignedWorkService.saveComment).not.toHaveBeenCalled()
+  })
+
+  test('leaves the comment dirty when saving it fails', async () => {
+    ;(AssignedWorkService.saveComment as Mock).mockResolvedValueOnce({
+      error: { id: 'BOOM', statusCode: 500, name: 'err', payload: null }
+    })
+
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('solve')
+
+    store.updateComment(makeRichText('x'))
+
+    await flushTimers()
+
+    expect(store.saveStatus.hasError).toBe(true)
+    expect(store.ownComment._status).toBe('modified')
+    expect(store.hasUnsavedChanges).toBe(true)
+  })
+})
+
+describe('useAssignedWorkDetailStore — work comments', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    mockSaveCommentOk()
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    principal.value = null
+  })
+
+  async function initWith(
+    assignedWork: AssignedWorkEntity
+  ): Promise<ReturnType<typeof useAssignedWorkDetailStore>> {
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: assignedWork
+    })
+
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+
+    return store
+  }
+
+  function makeWorkWithComments(): AssignedWorkEntity {
+    const assignedWork = makeAssignedWork()
+
+    assignedWork.mainMentorId = 'mentor-1'
+    assignedWork.helperMentorId = 'mentor-2'
+    assignedWork.studentComment = {
+      _entityName: 'AssignedWorkComment',
+      id: 'c-student',
+      content: makeRichText('from the student')
+    } as AssignedWorkEntity['studentComment']
+    assignedWork.mainMentorComment = {
+      _entityName: 'AssignedWorkComment',
+      id: 'c-main',
+      content: makeRichText('from the main mentor')
+    } as AssignedWorkEntity['mainMentorComment']
+
+    return assignedWork
+  }
+
+  test('seats the student on their own comment and seeds the draft from it', async () => {
+    principal.value = { id: 'student-1', role: 'student' }
+
+    const store = await initWith(makeWorkWithComments())
+
+    expect(store.ownCommentSeat).toBe('student')
+    expect(store.ownComment.id).toBe('c-student')
+    expect(store.ownComment._status).toBe('saved')
+    expect(store.commentOf('student')).toEqual(makeRichText('from the student'))
+    expect(store.commentOf('main-mentor')).toEqual(
+      makeRichText('from the main mentor')
+    )
+    // Nobody has written in the helper mentor's seat yet.
+    expect(store.commentOf('helper-mentor')).toBeNull()
+  })
+
+  test('seats a helper mentor on the helper comment, empty until they write', async () => {
+    principal.value = { id: 'mentor-2', role: 'mentor' }
+
+    const store = await initWith(makeWorkWithComments())
+
+    expect(store.ownCommentSeat).toBe('helper-mentor')
+    expect(store.ownComment._status).toBe('empty')
+    expect(store.ownComment.id).toBeUndefined()
+
+    store.setMode('check')
+    store.updateComment(makeRichText('from the helper'))
+
+    // The draft is what the user's own seat shows, before it is saved.
+    expect(store.commentOf('helper-mentor')).toEqual(
+      makeRichText('from the helper')
+    )
+    expect(store.canEditOwnComment).toBe(true)
+  })
+
+  test('gives an onlooker no seat and nothing to edit', async () => {
+    principal.value = { id: 'assistant-1', role: 'assistant' }
+
+    const store = await initWith(makeWorkWithComments())
+
+    store.setMode('check')
+
+    expect(store.ownCommentSeat).toBeNull()
+    expect(store.canEditOwnComment).toBe(false)
+    // The comments already on the work are still readable.
+    expect(store.commentOf('student')).toEqual(makeRichText('from the student'))
+  })
+
+  test('reset drops the comment draft', async () => {
+    principal.value = { id: 'student-1', role: 'student' }
+
+    const store = await initWith(makeWorkWithComments())
+
+    store.reset()
+
+    expect(store.ownComment._status).toBe('empty')
+    expect(store.ownComment.content).toBeNull()
+    expect(store.ownCommentSeat).toBeNull()
   })
 })
 
