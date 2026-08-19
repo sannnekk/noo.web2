@@ -11,9 +11,9 @@
         </noo-title>
       </div>
       <div class="header__widgets">
-        <!-- <div class="header__widgets__hotkey-widget">
+        <div class="header__widgets__hotkey-widget">
           <noo-hotkey-widget />
-        </div> -->
+        </div>
         <div class="header__widgets__theme-toggle-widget">
           <noo-theme-toggle-widget />
         </div>

@@ -103,6 +103,7 @@ declare module 'vue' {
     NooHeader: typeof import('./src/components/layout/noo-header.vue')['default']
     NooHelpWidget: typeof import('./src/components/widgets/noo-help-widget.vue')['default']
     NooHorizontalSelect: typeof import('./src/components/inputs/noo-horizontal-select.vue')['default']
+    NooHotkeyWidget: typeof import('./src/components/widgets/noo-hotkey-widget.vue')['default']
     NooIcon: typeof import('./src/components/icons/noo-icon.vue')['default']
     NooIfAnimation: typeof import('./src/components/animations/noo-if-animation.vue')['default']
     NooImageFilePreview: typeof import('./src/components/files/noo-image-file-preview.vue')['default']

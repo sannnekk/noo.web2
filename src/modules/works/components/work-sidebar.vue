@@ -135,6 +135,7 @@
 </template>
 
 <script setup lang="ts">
+import { useHotkeys } from '@/core/composables/useHotkeys'
 import { useUnsavedChangesGuard } from '@/core/composables/useUnsavedChangesGuard'
 import type { ViewMode } from '@/core/composables/useViewMode'
 import { JsonPatchUtils } from '@/core/utils/jsonpatch.utils'
@@ -181,6 +182,44 @@ const canAddTask = computed(() => {
 const canSaveWork = computed(() => {
   return workDetailStore.mode === 'create' || workDetailStore.mode === 'edit'
 })
+
+// Only worth offering where there is more than one task to move between.
+const canMoveBetweenTasks = computed(
+  () => (workDetailStore.work?.tasks?.length ?? 0) > 1
+)
+
+// The shortcuts reach for the same actions the buttons above do, guards and all,
+// so there is nothing here a click could not also do.
+useHotkeys(() => [
+  {
+    combo: 'mod+s',
+    description: 'Сохранить работу',
+    when: () => canSaveWork.value,
+    // Saving is most wanted with the caret still in a field or the editor.
+    allowInEditable: true,
+    handler: () => {
+      saveChangesModalOpen.value = true
+    }
+  },
+  {
+    combo: 'mod+Enter',
+    description: 'Добавить задание',
+    when: () => canAddTask.value,
+    handler: () => workDetailStore.addTask()
+  },
+  {
+    combo: 'mod+ArrowRight',
+    description: 'Следующее задание',
+    when: () => canMoveBetweenTasks.value,
+    handler: () => workDetailStore.nextTask()
+  },
+  {
+    combo: 'mod+ArrowLeft',
+    description: 'Предыдущее задание',
+    when: () => canMoveBetweenTasks.value,
+    handler: () => workDetailStore.previousTask()
+  }
+])
 
 /**
  * Change the current mode of the work view.
