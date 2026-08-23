@@ -91,6 +91,18 @@ describe('courses permissions', () => {
     }
   })
 
+  it('shows material download statistics to staff but not to students or mentors', () => {
+    for (const role of ['admin', 'teacher', 'assistant'] as const) {
+      signInAs({ id: role, role })
+      expect(can(CoursePermissions.viewMaterialStatistics)).toBe(true)
+    }
+
+    for (const role of ['mentor', 'student'] as const) {
+      signInAs({ id: role, role })
+      expect(can(CoursePermissions.viewMaterialStatistics)).toBe(false)
+    }
+  })
+
   it('denies access when not authenticated', () => {
     expect(can(CoursePermissions.viewOwnMembershipsTab)).toBe(false)
   })

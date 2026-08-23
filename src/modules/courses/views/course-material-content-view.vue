@@ -71,6 +71,18 @@
           downloadable
         />
       </div>
+      <div
+        v-if="can(CoursePermissions.viewMaterialStatistics)"
+        class="course-material-content-view__files__actions"
+      >
+        <noo-button
+          variant="secondary"
+          size="small"
+          @click="isDownloadStatisticsOpen = true"
+        >
+          Статистика скачиваний
+        </noo-button>
+      </div>
     </noo-section>
     <noo-section
       v-if="courseDetailStore.materialContent.data.poll"
@@ -131,6 +143,12 @@
         </div>
       </div>
     </noo-section>
+    <material-file-downloads-modal
+      v-if="can(CoursePermissions.viewMaterialStatistics)"
+      v-model:is-open="isDownloadStatisticsOpen"
+      :material-id="props.materialId"
+      :material-title="courseDetailStore.currentMaterial.title"
+    />
   </div>
   <div
     v-else-if="courseDetailStore.materialContent.isLoading"
@@ -157,9 +175,10 @@
 
 <script setup lang="ts">
 import CourseMaterialReactions from '../components/course-material-reactions.vue'
+import MaterialFileDownloadsModal from '../components/material-file-downloads-modal.vue'
 import WorkAssignment from '../components/work-assignment.vue'
 import { debounce } from 'lodash'
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { DateHelpers } from '@/core/utils/dates'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 import { useCourseDetailStore } from '../stores/course-detail.store'
@@ -172,6 +191,8 @@ const props = defineProps<CourseMaterialViewProps>()
 
 const courseDetailStore = useCourseDetailStore()
 const { can } = useCoursePermissions()
+
+const isDownloadStatisticsOpen = ref(false)
 
 watch(
   () => props.materialId,
@@ -203,6 +224,11 @@ watch(
       display: flex
       flex-direction: column
       gap: 0.5em
+
+    &__actions
+      display: flex
+      justify-content: flex-end
+      margin-top: 0.75em
 
   &__poll
     display: flex
