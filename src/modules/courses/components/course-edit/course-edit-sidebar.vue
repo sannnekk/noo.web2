@@ -94,6 +94,19 @@
               label="Авторы курса"
             />
           </div>
+          <div class="course-edit-sidebar__public">
+            <noo-checkbox v-model="editCourseStore.course.isPublic">
+              Открыт для всех учеников
+            </noo-checkbox>
+            <noo-text-block
+              dimmed
+              size="small"
+              no-margin
+            >
+              Курс появится у всех учеников без назначения. Назначенные ученики
+              останутся назначенными.
+            </noo-text-block>
+          </div>
         </div>
       </template>
       <template #tab-title-tree> Главы </template>

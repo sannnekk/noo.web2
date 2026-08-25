@@ -16,7 +16,9 @@ import type {
   CourseMaterialContentEntity,
   CourseMaterialReaction,
   CourseMembershipEntity,
-  CreateCourseMembershipPayload
+  CourseStudentState,
+  CreateCourseMembershipPayload,
+  StudentCourseEntity
 } from './course.types'
 
 const BASE_PATH = '/course'
@@ -146,29 +148,25 @@ interface ICourseService {
    */
   deleteMembership(membershipId: string): Promise<ApiResponse>
   /**
-   * Archives a course membership for the current student.
+   * Fetches the current student's own courses — assigned and publicly open alike.
    *
-   * @param membershipId The ID of the membership to be archived.
+   * @param pagination Pagination object to paginate the results. If not provided, the default pagination will be used.
+   * @returns A promise that resolves to an ApiResponse containing an array of StudentCourseEntity objects.
    */
-  archiveMembership(membershipId: string): Promise<ApiResponse>
+  getMyCourses(
+    pagination?: IPagination
+  ): Promise<ApiResponse<StudentCourseEntity[]>>
   /**
-   * Restores a course membership from the archive for the current student.
+   * Updates how the current student sees a course (pinned, archived). Keyed by course rather
+   * than by membership, so it works for publicly open courses too.
    *
-   * @param membershipId The ID of the membership to be restored.
+   * @param courseId The ID of the course.
+   * @param patch The JSON Patch document to apply to the student's state.
    */
-  unarchiveMembership(membershipId: string): Promise<ApiResponse>
-  /**
-   * Pins a course membership for the current student.
-   *
-   * @param membershipId The ID of the membership to be pinned.
-   */
-  pinMembership(membershipId: string): Promise<ApiResponse>
-  /**
-   * Unpins a course membership for the current student.
-   *
-   * @param membershipId The ID of the membership to be unpinned.
-   */
-  unpinMembership(membershipId: string): Promise<ApiResponse>
+  patchMyCourseState(
+    courseId: string,
+    patch: JsonPatchDocument<CourseStudentState>
+  ): Promise<ApiResponse>
   /**
    * Archives a course. Available to teachers and admins.
    *
@@ -210,6 +208,7 @@ function createDraft(): PossiblyUnsavedCourse {
     subjectId: null,
     thumbnailId: null,
     isArchived: false,
+    isPublic: false,
     chapters: []
   }
 }
@@ -343,20 +342,20 @@ async function deleteMembership(membershipId: string): Promise<ApiResponse> {
   return await Api.delete(`${BASE_PATH}/membership/${membershipId}`)
 }
 
-async function archiveMembership(membershipId: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/archive`)
+async function getMyCourses(
+  pagination?: IPagination
+): Promise<ApiResponse<StudentCourseEntity[]>> {
+  return await Api.get(
+    `${BASE_PATH}/my`,
+    pagination ? pagination.toQuery() : undefined
+  )
 }
 
-async function unarchiveMembership(membershipId: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/unarchive`)
-}
-
-async function pinMembership(membershipId: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/pin`)
-}
-
-async function unpinMembership(membershipId: string): Promise<ApiResponse> {
-  return await Api.patch(`${BASE_PATH}/membership/${membershipId}/unpin`)
+async function patchMyCourseState(
+  courseId: string,
+  patch: JsonPatchDocument<CourseStudentState>
+): Promise<ApiResponse> {
+  return await Api.patch(`${BASE_PATH}/${courseId}/my-state`, patch)
 }
 
 async function archiveCourse(id: string): Promise<ApiResponse> {
@@ -389,10 +388,8 @@ export const CourseService: ICourseService = {
   getMemberships,
   createMembership,
   deleteMembership,
-  archiveMembership,
-  unarchiveMembership,
-  pinMembership,
-  unpinMembership,
+  getMyCourses,
+  patchMyCourseState,
   archive: archiveCourse,
   unarchive: unarchiveCourse,
   delete: deleteCourse

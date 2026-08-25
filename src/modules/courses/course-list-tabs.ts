@@ -36,8 +36,8 @@ interface CourseListTabDefinition {
 const CoursesView = defineAsyncComponent(
   () => import('./views/courses-view.vue')
 )
-const CourseMembershipsView = defineAsyncComponent(
-  () => import('./views/course-memberships-view.vue')
+const StudentCoursesView = defineAsyncComponent(
+  () => import('./views/student-courses-view.vue')
 )
 
 /**
@@ -55,7 +55,7 @@ const courseListTabs: readonly CourseListTabDefinition[] = [
     id: 'all',
     title: 'Все курсы',
     permission: CoursePermissions.viewOwnMembershipsTab,
-    component: CourseMembershipsView
+    component: StudentCoursesView
   },
   {
     id: 'own',
@@ -75,7 +75,7 @@ const courseListTabs: readonly CourseListTabDefinition[] = [
     id: 'archived',
     title: 'Архив',
     permission: CoursePermissions.viewArchivedMembershipsTab,
-    component: CourseMembershipsView,
+    component: StudentCoursesView,
     props: { archived: true }
   }
 ]

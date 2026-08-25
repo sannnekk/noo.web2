@@ -20,6 +20,8 @@ export interface CourseEntity extends ApiEntity<'Course'> {
   authors?: UserEntity[]
   authorIds?: string[]
   isArchived: boolean
+  /** Open to every student without an assignment. */
+  isPublic: boolean
   chapters?: CourseChapterEntity[]
 }
 
@@ -87,8 +89,6 @@ export interface CourseMembershipEntity extends ApiEntity<'CourseMembership'> {
   course?: CourseEntity
   isActive: boolean
   isArchived: boolean
-  isArchivedByStudent: boolean
-  isPinnedByStudent: boolean
   studentId: string
   student?: UserEntity
   assignerId?: string
@@ -101,4 +101,35 @@ export interface CreateCourseMembershipPayload {
   notifyStudent?: boolean
 }
 
-export { courseMaterialReactionValues, courseMembershipTypeValues }
+const courseAccessSourceValues = ['assignment', 'public'] as const
+
+export type CourseAccessSource = (typeof courseAccessSourceValues)[number]
+
+/**
+ * One card in the student's own course list. Covers both assigned courses and publicly open
+ * ones, which carry no membership row at all — hence the optional assignment fields.
+ */
+export interface StudentCourseEntity extends ApiEntity<'StudentCourse'> {
+  course: CourseEntity
+  isPinned: boolean
+  isArchived: boolean
+  accessSource: CourseAccessSource
+  membershipType?: CourseMembershipType | null
+  assignedAt?: Date | null
+  assigner?: UserEntity
+}
+
+/**
+ * The patchable shape of a student's own view of a course — the target of the JSON Patch
+ * document sent to `PATCH /course/{courseId}/my-state`.
+ */
+export interface CourseStudentState {
+  isPinned: boolean
+  isArchived: boolean
+}
+
+export {
+  courseAccessSourceValues,
+  courseMaterialReactionValues,
+  courseMembershipTypeValues
+}

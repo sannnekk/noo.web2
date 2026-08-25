@@ -1,10 +1,14 @@
 import { Api, isApiError } from '@/core/api/api.utils'
+import type { JsonPatchDocument } from '@/core/utils/jsonpatch.utils'
 import type { IPagination } from '@/core/utils/pagination.utils'
 import type { WorkEntity } from '@/modules/works/api/work.types'
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 import type { PossiblyUnsavedCourse } from '../types'
 import { CourseService } from './course.service'
-import type { CreateCourseMembershipPayload } from './course.types'
+import type {
+  CourseStudentState,
+  CreateCourseMembershipPayload
+} from './course.types'
 
 // Mock the entire API module
 vi.mock('@/core/api/api.utils', async (importOriginal) => {
@@ -245,6 +249,7 @@ describe('CourseService', () => {
         thumbnailId: null,
         subjectId: 's1',
         isArchived: false,
+        isPublic: false,
         chapters: []
       }
       const mockResponse = { id: 'new-course-id' }
@@ -456,58 +461,30 @@ describe('CourseService', () => {
     })
   })
 
-  describe('archiveMembership', () => {
-    test('should archive a course membership', async () => {
-      const mockMembershipId = 'm1'
+  describe('getMyCourses', () => {
+    test('should fetch the student own courses', async () => {
+      ;(Api.get as Mock).mockResolvedValue({ data: [] })
 
-      ;(Api.patch as Mock).mockResolvedValue({})
+      await CourseService.getMyCourses()
 
-      await CourseService.archiveMembership(mockMembershipId)
-
-      expect(Api.patch).toHaveBeenCalledWith(
-        `/course/membership/${mockMembershipId}/archive`
-      )
+      expect(Api.get).toHaveBeenCalledWith('/course/my', undefined)
     })
   })
 
-  describe('unarchiveMembership', () => {
-    test('should restore a course membership from the archive', async () => {
-      const mockMembershipId = 'm1'
+  describe('patchMyCourseState', () => {
+    test('should patch the state by course id, not by membership id', async () => {
+      const mockCourseId = 'c1'
+      const patch: JsonPatchDocument<CourseStudentState> = [
+        { op: 'replace', path: '/isPinned', value: true }
+      ]
 
       ;(Api.patch as Mock).mockResolvedValue({})
 
-      await CourseService.unarchiveMembership(mockMembershipId)
+      await CourseService.patchMyCourseState(mockCourseId, patch)
 
       expect(Api.patch).toHaveBeenCalledWith(
-        `/course/membership/${mockMembershipId}/unarchive`
-      )
-    })
-  })
-
-  describe('pinMembership', () => {
-    test('should pin a course membership', async () => {
-      const mockMembershipId = 'm1'
-
-      ;(Api.patch as Mock).mockResolvedValue({})
-
-      await CourseService.pinMembership(mockMembershipId)
-
-      expect(Api.patch).toHaveBeenCalledWith(
-        `/course/membership/${mockMembershipId}/pin`
-      )
-    })
-  })
-
-  describe('unpinMembership', () => {
-    test('should unpin a course membership', async () => {
-      const mockMembershipId = 'm1'
-
-      ;(Api.patch as Mock).mockResolvedValue({})
-
-      await CourseService.unpinMembership(mockMembershipId)
-
-      expect(Api.patch).toHaveBeenCalledWith(
-        `/course/membership/${mockMembershipId}/unpin`
+        `/course/${mockCourseId}/my-state`,
+        patch
       )
     })
   })

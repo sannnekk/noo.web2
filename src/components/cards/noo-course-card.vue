@@ -14,7 +14,7 @@
         <noo-icon name="pin" />
       </div>
       <div
-        v-if="canManage || canManageOwnMembership"
+        v-if="canManage || canManageOwnState"
         class="noo-course-card__img__actions"
         @click.stop.prevent
       >
@@ -22,10 +22,19 @@
       </div>
     </div>
     <div
-      v-if="course.subject"
+      v-if="course.subject || isPublic"
       class="noo-course-card__subject"
     >
-      <noo-subject-block :subject="course.subject" />
+      <noo-subject-block
+        v-if="course.subject"
+        :subject="course.subject"
+      />
+      <span
+        v-if="isPublic"
+        class="noo-course-card__subject__open"
+      >
+        Открытый курс
+      </span>
     </div>
     <div class="noo-course-card__title">
       <router-link :to="to">
@@ -60,7 +69,7 @@ import { useGlobalUIStore } from '@/core/stores/global-ui.store'
 import { CourseService } from '@/modules/courses/api/course.service'
 import type {
   CourseEntity,
-  CourseMembershipEntity
+  StudentCourseEntity
 } from '@/modules/courses/api/course.types'
 import {
   CoursePermissions,
@@ -71,13 +80,14 @@ import { useRouter } from 'vue-router'
 
 interface Props {
   course: CourseEntity
-  membership?: CourseMembershipEntity
+  /** The current student's view of the course. Absent on staff-facing lists. */
+  studentCourse?: StudentCourseEntity
 }
 
 interface Emits {
   (e: 'deleted'): void
   (e: 'archive-toggled'): void
-  (e: 'membership-updated'): void
+  (e: 'state-updated'): void
 }
 
 const props = defineProps<Props>()
@@ -88,11 +98,12 @@ const globalUiStore = useGlobalUIStore()
 const { can } = useCoursePermissions()
 
 const canManage = computed(() => can(CoursePermissions.manageCourse))
-const canManageOwnMembership = computed(
-  () => !!props.membership && can(CoursePermissions.manageOwnMembership)
+const canManageOwnState = computed(
+  () => !!props.studentCourse && can(CoursePermissions.manageOwnCourseState)
 )
 
-const isPinned = computed(() => props.membership?.isPinnedByStudent ?? false)
+const isPinned = computed(() => props.studentCourse?.isPinned ?? false)
+const isPublic = computed(() => props.studentCourse?.accessSource === 'public')
 
 const isDeleteOpen = ref(false)
 
@@ -135,15 +146,15 @@ const actions = computed<DropdownAction[]>(() => [
   {
     label: isPinned.value ? 'Открепить' : 'Закрепить',
     icon: 'pin',
-    if: () => canManageOwnMembership.value,
+    if: () => canManageOwnState.value,
     onClick: onTogglePin
   },
   {
-    label: props.membership?.isArchivedByStudent
+    label: props.studentCourse?.isArchived
       ? 'Вернуть из архива'
       : 'Архивировать',
     icon: 'archive',
-    if: () => canManageOwnMembership.value,
+    if: () => canManageOwnState.value,
     onClick: onToggleArchive
   }
 ])
@@ -193,13 +204,13 @@ async function onToggleCourseArchive() {
 }
 
 async function onTogglePin() {
-  if (!props.membership) {
+  if (!props.studentCourse) {
     return
   }
 
-  const response = isPinned.value
-    ? await CourseService.unpinMembership(props.membership.id)
-    : await CourseService.pinMembership(props.membership.id)
+  const response = await CourseService.patchMyCourseState(props.course.id, [
+    { op: 'replace', path: '/isPinned', value: !isPinned.value }
+  ])
 
   if (isApiError(response)) {
     globalUiStore.createApiErrorToast(
@@ -215,19 +226,19 @@ async function onTogglePin() {
   globalUiStore.createSuccessToast(
     isPinned.value ? 'Курс откреплён' : 'Курс закреплён'
   )
-  emit('membership-updated')
+  emit('state-updated')
 }
 
 async function onToggleArchive() {
-  if (!props.membership) {
+  if (!props.studentCourse) {
     return
   }
 
-  const isArchived = props.membership.isArchivedByStudent
+  const isArchived = props.studentCourse.isArchived
 
-  const response = isArchived
-    ? await CourseService.unarchiveMembership(props.membership.id)
-    : await CourseService.archiveMembership(props.membership.id)
+  const response = await CourseService.patchMyCourseState(props.course.id, [
+    { op: 'replace', path: '/isArchived', value: !isArchived }
+  ])
 
   if (isApiError(response)) {
     globalUiStore.createApiErrorToast(
@@ -243,7 +254,7 @@ async function onToggleArchive() {
   globalUiStore.createSuccessToast(
     isArchived ? 'Курс возвращён из архива' : 'Курс перемещён в архив'
   )
-  emit('membership-updated')
+  emit('state-updated')
 }
 </script>
 
@@ -297,6 +308,22 @@ async function onToggleArchive() {
         height: 100%
         object-fit: cover
         object-position: center
+
+  &__subject
+    display: flex
+    flex-direction: row
+    align-items: center
+    gap: 0.5em
+    flex-wrap: wrap
+
+    &__open
+      font-size: 0.75em
+      padding: 0.15em 0.5em
+      border-radius: var(--border-radius)
+      white-space: nowrap
+      font-weight: bold
+      background-color: var(--secondary)
+      color: #fff
 
   &__title
     font-size: 1.2rem

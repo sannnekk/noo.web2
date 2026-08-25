@@ -1,9 +1,9 @@
 <template>
-  <div class="course-memberships-view">
+  <div class="student-courses-view">
     <noo-card-search-view
       v-model:search="search.search.value"
       v-model:page="search.page.value"
-      :items="memberships"
+      :items="search.data.value"
       :total-count="search.total.value"
       :is-loading="search.isLoading.value"
       :limit="25"
@@ -25,11 +25,10 @@
       </template>
       <template #tile="{ item }">
         <noo-course-card
-          v-if="item.course"
           :course="item.course"
-          :membership="item"
+          :student-course="item"
           @deleted="search.reload"
-          @membership-updated="search.reload"
+          @state-updated="search.reload"
         />
       </template>
     </noo-card-search-view>
@@ -39,17 +38,15 @@
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
 import { AppConstants } from '@/core/config/constants.config'
-import { useAuthStore } from '@/core/stores/auth.store'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
-import { computed } from 'vue'
 import { CourseService } from '../api/course.service'
-import type { CourseMembershipEntity } from '../api/course.types'
+import type { StudentCourseEntity } from '../api/course.types'
 import { CoursePermissions, useCoursePermissions } from '../permissions'
 
 interface Props {
   /**
-   * Whether to show only the memberships archived by the current
-   * student. Non-archived memberships are shown otherwise.
+   * Whether to show only the courses archived by the current student.
+   * Non-archived ones are shown otherwise.
    */
   archived?: boolean
 }
@@ -58,32 +55,13 @@ const props = withDefaults(defineProps<Props>(), {
   archived: false
 })
 
-const authStore = useAuthStore()
 const { can } = useCoursePermissions()
 
-const search = useSearch<CourseMembershipEntity>(CourseService.getMemberships, {
+// Driven by courses rather than by membership rows, so a publicly open course the student
+// was never assigned to appears here like any other. One row per course by construction —
+// no client-side dedupe, and the total is the server's.
+const search = useSearch<StudentCourseEntity>(CourseService.getMyCourses, {
   immediate: true,
-  initialFilters: [
-    new EqualsFilter('isArchivedByStudent', props.archived),
-    ...(authStore.userId
-      ? [new EqualsFilter('studentId', authStore.userId)]
-      : [])
-  ]
-})
-
-const memberships = computed<CourseMembershipEntity[]>(() => {
-  const byCourseId = new Map<string, CourseMembershipEntity>()
-
-  for (const membership of search.data.value) {
-    const course = membership.course
-
-    if (!course || byCourseId.has(course.id)) {
-      continue
-    }
-
-    byCourseId.set(course.id, membership)
-  }
-
-  return [...byCourseId.values()]
+  initialFilters: [new EqualsFilter('isArchived', props.archived)]
 })
 </script>

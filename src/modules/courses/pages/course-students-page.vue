@@ -28,6 +28,13 @@
           <br />
           Количество учеников на курсе: {{ search.total.value }}
         </noo-text-block>
+        <noo-text-block
+          v-if="course?.isPublic"
+          size="small"
+        >
+          Курс открыт для всех учеников — доступ к нему есть у всех, а не только
+          у перечисленных ниже.
+        </noo-text-block>
       </div>
     </div>
     <div class="course-students-page__assign">
