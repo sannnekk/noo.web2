@@ -18,6 +18,7 @@ describe('task view layout', () => {
         answer: 'editable',
         score: 'hidden',
         mentorComment: 'hidden',
+        answerComments: 'readonly',
         solveHint: 'collapsed',
         explanation: 'hidden'
       })
@@ -40,6 +41,7 @@ describe('task view layout', () => {
         answer: 'readonly',
         score: 'editable',
         mentorComment: 'editable',
+        answerComments: 'editable',
         solveHint: 'expanded',
         explanation: 'expanded'
       })
@@ -53,6 +55,17 @@ describe('task view layout', () => {
 
       expect(layout.answer).toBe('readonly')
     })
+
+    // Marking mistakes up inside the answer is the one thing a mentor may
+    // write into it.
+    test('should let the mentor comment on the answer itself', () => {
+      const layout = resolveTaskViewLayout({
+        mode: 'check',
+        answerStatus: 'submitted'
+      })
+
+      expect(layout.answerComments).toBe('editable')
+    })
   })
 
   describe('read mode', () => {
@@ -63,6 +76,7 @@ describe('task view layout', () => {
         answer: 'readonly',
         score: 'readonly',
         mentorComment: 'readonly',
+        answerComments: 'readonly',
         solveHint: 'expanded',
         explanation: 'expanded'
       })

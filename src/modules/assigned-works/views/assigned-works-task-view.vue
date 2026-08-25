@@ -47,6 +47,7 @@
       :answer="answer"
       :title="answerTitle"
       :readonly="layout.answer === 'readonly'"
+      :commentable="layout.answerComments === 'editable'"
       @update="updateAnswer"
     >
       <!-- The score belongs to the answer, so it is shown as its footer rather

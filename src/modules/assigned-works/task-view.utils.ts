@@ -44,6 +44,7 @@ function resolveTaskViewLayout({
             answer: 'readonly',
             score: 'readonly',
             mentorComment: 'hidden',
+            answerComments: 'readonly',
             solveHint: 'expanded',
             explanation: 'expanded'
           }
@@ -51,6 +52,7 @@ function resolveTaskViewLayout({
             answer: 'editable',
             score: 'hidden',
             mentorComment: 'hidden',
+            answerComments: 'readonly',
             solveHint: 'collapsed',
             explanation: 'hidden'
           }
@@ -62,6 +64,7 @@ function resolveTaskViewLayout({
         answer: 'readonly',
         score: 'editable',
         mentorComment: 'editable',
+        answerComments: 'editable',
         solveHint: 'expanded',
         explanation: 'expanded'
       }
@@ -74,6 +77,7 @@ function resolveTaskViewLayout({
         answer: isSubmitted ? 'readonly' : 'hidden',
         score: isSubmitted ? 'readonly' : 'hidden',
         mentorComment: isSubmitted ? 'readonly' : 'hidden',
+        answerComments: 'readonly',
         solveHint: 'expanded',
         explanation: 'expanded'
       }

@@ -79,6 +79,12 @@ export interface TaskViewLayout {
   answer: TaskBlockPresentation
   score: TaskBlockPresentation
   mentorComment: TaskBlockPresentation
+  /**
+   * Whether the reader may mark the answer up with inline comments. The
+   * comments already in an answer always show; this is only about writing new
+   * ones.
+   */
+  answerComments: 'readonly' | 'editable'
   solveHint: TaskHintPresentation
   explanation: TaskHintPresentation
 }

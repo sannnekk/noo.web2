@@ -17,6 +17,8 @@
       :readonly="readonly"
       :class="{ 'noo-richtext-editor__has-error': errors?.length }"
       :media-category="mediaCategory"
+      :commentable="commentable"
+      :comment-types="commentTypes"
     />
     <noo-input-error-list :errors="errors" />
   </div>
@@ -27,6 +29,7 @@ import type { IRichText } from '@/core/utils/richtext.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { computed, useTemplateRef } from 'vue'
 import type { MediaCategory } from '@/modules/media/api/media.types'
+import type { RichtextCommentType } from './tiptap/extensions/comment'
 import type NooTiptapComponent from './tiptap/noo-tiptap-component.vue'
 
 interface Props {
@@ -36,6 +39,10 @@ interface Props {
   label?: string
   mediaCategory?: MediaCategory
   errors?: ValidationError[]
+  /** Lets the reader select text — or a region of an image — and comment on it. */
+  commentable?: boolean
+  /** The comment types on offer. Read once, when the editor is created. */
+  commentTypes?: RichtextCommentType[]
 }
 
 type Emits = (event: 'update:modelValue', value: IRichText | null) => void

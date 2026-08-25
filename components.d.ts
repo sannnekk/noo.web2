@@ -172,6 +172,8 @@ declare module 'vue' {
     NooTextTagInput: typeof import('./src/components/inputs/noo-text-tag-input.vue')['default']
     NooThemeToggleWidget: typeof import('./src/components/widgets/noo-theme-toggle-widget.vue')['default']
     NooTiptapColorMenu: typeof import('./src/components/richtext/tiptap/noo-tiptap-color-menu.vue')['default']
+    NooTiptapCommentMenu: typeof import('./src/components/richtext/tiptap/noo-tiptap-comment-menu.vue')['default']
+    NooTiptapCommentPopover: typeof import('./src/components/richtext/tiptap/noo-tiptap-comment-popover.vue')['default']
     NooTiptapComponent: typeof import('./src/components/richtext/tiptap/noo-tiptap-component.vue')['default']
     NooTiptapImageModal: typeof import('./src/components/richtext/tiptap/noo-tiptap-image-modal.vue')['default']
     NooTiptapImageView: typeof import('./src/components/richtext/tiptap/noo-tiptap-image-view.vue')['default']

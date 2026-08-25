@@ -41,6 +41,24 @@
     <editor-content
       class="noo-tiptap-component__content"
       :editor="editor"
+      @click="openCommentUnderPointer"
+    />
+    <noo-tiptap-comment-menu
+      v-if="editor && isCommentable && !commentTarget"
+      :editor="editor"
+      :types="commentTypes"
+      @added="openNewComment"
+    />
+    <noo-tiptap-comment-popover
+      v-if="commentTarget"
+      :key="commentTarget.comment.id"
+      :types="commentTypes"
+      :comment="commentTarget.comment"
+      :anchor="commentTarget.anchor"
+      :readonly="!isCommentable"
+      @save="saveComment"
+      @remove="removeComment"
+      @close="closeComment"
     />
     <noo-tiptap-math-edit
       v-if="mathTarget && editor"
@@ -70,10 +88,14 @@ import { Color, TextStyle } from '@tiptap/extension-text-style'
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, provide, ref, watch } from 'vue'
+import type { RichtextComment, RichtextCommentType } from './extensions/comment'
+import { Comment, findComment } from './extensions/comment'
 import { Iframe } from './extensions/iframe'
 import { Image } from './extensions/image'
+import type { CommentAnchor } from './noo-tiptap-comment-popover.vue'
 import type { MathEditTarget } from './noo-tiptap-math-edit.vue'
+import { richtextCommentsKey } from './richtext-comments.context'
 import 'katex/dist/katex.min.css'
 
 interface ToolbarItem {
@@ -91,12 +113,28 @@ interface Props {
   mediaCategory?: MediaCategory
   /** Entity the uploaded media belongs to (passed through to the upload). */
   mediaEntityId?: string
+  /** Lets the reader select text — or a region of an image — and comment on it. */
+  commentable?: boolean
+  /** The comment types on offer. Read once, when the editor is created. */
+  commentTypes?: RichtextCommentType[]
 }
 
 const props = defineProps<Props>()
 
 const model = defineModel<IRichText | null>('modelValue', {
   default: null
+})
+
+const commentTypes = computed(() => props.commentTypes ?? [])
+const isCommentable = computed(
+  () => !!props.commentable && commentTypes.value.length > 0
+)
+
+// Node views are mounted outside this template, so the image view reaches the
+// same configuration through provide/inject rather than through props.
+provide(richtextCommentsKey, {
+  commentable: isCommentable,
+  types: commentTypes
 })
 
 const editor = useEditor({
@@ -115,7 +153,11 @@ const editor = useEditor({
       blockOptions: { onClick: openMathEditor }
     }),
     Iframe,
-    Image
+    Image,
+    // Registered whether or not this editor may write comments: tiptap drops
+    // marks it does not know about, which would silently strip a commented
+    // document the moment it passed through any other editor.
+    Comment.configure({ types: commentTypes.value })
   ],
   onUpdate: ({ editor }) => {
     model.value = editor.isEmpty ? null : tiptapToRichText(editor.getJSON())
@@ -142,6 +184,104 @@ function openMathEditor(node: ProseMirrorNode, pos: number) {
     top: coords.bottom,
     left: coords.left
   }
+}
+
+interface CommentTarget {
+  comment: RichtextComment
+  anchor: CommentAnchor
+  /** Applied but never saved: abandoning it has to take the mark away again. */
+  isDraft: boolean
+}
+
+const commentTarget = ref<CommentTarget | null>(null)
+
+function openCommentUnderPointer(event: MouseEvent) {
+  const target = (event.target as HTMLElement | null)?.closest?.(
+    '[data-comment-id]'
+  )
+
+  if (!(target instanceof HTMLElement) || !editor.value) {
+    return
+  }
+
+  const id = target.dataset.commentId
+  const comment = id ? findComment(editor.value.state.doc, id) : null
+
+  if (comment) {
+    commentTarget.value = {
+      comment,
+      anchor: anchorOf(target, event),
+      isDraft: false
+    }
+  }
+}
+
+// The mark is in the document but its span only exists after the next render,
+// so the popover has to wait for it before it can be anchored.
+async function openNewComment(comment: RichtextComment) {
+  await nextTick()
+
+  const span = editor.value?.view.dom.querySelector(
+    `[data-comment-id="${comment.id}"]`
+  )
+
+  if (!(span instanceof HTMLElement)) {
+    editor.value?.commands.unsetComment(comment.id)
+
+    return
+  }
+
+  commentTarget.value = { comment, anchor: anchorOf(span), isDraft: true }
+}
+
+function saveComment(comment: Omit<RichtextComment, 'id'>) {
+  const target = commentTarget.value
+
+  if (!target) {
+    return
+  }
+
+  editor.value?.commands.updateComment(target.comment.id, comment)
+  target.isDraft = false
+}
+
+function removeComment() {
+  const target = commentTarget.value
+
+  if (!target) {
+    return
+  }
+
+  editor.value?.commands.unsetComment(target.comment.id)
+  target.isDraft = false
+}
+
+function closeComment() {
+  const target = commentTarget.value
+
+  if (target?.isDraft) {
+    editor.value?.commands.unsetComment(target.comment.id)
+  }
+
+  commentTarget.value = null
+}
+
+/**
+ * A comment that wraps has a box per line, and their union spans the width of
+ * the paragraph. Hang the popover off the line that was actually clicked — or
+ * off the first one, for a comment that was just made — rather than off all of
+ * them at once.
+ */
+function anchorOf(element: HTMLElement, event?: MouseEvent): CommentAnchor {
+  const lines = [...element.getClientRects()]
+  const clicked = event
+    ? lines.find(
+        (line) => event.clientY >= line.top && event.clientY <= line.bottom
+      )
+    : undefined
+  const rect = clicked ?? lines[0] ?? element.getBoundingClientRect()
+
+  return { top: rect.bottom, left: rect.left }
 }
 
 // Insert tools (link, video, table, latex, image) are rendered as their own
@@ -329,6 +469,13 @@ defineExpose({ insertRichText })
         height: auto
         margin: 0.5em 0
         border-radius: var(--border-radius)
+
+      // Overlapping comments nest as spans, so their tints stack on their own.
+      .noo-richtext-comment
+        --noo-richtext-comment-color: var(--text-light)
+        background-color: color-mix(in srgb, var(--noo-richtext-comment-color) 30%, transparent)
+        border-bottom: 2px solid var(--noo-richtext-comment-color)
+        cursor: pointer
 
       table
         border-collapse: collapse

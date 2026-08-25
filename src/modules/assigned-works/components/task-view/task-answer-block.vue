@@ -25,6 +25,7 @@
       v-else-if="task.type === 'text'"
       :model-value="answer.richTextContent"
       :readonly="readonly"
+      :commentable="commentable"
       @update:model-value="
         (richTextContent) => emit('update', { richTextContent })
       "
@@ -79,6 +80,8 @@ interface Props {
   answer: PossiblyUnsavedAnswer
   title: string
   readonly?: boolean
+  /** Inline mark-up of the answer itself; only text answers offer it today. */
+  commentable?: boolean
 }
 
 /**
@@ -89,7 +92,8 @@ interface Props {
 type Emits = (e: 'update', patch: Partial<PossiblyUnsavedAnswer>) => void
 
 const props = withDefaults(defineProps<Props>(), {
-  readonly: false
+  readonly: false,
+  commentable: false
 })
 
 const emit = defineEmits<Emits>()

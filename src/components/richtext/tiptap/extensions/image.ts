@@ -1,6 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import NooTiptapImageView from '../noo-tiptap-image-view.vue'
+import type { RichtextImageComment } from '../richtext-comment.utils'
 import { MediaService } from '@/modules/media/api/media.service'
 
 export interface ImageOptions {
@@ -66,6 +67,15 @@ export const Image = Node.create<ImageOptions>({
         parseHTML: (element) => parseDimension(element.getAttribute('height')),
         renderHTML: (attributes) =>
           attributes.height ? { height: attributes.height } : {}
+      },
+      comments: {
+        default: null,
+        parseHTML: (element) =>
+          parseComments(element.getAttribute('data-comments')),
+        renderHTML: (attributes) =>
+          attributes.comments?.length
+            ? { 'data-comments': JSON.stringify(attributes.comments) }
+            : {}
       }
     }
   },
@@ -103,4 +113,19 @@ function parseDimension(value: string | null): number | null {
   const parsed = Number.parseInt(value ?? '', 10)
 
   return Number.isNaN(parsed) ? null : parsed
+}
+
+// Only pasted HTML goes through here; stored content is JSON all the way.
+function parseComments(value: string | null): RichtextImageComment[] | null {
+  if (!value) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(value)
+
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
 }
