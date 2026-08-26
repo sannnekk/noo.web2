@@ -103,6 +103,8 @@ const emit = defineEmits<{
   save: [comment: Omit<RichtextComment, 'id'>]
   remove: []
   close: []
+  /** Announced as it is picked, so an unsaved region can be recoloured. */
+  'update:type': [type: string]
 }>()
 
 const root = useTemplateRef<HTMLElement>('root')
@@ -119,6 +121,8 @@ const anchorStyle = computed(() => ({
   top: `${props.anchor.top}px`,
   left: `${props.anchor.left}px`
 }))
+
+watch(type, (picked) => emit('update:type', picked))
 
 // Closing the underlying dialog (esc / outside click) tears down the popover.
 watch(isOpen, (opened) => {

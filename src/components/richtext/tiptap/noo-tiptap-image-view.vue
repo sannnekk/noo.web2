@@ -13,7 +13,7 @@
       @error="onError"
     />
     <div
-      v-if="status === 'loaded' && (isCommentable || comments.length)"
+      v-if="status === 'loaded' && (isCommentable || regions.length)"
       ref="overlay"
       class="noo-richtext-image-view__overlay"
       :class="{ 'noo-richtext-image-view__overlay--drawing': isCommentable }"
@@ -23,13 +23,14 @@
       @pointercancel="cancelDrawing"
     >
       <button
-        v-for="comment in comments"
-        :key="comment.id"
+        v-for="region in regions"
+        :key="region.id"
         type="button"
         class="noo-richtext-image-view__region"
-        :style="regionStyle(comment)"
-        :title="comment.content"
-        @click="open(comment)"
+        :style="regionStyle(region)"
+        :title="region.content"
+        :disabled="region.id === target?.comment.id"
+        @click="open(region)"
       />
       <div
         v-if="draft"
@@ -66,6 +67,7 @@
       :readonly="!isCommentable"
       @save="saveComment"
       @remove="removeComment"
+      @update:type="recolourRegion"
       @close="target = null"
     />
   </node-view-wrapper>
@@ -174,6 +176,24 @@ const target = ref<ImageCommentTarget | null>(null)
 const drawStart = ref<{ x: number; y: number } | null>(null)
 const draft = ref<RichtextRect | null>(null)
 
+/**
+ * What to draw on the picture: the saved regions, with the one the popover is
+ * asking about taking its place. A region that was just drawn is not in the
+ * node's attributes yet, and one being edited should follow the type picked in
+ * the popover rather than the type it was saved with.
+ */
+const regions = computed<RichtextImageComment[]>(() => {
+  const edited = target.value?.comment
+
+  if (!edited) {
+    return comments.value
+  }
+
+  return comments.value.some((saved) => saved.id === edited.id)
+    ? comments.value.map((saved) => (saved.id === edited.id ? edited : saved))
+    : [...comments.value, edited]
+})
+
 function regionStyle(rect: RichtextRect & { type?: string }) {
   return {
     left: `${rect.x * 100}%`,
@@ -236,6 +256,12 @@ function cancelDrawing() {
 
 function open(comment: RichtextImageComment) {
   target.value = { comment, anchor: anchorOf(comment) }
+}
+
+function recolourRegion(type: string) {
+  if (target.value) {
+    target.value.comment = { ...target.value.comment, type }
+  }
 }
 
 function saveComment(comment: Omit<RichtextComment, 'id'>) {
@@ -337,6 +363,10 @@ function anchorOf(rect: RichtextRect): CommentAnchor {
     &--draft
       pointer-events: none
       border-style: dashed
+
+    // The region the popover is already open on.
+    &:disabled
+      cursor: default
 
   &__state
     position: absolute
