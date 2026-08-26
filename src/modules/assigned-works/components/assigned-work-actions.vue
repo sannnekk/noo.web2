@@ -10,6 +10,8 @@
       }"
       :size="action.size"
       :variant="action.variant"
+      :is-loading="action.isLoading?.()"
+      :disabled="isBusy"
       @click="action.handler"
     >
       {{ action.label }}
@@ -111,6 +113,7 @@
   <!-- Before add helper mentor modal -->
   <noo-sure-modal
     v-model:is-open="modals.beforeAddHelperMentor.isOpen.value"
+    :can-confirm="!!modals.beforeAddHelperMentor.options.value.mentorId"
     @confirm="
       assignedWorkDetailStore.addHelperMentor.execute(
         modals.beforeAddHelperMentor.options.value
@@ -121,10 +124,25 @@
       <noo-title :size="2"> Добавить помогающего куратора </noo-title>
     </template>
     <template #content>
-      <!-- TODO: add mentor select -->
       <noo-text-block dimmed>
         Выберите куратора, который будет помогать в проверке работы.
       </noo-text-block>
+      <noo-user-select
+        v-model:ids="helperMentorId"
+        role="mentor"
+        label="Помогающий куратор"
+        placeholder="Начните вводить имя, email или никнейм куратора"
+      />
+      <noo-checkbox
+        v-model="modals.beforeAddHelperMentor.options.value.notifyMentor"
+      >
+        <noo-text-block dimmed> Уведомить куратора </noo-text-block>
+      </noo-checkbox>
+      <noo-checkbox
+        v-model="modals.beforeAddHelperMentor.options.value.notifyStudent"
+      >
+        <noo-text-block dimmed> Уведомить ученика </noo-text-block>
+      </noo-checkbox>
     </template>
   </noo-sure-modal>
 
@@ -174,7 +192,7 @@ import type {
   ButtonType
 } from '@/components/buttons/noo-button.vue'
 import { useHotkeys } from '@/core/composables/useHotkeys'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import type { AddHelperMentorOptions } from '../api/assigned-work.types'
 import { type AssignedWorkRemakeOptions } from '../api/assigned-work.types'
 import { AssignedWorkConfig } from '../config'
@@ -193,6 +211,8 @@ interface AssignedWorkAction {
   label: string
   /** The shortcut that reaches it, where it is worth reaching by key. */
   hotkey?: string
+  /** Whether its own request is in flight, for the ones that make one. */
+  isLoading?: () => boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: () => any
 }
@@ -210,6 +230,7 @@ const workIsRemakeable = computed(
 )
 const isStudent = can(AssignedWorksPermissions.useStudentMode)
 const isMentor = can(AssignedWorksPermissions.useMentorMode)
+const canAddHelperMentor = can(AssignedWorksPermissions.addHelperMentor)
 const mode = computed(() => assignedWorkDetailStore.viewMode)
 const hasSolveDeadline = computed(
   () => !!assignedWorkDetailStore.assignedWork?.solveDeadlineAt
@@ -245,10 +266,11 @@ const actions: AssignedWorkAction[] = [
     size: 'large',
     variant: 'primary',
     label: 'Сдать работу',
+    isLoading: () => assignedWorkDetailStore.markSolved.isLoading,
     handler: () => (modals.beforeMarkSolved.isOpen.value = true)
   },
   {
-    key: 'save-state',
+    key: 'save-solve-state',
     if: () => !workIsSolved.value && isStudent && mode.value == 'solve',
     size: 'medium',
     variant: 'tertiary',
@@ -266,6 +288,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Сдвинуть дедлайн',
+    isLoading: () => assignedWorkDetailStore.shiftSolveDeadline.isLoading,
     handler: () => (modals.beforeShiftSolveDeadline.isOpen.value = true)
   },
   {
@@ -278,18 +301,26 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Переделать работу',
+    isLoading: () => assignedWorkDetailStore.remake.isLoading,
     handler: () => (modals.beforeRemake.isOpen.value = true)
   },
   {
+    // A work that was never handed in has nothing to check, and the server
+    // refuses it outright.
     key: 'check-work',
-    if: () => !workIsChecked.value && isMentor && mode.value == 'check',
+    if: () =>
+      workIsSolved.value &&
+      !workIsChecked.value &&
+      isMentor &&
+      mode.value == 'check',
     size: 'large',
     variant: 'primary',
     label: 'Отправить проверку',
+    isLoading: () => assignedWorkDetailStore.markChecked.isLoading,
     handler: () => (modals.beforeMarkChecked.isOpen.value = true)
   },
   {
-    key: 'save-state',
+    key: 'save-check-state',
     if: () => !workIsChecked.value && isMentor && mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
@@ -302,11 +333,12 @@ const actions: AssignedWorkAction[] = [
     if: () =>
       !workIsChecked.value &&
       workIsSolved.value &&
-      isMentor &&
+      canAddHelperMentor &&
       mode.value == 'check',
     size: 'medium',
     variant: 'tertiary',
     label: 'Добавить помогающего куратора',
+    isLoading: () => assignedWorkDetailStore.addHelperMentor.isLoading,
     handler: () => (modals.beforeAddHelperMentor.isOpen.value = true)
   },
   {
@@ -319,6 +351,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Сдвинуть дедлайн проверки',
+    isLoading: () => assignedWorkDetailStore.shiftCheckDeadline.isLoading,
     handler: () => (modals.beforeShiftCheckDeadline.isOpen.value = true)
   },
   {
@@ -329,8 +362,12 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'В режим просмотра',
-    handler: () => {
-      /* TODO: go to view mode and save everything */
+    // Read mode is the one mode that never writes, so what is still pending has
+    // to reach the server before the user leaves the mode that was saving it.
+    handler: async () => {
+      if (await assignedWorkDetailStore.save()) {
+        assignedWorkDetailStore.setMode('read')
+      }
     }
   },
   {
@@ -339,6 +376,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Отправить на доработку',
+    isLoading: () => assignedWorkDetailStore.markUnsolved.isLoading,
     handler: () => (modals.beforeMarkUnsolved.isOpen.value = true)
   },
   {
@@ -347,6 +385,7 @@ const actions: AssignedWorkAction[] = [
     size: 'medium',
     variant: 'tertiary',
     label: 'Отменить проверку',
+    isLoading: () => assignedWorkDetailStore.markUnchecked.isLoading,
     handler: () => (modals.beforeMarkUnchecked.isOpen.value = true)
   },
   {
@@ -379,6 +418,12 @@ const availableActions = computed<AssignedWorkAction[]>(() =>
   actions.filter((action) => action.if())
 )
 
+// One request at a time: these change the work out from under each other, and
+// the work is re-read once any of them lands.
+const isBusy = computed(() =>
+  actions.some((action) => action.isLoading?.() === true)
+)
+
 const modals = {
   beforeMarkSolved: { isOpen: shallowRef(false) },
   beforeMarkChecked: { isOpen: shallowRef(false) },
@@ -402,6 +447,26 @@ const modals = {
   beforeMarkUnchecked: { isOpen: shallowRef(false) },
   history: { isOpen: shallowRef(false) }
 } as const
+
+// The picker speaks in ids that may be a list; a work takes exactly one helper.
+const helperMentorId = computed<string | string[] | null>({
+  get: () => modals.beforeAddHelperMentor.options.value.mentorId || null,
+  set: (value) => {
+    modals.beforeAddHelperMentor.options.value.mentorId =
+      typeof value === 'string' ? value : ''
+  }
+})
+
+// Nobody should be handed the mentor they picked and abandoned last time.
+watch(modals.beforeAddHelperMentor.isOpen, (opened) => {
+  if (opened) {
+    modals.beforeAddHelperMentor.options.value = {
+      mentorId: '',
+      notifyMentor: true,
+      notifyStudent: true
+    }
+  }
+})
 </script>
 
 <style scoped lang="sass">

@@ -1,4 +1,4 @@
-import type { ApiError } from '@/core/api/api.utils'
+import type { ApiError, ApiResponse } from '@/core/api/api.utils'
 import { isApiError } from '@/core/api/api.utils'
 import {
   useApiRequest,
@@ -90,6 +90,8 @@ export interface AssignedWorkDetailStore {
    */
   hasUnsavedChanges: ComputedRef<boolean>
   init: (assignedWorkId: string) => Promise<boolean>
+  /** Re-reads the work, discarding drafts seeded from the copy held here. */
+  refresh: () => Promise<boolean>
   setMode: (mode: AssignedWorkViewMode) => void
   viewMode: Ref<AssignedWorkViewMode>
   save: (options?: SaveOptions) => Promise<boolean>
@@ -160,10 +162,34 @@ const useAssignedWorkDetailStore = defineStore(
      * @param assignedWorkId - The ID of the assigned work to load.
      */
     async function init(assignedWorkId: string): Promise<boolean> {
+      return load(assignedWorkId, 'Загрузка работы...')
+    }
+
+    /**
+     * Re-reads the work, replacing the drafts seeded from the copy held here.
+     *
+     * Every change to where the work stands in its lifecycle goes through this
+     * rather than guessing at the new state: returning a work for revision, for
+     * one, clears its score, its check and its submission all at once.
+     */
+    async function refresh(): Promise<boolean> {
+      const assignedWorkId = assignedWork.value?.id
+
+      if (!assignedWorkId) {
+        return false
+      }
+
+      return load(assignedWorkId, 'Обновление работы...')
+    }
+
+    async function load(
+      assignedWorkId: string,
+      loaderText: string
+    ): Promise<boolean> {
       // A work arrives with its tasks, answers and comments in one response, so
       // the wait is long enough to be worth narrating.
       const apiResponse = await globalUiStore.withLoader(
-        'Загрузка работы...',
+        loaderText,
         (onProgress) => AssignedWorkService.getById(assignedWorkId, onProgress)
       )
 
@@ -418,34 +444,71 @@ const useAssignedWorkDetailStore = defineStore(
     }
 
     /**
+     * Builds one of the actions that change the work itself rather than its
+     * contents. They all behave the same way around their request: anything
+     * still pending is stored first, so nothing written is lost to the change
+     * and the server acts on what the user last saw; the work is then re-read,
+     * the server's copy being the only one that knows the new state.
+     *
+     * @param mode Where the user belongs afterwards, for a change that ends
+     *   what they were doing.
+     */
+    function useWorkChangingAction<TRequest = void>(options: {
+      request: (payload: TRequest) => Promise<ApiResponse>
+      successMessage: string
+      failureMessage: string
+      mode?: AssignedWorkViewMode
+    }): UseApiRequestReturn<TRequest> {
+      return useApiRequest<TRequest>(
+        async (payload) => {
+          if (!(await save({ silent: true }))) {
+            return {
+              error: {
+                id: 'UNSAVED_CHANGES',
+                statusCode: 0,
+                name: 'Unsaved changes',
+                description: 'Не удалось сохранить работу перед изменением',
+                payload: null
+              } as ApiError
+            }
+          }
+
+          return options.request(payload)
+        },
+        async () => {
+          globalUiStore.createSuccessToast(options.successMessage)
+
+          if (options.mode) {
+            setMode(options.mode)
+          }
+
+          await refresh()
+        },
+        (error) => {
+          globalUiStore.createApiErrorToast(options.failureMessage, error)
+        }
+      )
+    }
+
+    /**
      * Marks the assigned work as solved.
      */
-    const markSolved = useApiRequest(
-      () => AssignedWorkService.markSolved(assignedWork.value!.id),
-      () => {
-        globalUiStore.createSuccessToast('Работа успешно сдана')
-        router.push({
-          name: 'assigned-works.detail',
-          params: { assignedWorkId: assignedWork.value!.id, mode: 'read' }
-        })
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast('Не удалось сдать работу', error)
-      }
-    )
+    const markSolved = useWorkChangingAction({
+      request: () => AssignedWorkService.markSolved(assignedWork.value!.id),
+      successMessage: 'Работа успешно сдана',
+      failureMessage: 'Не удалось сдать работу',
+      mode: 'read'
+    })
 
     /**
      * Marks the assigned work as checked.
      */
-    const markChecked = useApiRequest(
-      () => AssignedWorkService.markChecked(assignedWork.value!.id),
-      () => {
-        globalUiStore.createSuccessToast('Работа успешно проверена')
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast('Не удалось проверить работу', error)
-      }
-    )
+    const markChecked = useWorkChangingAction({
+      request: () => AssignedWorkService.markChecked(assignedWork.value!.id),
+      successMessage: 'Работа успешно проверена',
+      failureMessage: 'Не удалось проверить работу',
+      mode: 'read'
+    })
 
     /**
      * Remakes the assigned work.
@@ -556,55 +619,34 @@ const useAssignedWorkDetailStore = defineStore(
     /**
      * Marks the assigned work as unsolved.
      */
-    const markUnsolved = useApiRequest(
-      () => AssignedWorkService.markUnsolved(assignedWork.value!.id),
-      () => {
-        globalUiStore.createSuccessToast('Работа вернулась на доработку')
-        router.push({
-          name: 'assigned-works.detail',
-          params: { assignedWorkId: assignedWork.value!.id, mode: 'read' }
-        })
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast(
-          'Не удалось вернуть работу на доработку',
-          error
-        )
-      }
-    )
+    const markUnsolved = useWorkChangingAction({
+      request: () => AssignedWorkService.markUnsolved(assignedWork.value!.id),
+      successMessage: 'Работа вернулась на доработку',
+      failureMessage: 'Не удалось вернуть работу на доработку',
+      mode: 'read'
+    })
 
     /**
      * Marks the assigned work as unchecked.
      */
-    const markUnchecked = useApiRequest(
-      () => AssignedWorkService.markUnchecked(assignedWork.value!.id),
-      () => {
-        globalUiStore.createSuccessToast('Проверка работы отменена')
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast(
-          'Не удалось отменить проверку работы',
-          error
-        )
-      }
-    )
+    const markUnchecked = useWorkChangingAction({
+      request: () => AssignedWorkService.markUnchecked(assignedWork.value!.id),
+      successMessage: 'Проверка работы отменена',
+      failureMessage: 'Не удалось отменить проверку работы',
+      mode: 'read'
+    })
 
     /**
-     * Adds a helper mentor to the assigned work.
+     * Adds a helper mentor to the assigned work. Unlike the others this settles
+     * nothing, so it leaves the user where they were — only the work is re-read,
+     * for the sidebar to name the mentor who was just added.
      */
-    const addHelperMentor = useApiRequest<AddHelperMentorOptions>(
-      (options) =>
+    const addHelperMentor = useWorkChangingAction<AddHelperMentorOptions>({
+      request: (options) =>
         AssignedWorkService.addMentor(assignedWork.value!.id, options),
-      () => {
-        globalUiStore.createSuccessToast('Помощник успешно добавлен')
-      },
-      (error) => {
-        globalUiStore.createApiErrorToast(
-          'Не удалось добавить помощника',
-          error
-        )
-      }
-    )
+      successMessage: 'Помощник успешно добавлен',
+      failureMessage: 'Не удалось добавить помощника'
+    })
 
     /**
      * Resets the assigned work and answers.
@@ -683,6 +725,7 @@ const useAssignedWorkDetailStore = defineStore(
       commentOf: commentDraft.contentOf,
       updateComment: commentDraft.update,
       init,
+      refresh,
       setMode,
       viewMode,
       save,

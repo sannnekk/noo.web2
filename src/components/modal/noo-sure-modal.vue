@@ -21,6 +21,7 @@
       </noo-button>
       <noo-button
         variant="primary"
+        :disabled="!canConfirm"
         @click="onConfirm()"
       >
         <slot name="confirm-action-text"> Подтвердить </slot>
@@ -30,10 +31,19 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  /** For a modal whose content has to be filled in before it can be confirmed. */
+  canConfirm?: boolean
+}
+
 interface Emits {
   (e: 'confirm'): void
   (e: 'cancel'): void
 }
+
+withDefaults(defineProps<Props>(), {
+  canConfirm: true
+})
 
 const emits = defineEmits<Emits>()
 

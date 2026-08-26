@@ -779,3 +779,121 @@ describe('useAssignedWorkDetailStore — checking one task on its own', () => {
     expect(store.revealTaskAnswer.data?.rightAnswers).toEqual(['the answer'])
   })
 })
+
+describe('useAssignedWorkDetailStore — changing where the work stands', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    setActivePinia(createPinia())
+    principal.value = { id: 'mentor-1', role: 'mentor' }
+    ;(AssignedWorkService.getById as Mock).mockResolvedValue({
+      data: makeAssignedWork()
+    })
+    ;(AssignedWorkService.markChecked as Mock).mockResolvedValue({
+      data: undefined
+    })
+    ;(AssignedWorkService.markUnsolved as Mock).mockResolvedValue({
+      data: undefined
+    })
+    ;(AssignedWorkService.addMentor as Mock).mockResolvedValue({
+      data: undefined
+    })
+    mockSaveAnswerOk()
+    mockSaveCommentOk()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.clearAllMocks()
+    principal.value = null
+  })
+
+  async function checkingStore() {
+    const store = useAssignedWorkDetailStore()
+
+    await store.init('aw-1')
+    store.setMode('check')
+
+    return store
+  }
+
+  test('re-reads the work once it has been returned for revision', async () => {
+    const store = await checkingStore()
+
+    expect(AssignedWorkService.getById).toHaveBeenCalledTimes(1)
+
+    await store.markUnsolved.execute()
+    await vi.runAllTimersAsync()
+
+    // The server clears the score, the check and the submission in one go, so
+    // nothing about the copy held here survives the change.
+    expect(AssignedWorkService.getById).toHaveBeenCalledTimes(2)
+  })
+
+  test('stores what the mentor typed before changing the work', async () => {
+    const store = await checkingStore()
+
+    store.updateAnswer('t-1', { score: 3 })
+
+    await store.markUnsolved.execute()
+    await vi.runAllTimersAsync()
+
+    expect(AssignedWorkService.saveAnswer).toHaveBeenCalledTimes(1)
+
+    const saveCall = (AssignedWorkService.saveAnswer as Mock).mock
+      .invocationCallOrder[0]
+    const markCall = (AssignedWorkService.markUnsolved as Mock).mock
+      .invocationCallOrder[0]
+
+    expect(saveCall).toBeLessThan(markCall)
+  })
+
+  test('leaves the work alone when those edits could not be stored', async () => {
+    ;(AssignedWorkService.saveAnswer as Mock).mockResolvedValueOnce({
+      error: { id: 'BOOM', statusCode: 500, name: 'err', payload: null }
+    })
+
+    const store = await checkingStore()
+
+    store.updateAnswer('t-1', { score: 3 })
+
+    await store.markUnsolved.execute()
+    await vi.runAllTimersAsync()
+
+    expect(AssignedWorkService.markUnsolved).not.toHaveBeenCalled()
+    expect(store.markUnsolved.error).not.toBeNull()
+  })
+
+  test('puts the user back into read mode once the check is sent', async () => {
+    const store = await checkingStore()
+
+    expect(store.viewMode).toBe('check')
+
+    await store.markChecked.execute()
+    await vi.runAllTimersAsync()
+
+    expect(store.viewMode).toBe('read')
+  })
+
+  // Adding a helper settles nothing, so it is the one change that leaves the
+  // mentor where they were.
+  test('keeps the mentor checking when a helper is added', async () => {
+    const store = await checkingStore()
+
+    await store.addHelperMentor.execute({
+      mentorId: 'mentor-2',
+      notifyMentor: true,
+      notifyStudent: true
+    })
+    await vi.runAllTimersAsync()
+
+    expect(AssignedWorkService.getById).toHaveBeenCalledTimes(2)
+    expect(store.viewMode).toBe('check')
+  })
+
+  test('has nothing to re-read before a work is loaded', async () => {
+    const store = useAssignedWorkDetailStore()
+
+    expect(await store.refresh()).toBe(false)
+    expect(AssignedWorkService.getById).not.toHaveBeenCalled()
+  })
+})
