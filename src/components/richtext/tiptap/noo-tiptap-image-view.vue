@@ -30,7 +30,7 @@
         :style="regionStyle(region)"
         :title="region.content"
         :disabled="region.id === target?.comment.id"
-        @click="open(region)"
+        @click="open(region, false)"
       />
       <div
         v-if="draft"
@@ -58,18 +58,6 @@
         Удалить
       </noo-button>
     </div>
-    <noo-tiptap-comment-popover
-      v-if="target"
-      :key="target.comment.id"
-      :types="commentTypes"
-      :comment="target.comment"
-      :anchor="target.anchor"
-      :readonly="!isCommentable"
-      @save="saveComment"
-      @remove="removeComment"
-      @update:type="recolourRegion"
-      @close="target = null"
-    />
   </node-view-wrapper>
 </template>
 
@@ -79,8 +67,6 @@ import { newUlid } from '@/core/utils/id.utils'
 import { MediaService } from '@/modules/media/api/media.service'
 import { NodeViewWrapper, nodeViewProps } from '@tiptap/vue-3'
 import { computed, inject, ref, useTemplateRef } from 'vue'
-import type { RichtextComment } from './extensions/comment'
-import type { CommentAnchor } from './noo-tiptap-comment-popover.vue'
 import type {
   RichtextImageComment,
   RichtextRect
@@ -90,6 +76,10 @@ import {
   isRectUsable,
   normalizeRect
 } from './richtext-comment.utils'
+import type {
+  CommentAnchor,
+  RichtextCommentTarget
+} from './richtext-comments.context'
 import { richtextCommentsKey } from './richtext-comments.context'
 
 const props = defineProps(nodeViewProps)
@@ -166,15 +156,25 @@ const isCommentable = computed(
   () => !!commentsContext?.commentable.value && commentTypes.value.length > 0
 )
 
-interface ImageCommentTarget {
-  comment: RichtextImageComment
-  anchor: CommentAnchor
-}
+// Identifies this picture's targets among the editor's, so two images never
+// preview each other's regions.
+const owner = Symbol('image-comment-owner')
 
 const overlay = useTemplateRef<HTMLElement>('overlay')
-const target = ref<ImageCommentTarget | null>(null)
 const drawStart = ref<{ x: number; y: number } | null>(null)
 const draft = ref<RichtextRect | null>(null)
+
+/**
+ * The editor's popover, when it is this picture it is asking about. The owner
+ * check is what makes the comment a region rather than a range of text.
+ */
+const target = computed(() => {
+  const open = commentsContext?.target.value
+
+  return open?.owner === owner
+    ? (open as RichtextCommentTarget & { comment: RichtextImageComment })
+    : null
+})
 
 /**
  * What to draw on the picture: the saved regions, with the one the popover is
@@ -246,7 +246,7 @@ function finishDrawing(event: PointerEvent) {
     return
   }
 
-  open({ id: newUlid(), type: firstType.key, content: '', ...rect })
+  open({ id: newUlid(), type: firstType.key, content: '', ...rect }, true)
 }
 
 function cancelDrawing() {
@@ -254,40 +254,47 @@ function cancelDrawing() {
   draft.value = null
 }
 
-function open(comment: RichtextImageComment) {
-  target.value = { comment, anchor: anchorOf(comment) }
-}
+/**
+ * Hands the region to the editor's popover along with the three things it needs
+ * to write it back. Going through the editor is what guarantees that only one
+ * comment is ever being asked about at a time.
+ */
+function open(region: RichtextImageComment, isDraft: boolean) {
+  commentsContext?.open({
+    comment: region,
+    anchor: anchorOf(region),
+    isDraft,
+    owner,
+    save: (edited) => saveRegion({ ...region, ...edited }),
+    remove: () => removeRegion(region.id),
+    retype: (type) => {
+      const open = commentsContext.target.value
 
-function recolourRegion(type: string) {
-  if (target.value) {
-    target.value.comment = { ...target.value.comment, type }
-  }
-}
-
-function saveComment(comment: Omit<RichtextComment, 'id'>) {
-  if (!target.value) {
-    return
-  }
-
-  const saved = { ...target.value.comment, ...comment }
-
-  props.updateAttributes({
-    comments: [...withoutComment(saved.id), saved]
+      if (open) {
+        open.comment = { ...open.comment, type }
+      }
+    }
   })
-  target.value.comment = saved
 }
 
-function removeComment() {
-  if (!target.value) {
+function saveRegion(region: RichtextImageComment) {
+  props.updateAttributes({
+    comments: [...withoutRegion(region.id), region]
+  })
+}
+
+function removeRegion(id: string) {
+  // A region that was drawn but never saved has nothing to take away.
+  if (!comments.value.some((comment) => comment.id === id)) {
     return
   }
 
-  const rest = withoutComment(target.value.comment.id)
+  const rest = withoutRegion(id)
 
   props.updateAttributes({ comments: rest.length ? rest : null })
 }
 
-function withoutComment(id: string): RichtextImageComment[] {
+function withoutRegion(id: string): RichtextImageComment[] {
   return comments.value.filter((comment) => comment.id !== id)
 }
 

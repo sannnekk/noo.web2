@@ -82,12 +82,7 @@ import {
 } from 'vue'
 import type { RichtextComment, RichtextCommentType } from './extensions/comment'
 import { commentColor } from './richtext-comment.utils'
-
-/** Viewport coordinates the popover hangs from. */
-export interface CommentAnchor {
-  top: number
-  left: number
-}
+import type { CommentAnchor } from './richtext-comments.context'
 
 interface Props {
   types: RichtextCommentType[]

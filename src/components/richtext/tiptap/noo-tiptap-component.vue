@@ -58,6 +58,7 @@
       :readonly="!isCommentable"
       @save="saveComment"
       @remove="removeComment"
+      @update:type="commentTarget.retype?.($event)"
       @close="closeComment"
     />
     <noo-tiptap-math-edit
@@ -93,8 +94,11 @@ import type { RichtextComment, RichtextCommentType } from './extensions/comment'
 import { Comment, findComment } from './extensions/comment'
 import { Iframe } from './extensions/iframe'
 import { Image } from './extensions/image'
-import type { CommentAnchor } from './noo-tiptap-comment-popover.vue'
 import type { MathEditTarget } from './noo-tiptap-math-edit.vue'
+import type {
+  CommentAnchor,
+  RichtextCommentTarget
+} from './richtext-comments.context'
 import { richtextCommentsKey } from './richtext-comments.context'
 import 'katex/dist/katex.min.css'
 
@@ -130,11 +134,16 @@ const isCommentable = computed(
   () => !!props.commentable && commentTypes.value.length > 0
 )
 
-// Node views are mounted outside this template, so the image view reaches the
-// same configuration through provide/inject rather than through props.
+// One popover per editor, owned here. Node views are mounted outside this
+// template, so the image view reaches it — and the rest of the commenting
+// setup — through provide/inject rather than through props.
+const commentTarget = ref<RichtextCommentTarget | null>(null)
+
 provide(richtextCommentsKey, {
   commentable: isCommentable,
-  types: commentTypes
+  types: commentTypes,
+  target: commentTarget,
+  open: openComment
 })
 
 const editor = useEditor({
@@ -186,33 +195,81 @@ function openMathEditor(node: ProseMirrorNode, pos: number) {
   }
 }
 
-interface CommentTarget {
-  comment: RichtextComment
-  anchor: CommentAnchor
-  /** Applied but never saved: abandoning it has to take the mark away again. */
-  isDraft: boolean
+function openComment(target: RichtextCommentTarget) {
+  closeComment()
+  commentTarget.value = target
+
+  // A selection left behind would bring the type menu straight back up over the
+  // popover — and, when the comment is on an image, over a selection the reader
+  // has stopped caring about.
+  const editorInstance = editor.value
+
+  if (editorInstance) {
+    editorInstance.commands.setTextSelection(editorInstance.state.selection.to)
+  }
 }
 
-const commentTarget = ref<CommentTarget | null>(null)
+function closeComment() {
+  const target = commentTarget.value
+
+  commentTarget.value = null
+
+  if (target?.isDraft) {
+    target.remove()
+  }
+}
+
+function saveComment(comment: Omit<RichtextComment, 'id'>) {
+  const target = commentTarget.value
+
+  if (target) {
+    target.save(comment)
+    target.isDraft = false
+  }
+}
+
+function removeComment() {
+  const target = commentTarget.value
+
+  if (target) {
+    target.remove()
+    target.isDraft = false
+  }
+}
+
+/** A comment stored as a mark on the text it covers. */
+function textTarget(
+  comment: RichtextComment,
+  anchor: CommentAnchor,
+  isDraft: boolean
+): RichtextCommentTarget {
+  return {
+    comment,
+    anchor,
+    isDraft,
+    save: (edited) => {
+      editor.value?.commands.updateComment(comment.id, edited)
+    },
+    remove: () => {
+      editor.value?.commands.unsetComment(comment.id)
+    }
+  }
+}
 
 function openCommentUnderPointer(event: MouseEvent) {
-  const target = (event.target as HTMLElement | null)?.closest?.(
+  const span = (event.target as HTMLElement | null)?.closest?.(
     '[data-comment-id]'
   )
 
-  if (!(target instanceof HTMLElement) || !editor.value) {
+  if (!(span instanceof HTMLElement) || !editor.value) {
     return
   }
 
-  const id = target.dataset.commentId
+  const id = span.dataset.commentId
   const comment = id ? findComment(editor.value.state.doc, id) : null
 
   if (comment) {
-    commentTarget.value = {
-      comment,
-      anchor: anchorOf(target, event),
-      isDraft: false
-    }
+    openComment(textTarget(comment, anchorOf(span, event), false))
   }
 }
 
@@ -231,39 +288,7 @@ async function openNewComment(comment: RichtextComment) {
     return
   }
 
-  commentTarget.value = { comment, anchor: anchorOf(span), isDraft: true }
-}
-
-function saveComment(comment: Omit<RichtextComment, 'id'>) {
-  const target = commentTarget.value
-
-  if (!target) {
-    return
-  }
-
-  editor.value?.commands.updateComment(target.comment.id, comment)
-  target.isDraft = false
-}
-
-function removeComment() {
-  const target = commentTarget.value
-
-  if (!target) {
-    return
-  }
-
-  editor.value?.commands.unsetComment(target.comment.id)
-  target.isDraft = false
-}
-
-function closeComment() {
-  const target = commentTarget.value
-
-  if (target?.isDraft) {
-    editor.value?.commands.unsetComment(target.comment.id)
-  }
-
-  commentTarget.value = null
+  openComment(textTarget(comment, anchorOf(span), true))
 }
 
 /**
