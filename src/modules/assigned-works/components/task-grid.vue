@@ -23,10 +23,10 @@
         }"
       >
         <div
-          v-if="icon(item)"
+          v-if="resolveTaskGridIcon(item)"
           class="task-grid__item__icon"
         >
-          <noo-icon :name="icon(item)!" />
+          <noo-icon :name="resolveTaskGridIcon(item)!" />
         </div>
         <span class="task-grid__item__number">
           {{ index + 1 }}
@@ -37,36 +37,16 @@
 </template>
 
 <script setup lang="ts">
-import type { IconName } from '@/components/icons/noo-icon.vue'
 import { useHotkeys } from '@/core/composables/useHotkeys'
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAssignedWorkDetailStore } from '../stores/assigned-work-detail.store'
-import type { PossiblyUnsavedAnswer, TaskGrid } from '../types'
+import {
+  resolveAnswerCheckStatus,
+  resolveTaskGridIcon
+} from '../task-grid.utils'
+import type { TaskGrid } from '../types'
 import { answerIsNotEmpty } from '../utils'
-
-function icon(item: TaskGrid[number]): IconName | undefined {
-  if (item.hasAnswer && item.status === 'not-submitted') {
-    return 'check-green'
-  }
-
-  if (item.status === 'not-submitted') {
-    return
-  }
-
-  // is submitted
-  switch (item.checkStatus) {
-    case 'correct':
-      return 'check-green'
-    case 'incorrect':
-      return 'cross-red'
-    case 'partially-correct':
-      return 'attention-yellow'
-    case 'none':
-    default:
-      return
-  }
-}
 
 const assignedWorkDetailStore = useAssignedWorkDetailStore()
 
@@ -142,31 +122,11 @@ function getTaskGrid(): TaskGrid {
       hasAnswer: answerIsNotEmpty(task, answer),
       taskId: task.id,
       status: answer.status,
-      checkStatus: getAnswerCheckStatus(answer)
+      checkStatus: resolveAnswerCheckStatus(answer)
     })
   }
 
   return taskGrid
-}
-
-/**
- * Gets the check status of the answer.
- *
- * @param answer The answer to get the check status for.
- * @returns The check status of the answer.
- */
-function getAnswerCheckStatus(
-  answer: PossiblyUnsavedAnswer
-): 'none' | 'correct' | 'incorrect' | 'partially-correct' {
-  if (typeof answer.score !== 'number' || typeof answer.maxScore !== 'number') {
-    return 'none'
-  }
-
-  return answer.score === answer.maxScore
-    ? 'correct'
-    : answer.score > 0
-      ? 'partially-correct'
-      : 'incorrect'
 }
 </script>
 

@@ -37,11 +37,18 @@ export type PossiblyUnsavedComment = PossiblyUnsavedEntity<
 export type AssignedWorkCommentSeat =
   'student' | 'main-mentor' | 'helper-mentor'
 
+/**
+ * What the score a task was given says about it. `none` is the absence of a
+ * score rather than a verdict: zero is a verdict like any other.
+ */
+export type TaskCheckStatus =
+  'none' | 'correct' | 'incorrect' | 'partially-correct'
+
 export type TaskGrid = {
   taskId: string
   hasAnswer: boolean
   status: AssignedWorkAnswerStatus
-  checkStatus: 'none' | 'correct' | 'incorrect' | 'partially-correct'
+  checkStatus: TaskCheckStatus
 }[]
 
 /**
