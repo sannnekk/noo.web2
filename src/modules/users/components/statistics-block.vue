@@ -60,6 +60,16 @@
         </li>
       </ul>
       <div
+        v-if="block.distributions?.length"
+        class="statistics-block__distributions"
+      >
+        <statistics-distribution
+          v-for="distribution in block.distributions"
+          :key="distribution.title"
+          :distribution="distribution"
+        />
+      </div>
+      <div
         v-if="block.graph"
         class="statistics-block__graph"
       >
@@ -87,6 +97,7 @@ import type {
 import { isIsoDateString } from '@/core/api/serialization.utils'
 import { computed } from 'vue'
 import type { StatisticsBlockDto } from '../api/statistics.types'
+import StatisticsDistribution from './statistics-distribution.vue'
 
 interface Props {
   block: StatisticsBlockDto
@@ -213,6 +224,11 @@ function hasSubValues(
       gap: 0.5em
       font-size: 0.85em
       color: var(--text-light)
+
+  &__distributions
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+    gap: 1.5em 2.5em
 
   &__graph
     display: flex

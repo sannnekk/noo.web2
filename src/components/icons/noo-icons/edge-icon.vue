@@ -1,0 +1,53 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 48 48"
+  >
+    <defs>
+      <linearGradient
+        id="edge-body"
+        x1="0.05"
+        y1="0.95"
+        x2="0.45"
+        y2="0.05"
+      >
+        <stop
+          offset="0%"
+          stop-color="#0B3F8C"
+        />
+        <stop
+          offset="45%"
+          stop-color="#1B87D6"
+        />
+        <stop
+          offset="80%"
+          stop-color="#35C1F1"
+        />
+        <stop
+          offset="100%"
+          stop-color="#6FE9A6"
+        />
+      </linearGradient>
+      <mask id="edge-swoosh">
+        <circle
+          cx="24"
+          cy="24"
+          r="24"
+          fill="#FFFFFF"
+        />
+        <circle
+          cx="33"
+          cy="15"
+          r="19"
+          fill="#000000"
+        />
+      </mask>
+    </defs>
+    <rect
+      width="48"
+      height="48"
+      fill="url(#edge-body)"
+      mask="url(#edge-swoosh)"
+    />
+  </svg>
+</template>

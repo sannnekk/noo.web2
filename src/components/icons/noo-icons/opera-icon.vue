@@ -1,0 +1,20 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 48 48"
+  >
+    <circle
+      cx="24"
+      cy="24"
+      r="24"
+      fill="#FF1B2D"
+    />
+    <ellipse
+      cx="24"
+      cy="24"
+      rx="7.5"
+      ry="13.5"
+      fill="#FFFFFF"
+    />
+  </svg>
+</template>

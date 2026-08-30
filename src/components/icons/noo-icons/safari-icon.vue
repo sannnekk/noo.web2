@@ -1,0 +1,47 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 48 48"
+  >
+    <defs>
+      <linearGradient
+        id="safari-body"
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="1"
+      >
+        <stop
+          offset="0%"
+          stop-color="#3EBBF5"
+        />
+        <stop
+          offset="100%"
+          stop-color="#0F7BE0"
+        />
+      </linearGradient>
+    </defs>
+    <circle
+      cx="24"
+      cy="24"
+      r="24"
+      fill="url(#safari-body)"
+    />
+    <circle
+      cx="24"
+      cy="24"
+      r="18.5"
+      fill="none"
+      stroke="#FFFFFF"
+      stroke-width="2.5"
+    />
+    <path
+      fill="#FF3B30"
+      d="M32.5 15.5 L26.5 26.5 L21.5 21.5 Z"
+    />
+    <path
+      fill="#FFFFFF"
+      d="M15.5 32.5 L21.5 21.5 L26.5 26.5 Z"
+    />
+  </svg>
+</template>

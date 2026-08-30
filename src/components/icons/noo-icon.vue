@@ -70,6 +70,15 @@ export type IconName =
   | 'archive'
   | 'yandex'
   | 'vk'
+  | 'browser'
+  | 'chrome'
+  | 'firefox'
+  | 'safari'
+  | 'edge'
+  | 'opera'
+  | 'desktop'
+  | 'mobile'
+  | 'tablet'
 
 interface Props {
   name: IconName

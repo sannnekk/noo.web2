@@ -18,11 +18,28 @@ export interface StatisticsGraphDto {
   lines: StatisticsGraphLineDto[]
 }
 
+export interface StatisticsDistributionEntryDto {
+  label: string
+  value: number
+  /**
+   * A stable key the client draws an icon for, e.g. `chrome` or `tablet`.
+   * Keys the client does not know fall back to a generic icon.
+   */
+  icon?: string | null
+}
+
+export interface StatisticsDistributionDto {
+  title: string
+  description?: string | null
+  entries: StatisticsDistributionEntryDto[]
+}
+
 export interface StatisticsBlockDto {
   title: string
   description?: string | null
   graph?: StatisticsGraphDto
   numberBlocks: StatisticsNumberBlockDto[]
+  distributions?: StatisticsDistributionDto[]
 }
 
 export interface StatisticsDto {

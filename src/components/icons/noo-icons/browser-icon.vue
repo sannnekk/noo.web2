@@ -1,0 +1,29 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="9"
+      stroke="var(--form-text-color)"
+      stroke-width="2"
+    />
+    <ellipse
+      cx="12"
+      cy="12"
+      rx="4"
+      ry="9"
+      stroke="var(--form-text-color)"
+      stroke-width="2"
+    />
+    <path
+      d="M3.5 9h17M3.5 15h17"
+      stroke="var(--form-text-color)"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+  </svg>
+</template>
