@@ -1,7 +1,53 @@
 [
   {
+    "version": "1.5.0-alpha",
+    "date": "2026-08-31T10:03:03+02:00",
+    "changes": [
+      {
+        "type": "feature",
+        "description": "statistics: Added browser and device-type breakdowns with icons to the statistics panel",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "richtext: Added typed inline comments on text and image regions for mentor check mode",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "courses: Switched the student course list to /course/my so public courses appear like assigned ones",
+        "author": "sannnekk"
+      },
+      {
+        "type": "feature",
+        "description": "courses: Added a download statistics modal for course material files",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "assigned-works: Let a task's score drive its grid icon instead of the answer's status",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "assigned-works: Re-read the work after every lifecycle action and finished the sidebar's broken actions",
+        "author": "sannnekk"
+      },
+      {
+        "type": "bug-fix",
+        "description": "richtext: Kept a drawn image region on screen while its comment is being written",
+        "author": "sannnekk"
+      },
+      {
+        "type": "refactor",
+        "description": "richtext: Gave the editor a single comment popover so text and image comments cannot both be open",
+        "author": "sannnekk"
+      }
+    ]
+  },
+  {
     "version": "1.4.0-alpha",
-    "date": "2026-08-19T22:19:57+02:00",
+    "date": "2026-08-19T22:25:56+02:00",
     "changes": [
       {
         "type": "feature",
