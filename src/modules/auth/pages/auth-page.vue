@@ -21,7 +21,10 @@
             alt="Auth Icon Space"
           />
         </div>
-        <div class="auth-page__inner__background__actions">
+        <div
+          v-if="settings"
+          class="auth-page__inner__background__actions"
+        >
           <div class="auth-page__inner__background__actions__title">
             <h4>Приобрести наши курсы можно здесь:</h4>
           </div>
@@ -29,7 +32,7 @@
             <noo-button
               variant="primary"
               size="large"
-              :to="AppConstants.courseShopLink"
+              :to="settings.shopLink"
               new-tab
             >
               Курсы ЕГЭ
@@ -37,7 +40,7 @@
             <noo-button
               variant="secondary"
               size="large"
-              :to="AppConstants.courseShopLink"
+              :to="settings.shopLink"
               new-tab
             >
               Курсы ОГЭ
@@ -63,14 +66,16 @@
               align="center"
             >
               Все права защищены &copy; {{ new Date().getFullYear() }}
-              <br />
-              <noo-inline-link :href="AppConstants.privacyLink">
-                Политика конфиденциальности
-              </noo-inline-link>
-              <br />
-              <noo-inline-link :href="AppConstants.termsLink">
-                Договор публичной оферты
-              </noo-inline-link>
+              <template v-if="settings">
+                <br />
+                <noo-inline-link :href="settings.privacyPolicyLink">
+                  Политика конфиденциальности
+                </noo-inline-link>
+                <br />
+                <noo-inline-link :href="settings.termsLink">
+                  Договор публичной оферты
+                </noo-inline-link>
+              </template>
             </noo-text-block>
           </div>
         </div>
@@ -81,7 +86,7 @@
 
 <script setup lang="ts">
 import { useTheme } from '@/core/composables/useTheme'
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
 import { useAuthStore } from '@/core/stores/auth.store'
 
 interface Props {
@@ -98,6 +103,8 @@ authStore.setRedirect(props.redirect)
 const { mode } = useTheme()
 
 mode.value = 'light'
+
+const settings = usePlatformSettings()
 </script>
 
 <style scoped lang="sass">

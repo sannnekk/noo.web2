@@ -16,8 +16,8 @@
         #actions
       >
         <noo-button
-          v-if="can(CoursePermissions.viewCourseShop)"
-          :to="AppConstants.courseShopLink"
+          v-if="settings && can(CoursePermissions.viewCourseShop)"
+          :to="settings.shopLink"
           new-tab
         >
           Наш магазин курсов
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { useSearch } from '@/core/composables/useSearch'
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
 import { EqualsFilter } from '@/core/utils/pagination.utils'
 import { CourseService } from '../api/course.service'
 import type { StudentCourseEntity } from '../api/course.types'
@@ -64,4 +64,6 @@ const search = useSearch<StudentCourseEntity>(CourseService.getMyCourses, {
   immediate: true,
   initialFilters: [new EqualsFilter('isArchived', props.archived)]
 })
+
+const settings = usePlatformSettings()
 </script>

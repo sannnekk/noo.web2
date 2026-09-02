@@ -60,13 +60,25 @@
           :validators="[isChecked]"
         >
           Я согласен с
-          <noo-inline-link :href="AppConstants.privacyLink">
+          <!--
+            This sentence is the consent itself, so it reads in full whether or
+            not the links have arrived from the API; only the linking waits.
+          -->
+          <noo-inline-link
+            v-if="settings"
+            :href="settings.privacyPolicyLink"
+          >
             Политикой конфиденциальности
           </noo-inline-link>
+          <template v-else> Политикой конфиденциальности </template>
           и
-          <noo-inline-link :href="AppConstants.termsLink">
+          <noo-inline-link
+            v-if="settings"
+            :href="settings.termsLink"
+          >
             Условиями использования
           </noo-inline-link>
+          <template v-else> Условиями использования </template>
         </noo-checkbox>
       </div>
       <div class="auth-register-view__form__button">
@@ -126,7 +138,7 @@
 
 <script setup lang="ts">
 import type { RegisterPayload } from '@/core/api/endpoints/auth.types'
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
 import { useAuthStore } from '@/core/stores/auth.store'
 import { isChecked } from '@/core/validators/boolean.utils'
 import {
@@ -137,6 +149,8 @@ import {
 } from '@/core/validators/string.utils'
 import type { ValidationError } from '@/core/validators/validation-helpers.utils'
 import { computed, onMounted, ref } from 'vue'
+
+const settings = usePlatformSettings()
 
 const authStore = useAuthStore()
 

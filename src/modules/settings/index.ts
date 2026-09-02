@@ -120,6 +120,16 @@ const module: ApplicationModule = {
         },
 
         {
+          name: 'settings.platformLinks',
+          path: 'platform-links',
+          meta: {
+            pageTitle: 'Ссылки и контакты',
+            tabTitle: 'Ссылки и контакты'
+          },
+          component: () => import('./views/platform-links-settings-view.vue')
+        },
+
+        {
           name: 'settings.changelog',
           path: 'changelog',
           meta: {

@@ -7,4 +7,11 @@ describe('help permissions', () => {
       helpPermissionPolicy.rolesFor(HelpPermissions.manageArticles)
     ).toEqual(['admin', 'teacher'])
   })
+
+  it('only allows admins and teachers to manage the FAQ', () => {
+    expect(helpPermissionPolicy.rolesFor(HelpPermissions.manageFaq)).toEqual([
+      'admin',
+      'teacher'
+    ])
+  })
 })

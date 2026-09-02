@@ -3,10 +3,10 @@
     <div class="help-layout__top-bar">
       <div class="help-layout__top-bar__inner container">
         <div class="help-layout__top-bar__inner__hint">
-          <noo-text-block>
+          <noo-text-block v-if="settings">
             Не нашли ответ на свой вопрос? Напишите нам в
-            <noo-inline-link :href="AppConstants.supportChatLink">
-              {{ AppConstants.supportChatName }}
+            <noo-inline-link :href="settings.supportChatLink">
+              {{ settings.supportChatName }}
             </noo-inline-link>
           </noo-text-block>
         </div>
@@ -18,7 +18,12 @@
     <div class="help-layout__header">
       <div class="help-layout__header__inner container">
         <div class="help-layout__header__inner__logo">
-          <noo-support-logo />
+          <router-link
+            :to="{ name: 'help.home' }"
+            aria-label="На главную страницу помощи"
+          >
+            <noo-support-logo />
+          </router-link>
         </div>
         <div class="help-layout__header__inner__menu">
           <nav>
@@ -81,7 +86,9 @@
 </template>
 
 <script setup lang="ts">
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
+
+const settings = usePlatformSettings()
 </script>
 
 <style lang="sass" scoped>
@@ -98,6 +105,16 @@ import { AppConstants } from '@/core/config/constants.config'
       display: flex
       align-items: center
       justify-content: space-between
+
+      &__logo
+        a
+          display: inline-block
+          text-decoration: none
+          color: inherit
+          transition: opacity 0.2s ease
+
+          &:hover
+            opacity: 0.75
 
       &__menu
         height: 100%

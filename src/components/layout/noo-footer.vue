@@ -14,23 +14,26 @@
           </div>
         </div>
         <div class="col-md-8">
-          <div class="the-footer__links">
+          <div
+            v-if="settings"
+            class="the-footer__links"
+          >
             <a
-              href="https://no-os.ru"
+              :href="settings.shopLink"
               target="_blank"
             >
               &copy; {{ new Date().getFullYear() }} НОО-Школа
             </a>
             <span class="dot">&bullet;</span>
             <a
-              href="https://no-os.ru/confidentiality"
+              :href="settings.privacyPolicyLink"
               target="_blank"
             >
               Политика конфиденциальности
             </a>
             <span class="dot">&bullet;</span>
             <a
-              href="https://no-os.ru/oferta"
+              :href="settings.termsLink"
               target="_blank"
             >
               Договор публичной оферты
@@ -50,6 +53,12 @@
   </footer>
   <br />
 </template>
+
+<script setup lang="ts">
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
+
+const settings = usePlatformSettings()
+</script>
 
 <style scoped lang="sass">
 .the-footer

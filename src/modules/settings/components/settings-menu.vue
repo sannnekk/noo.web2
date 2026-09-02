@@ -118,6 +118,13 @@ const menuItems: MenuItem[] = [
     permission: SettingsPermissions.manageNotifications
   },
   {
+    title: 'Ссылки и контакты',
+    description: 'Сайт школы, документы, чат и почта поддержки',
+    icon: 'help',
+    to: { name: 'settings.platformLinks' },
+    permission: SettingsPermissions.managePlatformLinks
+  },
+  {
     title: 'История изменений',
     description: 'Просмотр истории изменений в системе и новых функций',
     icon: 'info',

@@ -14,9 +14,13 @@
         size="medium"
       >
         Если Вы ещё не приобрели курсы, то можете это сделать в
-        <noo-inline-link :href="AppConstants.courseShopLink">
+        <noo-inline-link
+          v-if="settings"
+          :href="settings.shopLink"
+        >
           нашем магазине
         </noo-inline-link>
+        <template v-else> нашем магазине </template>
         .
       </noo-text-block>
     </div>
@@ -90,9 +94,11 @@
 
 <script setup lang="ts">
 import type { LoginPayload } from '@/core/api/endpoints/auth.types'
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
 import { useAuthStore } from '@/core/stores/auth.store'
 import { onMounted, ref } from 'vue'
+
+const settings = usePlatformSettings()
 
 const loginPayload = ref<LoginPayload>({
   usernameOrEmail: '',

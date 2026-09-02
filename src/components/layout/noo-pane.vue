@@ -37,14 +37,17 @@
           </ul>
         </nav>
       </div>
-      <div class="pane__help">
+      <div
+        v-if="settings"
+        class="pane__help"
+      >
         <p>
           Есть проблема? Напишите нам в
           <a
-            :href="AppConstants.supportChatLink"
+            :href="settings.supportChatLink"
             target="_blank"
           >
-            {{ AppConstants.supportChatName }}
+            {{ settings.supportChatName }}
           </a>
         </p>
       </div>
@@ -61,7 +64,7 @@
 
 <script setup lang="ts">
 import type { UserRole } from '@/core/api/endpoints/auth.types'
-import { AppConstants } from '@/core/config/constants.config'
+import { usePlatformSettings } from '@/core/stores/platform-settings.store'
 import { ref, watch } from 'vue'
 import type { IconName } from '../icons/noo-icon.vue'
 
@@ -119,6 +122,8 @@ watch(
     }
   }
 )
+
+const settings = usePlatformSettings()
 </script>
 
 <style scoped lang="sass">

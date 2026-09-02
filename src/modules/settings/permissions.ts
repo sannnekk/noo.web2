@@ -14,6 +14,7 @@ const SettingsPermissions = {
   manageGoogleSheets: 'manageGoogleSheets',
   manageSubjects: 'manageSubjects',
   manageSnippets: 'manageSnippets',
+  managePlatformLinks: 'managePlatformLinks',
   viewChangelog: 'viewChangelog'
 } as const
 
@@ -57,6 +58,10 @@ const settingsPermissionPolicy = definePermissions({
   [SettingsPermissions.manageGoogleSheets]: roles('admin', 'teacher', 'mentor'),
   [SettingsPermissions.manageSubjects]: roles('admin'),
   [SettingsPermissions.manageSnippets]: roles('mentor'),
+  // Narrower than the rest of the support surface on purpose: these are the
+  // offer, the privacy policy and the shop, and a wrong value here is visible
+  // to every visitor, signed in or not.
+  [SettingsPermissions.managePlatformLinks]: roles('admin'),
   [SettingsPermissions.viewChangelog]: roles(
     'admin',
     'teacher',
