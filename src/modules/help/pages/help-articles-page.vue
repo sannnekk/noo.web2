@@ -1,6 +1,11 @@
 <template>
   <div class="help-articles-page">
-    <noo-sidebar-layout>
+    <!--
+      Stacked on a phone, the article list sits between the reader and the
+      article they opened; collapsible lets it fold away there and changes
+      nothing beside the content on a wider screen.
+    -->
+    <noo-sidebar-layout collapsible>
       <template #sidebar>
         <div class="help-articles-page__sidebar">
           <noo-title

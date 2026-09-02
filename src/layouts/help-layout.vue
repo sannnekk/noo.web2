@@ -93,20 +93,54 @@ const settings = usePlatformSettings()
 
 <style lang="sass" scoped>
 .help-layout
+  // Below `sm` the bootstrap container loses its max-width and falls back to a
+  // 0.75rem gutter, which leaves the content all but touching the screen edge.
+  // The app's own page gutter takes over there.
+  +down(sm)
+    .container
+      padding-left: var(--page-gutter)
+      padding-right: var(--page-gutter)
+
   &__top-bar
+    padding-top: var(--space-2xs)
+
     &__inner
       display: flex
       justify-content: space-between
       align-items: center
+      gap: var(--space-2xs)
+
+      &__hint
+        // Lets the sentence shrink and wrap inside its own cell instead of
+        // pushing the theme toggle off the side of a phone.
+        min-width: 0
+
+        +mobile
+          font-size: var(--step--2)
+
+      &__actions
+        flex-shrink: 0
 
   &__header
     &__inner
-      padding: 1em 0 3em 0
+      padding: var(--space-s) 0 var(--space-l) 0
       display: flex
       align-items: center
       justify-content: space-between
+      gap: var(--space-s)
+
+      // Side by side there is room for the logo and five nav items; below that
+      // the row is stacked and the nav wraps under the logo, both centred so
+      // neither hangs off one edge of a narrow column.
+      +tablet-down
+        flex-direction: column
+        align-items: center
+        text-align: center
+        gap: var(--space-xs)
 
       &__logo
+        min-width: 0
+
         a
           display: inline-block
           text-decoration: none
@@ -117,25 +151,32 @@ const settings = usePlatformSettings()
             opacity: 0.75
 
       &__menu
-        height: 100%
-
         nav
-          height: 100%
-
           ul
             list-style: none
             margin: 0
             padding: 0
-            height: 100%
             display: flex
-            gap: 2.5em
+            flex-wrap: wrap
+            gap: var(--space-2xs) var(--space-m)
             align-items: center
             justify-content: flex-end
 
+            +tablet-down
+              justify-content: center
+              gap: var(--space-2xs) var(--space-s)
+
         &__link
+          display: inline-block
+          // Keeps a tapped link inside the app's minimum target height without
+          // spacing the row out on a pointer device.
+          line-height: var(--tap-target-size)
           text-decoration: none
           color: var(--form-text-color)
           text-transform: uppercase
+
+          +tablet-down
+            font-size: var(--step--1)
 
           &:hover
             color: var(--lila)
@@ -145,6 +186,6 @@ const settings = usePlatformSettings()
             font-weight: bold
 
   &__content
-    padding: 2em 0
+    padding: var(--space-l) 0
     background-color: var(--form-background)
 </style>
