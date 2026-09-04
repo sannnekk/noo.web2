@@ -215,7 +215,7 @@ function toApiError(error: {
  */
 let refreshPromise: Promise<boolean> | null = null
 
-function refreshAccessToken(): Promise<boolean> {
+export function refreshAccessToken(): Promise<boolean> {
   // The refresh token rides along in the httpOnly cookie. Mark the request so the
   // interceptor below never tries to refresh a failed refresh (no loop).
   refreshPromise ??= api

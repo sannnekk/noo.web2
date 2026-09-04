@@ -41,6 +41,10 @@ export interface AppConfig {
    * Timeout for API requests in seconds.
    */
   apiConnectTimeoutSeconds: number
+  /**
+   * Base URL for the SignalR hubs. Individual hub paths are appended to it.
+   */
+  hubUrl: string
 }
 
 const isProduction = import.meta.env.MODE === 'production'
@@ -64,5 +68,9 @@ export const appConfig: AppConfig = Object.freeze({
     '643513066461-h6vrkoirgj91vr2isaqsm7hrv6tbkml8.apps.googleusercontent.com',
   maxFileSizeInBytes: 150 * 1024 * 1024, // 150 MB
   maxVideoSizeInBytes: 5 * 1024 * 1024 * 1024, // 5 GB
-  apiConnectTimeoutSeconds: 30 // 30 seconds
+  apiConnectTimeoutSeconds: 30, // 30 seconds
+  // Same origin as the API: the hubs are mapped on it, under /hubs.
+  hubUrl: isProduction
+    ? 'https://api.new-alpha.noo-school.ru/hubs'
+    : 'http://localhost:5001/hubs'
 })
