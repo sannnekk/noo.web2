@@ -20,6 +20,7 @@ import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import RetryLoginModal from './core/components/retry-login-modal.vue'
 import { useNotificationsPolling } from './core/composables/useNotificationsPolling'
+import { useRealtimeConnection } from './core/composables/useRealtimeConnection'
 import { useAuthStore } from './core/stores/auth.store'
 import { useGlobalUIStore } from './core/stores/global-ui.store'
 import { usePersonalizationSettingsStore } from './core/stores/personalization-settings.store'
@@ -33,6 +34,7 @@ const authStore = useAuthStore()
 const settingsStore = usePersonalizationSettingsStore()
 const platformSettingsStore = usePlatformSettingsStore()
 
+useRealtimeConnection()
 useNotificationsPolling()
 
 // Not gated on the session: the footer, the auth pages and the whole help

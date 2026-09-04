@@ -4,6 +4,10 @@ export interface GlobalEvents {
   'auth:login': void
   'auth:login-expired': void
   'auth:logout': void
+  /** The personal hub is up; anything that falls back to polling can stand down. */
+  'realtime:connected': void
+  /** The personal hub is down; fallbacks should take over until it returns. */
+  'realtime:disconnected': void
 }
 
 class GlobalEventBusClass {
