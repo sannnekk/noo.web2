@@ -1,8 +1,13 @@
 import { onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import { GlobalEventBus } from '../events/event-bus'
 import { RealtimeConnections } from '../realtime/connection-registry'
+import {
+  NotificationHubEvents,
+  type NotificationCreatedPayload
+} from '../realtime/contracts/notification.contract'
 import { HubPaths } from '../realtime/hubs'
 import { useAuthStore } from '../stores/auth.store'
+import { useNotificationsStore } from '../stores/notifications.store'
 
 /**
  * Owns the personal hub connection for the whole app. Call it once, from `App.vue`.
@@ -12,6 +17,7 @@ import { useAuthStore } from '../stores/auth.store'
  */
 export function useRealtimeConnection(): { isConnected: Ref<boolean> } {
   const authStore = useAuthStore()
+  const notificationsStore = useNotificationsStore()
   const isConnected = ref(false)
 
   let release: (() => void) | null = null
@@ -37,7 +43,16 @@ export function useRealtimeConnection(): { isConnected: Ref<boolean> } {
       HubPaths.notifications
     )
 
+    // Subscribed before the connection is up: SignalR holds handlers until then, so nothing
+    // pushed during startup is dropped.
+    const onNotification = (notification: NotificationCreatedPayload): void => {
+      notificationsStore.applyPushedNotification(notification)
+    }
+
+    connection.on(NotificationHubEvents.notificationCreated, onNotification)
+
     release = () => {
+      connection.off(NotificationHubEvents.notificationCreated, onNotification)
       RealtimeConnections.release(HubPaths.notifications)
     }
 

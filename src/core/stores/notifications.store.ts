@@ -22,6 +22,7 @@ interface NotificationsStore {
   markAllAsRead: UseApiRequestReturn
   deleteNotification: UseApiRequestReturn<string>
   pollUnread: () => Promise<void>
+  applyPushedNotification: (notification: NotificationEntity) => void
   loadRead: () => Promise<void>
   reset: () => void
 }
@@ -60,18 +61,42 @@ const useNotificationsStore = defineStore(
 
       notifications
         .filter((notification) => !toastedUnreadIds.has(notification.id))
-        .forEach((notification) => {
-          uiStore.createToast({
-            title: notification.title,
-            text: notification.message ?? undefined,
-            icon: getNotificationIcon(notification.type),
-            type: getNotificationToastType(notification.type)
-          })
-        })
+        .forEach(toast)
 
       toastedUnreadIds = new Set(
         notifications.map((notification) => notification.id)
       )
+    }
+
+    function toast(notification: NotificationEntity): void {
+      uiStore.createToast({
+        title: notification.title,
+        text: notification.message ?? undefined,
+        icon: getNotificationIcon(notification.type),
+        type: getNotificationToastType(notification.type)
+      })
+    }
+
+    /**
+     * Takes a notification pushed over the hub. Goes through the same `toastedUnreadIds` set the
+     * poll maintains: a push that skipped it would be toasted a second time by the next
+     * reconcile poll, which rebuilds the set from whatever it sees in the list.
+     */
+    function applyPushedNotification(notification: NotificationEntity): void {
+      if (toastedUnreadIds.has(notification.id)) {
+        return
+      }
+
+      const current = unreadNotifications.data.value ?? []
+
+      // The poll may already have picked it up in a race; keep one copy either way.
+      if (!current.some((existing) => existing.id === notification.id)) {
+        // data is a shallowRef, so the array is replaced rather than mutated in place.
+        unreadNotifications.data.value = [notification, ...current]
+      }
+
+      toastedUnreadIds.add(notification.id)
+      toast(notification)
     }
 
     async function loadRead(): Promise<void> {
@@ -117,6 +142,7 @@ const useNotificationsStore = defineStore(
       markAllAsRead,
       deleteNotification,
       pollUnread,
+      applyPushedNotification,
       loadRead,
       reset
     }
