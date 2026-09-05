@@ -8,6 +8,8 @@ const pendingStartErrors: Error[] = []
 
 class FakeConnection {
   public state: HubConnectionState = HubConnectionState.Disconnected
+  public serverTimeoutInMilliseconds = 30_000
+  public keepAliveIntervalInMilliseconds = 15_000
   public start = vi.fn(async () => {
     const failure = pendingStartErrors.shift()
 
@@ -58,6 +60,7 @@ vi.mock('@microsoft/signalr', async () => {
 })
 
 const { RealtimeConnections } = await import('./connection-registry')
+const { RealtimeTiming } = await import('./timing')
 
 describe('connection-registry', () => {
   beforeEach(() => {
@@ -77,6 +80,23 @@ describe('connection-registry', () => {
 
     expect(built).toHaveLength(1)
     expect(built[0].start).toHaveBeenCalledTimes(1)
+  })
+
+  // The client's default server timeout (30s) equals the server's ping interval, so a
+  // connection left on the defaults gives up exactly when the next ping is due and re-negotiates
+  // every ~30 seconds. The timeout must be at least double the server's keep-alive.
+  test('gives the connection a server timeout of at least twice the keep-alive', () => {
+    RealtimeConnections.acquire('/notifications')
+
+    expect(built[0].serverTimeoutInMilliseconds).toBe(
+      RealtimeTiming.serverTimeoutMs
+    )
+    expect(built[0].keepAliveIntervalInMilliseconds).toBe(
+      RealtimeTiming.keepAliveMs
+    )
+    expect(RealtimeTiming.serverTimeoutMs).toBeGreaterThanOrEqual(
+      RealtimeTiming.keepAliveMs * 2
+    )
   })
 
   test('builds separate connections for different hubs', () => {

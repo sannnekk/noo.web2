@@ -7,6 +7,7 @@ import {
 import { appConfig } from '../config/app.config'
 import { getAccessToken } from './access-token'
 import { JitteredRetryPolicy } from './retry-policy'
+import { RealtimeTiming } from './timing'
 
 /**
  * How long a hub with no subscribers is kept open before closing. Navigating between two pages
@@ -26,7 +27,7 @@ interface Entry {
 const entries = new Map<string, Entry>()
 
 function buildConnection(path: string): HubConnection {
-  return new HubConnectionBuilder()
+  const connection = new HubConnectionBuilder()
     .withUrl(`${appConfig.hubUrl}${path}`, {
       // Browsers cannot set headers on a WebSocket handshake, so SignalR puts the token in the
       // query string. The factory runs again on every reconnect, which is what keeps a
@@ -38,6 +39,13 @@ function buildConnection(path: string): HubConnection {
       appConfig.isProduction ? LogLevel.Warning : LogLevel.Information
     )
     .build()
+
+  // Set after build: the builder has no method for these, and leaving them at their defaults
+  // makes every connection drop and re-negotiate every ~30 seconds. See RealtimeTiming.
+  connection.serverTimeoutInMilliseconds = RealtimeTiming.serverTimeoutMs
+  connection.keepAliveIntervalInMilliseconds = RealtimeTiming.keepAliveMs
+
+  return connection
 }
 
 /**
