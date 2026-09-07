@@ -15,11 +15,17 @@ export interface UseHubReturn {
  * The connection is reference counted, so several components may call this for the same hub and
  * only the last one to unmount releases it. Nothing here starts a second socket.
  */
-export function useHub(path: string): UseHubReturn {
+export function useHub(
+  path: string,
+  options: { onConnected?: () => void } = {}
+): UseHubReturn {
   const isConnected = ref(false)
   const error = ref<unknown>(null)
 
-  const { connection, started } = RealtimeConnections.acquire(path)
+  const { connection, started, release } = RealtimeConnections.acquire(
+    path,
+    options
+  )
 
   function sync(): void {
     isConnected.value = connection.state === HubConnectionState.Connected
@@ -44,9 +50,7 @@ export function useHub(path: string): UseHubReturn {
 
   sync()
 
-  onScopeDispose(() => {
-    RealtimeConnections.release(path)
-  })
+  onScopeDispose(release)
 
   return { isConnected: readonly(isConnected), error: readonly(error) }
 }

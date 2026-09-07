@@ -17,11 +17,30 @@ import { RealtimeTiming } from './timing'
  */
 const IDLE_GRACE_MS = 30_000
 
+/**
+ * Run when the hub becomes usable: on the first successful start, and again after every
+ * automatic reconnect.
+ *
+ * The reconnect case is the one that matters. SignalR restores the socket but **not** the
+ * server-side state that hung off it — group membership above all — so a hub whose feature
+ * depends on having joined something goes quiet on a connection that still reports itself
+ * connected. Re-establishing it here means no caller has to remember.
+ */
+export type OnConnected = () => void
+
 interface Entry {
   connection: HubConnection
   subscribers: number
   closeTimer: ReturnType<typeof setTimeout> | null
   started: Promise<void> | null
+  onConnected: Set<OnConnected>
+}
+
+export interface Acquired {
+  connection: HubConnection
+  started: Promise<void>
+  /** Pairs with this acquire alone: drops this caller's hooks and its reference. */
+  release: () => void
 }
 
 const entries = new Map<string, Entry>()
@@ -54,21 +73,38 @@ function buildConnection(path: string): HubConnection {
  * One `HubConnection` is one WebSocket — SignalR does not multiplex across hubs — so connections
  * are shared by path and reference counted. Callers must pair every acquire with a release.
  */
-export function acquire(path: string): {
-  connection: HubConnection
-  started: Promise<void>
-} {
+export function acquire(
+  path: string,
+  options: { onConnected?: OnConnected } = {}
+): Acquired {
   let entry = entries.get(path)
 
   if (entry === undefined) {
+    const connection = buildConnection(path)
+
     entry = {
-      connection: buildConnection(path),
+      connection,
       subscribers: 0,
       closeTimer: null,
-      started: null
+      started: null,
+      onConnected: new Set()
     }
 
+    // Wired once per connection rather than per subscriber, so the hooks fire in the order
+    // callers registered them however many components share the hub.
+    connection.onreconnected(() => {
+      const current = entries.get(path)
+
+      current?.onConnected.forEach((hook) => hook())
+    })
+
     entries.set(path, entry)
+  }
+
+  const { onConnected } = options
+
+  if (onConnected !== undefined) {
+    entry.onConnected.add(onConnected)
   }
 
   if (entry.closeTimer !== null) {
@@ -90,7 +126,23 @@ export function acquire(path: string): {
     throw error
   })
 
-  return { connection: entry.connection, started: entry.started }
+  // The first connect is a connect too: a caller registering a hook wants it run once the hub is
+  // usable, not only after the hub has been lost and found again.
+  if (onConnected !== undefined) {
+    void entry.started.then(onConnected, () => undefined)
+  }
+
+  return {
+    connection: entry.connection,
+    started: entry.started,
+    release: () => {
+      if (onConnected !== undefined) {
+        entries.get(path)?.onConnected.delete(onConnected)
+      }
+
+      release(path)
+    }
+  }
 }
 
 export function release(path: string): void {

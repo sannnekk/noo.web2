@@ -16,7 +16,7 @@ export function useHubEvent<TPayload>(
   method: string,
   handler: (payload: TPayload) => void
 ): void {
-  const { connection, started } = RealtimeConnections.acquire(path)
+  const { connection, started, release } = RealtimeConnections.acquire(path)
 
   // Registered before the connection is up: SignalR queues handlers, and a message that arrives
   // during startup would otherwise be dropped.
@@ -29,6 +29,6 @@ export function useHubEvent<TPayload>(
 
   onScopeDispose(() => {
     connection.off(method, wrapped)
-    RealtimeConnections.release(path)
+    release()
   })
 }

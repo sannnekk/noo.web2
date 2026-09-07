@@ -24,9 +24,17 @@ class FakeConnection {
   })
   public on = vi.fn()
   public off = vi.fn()
-  public onreconnected = vi.fn()
+  public reconnectedHandlers: Array<() => void> = []
+  public onreconnected = vi.fn((handler: () => void) => {
+    this.reconnectedHandlers.push(handler)
+  })
   public onreconnecting = vi.fn()
   public onclose = vi.fn()
+
+  /** What SignalR does after it restores a dropped socket. */
+  public simulateReconnected(): void {
+    this.reconnectedHandlers.forEach((handler) => handler())
+  }
 }
 
 vi.mock('@microsoft/signalr', async () => {
@@ -175,5 +183,52 @@ describe('connection-registry', () => {
     const second = RealtimeConnections.acquire('/notifications')
     await expect(second.started).resolves.toBeUndefined()
     expect(built[0].start).toHaveBeenCalledTimes(2)
+  })
+
+  test('runs the connected hook once the hub is first usable', async () => {
+    const onConnected = vi.fn()
+
+    const { started } = RealtimeConnections.acquire('/collaboration', {
+      onConnected
+    })
+    await started
+
+    expect(onConnected).toHaveBeenCalledTimes(1)
+  })
+
+  // SignalR restores the socket but not what hung off it on the server — group membership above
+  // all. Without this the page looks connected and silently receives nothing.
+  test('runs the connected hook again after an automatic reconnect', async () => {
+    const onConnected = vi.fn()
+
+    const { started } = RealtimeConnections.acquire('/collaboration', {
+      onConnected
+    })
+    await started
+
+    built[0].simulateReconnected()
+
+    expect(onConnected).toHaveBeenCalledTimes(2)
+  })
+
+  test('runs every subscriber’s hook, and stops running a released one', async () => {
+    const first = vi.fn()
+    const second = vi.fn()
+
+    const a = RealtimeConnections.acquire('/collaboration', {
+      onConnected: first
+    })
+    RealtimeConnections.acquire('/collaboration', { onConnected: second })
+    await a.started
+
+    built[0].simulateReconnected()
+    expect(first).toHaveBeenCalledTimes(2)
+    expect(second).toHaveBeenCalledTimes(2)
+
+    a.release()
+    built[0].simulateReconnected()
+
+    expect(first).toHaveBeenCalledTimes(2)
+    expect(second).toHaveBeenCalledTimes(3)
   })
 })
